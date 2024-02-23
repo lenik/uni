@@ -30,15 +30,25 @@ const emit = defineEmits<{
 
 // property shortcts
 
+const typeLabel = computed(() => {
+    let type = props.type;
+    if (type.label != null) return type.label;
+    if (type.name != null) {
+        let lastDot = type.name.lastIndexOf('.');
+        return lastDot == -1 ? type.name : type.name.substring(lastDot + 1);
+    }
+    return 'unknown';
+});
+
 const dialogComp = ref<undefined | InstanceType<typeof Dialog>>();
-const dialogTitle = computed(() => "Choose " + props.type.label);
+const dialogTitle = computed(() => "Choose " + typeLabel.value);
 const dialogName = computed(() => simpleName(props.type.name) + "Chooser");
 
 const serverUrl = inject<string>(SERVER_URL)!;
 const _url = computed(() => {
     if (props.url != null)
         return props.url;
-    
+
     let svr = props.serverUrl || serverUrl;
     if (svr != null)
         return svr + "/" + props.type.simpleName;
