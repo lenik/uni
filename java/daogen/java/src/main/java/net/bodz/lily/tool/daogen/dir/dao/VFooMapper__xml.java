@@ -90,7 +90,8 @@ public class VFooMapper__xml
         JoinColumns j = new JoinColumns(project.config);
         j.addTable(table);
 
-        out.printf("<resultMap id=\"objlist_map\" type=\"%s\">\n", project.Foo);
+        out.printf("<resultMap id=\"objlist_map\" type=\"%s\">\n", //
+                project.Foo.qName);
         out.enter();
         {
             List<IColumnMetadata> basicColumns = j.reorder(table.getColumns(), 3);
@@ -110,7 +111,7 @@ public class VFooMapper__xml
                 String nsPrefix = defaultNs ? "" : (mapperNs + ".");
 
                 out.printf("<association property=\"%s\" columnPrefix=\"%s\"\n", //
-                        ref.getJavaName(), // property
+                        ref.getJavaQName(), // property
                         alias + "_" // columnPrefix
                 );
                 out.printf("    javaType=\"%s\" \n", ref.getParentTable().getJavaType());

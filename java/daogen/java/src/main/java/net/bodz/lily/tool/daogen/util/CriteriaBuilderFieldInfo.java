@@ -2,8 +2,9 @@ package net.bodz.lily.tool.daogen.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
+
+import net.bodz.bas.c.type.TypePoMap;
+import net.bodz.bas.t.predef.Predef;
 
 public class CriteriaBuilderFieldInfo {
 
@@ -17,10 +18,10 @@ public class CriteriaBuilderFieldInfo {
         this.creatorFn = creatorFn;
     }
 
-    static final Map<Class<?>, CriteriaBuilderFieldInfo> map = new HashMap<>();
+    static final TypePoMap<CriteriaBuilderFieldInfo> map = new TypePoMap<>();
 
-    public static CriteriaBuilderFieldInfo get(Class<?> type) {
-        return map.get(type);
+    public static CriteriaBuilderFieldInfo meet(Class<?> type) {
+        return map.meet(type);
     }
 
     static void declare(Class<?> type, String fieldType, String creatorFn) {
@@ -39,6 +40,9 @@ public class CriteriaBuilderFieldInfo {
         declare(BigDecimal.class, "BigDecimalField", "bigDecimal");
         declare(Boolean.class, "BooleanField", "bool");
         declare(String.class, "StringField", "string");
+
+        // discrete types but in text form.
+        declare(Predef.class, "StringField", "string");
     }
 
 }

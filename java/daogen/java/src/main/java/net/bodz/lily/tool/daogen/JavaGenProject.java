@@ -54,15 +54,16 @@ public class JavaGenProject {
     public final ClassPathInfo FooIndex;
     public final ClassPathInfo FooIndexTest; // test
 
-    public final ClassPathInfo Esm_Foo_stuff_Type;
     public final ClassPathInfo Esm_Foo_stuff;
-    public final ClassPathInfo Esm_FooType;
     public final ClassPathInfo Esm_Foo;
+    public final ClassPathInfo Esm_Foo_stuff_Type;
+    public final ClassPathInfo Esm_FooType;
+    public final ClassPathInfo Esm_Foo_stuff_Validators;
+    public final ClassPathInfo Esm_FooValidators;
 
     public final ClassPathInfo Esm_FooAdmin;
     public final ClassPathInfo Esm_FooChooseDialog;
     public final ClassPathInfo Esm_FooEditor;
-    public final ClassPathInfo Esm_FooValidators;
 
     public JavaGenProject(File baseDir, DirConfig dirs, long randomSeed) {
         this.baseDir = baseDir;
@@ -100,15 +101,19 @@ public class JavaGenProject {
 
         ClassPathInfo web = dirs.webPath;
         this.web = web;
-        Esm_Foo_stuff_Type = web.join("_" + Foo.name + "_stuff_Type");
-        Esm_Foo_stuff = web.join("_" + Foo.name + "_stuff");
+
+        Esm_Foo_stuff_Type = web.join(_Foo_stuff.name + "_Type");
         Esm_FooType = web.join(Foo.name + "Type");
+
+        Esm_Foo_stuff = web.join(_Foo_stuff.name);
         Esm_Foo = web.join(Foo.name);
+
+        Esm_Foo_stuff_Validators = web.join(_Foo_stuff.name + "Validators");
+        Esm_FooValidators = web.join(Foo.name + "Validators");
 
         Esm_FooAdmin = web.join(Foo.name + "Admin");
         Esm_FooChooseDialog = web.join(Foo.name + "ChooseDialog");
         Esm_FooEditor = web.join(Foo.name + "Editor");
-        Esm_FooValidators = web.join(Foo.name + "Validators");
     }
 
     public UpdateMethod getPreferredUpdateMethod() {

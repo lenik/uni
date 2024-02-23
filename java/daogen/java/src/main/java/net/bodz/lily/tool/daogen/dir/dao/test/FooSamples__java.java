@@ -3,32 +3,18 @@ package net.bodz.lily.tool.daogen.dir.dao.test;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import net.bodz.bas.c.java.lang.OptionNames;
-import net.bodz.bas.c.java.util.DateTimes;
-import net.bodz.bas.c.java.util.Dates;
+import net.bodz.bas.c.object.Unknown;
 import net.bodz.bas.c.primitive.Primitives;
-import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.c.type.TypeId;
-import net.bodz.bas.c.type.TypeKind;
-import net.bodz.bas.codegen.EnglishTextGenerator;
 import net.bodz.bas.codegen.JavaSourceWriter;
-import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
@@ -38,6 +24,7 @@ import net.bodz.bas.rtx.Options;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.predef.Predef;
 import net.bodz.bas.typer.Typers;
 import net.bodz.bas.typer.std.ISampleGenerator;
 import net.bodz.lily.concrete.CoObject;
@@ -54,7 +41,7 @@ public class FooSamples__java
 
     static final Logger logger = LoggerFactory.getLogger(FooSamples__java.class);
 
-    int maxStringLen = 1000;
+    JavaSamples samples;
 
     public FooSamples__java(JavaGenProject project) {
         super(project, project.FooSamples);
@@ -65,26 +52,9 @@ public class FooSamples__java
         return false;
     }
 
-    Random random(Object obj) {
-        int prime = 17;
-        long seed = project.randomSeed;
-        if (obj != null)
-            seed += prime * obj.hashCode();
-        return new Random(seed);
-    }
-
-    EnglishTextGenerator en(Object obj) {
-        Random random = random(obj);
-        return new EnglishTextGenerator(random);
-    }
-
-    Random random;
-    EnglishTextGenerator enGen;
-
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        random = random(table.getId());
-        enGen = en(table.getId());
+        samples = new JavaSamples(project.randomSeed, table.getId(), out);
 
         out.println("public class " + project.FooSamples.name);
         out.enter();
@@ -143,7 +113,7 @@ public class FooSamples__java
                 IProperty headProperty = entityType.getProperty(head);
                 propertyClass = headProperty.getPropertyClass();
             } else {
-                propertyClass = Object.class; // need user fix.
+                propertyClass = Unknown.class; // need user fix.
             }
             out.printf("public %s %s;\n", //
                     out.im.name(propertyClass), head);
@@ -308,41 +278,14 @@ public class FooSamples__java
             preferredType = actualType;
         }
 
-        if (preferredType == String.class) {
-            int maxLen = column.getPrecision();
-            if (maxLen <= 0)
-                throw new IllegalArgumentException("invalid varchar length: " + maxLen);
-            if (maxLen > maxStringLen)
-                maxLen = maxStringLen;
-            int wordMaxLen = 10;
-            String sample = enGen.makeText(maxLen, wordMaxLen);
-            javaExpr = StringQuote.qqJavaString(sample.toString());
+        if (preferredType == String.class)
+            javaExpr = samples.string(column.getPrecision());
 
-        } else if (preferredType == BigDecimal.class) {
-            int precision = column.getPrecision();
-            int scale = column.getScale();
-            int intLen = precision;
-            if (scale != 0)
-                intLen -= scale; // + 1 (dot);
-
-            StringBuilder sb = new StringBuilder(precision);
-            randomDigits(sb, random.nextInt(intLen + 1), true, random);
-
-            if (scale != 0 && random.nextBoolean()) {
-                sb.append('.');
-                randomDigits(sb, scale, false, random);
-            }
-
-            out.im.name(BigDecimal.class);
-            javaExpr = "new BigDecimal(\"" + sb + "\")";
+        else if (preferredType == BigDecimal.class) {
+            javaExpr = samples.bigDecimal(column.getPrecision(), column.getScale());
 
         } else if (preferredType == BigInteger.class) {
-            int maxLen = column.getPrecision();
-            int len = random.nextInt(maxLen) + 1;
-            StringBuilder sb = new StringBuilder(len);
-            randomDigits(sb, random.nextInt(len + 1), true, random);
-            out.im.name(BigInteger.class);
-            javaExpr = "new BigInteger(\"" + sb + "\")";
+            javaExpr = samples.bigInteger(column.getPrecision());
 
         } else {
             ISampleGenerator<?> generator = Typers.getTyper(preferredType, ISampleGenerator.class);
@@ -350,81 +293,23 @@ public class FooSamples__java
             if (generator != null) {
                 Options options = new Options();
                 options.addOption(OptionNames.signed, false);
-                options.addOption(Random.class, random);
+                options.addOption(Random.class, samples.random);
 
                 Object sample = generator.newSample(options);
 
                 if (sample instanceof Date) {
-                    String iso = Dates.ISO8601Z.format(sample);
-                    String isoQuoted = StringQuote.qqJavaString(iso);
-
-                    String timeLong = String.format("%s.%s.parse(%s).getTime()", //
-                            out.im.name(Dates.class), //
-                            "ISO8601Z", // Dates.ISO8601Z
-                            isoQuoted);
-
-                    if (actualType != null) {
-                        if (typesAcceptInstant.contains(actualType)) {
-                            javaExpr = "new " + out.im.name(actualType) //
-                                    + "(" + timeLong + ")";
-                        }
-                    }
+                    javaExpr = samples.date((Date) sample, preferredType);
 
                 } else if (sample instanceof TemporalAccessor) {
-                    TemporalAccessor temporal = (TemporalAccessor) sample;
-                    DateTimeFormatter formatter;
-                    String formatName;
-                    switch (TypeKind.getTypeId(preferredType)) {
-                    case TypeId.INSTANT:
-                    case TypeId.ZONED_DATE_TIME:
-                    case TypeId.OFFSET_DATE_TIME:
-                    case TypeId.LOCAL_DATE_TIME:
-                        formatter = DateTimes.D10T8;
-                        formatName = "D10T8";
-                        break;
-                    case TypeId.LOCAL_DATE:
-                        formatter = DateTimes.YYYY_MM_DD;
-                        formatName = "YYYY_MM_DD";
-                        break;
-                    case TypeId.LOCAL_TIME:
-                        formatter = DateTimes.HH_MM_SS;
-                        formatName = "HH_MM_SS";
-                        break;
-                    default:
-                        throw new UnexpectedException();
-                    }
+                    javaExpr = samples.javaTime((TemporalAccessor) sample, preferredType);
 
-                    String literal = formatter.format(temporal);
-                    String literalQuoted = StringQuote.qqJavaString(literal);
-
-                    String parseWithFormat = String.format("%s.parse(%s, %s.%s)", //
-                            out.im.name(preferredType), //
-                            literalQuoted, //
-                            out.im.name(DateTimes.class), formatName);
-
-                    if (actualType != null) {
-                        if (typesAcceptInstant.contains(actualType))
-                            javaExpr = parseWithFormat;
-                    }
+                } else if (sample instanceof Predef<?, ?>) {
+                    javaExpr = samples.predef((Predef<?, ?>) sample, preferredType);
 
                 } else {
-                    javaExpr = sample.toString();
-                    switch (TypeKind.getTypeId(preferredType)) {
-                    case TypeId._byte:
-                    case TypeId.BYTE:
-                        javaExpr = "(byte)" + javaExpr;
-                        break;
-
-                    case TypeId._short:
-                    case TypeId.SHORT:
-                        javaExpr = "(short)" + javaExpr;
-                        break;
-
-                    case TypeId._long:
-                    case TypeId.LONG:
-                        javaExpr = javaExpr + "L";
-                        break;
-                    }
+                    javaExpr = samples.simpleValue(sample, preferredType);
+                    if (javaExpr == null)
+                        javaExpr = samples.parseString(sample.toString(), preferredType);
                 }
             }
         }
@@ -449,35 +334,6 @@ public class FooSamples__java
             }
         }
         return true;
-    }
-
-    static Set<Class<?>> typesAcceptInstant = new HashSet<>();
-    static {
-//        typesAcceptInstant.add(Date.class);
-//        typesAcceptInstant.add(java.sql.Date.class);
-//        typesAcceptInstant.add(Timestamp.class);
-//        typesAcceptInstant.add(DateTime.class);
-        typesAcceptInstant.add(Instant.class);
-        typesAcceptInstant.add(ZonedDateTime.class);
-        typesAcceptInstant.add(OffsetDateTime.class);
-        typesAcceptInstant.add(LocalDateTime.class);
-        typesAcceptInstant.add(LocalDate.class);
-        typesAcceptInstant.add(LocalTime.class);
-    }
-
-    void randomDigits(StringBuilder sb, int len, boolean noZeroStart, Random random) {
-        for (int i = 0; i < len; i++) {
-            int digit;
-            while (true) {
-                digit = random.nextInt(10);
-                if (i == 0)
-                    if (noZeroStart && digit == 0)
-                        continue;
-                break;
-            }
-            char ch = (char) ('0' + digit);
-            sb.append(ch);
-        }
     }
 
 }

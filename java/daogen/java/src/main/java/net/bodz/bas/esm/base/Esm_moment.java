@@ -10,6 +10,6 @@ public class Esm_moment
         super("moment", priority);
     }
 
-    public final EsmName Moment = main.type("Moment");
+    public final EsmName Moment = main._interface("Moment");
 
 }

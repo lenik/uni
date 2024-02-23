@@ -1,11 +1,10 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import org.apache.logging.log4j.util.Strings;
-
+import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringQuote;
+import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.EsmModules;
-import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -26,26 +25,24 @@ import net.bodz.lily.tool.daogen.util.Attrs;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
-public class Foo_stuff_Type__ts
+public class FooType0__ts
         extends JavaGen__ts {
 
-    static final Logger logger = LoggerFactory.getLogger(Foo_stuff_Type__ts.class);
+    static final Logger logger = LoggerFactory.getLogger(FooType0__ts.class);
 
-    public Foo_stuff_Type__ts(JavaGenProject project) {
+    public FooType0__ts(JavaGenProject project) {
         super(project, project.Esm_Foo_stuff_Type);
     }
 
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
-        EsmSource validators = EsmModules.local.source("./PersonValidators");
-        out.im.add(validators.name("*", "validators"));
-
-        TypeExtendInfo extend = new TypeAnalyzer(project, out, true)//
+        TypeExtendInfo extend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, project.Esm_Foo_stuff_Type.qName);
 
         String description = table.getDescription();
 
-        String superTypeClassName = extend.baseClassName + "Type";
+        QualifiedName validatorsClass = project.Esm_Foo.qName.nameAdd("Validators");
+        QualifiedName superType = extend.baseClassName.nameAdd("Type");
 
         out.println("// Type Info");
         out.println();
@@ -68,7 +65,7 @@ public class Foo_stuff_Type__ts
 
         out.printf("export class %s extends %s {\n", //
                 extend.simpleName, //
-                out.importName(superTypeClassName));
+                out.importName(superType));
         out.println();
         out.enter();
         {
@@ -77,7 +74,7 @@ public class Foo_stuff_Type__ts
             IType type = table.getEntityType();
             String iconName = "fa-tag";
             String label = type.getLabel().toString();
-            if (Strings.isEmpty(description))
+            if (Nullables.isEmpty(description))
                 description = type.getDescription().toString();
 
             out.println();
@@ -108,7 +105,7 @@ public class Foo_stuff_Type__ts
                     if (column.isForeignKey())
                         continue;
 
-                    declProperty(out, column);
+                    declProperty(out, column, validatorsClass);
                 }
 
                 for (CrossReference xref : table.getForeignKeys().values()) {
@@ -119,11 +116,11 @@ public class Foo_stuff_Type__ts
                         continue;
 
                     out.println();
-                    declForeignKeyProperty(out, xref, table);
+                    declForeignKeyProperty(out, xref, table, validatorsClass);
 
                     for (String fkColumnName : xref.getForeignKey().getColumnNames()) {
                         IColumnMetadata column = table.getColumn(fkColumnName);
-                        declProperty(out, column);
+                        declProperty(out, column, validatorsClass);
                     }
                 }
                 out.leave();
@@ -143,6 +140,10 @@ public class Foo_stuff_Type__ts
             out.leave();
         }
         out.println("}");
+
+        out.println();
+        out.printf("export default %s;\n", extend.simpleName);
+
     }
 
     void staticFields1(TypeScriptWriter out, ITableMetadata table, OutFormat fmt) {
@@ -177,12 +178,12 @@ public class Foo_stuff_Type__ts
                     table.getEntityTypeName(), head, cname.propertyName);
     }
 
-    void declProperty(TypeScriptWriter out, IColumnMetadata column) {
+    void declProperty(TypeScriptWriter out, IColumnMetadata column, QualifiedName validatorsClass) {
         boolean primaryKey = column.isPrimaryKey();
         boolean notNull = ! column.isNullable(true);
 
         String javaType = project.config.javaType(column);
-        String tsType = tsTypes.resolve(javaType);
+        String tsType = tsTypes.resolve(javaType, column.getName());
 
         String description = column.getDescription();
 
@@ -212,14 +213,18 @@ public class Foo_stuff_Type__ts
         if (description != null && ! description.isEmpty())
             attrs.putQuoted("description", description);
 
-        attrs.put("validator", "validators.validate_" + cname.propertyName);
+        String validatorFn = String.format("%s.validate%s", //
+                out.importDefaultAs(validatorsClass), //
+                cname.ucfirstPropertyName);
+        attrs.put("validator", validatorFn);
 
         out.print("(");
         attrs.toJson(out, true);
         out.println("),");
     }
 
-    public void declForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table) {
+    public void declForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table,
+            QualifiedName validatorsClass) {
         TableKey foreignKey = xref.getForeignKey();
         IColumnMetadata[] columns = foreignKey.resolve(table);
         TableOid parentOid = xref.getParentKey().getId();
@@ -243,12 +248,12 @@ public class Foo_stuff_Type__ts
                 break;
             }
 
+        String property = xref.getJavaName();
+
         QualifiedName parentType = parentTable.getJavaType();
         if (parentType == null)
             throw new NullPointerException("parentType");
-        String parentTsType = tsTypes.resolve(parentType);
-
-        String property = xref.getJavaName();
+        String parentTsType = tsTypes.resolve(parentType, property);
 
         out.print(property);
         out.print(": ");
@@ -267,7 +272,10 @@ public class Foo_stuff_Type__ts
             attrs.putQuoted("description", description);
         }
 
-        attrs.put("validator", "validators.validate_" + property);
+        String validatorFn = String.format("%s.validate%s", //
+                out.importDefaultAs(validatorsClass), //
+                Strings.ucfirst(property));
+        attrs.put("validator", validatorFn);
 
         out.print("(");
         attrs.toJson(out, true);

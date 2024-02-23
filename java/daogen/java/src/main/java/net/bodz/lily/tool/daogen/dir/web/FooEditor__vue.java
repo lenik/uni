@@ -1,14 +1,6 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.c.string.StringId;
@@ -59,6 +51,11 @@ public class FooEditor__vue
     }
 
     @Override
+    protected boolean templateFirst() {
+        return true;
+    }
+
+    @Override
     protected void buildScript1(TypeScriptWriter out, ITableMetadata model) {
         out.name(EsmModules.core.FieldGroup);
         out.name(EsmModules.core.FieldRow);
@@ -78,7 +75,7 @@ public class FooEditor__vue
         out.println("});");
         out.println();
         out.printf("const model = defineModel<%s>();\n", //
-                out.importName(project.Esm_Foo.qName));
+                out.importDefaultAs(project.Esm_Foo.qName));
         out.println();
         out.println("const props = withDefaults(defineProps<Props>(), {");
         out.println("});");
@@ -96,12 +93,13 @@ public class FooEditor__vue
         out.println();
 
         out.printf("const meta = %s.TYPE.property;\n", //
-                out.importName(project.Esm_Foo.qName));
+                out.importDefaultAs(project.Esm_Foo.qName));
 
         int labelWidth = 7;
         out.printf("const fieldRowProps = %s({ labelWidth: '%drem' });\n", //
                 out.name(EsmModules.dba.defaults.getDefaultFieldRowProps), //
                 labelWidth);
+
         out.println();
         out.printf("const rootElement = %s<HTMLElement>();\n", //
                 out.name(EsmModules.vue.ref));
@@ -132,7 +130,7 @@ public class FooEditor__vue
 
     @Override
     protected void buildTemplate(TypeScriptWriter out, ITableMetadata table) {
-        TypeExtendInfo info = new TypeAnalyzer(project, out, true)//
+        TypeExtendInfo info = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, //
                         project.Foo.qName, //
                         project._Foo_stuff.qName);
@@ -246,7 +244,7 @@ public class FooEditor__vue
         String propertyName = cname.propertyName;
 
         Class<?> type = column.getJavaClass();
-        String tsType = tsTypes.resolve(type);
+        String tsType = tsTypes.resolve(type, propertyName);
 
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //

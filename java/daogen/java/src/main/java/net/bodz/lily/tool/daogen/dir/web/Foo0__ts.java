@@ -1,7 +1,6 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import net.bodz.bas.err.UnexpectedException;
-import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -19,18 +18,18 @@ import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
-public class Foo_stuff__ts
+public class Foo0__ts
         extends JavaGen__ts {
 
-    static final Logger logger = LoggerFactory.getLogger(Foo_stuff__ts.class);
+    static final Logger logger = LoggerFactory.getLogger(Foo0__ts.class);
 
-    public Foo_stuff__ts(JavaGenProject project) {
+    public Foo0__ts(JavaGenProject project) {
         super(project, project.Esm_Foo_stuff);
     }
 
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
-        TypeExtendInfo extend = new TypeAnalyzer(project, out, true)//
+        TypeExtendInfo extend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, project._Foo_stuff.qName);
 
         QualifiedName typeName = project.Esm_Foo_stuff_Type.qName;
@@ -90,6 +89,9 @@ public class Foo_stuff__ts
             out.leave();
         }
         out.println("}");
+
+        out.println();
+        out.printf("export default %s;\n", extend.simpleName);
     }
 
     void checkCompositeProperty(ITableMetadata table, IColumnMetadata column) {
@@ -114,13 +116,11 @@ public class Foo_stuff__ts
 
         String javaType = project.config.javaType(column);
         // String simpleType = Split.packageName(javaType).b;
-        String tsType = tsTypes.resolve(javaType);
+        String tsType = tsTypes.resolve(javaType, cname.propertyName);
 
-        if (tsType.contains("."))
-            tsType = out.importName(tsType);
-        EsmName esmName = TsUtils.getAlias(tsType);
-        if (esmName != null)
-            out.name(esmName);
+//        EsmName esmName = TsUtils.getAlias(tsType);
+//        if (esmName != null)
+//            out.name(esmName);
 
         out.print(tsType);
         // default = ..

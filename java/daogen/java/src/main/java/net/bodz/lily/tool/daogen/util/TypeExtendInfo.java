@@ -7,7 +7,7 @@ public class TypeExtendInfo {
     public QualifiedName idType;
 
     public Class<?> clazz;
-    public String className;
+    public QualifiedName className;
     public String simpleName;
 
     public Class<?> baseClass;

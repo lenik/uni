@@ -27,7 +27,7 @@ public class TsUtils {
         aliases.put("Moment", EsmModules.moment.Moment);
     }
 
-    public static EsmName getAlias(String type) {
+    public static EsmName getAlias1(String type) {
         if (type == null)
             throw new NullPointerException("type");
         if (type.isEmpty())

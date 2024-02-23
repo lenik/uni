@@ -2,7 +2,6 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.reflect.Type;
 
-import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
@@ -15,19 +14,16 @@ import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
-public class Foo__ts
+public class Foo1__ts
         extends JavaGen__ts {
 
-    public Foo__ts(JavaGenProject project) {
+    public Foo1__ts(JavaGenProject project) {
         super(project, project.Esm_Foo);
     }
 
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
-        EsmSource validators = out.findSource(project.Esm_FooValidators.qName, null);
-        out.im.add(validators.wildcardAs("validators"));
-
-        TypeExtendInfo javaExtend = new TypeAnalyzer(project, out, true)//
+        TypeExtendInfo javaExtend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, //
                         project.Foo.qName, //
                         project._Foo_stuff.qName);
@@ -36,7 +32,7 @@ public class Foo__ts
 
         out.printf("export class %s extends %s%s {\n", //
                 javaExtend.simpleName, //
-                out.importName(javaExtend.baseClassName), //
+                out.importDefaultAs(javaExtend.baseClassName), //
                 javaExtend.baseParams);
         out.enter();
         {
@@ -68,6 +64,9 @@ public class Foo__ts
             out.leave();
         }
         out.println("}");
+
+        out.println();
+        out.printf("export default %s;\n", javaExtend.simpleName);
     }
 
     void declProperty(TypeScriptWriter out, IProperty property) {
@@ -77,10 +76,10 @@ public class Foo__ts
 
         boolean notNull = propertyClass.isPrimitive() || aNotNull;
 
-        String tsType = tsTypes.resolve(type);
+        String tsType = tsTypes.resolve(type, property.getName());
 
         out.print(property.getName());
-        if (!notNull)
+        if (! notNull)
             out.print("?");
         out.print(": ");
         out.print(out.importName(tsType));

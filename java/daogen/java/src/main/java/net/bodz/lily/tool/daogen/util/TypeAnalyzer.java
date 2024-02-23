@@ -1,6 +1,7 @@
 package net.bodz.lily.tool.daogen.util;
 
 import net.bodz.bas.codegen.IImportNaming;
+import net.bodz.bas.esm.IImportTsNaming;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.CoEntity;
@@ -15,16 +16,20 @@ public class TypeAnalyzer {
 
     JavaGenProject project;
     IImportNaming naming;
+    IImportTsNaming tsNaming;
     boolean typeScript;
 
     public TypeAnalyzer(JavaGenProject project, IImportNaming naming) {
-        this(project, naming, false);
-    }
-
-    public TypeAnalyzer(JavaGenProject project, IImportNaming naming, boolean typeScript) {
         this.project = project;
         this.naming = naming;
-        this.typeScript = typeScript;
+        this.typeScript = false;
+    }
+
+    public TypeAnalyzer(JavaGenProject project, IImportTsNaming tsNaming) {
+        this.project = project;
+        this.naming = tsNaming;
+        this.tsNaming = tsNaming;
+        this.typeScript = true;
     }
 
     public TypeExtendInfo getExtendInfo(ITableMetadata table, QualifiedName qName) {
@@ -35,14 +40,12 @@ public class TypeAnalyzer {
             QualifiedName qName, //
             QualifiedName baseClassName) {
 
-        TsTypeResolver tsTypes = new TsTypeResolver(naming);
-
         TypeExtendInfo info = new TypeExtendInfo();
-        info.className = qName.getFullName();
+        info.className = qName;
         info.simpleName = qName.name;
 
         try {
-            info.clazz = Class.forName(info.className);
+            info.clazz = Class.forName(info.className.getFullName());
         } catch (ClassNotFoundException e1) {
         }
 
@@ -81,8 +84,12 @@ public class TypeAnalyzer {
                 for (TypeParamType param : aTypeParams.value()) {
                     switch (param) {
                     case ID_TYPE:
-                        String idType = typeScript ? tsTypes.resolve(info.idType) //
-                                : info.idType.getFullName();
+                        String idType;
+                        if (typeScript) {
+                            TsTypeResolver tsTypes = new TsTypeResolver(tsNaming);
+                            idType = tsTypes.resolve(info.idType, "<" + param.name() + ">");
+                        } else
+                            idType = info.idType.getFullName();
                         baseParamsBuf.append(", " + naming.importName(idType));
                         break;
                     case THIS_TYPE:

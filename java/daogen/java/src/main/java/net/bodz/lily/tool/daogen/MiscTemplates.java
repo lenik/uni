@@ -10,7 +10,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -650,6 +656,7 @@ public class MiscTemplates {
             "java.util.Date", //
             "java.sql.Date", //
             "java.sql.Time", //
+            "java.sql.Timestamp", //
             "java.time.Instant", //
             "java.time.ZonedDateTime", //
             "java.time.OffsetDateTime", //
@@ -673,25 +680,29 @@ public class MiscTemplates {
         if (description != null && ! description.isEmpty())
             out.println("/** " + description + " */");
 
-        CriteriaBuilderFieldInfo info = CriteriaBuilderFieldInfo.get(type);
+        CriteriaBuilderFieldInfo info = CriteriaBuilderFieldInfo.meet(type);
         if (info != null) {
             out.printf("public final %s %s = %s(\"%s\");\n", //
                     info.fieldType, cname.fieldName, //
                     info.creatorFn, qColumn);
+
         } else if (Number.class.isAssignableFrom(type)) {
             String simpleType = out.im.name(type);
             out.printf("public final NumberField<%s> %s = number(\"%s\", %s.class);\n", //
                     simpleType, cname.fieldName, //
                     qColumn, simpleType);
+
         } else if (dateTypes.contains(type.getName())) {
             String simpleType = out.im.name(type);
             out.printf("public final DateField<%s> %s = date(\"%s\", %s.class);\n", //
                     simpleType, cname.fieldName, //
                     qColumn, simpleType);
+
         } else {
-            // throw new UnsupportedOperationException();
-            // just ignore it.
-            return false;
+            String simpleType = out.im.name(type);
+            out.printf("public final DiscreteField<%s> %s = discrete(\"%s\", %s.class);\n", //
+                    simpleType, cname.fieldName, //
+                    qColumn, simpleType);
         }
         return true;
     }
@@ -734,7 +745,7 @@ public class MiscTemplates {
         switch (column.getSqlTypeName()) {
         case "json":
         case "jsonb":
-            return cname.propertyName + ".jsonStr";
+            return cname.propertyName;
         default:
             return cname.propertyName;
         }

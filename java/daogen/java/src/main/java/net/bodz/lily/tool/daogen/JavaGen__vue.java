@@ -31,6 +31,10 @@ public abstract class JavaGen__vue
 
     protected abstract String getTitle(ITableMetadata model);
 
+    protected boolean templateFirst() {
+        return false;
+    }
+
     protected final void buildVue(ITreeOut out, ITableMetadata model) {
         EsmImports imports = new EsmImports(null);
         EsmPackageMap packageMap = TsUtils.getPackageMap(project.web.baseDir);
@@ -45,13 +49,25 @@ public abstract class JavaGen__vue
         buildScript1(buf, model);
         String script1 = buf.toString();
 
-        buf = tsOut.buffer();
-        buildSetupScript(buf, model);
-        String setupScript = buf.toString();
+        String setupScript;
+        String template;
+        if (templateFirst()) {
+            buf = tsOut.buffer();
+            buildTemplate(buf, model);
+            template = buf.toString();
 
-        buf = tsOut.buffer();
-        buildTemplate(buf, model);
-        String template = buf.toString();
+            buf = tsOut.buffer();
+            buildSetupScript(buf, model);
+            setupScript = buf.toString();
+        } else {
+            buf = tsOut.buffer();
+            buildSetupScript(buf, model);
+            setupScript = buf.toString();
+
+            buf = tsOut.buffer();
+            buildTemplate(buf, model);
+            template = buf.toString();
+        }
 
         buf = tsOut.buffer();
         buildScript2(buf, model);

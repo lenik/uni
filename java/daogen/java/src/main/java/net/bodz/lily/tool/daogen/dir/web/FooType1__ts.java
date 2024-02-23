@@ -1,9 +1,8 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import org.apache.logging.log4j.util.Strings;
-
+import net.bodz.bas.c.object.Nullables;
+import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.EsmModules;
-import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
@@ -19,25 +18,23 @@ import net.bodz.lily.tool.daogen.util.Attrs;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
-public class FooType__ts
+public class FooType1__ts
         extends JavaGen__ts {
 
-    public FooType__ts(JavaGenProject project) {
+    public FooType1__ts(JavaGenProject project) {
         super(project, project.Esm_FooType);
     }
 
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
-        EsmSource validators = EsmModules.local.source("./PersonValidators");
-        out.im.add(validators.name("*", "validators"));
-
-        TypeExtendInfo javaExtend = new TypeAnalyzer(project, out, true)//
+        TypeExtendInfo extend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, //
                         project.Foo.qName, //
                         project._Foo_stuff.qName);
 
         String tsName = project.Esm_FooType.name;
-        QualifiedName baseType = project.Esm_Foo_stuff_Type.qName;
+        QualifiedName superType = project.Esm_Foo_stuff_Type.qName;
+        QualifiedName validatorsClass = project.Esm_Foo.qName.nameAdd("Validators");
 
         String entityDescription = table.getDescription();
 
@@ -45,14 +42,14 @@ public class FooType__ts
         out.println();
         out.printf("export class %s extends %s {\n", //
                 tsName, //
-                out.importName(baseType));
+                out.importDefaultAs(superType));
         out.println();
         out.enter();
         {
             IType entityType = table.getEntityType();
             String entityIcon = "fa-tag";
             String entityLabel = entityType.getLabel().toString();
-            if (Strings.isEmpty(entityDescription))
+            if (Nullables.isEmpty(entityDescription))
                 entityDescription = entityType.getDescription().toString();
 
             out.printf("name = \"%s\"\n", table.getEntityTypeName());
@@ -68,11 +65,11 @@ public class FooType__ts
                     out.im.name(EsmModules.dba.entity.EntityPropertyMap));
             out.enter();
             {
-                if (javaExtend.clazz != null) {
-                    IType type = BeanTypeProvider.getInstance().getType(javaExtend.clazz);
+                if (extend.clazz != null) {
+                    IType type = BeanTypeProvider.getInstance().getType(extend.clazz);
                     for (IProperty property : type.getProperties()) {
-                        if (property.getDeclaringClass() == javaExtend.clazz) {
-                            declProperty(out, property);
+                        if (property.getDeclaringClass() == extend.clazz) {
+                            declProperty(out, property, validatorsClass);
                         }
                     }
                 }
@@ -93,14 +90,17 @@ public class FooType__ts
             out.leave();
         }
         out.println("}");
+
+        out.println();
+        out.printf("export default %s;\n", extend.simpleName);
     }
 
-    void declProperty(TypeScriptWriter out, IProperty property) {
+    void declProperty(TypeScriptWriter out, IProperty property, QualifiedName validatorsClass) {
         boolean aNotNull = property.getAnnotation(NotNull.class) != null;
         Class<?> type = property.getPropertyType().getJavaClass();
         boolean notNull = type.isPrimitive() || aNotNull;
 
-        String tsType = tsTypes.resolve(type);
+        String tsType = tsTypes.resolve(type, property.getName());
 
         String label = property.getLabel().toString();
         String description = property.getDescription().toString();
@@ -141,7 +141,10 @@ public class FooType__ts
         if (description != null)
             attrs.putQuoted("description", description);
 
-        attrs.put("validator", "validators.validate_" + property.getName());
+        String validatorFn = String.format("%s.validate%s", //
+                out.importDefaultAs(validatorsClass), //
+                Strings.ucfirst(property.getName()));
+        attrs.put("validator", validatorFn);
 
         out.print("(");
         attrs.toJson(out, true);

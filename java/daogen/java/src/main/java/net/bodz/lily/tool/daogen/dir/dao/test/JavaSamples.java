@@ -1,0 +1,198 @@
+package net.bodz.lily.tool.daogen.dir.dao.test;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.Date;
+
+import net.bodz.bas.c.java.util.DateTimes;
+import net.bodz.bas.c.java.util.Dates;
+import net.bodz.bas.c.string.StringQuote;
+import net.bodz.bas.c.type.TypeId;
+import net.bodz.bas.c.type.TypeKind;
+import net.bodz.bas.codegen.IImportNaming;
+import net.bodz.bas.err.UnexpectedException;
+import net.bodz.bas.t.predef.Predef;
+
+public class JavaSamples
+        extends RandomBased {
+
+    int maxStringLen = 1000;
+    IImportNaming naming;
+
+    public JavaSamples(long rootSeed, Object seedObj, IImportNaming naming) {
+        super(rootSeed, seedObj);
+        this.naming = naming;
+    }
+
+    public String string(int maxLen) {
+        if (maxLen <= 0)
+            throw new IllegalArgumentException("invalid varchar length: " + maxLen);
+        if (maxLen > maxStringLen)
+            maxLen = maxStringLen;
+        int wordMaxLen = 10;
+        String sample = enGen.makeText(maxLen, wordMaxLen);
+        return StringQuote.qqJavaString(sample.toString());
+    }
+
+    public String bigDecimal(int precision, int scale) {
+        int intLen = precision;
+        if (scale != 0)
+            intLen -= scale; // + 1 (dot);
+
+        StringBuilder sb = new StringBuilder(precision);
+        randomDigits(sb, random.nextInt(intLen + 1), true, random);
+
+        if (scale != 0 && random.nextBoolean()) {
+            sb.append('.');
+            randomDigits(sb, scale, false, random);
+        }
+
+        naming.importName(BigDecimal.class);
+        return "new BigDecimal(\"" + sb + "\")";
+    }
+
+    public String bigInteger(int maxLen) {
+        int len = random.nextInt(maxLen) + 1;
+        StringBuilder sb = new StringBuilder(len);
+        randomDigits(sb, random.nextInt(len + 1), true, random);
+        naming.importName(BigInteger.class);
+        return "new BigInteger(\"" + sb + "\")";
+    }
+
+    public String date(Date value, Class<?> type) {
+        String iso = Dates.ISO8601Z.format(value);
+        String isoQuoted = StringQuote.qqJavaString(iso);
+
+        String dateExpr = String.format("%s.%s.parse(%s)", //
+                naming.importName(Dates.class), //
+                "ISO8601Z", // Dates.ISO8601Z
+                isoQuoted);
+
+        String timeExpr = dateExpr + ".getTime()";
+
+        if (type == null)
+            type = Date.class;
+
+        switch (TypeKind.getTypeId(type)) {
+        case TypeId.DATE:
+            return dateExpr;
+
+        case TypeId.SQL_DATE:
+            return String.format("new %s(%s)", naming.importName(java.sql.Date.class), timeExpr);
+
+        case TypeId.SQL_TIME:
+            return String.format("new %s(%s)", naming.importName(java.sql.Time.class), timeExpr);
+
+        case TypeId.TIMESTAMP:
+            return String.format("new %s(%s)", naming.importName(java.sql.Timestamp.class), timeExpr);
+
+        default:
+            return String.format("new %s(%s)", naming.importName(type), timeExpr);
+        }
+    }
+
+    public String javaTime(TemporalAccessor temporal, Class<?> type) {
+        DateTimeFormatter formatter;
+        String formatName;
+        switch (TypeKind.getTypeId(type)) {
+        case TypeId.INSTANT:
+        case TypeId.ZONED_DATE_TIME:
+        case TypeId.OFFSET_DATE_TIME:
+        case TypeId.LOCAL_DATE_TIME:
+            formatter = DateTimes.ISO8601;
+            formatName = "ISO8601";
+            break;
+        case TypeId.LOCAL_DATE:
+            formatter = DateTimes.YYYY_MM_DD;
+            formatName = "YYYY_MM_DD";
+            break;
+        case TypeId.LOCAL_TIME:
+            formatter = DateTimes.HH_MM_SS;
+            formatName = "HH_MM_SS";
+            break;
+        default:
+            throw new UnexpectedException();
+        }
+
+        String literal = formatter.format(temporal);
+        String literalQuoted = StringQuote.qqJavaString(literal);
+
+        switch (TypeKind.getTypeId(type)) {
+        case TypeId.INSTANT:
+        case TypeId.ZONED_DATE_TIME:
+        case TypeId.OFFSET_DATE_TIME:
+        case TypeId.LOCAL_DATE_TIME:
+        case TypeId.LOCAL_DATE:
+        case TypeId.LOCAL_TIME:
+            String parseExpr = String.format("%s.parse(%s, %s.%s)", //
+                    naming.importName(type), //
+                    literalQuoted, //
+                    naming.importName(DateTimes.class), formatName);
+            return parseExpr;
+
+        default:
+            throw new UnsupportedOperationException(type.getName());
+        }
+    }
+
+    public String predef(Predef<?, ?> value, Class<?> type) {
+        String name = value.getName();
+        String fieldName = value.getFieldName();
+        return String.format("%s.%s", naming.importName(type), fieldName);
+    }
+
+    /**
+     * @return <code>null</code> if unsupported type.
+     */
+    public String simpleValue(Object value, Class<?> type) {
+        String str = value.toString();
+        switch (TypeKind.getTypeId(type)) {
+        case TypeId._byte:
+        case TypeId.BYTE:
+            return "(byte)" + str;
+
+        case TypeId._short:
+        case TypeId.SHORT:
+            return "(short)" + str;
+
+        case TypeId._int:
+        case TypeId.INTEGER:
+            return str;
+
+        case TypeId._long:
+        case TypeId.LONG:
+            return str + "L";
+
+        case TypeId._float:
+        case TypeId.FLOAT:
+            return str + "f";
+
+        case TypeId._double:
+        case TypeId.DOUBLE:
+            return str;
+
+        case TypeId._boolean:
+        case TypeId.BOOLEAN:
+            return str;
+
+        default:
+            return null;
+        }
+    }
+
+    /**
+     * @return <code>null</code> if unsupported type.
+     */
+    public String parseString(String str, Class<?> type) {
+        try {
+            type.getMethod("parse", String.class);
+            String simpleName = naming.importName(type);
+            return String.format("%s.parse(%s)", simpleName, StringQuote.qqJavaString(str));
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+}

@@ -64,7 +64,8 @@ public class FooChooseDialog__vue
         out.println();
         out.println("// property shortcuts");
         out.println();
-        out.printf("const entityChooseDialog = ref<undefined | InstanceType<typeof %s>>();", //
+        out.printf("const entityChooseDialog = %s<undefined | InstanceType<typeof %s>>();", //
+                out.name(EsmModules.vue.ref), //
                 out.name(EsmModules.dba.EntityChooseDialog));
         out.println();
         out.println("defineExpose({ open });");
@@ -92,7 +93,8 @@ public class FooChooseDialog__vue
         out.println("<template>");
         out.enter();
         {
-            out.println("<EntityChooseDialog ref=\"entityChooseDialog\" :type=\"Person.TYPE\" :modal=\"modal\">");
+            out.printf("<EntityChooseDialog ref=\"entityChooseDialog\" :type=\"%s.TYPE\" :modal=\"modal\">\n", //
+                    out.importName(project.Foo.qName));
             out.enter();
             {
                 Set<String> handledXrefs = new HashSet<>();
