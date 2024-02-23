@@ -1,9 +1,9 @@
 
 import { EntityPropertyMap, primaryKey, property } from '../entity';
 import CoEntityValidators from './CoEntityValidators';
-import CoObjectType from './CoObjectType';
+import CoObjectTypeInfo from './CoObjectTypeInfo';
 
-export class CoEntityType extends CoObjectType {
+export class CoEntityTypeInfo extends CoObjectTypeInfo {
 
     static validators = new CoEntityValidators();
 
@@ -13,9 +13,9 @@ export class CoEntityType extends CoObjectType {
 
     constructor() {
         super();
-        this.declare(CoEntityType.declaredProperty);
+        this.declare(CoEntityTypeInfo.declaredProperty);
     }
 
 }
 
-export default CoEntityType;
+export default CoEntityTypeInfo;

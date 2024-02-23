@@ -1,9 +1,9 @@
 
 import { EntityPropertyMap, primaryKey, property } from '../entity';
 import CoObjectValidators from './CoObjectValidators';
-import StructRowType from './StructRowType';
+import StructRowTypeInfo from './StructRowTypeInfo';
 
-export class CoObjectType extends StructRowType {
+export class CoObjectTypeInfo extends StructRowTypeInfo {
 
     static validators = new CoObjectValidators();
 
@@ -25,9 +25,9 @@ export class CoObjectType extends StructRowType {
 
     constructor() {
         super();
-        this.declare(CoObjectType.declaredProperty);
+        this.declare(CoObjectTypeInfo.declaredProperty);
     }
 
 }
 
-export default CoObjectType;
+export default CoObjectTypeInfo;

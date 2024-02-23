@@ -1,9 +1,9 @@
 import { integer } from '@skeljs/core/src/lang/type';
 import CoNode from './CoNode';
-import CoCodeType from './CoCodeType';
+import CoCodeTypeInfo from './CoCodeTypeInfo';
 
 export abstract class CoCode<This> extends CoNode<This, integer> {
-    static TYPE = new CoCodeType();
+    static TYPE = new CoCodeTypeInfo();
 
     code?: string
 

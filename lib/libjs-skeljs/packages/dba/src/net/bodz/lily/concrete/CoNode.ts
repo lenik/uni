@@ -1,9 +1,9 @@
 import { integer } from '@skeljs/core/src/lang/type';
 import IdEntity from './IdEntity';
-import CoNodeType from './CoNodeType';
+import CoNodeTypeInfo from './CoNodeTypeInfo';
 
 export abstract class CoNode<This, Id> extends IdEntity<Id> {
-    static TYPE = new CoNodeType();
+    static TYPE = new CoNodeTypeInfo();
 
     parent?: This
     parentId?: Id

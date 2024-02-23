@@ -2,7 +2,7 @@
 import { EntityPropertyMap, EntityType, property } from '../entity';
 import StructRowValidators from './StructRowValidators';
 
-export class StructRowType extends EntityType {
+export class StructRowTypeInfo extends EntityType {
 
     static validators = new StructRowValidators();
 
@@ -14,9 +14,9 @@ export class StructRowType extends EntityType {
 
     constructor() {
         super();
-        this.declare(StructRowType.declaredProperty);
+        this.declare(StructRowTypeInfo.declaredProperty);
     }
 
 }
 
-export default StructRowType;
+export default StructRowTypeInfo;

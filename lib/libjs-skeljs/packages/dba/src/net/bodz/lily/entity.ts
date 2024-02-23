@@ -70,7 +70,7 @@ export interface IEntityProperty {
 
     name?: string
     position?: integer
-    type: string | IEntityType // ts type, not java type
+    type: string | (new () => IEntityType) // ts type, not java type
     primaryKey?: boolean
 
     // javaType: string

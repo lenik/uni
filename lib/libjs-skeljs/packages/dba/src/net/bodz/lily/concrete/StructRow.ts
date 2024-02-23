@@ -2,10 +2,10 @@ import moment from 'moment';
 import { Moment } from 'moment';
 
 import { integer } from '@skeljs/core/src/lang/type';
-import StructRowType from './StructRowType';
+import StructRowTypeInfo from './StructRowTypeInfo';
 
 export abstract class StructRow {
-    static TYPE = new StructRowType();
+    static TYPE = new StructRowTypeInfo();
 
     // content
 

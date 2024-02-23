@@ -1,9 +1,9 @@
 import { integer } from '@skeljs/core/src/lang/type';
 import CoCode from './CoCode';
-import CoPhaseType from './CoPhaseType';
+import CoPhaseTypeInfo from './CoPhaseTypeInfo';
 
 export abstract class CoPhase<This> extends CoCode<This> {
-    static TYPE = new CoPhaseType();
+    static TYPE = new CoPhaseTypeInfo();
 
     constructor(o: any) {
         super(o);

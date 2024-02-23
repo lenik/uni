@@ -1,9 +1,9 @@
 import { integer } from '@skeljs/core/src/lang/type';
 import CoNode from './CoNode';
-import CoCategoryType from './CoCategoryType';
+import CoCategoryTypeInfo from './CoCategoryTypeInfo';
 
 export abstract class CoCategory<This, Id> extends CoNode<This, Id> {
-    static TYPE = new CoCategoryType();
+    static TYPE = new CoCategoryTypeInfo();
     
     properties: any
     

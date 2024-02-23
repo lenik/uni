@@ -1,9 +1,9 @@
 import { integer } from '@skeljs/core/src/lang/type';
 import CoObject from './CoObject';
-import CoEntityType from './CoEntityType';
+import CoEntityTypeInfo from './CoEntityTypeInfo';
 
 export abstract class CoEntity<Id> extends CoObject {
-    static TYPE = new CoEntityType();
+    static TYPE = new CoEntityTypeInfo();
 
     constructor(o: any) {
         super(o);

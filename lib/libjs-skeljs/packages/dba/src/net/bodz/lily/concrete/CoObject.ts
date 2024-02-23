@@ -4,10 +4,10 @@ import { Moment } from 'moment';
 import { integer } from '@skeljs/core/src/lang/type';
 
 import StructRow from './StructRow';
-import CoObjectType from './CoObjectType';
+import CoObjectTypeInfo from './CoObjectTypeInfo';
 
 export abstract class CoObject extends StructRow {
-    static TYPE = new CoObjectType();
+    static TYPE = new CoObjectTypeInfo();
 
     // UI
 

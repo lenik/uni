@@ -1,9 +1,9 @@
 
 import { EntityPropertyMap, primaryKey, property } from '../entity';
-import CoCodeType from './CoCodeType';
+import CoCodeTypeInfo from './CoCodeTypeInfo';
 import CoParameterValidators from './CoParameterValidators';
 
-export class CoParameterType extends CoCodeType {
+export class CoParameterTypeInfo extends CoCodeTypeInfo {
 
     static validators = new CoParameterValidators();
 
@@ -13,9 +13,9 @@ export class CoParameterType extends CoCodeType {
 
     constructor() {
         super();
-        this.declare(CoParameterType.declaredProperty);
+        this.declare(CoParameterTypeInfo.declaredProperty);
     }
 
 }
 
-export default CoParameterType;
+export default CoParameterTypeInfo;
