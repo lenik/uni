@@ -73,12 +73,18 @@ const childTagName = computed(() => {
     }
 });
 
-const _label = computed(() => props.property?.display || props.label)
-const _icon = computed(() => props.property?.icon || props.icon)
-const _description = computed(() => props.property?.description || props.description)
-const _tooltip = computed(() => props.property?.tooltip || props.tooltip)
-const _validator = computed(() => props.property?.validator || props.validator)
-const _required = computed(() => props.property?.required || props.required)
+const _label = computed(() => {
+    if (props.property == null)
+        return props.label;
+    else
+        return props.property!.display;
+});
+
+const _icon = computed(() => props.property?.icon || props.icon);
+const _description = computed(() => props.property?.description || props.description);
+const _tooltip = computed(() => props.property?.tooltip || props.tooltip);
+const _validator = computed(() => props.property?.validator || props.validator);
+const _required = computed(() => props.property?.required || props.required);
 
 const autoLabelWidth = computed(() => {
     const defaultLabelWidth = '10em';
