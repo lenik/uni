@@ -58,7 +58,12 @@ public class TypeAnalyzer {
             else {
                 if (info.idType != null) {
                     info.baseClass = CoEntity.class;
-                    info.baseParams = "<" + naming.importName(info.idType) + ">";
+                    if (typeScript) {
+                        TsTypeResolver tsTypes = new TsTypeResolver(tsNaming);
+                        info.baseParams = "<" + tsTypes.resolve(info.idType, "<id>") + ">";
+                    } else {
+                        info.baseParams = "<" + naming.importName(info.idType) + ">";
+                    }
                 } else {
                     info.baseClass = StructRow.class;
                 }

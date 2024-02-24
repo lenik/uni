@@ -34,7 +34,7 @@ public class FooType1__ts
 
         String tsName = project.Esm_FooType.name;
         QualifiedName superType = project.Esm_Foo_stuff_Type.qName;
-        QualifiedName validatorsClass = project.Esm_Foo.qName.nameAdd("Validators");
+        QualifiedName validatorsClass = project.Esm_FooValidators.qName;
 
         String entityDescription = table.getDescription();
 
@@ -59,6 +59,10 @@ public class FooType1__ts
                 out.printf("label = \"%s\"\n", entityLabel);
             if (entityDescription != null)
                 out.printf("description = \"%s\"\n", entityDescription);
+
+            out.println();
+            out.printf("static validators = new %s();\n", //
+                    out.importDefaultAs(validatorsClass));
 
             out.println();
             out.printf("static declaredProperty: %s = {\n", //
@@ -141,8 +145,7 @@ public class FooType1__ts
         if (description != null)
             attrs.putQuoted("description", description);
 
-        String validatorFn = String.format("%s.validate%s", //
-                out.importDefaultAs(validatorsClass), //
+        String validatorFn = String.format("this.validators.validate%s", //
                 Strings.ucfirst(property.getName()));
         attrs.put("validator", validatorFn);
 

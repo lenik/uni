@@ -142,6 +142,7 @@ public class VFooMapper__xml
     }
 
     void sql_objlist_sql(XmlSourceBuffer out, ITableMetadata table, String id) {
+        String qTableName = DialectFn.quoteQName(table.getCompactName());
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
         out.printf("<sql id=\"%s\"><![CDATA[\n", id);
         out.enter();
@@ -153,8 +154,7 @@ public class VFooMapper__xml
             out.println();
             out.leave();
 
-            out.println("from " + table.getCompactName() + " a");
-
+            out.println("from " + qTableName + " a");
             out.println("]]>");
             out.leave();
         }
@@ -162,6 +162,7 @@ public class VFooMapper__xml
     }
 
     void sql_objedit_sql(XmlSourceBuffer out, ITableMetadata table, String id) {
+        String qTableName = DialectFn.quoteQName(table.getCompactName());
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
         JoinColumns j = new JoinColumns(project.config);
         j.addTable(table);
@@ -186,7 +187,7 @@ public class VFooMapper__xml
             out.println();
             out.leave();
 
-            out.println("from " + table.getCompactName() + " a");
+            out.println("from " + qTableName + " a");
 
             out.enter();
             for (String parentAlias : j.aliasMap.keySet()) {
@@ -336,10 +337,13 @@ public class VFooMapper__xml
     }
 
     void select_count(XmlSourceBuffer out, ITableMetadata table) {
+        String qTableName = DialectFn.quoteQName(table.getCompactName());
+
         out.println("<select id=\"count\" resultType=\"long\">");
         out.enter();
         {
-            out.printf("select count(*) \"rows\" from %s a\n", table.getCompactName());
+            out.printf("select count(*) \"rows\" from %s a\n", //
+                    qTableName);
             out.println("<where>");
             out.enter();
             {

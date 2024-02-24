@@ -2,6 +2,7 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -99,6 +100,9 @@ public class TsTypeResolver {
         EsmName coreType = coreType(clazz);
         if (coreType != null)
             return naming.importName(coreType);
+
+        if (clazz == InetAddress.class)
+            return "string";
 
         if (clazz == State.class)
             return "string";

@@ -1,6 +1,14 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.c.string.StringId;
@@ -10,6 +18,7 @@ import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.fmt.json.JsonVariant;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
@@ -57,7 +66,6 @@ public class FooEditor__vue
 
     @Override
     protected void buildScript1(TypeScriptWriter out, ITableMetadata model) {
-        out.name(EsmModules.core.FieldGroup);
         out.name(EsmModules.core.FieldRow);
 
         out.println("export interface Props {");
@@ -128,6 +136,13 @@ public class FooEditor__vue
     protected void buildScript2(TypeScriptWriter out, ITableMetadata model) {
     }
 
+    boolean bringForwards = false;
+    Set<String> bringForwardProps = new HashSet<>(Arrays.asList(//
+            "CoObject.label", //
+            "CoObject.description", //
+            "CoObject.icon" //
+    ));
+
     @Override
     protected void buildTemplate(TypeScriptWriter out, ITableMetadata table) {
         TypeExtendInfo info = new TypeAnalyzer(project, out)//
@@ -156,10 +171,6 @@ public class FooEditor__vue
                     }
 
                     Set<String> handled = new HashSet<>();
-                    Set<String> bringForward = new HashSet<>(Arrays.asList(//
-                            "CoObject.label", //
-                            "CoObject.description" //
-                    ));
 
                     Class<?> bringToTopClass = info.baseClass;
 
@@ -167,36 +178,49 @@ public class FooEditor__vue
                         if (! StructRow.class.isAssignableFrom(decl))
                             continue;
 
-                        out.printf("<FieldGroup decl=\"%s\">\n", decl.getName());
-                        out.enter();
-
                         IType type = BeanTypeProvider.getInstance().getType(decl);
 
-                        Map<IColumnMetadata, IProperty> map1 = new TreeMap<>(OrdinalComparator.INSTANCE);
-                        Map<CrossReference, IProperty> map2 = new TreeMap<>(OrdinalComparator.INSTANCE);
-
+                        Map<IProperty, IColumnMetadata> selection = new LinkedHashMap<>();
                         for (IProperty property : type.getProperties()) {
 
                             if (property.getDeclaringClass() == decl || decl == bringToTopClass) {
                                 if (handled.contains(property.getName()))
                                     continue;
 
-                                String classProp = property.getDeclaringClass().getSimpleName() + "."
-                                        + property.getName();
-                                if (bringForward.contains(classProp) && decl != bringToTopClass)
-                                    continue;
+                                if (bringForwards) {
+                                    String classProp = property.getDeclaringClass().getSimpleName() + "."
+                                            + property.getName();
+
+                                    if (bringForwardProps.contains(classProp) && decl != bringToTopClass)
+                                        continue;
+                                }
 
                                 IColumnMetadata column = property2Column.get(property.getName());
-                                if (column != null) {
-                                    if (column.isForeignKey()) {
-                                        CrossReference xref = table.getForeignKeyFromColumn(column.getName());
-                                        map2.put(xref, property); // can be repeat put.
-                                    } else {
-                                        map1.put(column, property);
-                                    }
-                                    handled.add(property.getName());
-                                }
+                                if (column != null)
+                                    selection.put(property, column);
                             }
+                        }
+
+                        if (selection.isEmpty())
+                            continue;
+
+                        out.printf("<%s :type=\"%s.TYPE\">\n", //
+                                out.name(EsmModules.dba.FieldGroup), //
+                                out.importDefaultAs(decl));
+                        out.enter();
+
+                        Map<IColumnMetadata, IProperty> map1 = new TreeMap<>(OrdinalComparator.INSTANCE);
+                        Map<CrossReference, IProperty> map2 = new TreeMap<>(OrdinalComparator.INSTANCE);
+
+                        for (IProperty property : selection.keySet()) {
+                            IColumnMetadata column = selection.get(property);
+                            if (column.isForeignKey()) {
+                                CrossReference xref = table.getForeignKeyFromColumn(column.getName());
+                                map2.put(xref, property); // can be repeat put.
+                            } else {
+                                map1.put(column, property);
+                            }
+                            handled.add(property.getName());
                         }
 
                         for (IColumnMetadata column : map1.keySet()) {
@@ -231,6 +255,7 @@ public class FooEditor__vue
         out.println("<style scoped lang=\"scss\">");
         out.println(".entity-editor {");
         out.enter();
+
         {
             out.println("padding: 0;");
             out.leave();
@@ -291,6 +316,13 @@ public class FooEditor__vue
                 // } else if (CoTag.class.isAssignableFrom(type)) {
 
                 // } else if (CoCategory.class.isAssignableFrom(type)) {
+
+            } else if (type == JsonVariant.class) {
+                inputAttrs.put("class", "json-editor");
+                inputAttrs.put("v-model", "model." + propertyName);
+                String xml = inputAttrs.toXml("textarea", true);
+                out.println(xml);
+
             } else {
                 logger.error("unsupported property: " + propertyName + " of " + type);
             }

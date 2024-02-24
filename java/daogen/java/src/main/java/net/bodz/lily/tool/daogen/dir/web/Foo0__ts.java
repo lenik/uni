@@ -38,12 +38,12 @@ public class Foo0__ts
         out.printf("export class %s%s extends %s%s {\n", //
                 extend.simpleName, //
                 extend.params, //
-                out.importName(extend.baseClassName), //
+                out.importDefaultAs(extend.baseClassName), //
                 extend.baseParams);
         out.enter();
         {
             out.printf("static TYPE = new %s();\n", //
-                    out.importName(typeName));
+                    out.importDefaultAs(typeName));
             out.println();
 
             for (IColumnMetadata column : table.getColumns()) {
@@ -154,7 +154,7 @@ public class Foo0__ts
             out.print("?");
         out.print(": ");
 
-        String tsType = out.importName(parentType);
+        String tsType = out.importDefaultAs(parentType);
         out.print(tsType);
         out.println(";");
     }

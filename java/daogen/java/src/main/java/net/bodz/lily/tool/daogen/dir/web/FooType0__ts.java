@@ -41,11 +41,8 @@ public class FooType0__ts
 
         String description = table.getDescription();
 
-        QualifiedName validatorsClass = project.Esm_Foo.qName.nameAdd("Validators");
-        QualifiedName superType = extend.baseClassName.nameAdd("Type");
-
-        out.println("// Type Info");
-        out.println();
+        QualifiedName validatorsClass = project.Esm_Foo_stuff_Validators.qName;
+        QualifiedName superType = extend.baseClassName.nameAdd(project.typeInfoSuffix);
 
         boolean useNs = false;
 
@@ -65,7 +62,7 @@ public class FooType0__ts
 
         out.printf("export class %s extends %s {\n", //
                 extend.simpleName, //
-                out.importName(superType));
+                out.importDefaultAs(superType));
         out.println();
         out.enter();
         {
@@ -89,8 +86,12 @@ public class FooType0__ts
             staticFields2(out, table, OutFormat.TS_CLASS);
 
             out.println();
+            out.printf("static validators = new %s();\n", //
+                    out.importDefaultAs(validatorsClass));
+
+            out.println();
             out.printf("static declaredProperty: %s = {\n", //
-                    out.im.name(EsmModules.dba.entity.EntityPropertyMap));
+                    out.importName(EsmModules.dba.entity.EntityPropertyMap));
             out.enter();
             {
                 for (IColumnMetadata column : table.getColumns()) {
@@ -105,7 +106,7 @@ public class FooType0__ts
                     if (column.isForeignKey())
                         continue;
 
-                    declProperty(out, column, validatorsClass);
+                    declProperty(out, column, true);
                 }
 
                 for (CrossReference xref : table.getForeignKeys().values()) {
@@ -120,12 +121,13 @@ public class FooType0__ts
 
                     for (String fkColumnName : xref.getForeignKey().getColumnNames()) {
                         IColumnMetadata column = table.getColumn(fkColumnName);
-                        declProperty(out, column, validatorsClass);
+                        declProperty(out, column, false);
                     }
                 }
                 out.leave();
             }
             out.println("}");
+
             out.println();
             out.println("constructor() {");
             out.enter();
@@ -136,6 +138,7 @@ public class FooType0__ts
                 out.leave();
             }
             out.println("}");
+
             out.println();
             out.leave();
         }
@@ -178,13 +181,15 @@ public class FooType0__ts
                     table.getEntityTypeName(), head, cname.propertyName);
     }
 
-    void declProperty(TypeScriptWriter out, IColumnMetadata column, QualifiedName validatorsClass) {
+    void declProperty(TypeScriptWriter out, IColumnMetadata column, //
+            boolean validator) {
         boolean primaryKey = column.isPrimaryKey();
         boolean notNull = ! column.isNullable(true);
 
         String javaType = project.config.javaType(column);
         String tsType = tsTypes.resolve(javaType, column.getName());
 
+        String label = column.getLabel();
         String description = column.getDescription();
 
         ColumnNaming cname = project.naming(column);
@@ -209,14 +214,18 @@ public class FooType0__ts
             attrs.put("scale", scale);
 
         // attrs.put("icon", "fa-user");
-        // attrs.put("label", "label");
-        if (description != null && ! description.isEmpty())
+
+        if (! Nullables.isEmpty(label))
+            attrs.putQuoted("label", label);
+
+        if (! Nullables.isEmpty(description))
             attrs.putQuoted("description", description);
 
-        String validatorFn = String.format("%s.validate%s", //
-                out.importDefaultAs(validatorsClass), //
-                cname.ucfirstPropertyName);
-        attrs.put("validator", validatorFn);
+        if (validator) {
+            String validatorFn = String.format("this.validators.validate%s", //
+                    cname.ucfirstPropertyName);
+            attrs.put("validator", validatorFn);
+        }
 
         out.print("(");
         attrs.toJson(out, true);
@@ -233,12 +242,15 @@ public class FooType0__ts
             throw new UnexpectedException("parent is not defined: " + parentOid);
         }
 
+        String label = xref.getLabel();
+
         String description = xref.getDescription();
         String inheritDocFrom = null;
+
         if (description == null) {
             description = parentTable.getDescription();
             if (description != null)
-                inheritDocFrom = out.importName(parentTable.getJavaType());
+                inheritDocFrom = out.importDefaultAs(parentTable.getJavaType());
         }
 
         boolean anyNotNull = false;
@@ -253,27 +265,33 @@ public class FooType0__ts
         QualifiedName parentType = parentTable.getJavaType();
         if (parentType == null)
             throw new NullPointerException("parentType");
-        String parentTsType = tsTypes.resolve(parentType, property);
+        QualifiedName parentTypeInfo = parentType.nameAdd(project.typeInfoSuffix);
+
+        String parentTsTypeInfo = tsTypes.resolve(parentTypeInfo, property);
 
         out.print(property);
         out.print(": ");
         out.print(out.name(EsmModules.dba.entity.property));
 
         Attrs attrs = new Attrs(TsConfig.newLineProps);
-        attrs.putQuoted("type", parentTsType);
+        attrs.put("type", parentTsTypeInfo);
         if (anyNotNull)
             attrs.put("nullable", false);
 
         // attrs.put("icon", "fa-user");
-        // attrs.put("label", "label");
-        if (description != null && ! description.isEmpty()) {
-            if (inheritDocFrom != null)
-                ; // description = "(" + description + ")";
+
+        if (! Nullables.isEmpty(label))
+            attrs.putQuoted("label", label);
+
+        if (! Nullables.isEmpty(description)) {
+            if (inheritDocFrom != null) {
+                // description = "(" + description + ")";
+                attrs.put("inheritsDoc", true);
+            }
             attrs.putQuoted("description", description);
         }
 
-        String validatorFn = String.format("%s.validate%s", //
-                out.importDefaultAs(validatorsClass), //
+        String validatorFn = String.format("this.validators.validate%s", //
                 Strings.ucfirst(property));
         attrs.put("validator", validatorFn);
 

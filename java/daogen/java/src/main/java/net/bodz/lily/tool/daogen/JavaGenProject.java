@@ -26,6 +26,9 @@ public class JavaGenProject {
     boolean parentColumnInParallelMode = true;
     public boolean extraDDLs;
 
+    public final String typeInfoSuffix = "TypeInfo";
+    public final String validatorsSuffix = "Validators";
+
     public final ClassPathInfo web;
 
     public final ClassPathInfo Foo;
@@ -102,14 +105,14 @@ public class JavaGenProject {
         ClassPathInfo web = dirs.webPath;
         this.web = web;
 
-        Esm_Foo_stuff_Type = web.join(_Foo_stuff.name + "_Type");
-        Esm_FooType = web.join(Foo.name + "Type");
+        Esm_Foo_stuff_Type = web.join(_Foo_stuff.name + "_" + typeInfoSuffix);
+        Esm_FooType = web.join(Foo.name + typeInfoSuffix);
 
         Esm_Foo_stuff = web.join(_Foo_stuff.name);
         Esm_Foo = web.join(Foo.name);
 
-        Esm_Foo_stuff_Validators = web.join(_Foo_stuff.name + "Validators");
-        Esm_FooValidators = web.join(Foo.name + "Validators");
+        Esm_Foo_stuff_Validators = web.join(_Foo_stuff.name + "_" + validatorsSuffix);
+        Esm_FooValidators = web.join(Foo.name + validatorsSuffix);
 
         Esm_FooAdmin = web.join(Foo.name + "Admin");
         Esm_FooChooseDialog = web.join(Foo.name + "ChooseDialog");

@@ -28,7 +28,7 @@ public class Foo1__ts
                         project.Foo.qName, //
                         project._Foo_stuff.qName);
 
-        QualifiedName typeName = javaExtend.baseClassName.nameAdd("_Type");
+        QualifiedName typeName = javaExtend.baseClassName.nameAdd(project.typeInfoSuffix);
 
         out.printf("export class %s extends %s%s {\n", //
                 javaExtend.simpleName, //
