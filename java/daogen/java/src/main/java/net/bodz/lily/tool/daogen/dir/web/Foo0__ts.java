@@ -38,12 +38,12 @@ public class Foo0__ts
         out.printf("export class %s%s extends %s%s {\n", //
                 extend.simpleName, //
                 extend.params, //
-                out.importDefaultAs(extend.baseClassName), //
+                out.importDefault(extend.baseClassName), //
                 extend.baseParams);
         out.enter();
         {
             out.printf("static TYPE = new %s();\n", //
-                    out.importDefaultAs(typeName));
+                    out.importDefault(typeName));
             out.println();
 
             for (IColumnMetadata column : table.getColumns()) {
@@ -116,7 +116,7 @@ public class Foo0__ts
 
         String javaType = project.config.javaType(column);
         // String simpleType = Split.packageName(javaType).b;
-        String tsType = tsTypes.resolve(javaType, cname.propertyName);
+        String tsType = tsTypes.resolveValue(javaType, cname.propertyName);
 
 //        EsmName esmName = TsUtils.getAlias(tsType);
 //        if (esmName != null)
@@ -154,7 +154,7 @@ public class Foo0__ts
             out.print("?");
         out.print(": ");
 
-        String tsType = out.importDefaultAs(parentType);
+        String tsType = out.importDefaultType(parentType);
         out.print(tsType);
         out.println(";");
     }

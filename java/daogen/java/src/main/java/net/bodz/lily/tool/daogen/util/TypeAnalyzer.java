@@ -60,7 +60,7 @@ public class TypeAnalyzer {
                     info.baseClass = CoEntity.class;
                     if (typeScript) {
                         TsTypeResolver tsTypes = new TsTypeResolver(tsNaming);
-                        info.baseParams = "<" + tsTypes.resolve(info.idType, "<id>") + ">";
+                        info.baseParams = "<" + tsTypes.resolveType(info.idType, "<id>") + ">";
                     } else {
                         info.baseParams = "<" + naming.importName(info.idType) + ">";
                     }
@@ -92,7 +92,7 @@ public class TypeAnalyzer {
                         String idType;
                         if (typeScript) {
                             TsTypeResolver tsTypes = new TsTypeResolver(tsNaming);
-                            idType = tsTypes.resolve(info.idType, "<" + param.name() + ">");
+                            idType = tsTypes.resolveType(info.idType, "<" + param.name() + ">");
                         } else
                             idType = info.idType.getFullName();
                         baseParamsBuf.append(", " + naming.importName(idType));
@@ -108,9 +108,14 @@ public class TypeAnalyzer {
 
                         baseParamsBuf.append(", this_t");
                         recBuf.append(", this_t");
-                        typeAgainParams.append(", " + //
-                                naming.importName(TypeParamType.THIS_TYPE.getClass()) //
-                                + "." + TypeParamType.THIS_TYPE.name());
+
+                        if (typeScript)
+                            // not used.
+                            typeAgainParams.append(", TypeParamType.THIS_TYPE");
+                        else
+                            typeAgainParams.append(", " + //
+                                    naming.importName(TypeParamType.class) //
+                                    + "." + TypeParamType.THIS_TYPE.name());
                         break;
                     default:
                         baseParamsBuf.append(", any");

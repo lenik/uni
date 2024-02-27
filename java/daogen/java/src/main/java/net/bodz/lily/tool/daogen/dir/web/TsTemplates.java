@@ -33,7 +33,7 @@ public class TsTemplates {
 
         IProperty property = column.getProperty();
         Class<?> type = property.getPropertyClass();
-        String tsType = tsTypes.resolve(type, property.getName());
+        String tsType = tsTypes.resolveValue(type, property.getName());
 
         Attrs a = new Attrs();
         a.put("data-type", tsType);

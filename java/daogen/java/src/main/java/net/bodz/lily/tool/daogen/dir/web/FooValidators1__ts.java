@@ -34,15 +34,28 @@ public class FooValidators1__ts
 
         out.printf("export class %s extends %s {\n", //
                 className.name, //
-                out.importDefaultAs(superType));
+                out.importDefault(superType));
         out.enter();
 
-        int i = 0;
+        out.println();
+        out.printf("constructor(type: %s) {\n", out.importDefaultType(project.Esm_FooType.qName));
+        out.enter();
+        out.println("super(type);");
+        out.leave();
+        out.println("}");
+
+        out.println();
+        out.printf("get type() {\n");
+        out.enter();
+        out.printf("return this._type as %s;\n", out.importDefaultType(project.Esm_FooType.qName));
+        out.leave();
+        out.println("}");
 
         if (extend.clazz != null) {
             IType type = BeanTypeProvider.getInstance().getType(extend.clazz);
             for (IProperty property : type.getProperties()) {
                 if (property.getDeclaringClass() == extend.clazz) {
+                    out.println();
                     validateProperty(out, property);
                 }
             }
@@ -59,7 +72,7 @@ public class FooValidators1__ts
     void validateProperty(TypeScriptWriter out, IProperty property) {
         Type type = property.getPropertyGenericType();
 
-        String tsType = tsTypes.resolve(type, property.getName());
+        String tsType = tsTypes.resolveType(type, property.getName());
 
         out.printf("validate%s(val: %s) {\n", //
                 Strings.ucfirst(property.getName()), //

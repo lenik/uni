@@ -24,7 +24,7 @@ public class TsUtils {
         aliases.put("float", EsmModules.core.type._float);
         aliases.put("double", EsmModules.core.type._double);
         aliases.put("char", EsmModules.core.type._char);
-        aliases.put("Moment", EsmModules.moment.Moment);
+        aliases.put("Moment", EsmModules.momentTz.Moment);
     }
 
     public static EsmName getAlias1(String type) {
@@ -59,7 +59,7 @@ public class TsUtils {
                 .localPriority(EsmModules.PRIORITY_LOCAL)//
                 .build();
 
-        packageMap.put("net.bodz.lily.concrete", EsmModules.dba);
+        packageMap.put("net.bodz.lily.concrete", EsmModules.basic);
 
         packageMap.put("net.bodz.lily.schema", EsmModules.basic);
         packageMap.put("net.bodz.violet.schema", EsmModules.violet);

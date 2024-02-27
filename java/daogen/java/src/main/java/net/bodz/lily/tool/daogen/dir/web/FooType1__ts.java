@@ -1,5 +1,7 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
+import java.lang.reflect.Type;
+
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.EsmModules;
@@ -38,11 +40,9 @@ public class FooType1__ts
 
         String entityDescription = table.getDescription();
 
-        out.println("// Type Info");
-        out.println();
         out.printf("export class %s extends %s {\n", //
                 tsName, //
-                out.importDefaultAs(superType));
+                out.importDefault(superType));
         out.println();
         out.enter();
         {
@@ -61,11 +61,11 @@ public class FooType1__ts
                 out.printf("description = \"%s\"\n", entityDescription);
 
             out.println();
-            out.printf("static validators = new %s();\n", //
-                    out.importDefaultAs(validatorsClass));
+            out.printf("validators = new %s(this);\n", //
+                    out.importDefault(validatorsClass));
 
             out.println();
-            out.printf("static declaredProperty: %s = {\n", //
+            out.printf("declaredProperty: %s = {\n", //
                     out.im.name(EsmModules.dba.entity.EntityPropertyMap));
             out.enter();
             {
@@ -85,8 +85,7 @@ public class FooType1__ts
             out.enter();
             {
                 out.println("super();");
-                out.printf("this.declare(%s.declaredProperty);\n", //
-                        tsName);
+                out.printf("this.declare(this.declaredProperty);\n");
                 out.leave();
             }
             out.println("}");
@@ -96,15 +95,16 @@ public class FooType1__ts
         out.println("}");
 
         out.println();
-        out.printf("export default %s;\n", extend.simpleName);
+        out.printf("export default %s;\n", tsName);
     }
 
     void declProperty(TypeScriptWriter out, IProperty property, QualifiedName validatorsClass) {
         boolean aNotNull = property.getAnnotation(NotNull.class) != null;
-        Class<?> type = property.getPropertyType().getJavaClass();
-        boolean notNull = type.isPrimitive() || aNotNull;
+        Class<?> clazz = property.getPropertyClass();
+        boolean notNull = clazz.isPrimitive() || aNotNull;
 
-        String tsType = tsTypes.resolve(type, property.getName());
+        Type type = property.getPropertyGenericType();
+        String tsType = tsTypes.resolveValue(type, property.getName());
 
         String label = property.getLabel().toString();
         String description = property.getDescription().toString();

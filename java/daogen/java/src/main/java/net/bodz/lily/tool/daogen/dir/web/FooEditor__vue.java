@@ -83,7 +83,7 @@ public class FooEditor__vue
         out.println("});");
         out.println();
         out.printf("const model = defineModel<%s>();\n", //
-                out.importDefaultAs(project.Esm_Foo.qName));
+                out.importDefault(project.Esm_Foo.qName));
         out.println();
         out.println("const props = withDefaults(defineProps<Props>(), {");
         out.println("});");
@@ -101,7 +101,7 @@ public class FooEditor__vue
         out.println();
 
         out.printf("const meta = %s.TYPE.property;\n", //
-                out.importDefaultAs(project.Esm_Foo.qName));
+                out.importDefault(project.Esm_Foo.qName));
 
         int labelWidth = 7;
         out.printf("const fieldRowProps = %s({ labelWidth: '%drem' });\n", //
@@ -206,7 +206,7 @@ public class FooEditor__vue
 
                         out.printf("<%s :type=\"%s.TYPE\">\n", //
                                 out.name(EsmModules.dba.FieldGroup), //
-                                out.importDefaultAs(decl));
+                                out.importDefault(decl));
                         out.enter();
 
                         Map<IColumnMetadata, IProperty> map1 = new TreeMap<>(OrdinalComparator.INSTANCE);
@@ -269,7 +269,7 @@ public class FooEditor__vue
         String propertyName = cname.propertyName;
 
         Class<?> type = column.getJavaClass();
-        String tsType = tsTypes.resolve(type, propertyName);
+        String tsType = tsTypes.resolveType(type, propertyName);
 
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //

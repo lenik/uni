@@ -46,7 +46,7 @@ public class FooAdmin__vue
                 out.name(EsmModules.vue.ref), //
                 out.name(EsmModules.dba.LilyAdmin));
         out.printf("const type = %s.TYPE;\n", //
-                out.importDefaultAs(project.Esm_Foo.qName));
+                out.importDefault(project.Esm_Foo.qName));
         out.println("const selection = ref<any>({});");
 
         // String defaultDialogVar = "defaultPersonChooseDialog";

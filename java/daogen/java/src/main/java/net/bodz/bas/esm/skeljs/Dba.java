@@ -55,14 +55,6 @@ public class Dba
     public final UiTableTypes tableTypes = add(new UiTableTypes());
     public final UiLilyDefaults defaults = add(new UiLilyDefaults());
 
-    static final String concrete = "net/bodz/lily/concrete/";
-    public final EsmName CoObjectType = _class(concrete + "CoObjectType");
-    public final EsmName CoObject = _class(concrete + "CoObject");
-    public final EsmName CoMessageType = _class(concrete + "CoMessageType");
-    public final EsmName CoMessage = _class(concrete + "CoMessage");
-    public final EsmName IdEntityType = _class(concrete + "IdEntityType");
-    public final EsmName IdEntity = _class(concrete + "IdEntity");
-
     public final EsmName DataAdmin = vue("ui/table/DataAdmin.vue");
     public final EsmName DataTable = vue("ui/table/DataTable.vue");
     public final EsmName LilyAdmin = vue("ui/lily/LilyAdmin.vue");

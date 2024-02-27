@@ -28,6 +28,7 @@ public class JavaGenProject {
 
     public final String typeInfoSuffix = "TypeInfo";
     public final String validatorsSuffix = "Validators";
+    public final String criteriaBuilderSuffix = "CriteriaBuilder";
 
     public final ClassPathInfo web;
 
@@ -77,46 +78,46 @@ public class JavaGenProject {
         String generated = "src/main/generated";
 
         Foo = dirs.modelPath;
-        _Foo_stuff = Foo.join("_" + Foo.name + "_stuff", generated);
-        IFoo_Id = Foo.join("I" + Foo.name + "_Id");
-        Foo_Id = Foo.join(Foo.name + "_Id");
-        Foo_IdAccessor = Foo.join(Foo.name + ".Id");
+        _Foo_stuff = Foo.child("_" + Foo.name + "_stuff", generated);
+        IFoo_Id = Foo.child("I" + Foo.name + "_Id");
+        Foo_Id = Foo.child(Foo.name + "_Id");
+        Foo_IdAccessor = Foo.child(Foo.name + ".Id");
 
-        FooTest = dirs.modelPath.join(Foo.name + "Test");
-        _Foo_stuffTest = FooTest.join("_" + Foo.name + "_stuffTest");
-        Foo_IdTest = FooTest.join(Foo.name + "_IdTest");
-        Foo_IdAccessorTest = FooTest.join(Foo.name + "_IdAccessorTest");
+        FooTest = dirs.modelPath.child(Foo.name + "Test");
+        _Foo_stuffTest = FooTest.child("_" + Foo.name + "_stuff_Test");
+        Foo_IdTest = FooTest.child(Foo.name + "_IdTest");
+        Foo_IdAccessorTest = FooTest.child(Foo.name + "_IdAccessorTest");
 
-        _FooCriteriaBuilder_stuff = Foo.join(dao_ + "_" + Foo.name + "CriteriaBuilder_stuff", generated);
-        FooCriteriaBuilder = Foo.join(dao_ + Foo.name + "CriteriaBuilder");
-        FooCriteriaBuilderTest = FooTest.join(dao_ + Foo.name + "CriteriaBuilderTest");
+        _FooCriteriaBuilder_stuff = Foo.child(dao_ + "_" + Foo.name + criteriaBuilderSuffix + "_stuff", generated);
+        FooCriteriaBuilder = Foo.child(dao_ + Foo.name + criteriaBuilderSuffix);
+        FooCriteriaBuilderTest = FooTest.child(dao_ + Foo.name + criteriaBuilderSuffix + "Test");
 
-        FooSamples = dirs.daoPath.join(Foo.name + "Samples", generated);
+        FooSamples = dirs.daoPath.child(Foo.name + "Samples", generated);
 
-        FooMapper = dirs.daoPath.join(dao_ + Foo.name + "Mapper");
-        FooMapperTest = dirs.daoPath.join(dao_ + Foo.name + "MapperTest");
-        FooManager = dirs.daoPath.join(dao_ + Foo.name + "Manager");
-        FooManagerTest = dirs.daoPath.join(dao_ + Foo.name + "ManagerTest");
-        FooExporter = dirs.daoPath.join(Foo.name + "Exporter", generated);
+        FooMapper = dirs.daoPath.child(dao_ + Foo.name + "Mapper");
+        FooMapperTest = dirs.daoPath.child(dao_ + Foo.name + "MapperTest");
+        FooManager = dirs.daoPath.child(dao_ + Foo.name + "Manager");
+        FooManagerTest = dirs.daoPath.child(dao_ + Foo.name + "ManagerTest");
+        FooExporter = dirs.daoPath.child(Foo.name + "Exporter", generated);
 
-        FooIndex = dirs.wsPath.join(ws_ + Foo.name + "Index");
-        FooIndexTest = dirs.wsPath.join(ws_ + Foo.name + "IndexTest");
+        FooIndex = dirs.wsPath.child(ws_ + Foo.name + "Index");
+        FooIndexTest = dirs.wsPath.child(ws_ + Foo.name + "IndexTest");
 
         ClassPathInfo web = dirs.webPath;
         this.web = web;
 
-        Esm_Foo_stuff_Type = web.join(_Foo_stuff.name + "_" + typeInfoSuffix);
-        Esm_FooType = web.join(Foo.name + typeInfoSuffix);
+        Esm_Foo_stuff_Type = web.child(_Foo_stuff.name + "_" + typeInfoSuffix);
+        Esm_FooType = web.child(Foo.name + typeInfoSuffix);
 
-        Esm_Foo_stuff = web.join(_Foo_stuff.name);
-        Esm_Foo = web.join(Foo.name);
+        Esm_Foo_stuff = web.child(_Foo_stuff.name);
+        Esm_Foo = web.child(Foo.name);
 
-        Esm_Foo_stuff_Validators = web.join(_Foo_stuff.name + "_" + validatorsSuffix);
-        Esm_FooValidators = web.join(Foo.name + validatorsSuffix);
+        Esm_Foo_stuff_Validators = web.child(_Foo_stuff.name + "_" + validatorsSuffix);
+        Esm_FooValidators = web.child(Foo.name + validatorsSuffix);
 
-        Esm_FooAdmin = web.join(Foo.name + "Admin");
-        Esm_FooChooseDialog = web.join(Foo.name + "ChooseDialog");
-        Esm_FooEditor = web.join(Foo.name + "Editor");
+        Esm_FooAdmin = web.child(Foo.name + "Admin");
+        Esm_FooChooseDialog = web.child(Foo.name + "ChooseDialog");
+        Esm_FooEditor = web.child(Foo.name + "Editor");
     }
 
     public UpdateMethod getPreferredUpdateMethod() {

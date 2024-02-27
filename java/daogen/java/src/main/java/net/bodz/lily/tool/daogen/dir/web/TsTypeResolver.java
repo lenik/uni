@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.bodz.bas.c.primitive.Primitives;
+import net.bodz.bas.c.type.ClassNames;
 import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.c.type.TypeParam;
@@ -31,9 +31,41 @@ public class TsTypeResolver {
         this.naming = naming;
     }
 
-    public String resolve(Type genericType, String property) {
+    public String resolveType(Type genericType, String propertyName) {
+        return resolve(true, genericType, propertyName);
+    }
+
+    public String resolveType(QualifiedName qName, String propertyName) {
+        return resolve(true, qName, propertyName);
+    }
+
+    public String resolveType(String javaType, String propertyName) {
+        return resolve(true, javaType, propertyName);
+    }
+
+    public String resolveType(Class<?> clazz, String propertyName) {
+        return resolve(true, clazz, propertyName);
+    }
+
+    public String resolveValue(Type genericType, String propertyName) {
+        return resolve(false, genericType, propertyName);
+    }
+
+    public String resolveValue(QualifiedName qName, String propertyName) {
+        return resolve(false, qName, propertyName);
+    }
+
+    public String resolveValue(String javaType, String propertyName) {
+        return resolve(false, javaType, propertyName);
+    }
+
+    public String resolveValue(Class<?> clazz, String propertyName) {
+        return resolve(false, clazz, propertyName);
+    }
+
+    public String resolve(boolean typeName, Type genericType, String propertyName) {
         if (genericType instanceof Class<?>)
-            return resolve((Class<?>) genericType, property);
+            return resolve(typeName, (Class<?>) genericType, propertyName);
 
         if (genericType instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) genericType;
@@ -41,36 +73,39 @@ public class TsTypeResolver {
             Class<?>[] bounds = TypeParam.genericBaseBounds(genericType);
 
             if (List.class.isAssignableFrom(rawType))
-                return resolve(bounds[0], property) + "[]";
+                return resolve(typeName, bounds[0], propertyName) + "[]";
 
             if (Set.class.isAssignableFrom(rawType))
-                return resolve(bounds[0], property) + "[]";
+                return resolve(typeName, bounds[0], propertyName) + "[]";
 
             if (Map.class.isAssignableFrom(rawType))
                 return "any";
 
-            return resolve(rawType, property);
+            return resolve(typeName, rawType, propertyName);
         }
         throw new UnsupportedOperationException();
     }
 
-    public String resolve(QualifiedName javaType, String property) {
-        return resolve(javaType.getFullName(), property);
+    public String resolve(boolean typeName, QualifiedName qName, String propertyName) {
+        return resolve(typeName, qName.getFullName(), propertyName);
     }
 
-    public String resolve(String javaType, String property) {
+    public String resolve(boolean typeName, String javaType, String propertyName) {
         Class<?> clazz;
         try {
-            clazz = Primitives.forName(javaType);
+            clazz = ClassNames.resolve(javaType);
+            return resolve(typeName, clazz, propertyName);
         } catch (ClassNotFoundException e) {
-            return javaType;
+            if (typeName)
+                return naming.importDefaultType(javaType);
+            else
+                return naming.importDefault(javaType);
         }
-        return resolve(clazz, property);
     }
 
-    public String resolve(Class<?> clazz, String property) {
+    public String resolve(boolean typeName, Class<?> clazz, String propertyName) {
         if (clazz == Object.class)
-            throw new Error("Object.class: " + property);
+            throw new Error("Object.class: " + propertyName);
 
         int typeId = TypeKind.getTypeId(clazz);
         switch (typeId) {
@@ -101,6 +136,9 @@ public class TsTypeResolver {
         if (coreType != null)
             return naming.importName(coreType);
 
+        if (clazz.isArray())
+            return resolve(typeName, clazz.getComponentType(), propertyName + "[]") + "[]";
+
         if (clazz == InetAddress.class)
             return "string";
 
@@ -113,13 +151,16 @@ public class TsTypeResolver {
         if (Predef.class.isAssignableFrom(clazz)) {
             PredefMetadata<?, ?> metadata = PredefMetadata._forClass(clazz);
             Class<?> keyType = metadata.getKeyType();
-            return resolve(keyType, property);
+            return resolve(typeName, keyType, propertyName);
         }
 
         if (JsonMap.class.isAssignableFrom(clazz))
             return "any";
 
-        return naming.importName(clazz);
+        if (typeName)
+            return naming.importDefaultType(clazz);
+        else
+            return naming.importDefault(clazz);
     }
 
     static EsmName coreType(Class<?> clazz) {

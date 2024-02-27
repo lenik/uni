@@ -32,10 +32,22 @@ public class FooValidators0__ts
 
         out.printf("export class %s extends %s {\n", //
                 className.name, //
-                out.importDefaultAs(superType));
+                out.importDefault(superType));
         out.enter();
 
-        int i = 0;
+        out.println();
+        out.printf("constructor(type: %s) {\n", out.importDefaultType(project.Esm_Foo_stuff_Type.qName));
+        out.enter();
+        out.println("super(type);");
+        out.leave();
+        out.println("}");
+
+        out.println();
+        out.printf("get type() {\n");
+        out.enter();
+        out.printf("return this._type as %s;\n", out.importDefaultType(project.Esm_Foo_stuff_Type.qName));
+        out.leave();
+        out.println("}");
 
         for (IColumnMetadata column : table.getColumns()) {
             if (column.isExcluded())
@@ -49,8 +61,7 @@ public class FooValidators0__ts
             if (column.isForeignKey())
                 continue;
 
-            if (i++ != 0)
-                out.println();
+            out.println();
             validateProperty(out, column);
         }
 
@@ -61,8 +72,7 @@ public class FooValidators0__ts
             if (xref.isCompositeProperty())
                 continue;
 
-            if (i++ != 0)
-                out.println();
+            out.println();
             validateForeignKeyProperty(out, xref, table);
         }
 
@@ -78,7 +88,7 @@ public class FooValidators0__ts
         ColumnNaming cname = project.config.naming(column);
 
         String javaType = project.config.javaType(column);
-        String tsType = tsTypes.resolve(javaType, cname.propertyName);
+        String tsType = tsTypes.resolveType(javaType, cname.propertyName);
 
         out.printf("validate%s(val: %s) {\n", //
                 cname.ucfirstPropertyName, //
@@ -89,7 +99,7 @@ public class FooValidators0__ts
     void validateForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table) {
         String propertyName = xref.getJavaName();
         Class<?> type = xref.getParentTable().getEntityClass();
-        String tsType = tsTypes.resolve(type, propertyName);
+        String tsType = tsTypes.resolveType(type, propertyName);
         out.printf("validate%s(val: %s) {\n", //
                 Strings.ucfirst(propertyName), //
                 tsType);

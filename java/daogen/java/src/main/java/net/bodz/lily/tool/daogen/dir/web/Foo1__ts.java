@@ -28,16 +28,16 @@ public class Foo1__ts
                         project.Foo.qName, //
                         project._Foo_stuff.qName);
 
-        QualifiedName typeName = javaExtend.baseClassName.nameAdd(project.typeInfoSuffix);
+        QualifiedName typeName = project.Esm_FooType.qName;
 
         out.printf("export class %s extends %s%s {\n", //
                 javaExtend.simpleName, //
-                out.importDefaultAs(javaExtend.baseClassName), //
+                out.importDefault(javaExtend.baseClassName), //
                 javaExtend.baseParams);
         out.enter();
         {
             out.printf("static TYPE = new %s();\n", //
-                    out.importName(typeName));
+                    out.importDefault(typeName));
 
             if (javaExtend.clazz != null) {
                 int i = 0;
@@ -76,13 +76,13 @@ public class Foo1__ts
 
         boolean notNull = propertyClass.isPrimitive() || aNotNull;
 
-        String tsType = tsTypes.resolve(type, property.getName());
+        String tsType = tsTypes.resolveValue(type, property.getName());
 
         out.print(property.getName());
         if (! notNull)
             out.print("?");
         out.print(": ");
-        out.print(out.importName(tsType));
+        out.print(tsType);
         out.println();
     }
 

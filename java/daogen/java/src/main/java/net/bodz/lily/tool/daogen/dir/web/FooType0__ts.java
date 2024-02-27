@@ -62,7 +62,7 @@ public class FooType0__ts
 
         out.printf("export class %s extends %s {\n", //
                 extend.simpleName, //
-                out.importDefaultAs(superType));
+                out.importDefault(superType));
         out.println();
         out.enter();
         {
@@ -86,11 +86,11 @@ public class FooType0__ts
             staticFields2(out, table, OutFormat.TS_CLASS);
 
             out.println();
-            out.printf("static validators = new %s();\n", //
-                    out.importDefaultAs(validatorsClass));
+            out.printf("validators = new %s(this);\n", //
+                    out.importDefault(validatorsClass));
 
             out.println();
-            out.printf("static declaredProperty: %s = {\n", //
+            out.printf("declaredProperty: %s = {\n", //
                     out.importName(EsmModules.dba.entity.EntityPropertyMap));
             out.enter();
             {
@@ -133,8 +133,7 @@ public class FooType0__ts
             out.enter();
             {
                 out.println("super();");
-                out.printf("this.declare(%s.declaredProperty);\n", //
-                        extend.simpleName);
+                out.printf("this.declare(this.declaredProperty);\n");
                 out.leave();
             }
             out.println("}");
@@ -187,7 +186,7 @@ public class FooType0__ts
         boolean notNull = ! column.isNullable(true);
 
         String javaType = project.config.javaType(column);
-        String tsType = tsTypes.resolve(javaType, column.getName());
+        String tsType = tsTypes.resolveValue(javaType, column.getName());
 
         String label = column.getLabel();
         String description = column.getDescription();
@@ -250,7 +249,7 @@ public class FooType0__ts
         if (description == null) {
             description = parentTable.getDescription();
             if (description != null)
-                inheritDocFrom = out.importDefaultAs(parentTable.getJavaType());
+                inheritDocFrom = out.importDefaultType(parentTable.getJavaType());
         }
 
         boolean anyNotNull = false;
@@ -267,7 +266,7 @@ public class FooType0__ts
             throw new NullPointerException("parentType");
         QualifiedName parentTypeInfo = parentType.nameAdd(project.typeInfoSuffix);
 
-        String parentTsTypeInfo = tsTypes.resolve(parentTypeInfo, property);
+        String parentTsTypeInfo = tsTypes.resolveValue(parentTypeInfo, property);
 
         out.print(property);
         out.print(": ");
