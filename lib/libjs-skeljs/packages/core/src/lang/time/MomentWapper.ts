@@ -1,13 +1,15 @@
-import moment from 'moment-timezone';
-import type { Moment } from 'moment-timezone';
-import { Solar, Lunar } from 'lunar-javascript';
+import moment, { Moment } from "moment-timezone";
+
+export type ZoneId = ZoneOffset | ZoneRegion;
+export type ZoneOffset = string | number;
+export type ZoneRegion = string;
 
 export class MomentWrapper {
     moment: Moment
     version = 0
     defaultFormat: string
 
-    constructor(defaultFormat: string, inp?: any) {
+    constructor(defaultFormat: string, inp?: moment.MomentInput) {
         this.defaultFormat = defaultFormat;
         if (inp instanceof moment) {
             this.moment = inp as Moment;
@@ -22,34 +24,53 @@ export class MomentWrapper {
 
     parse(s: string, fmt?: string) {
         this.moment = moment(s, fmt || this.defaultFormat);
+        this.version++;
+    }
+
+    parseSmart(s: string, ...formats: string[]) {
+        let m = MomentWrapper.parseMoment(s, ...formats);
+        if (m == null) return false;
+        this.moment = m;
+        return true;
+    }
+
+    static parseMoment(s: string, ...formats: string[]) {
+        for (let i = 0; i < formats.length; i++) {
+            let fmt = formats[i];
+            let m = moment(s, fmt);
+            if (m != null) {
+                return m;
+            }
+        }
+        return null;
     }
 
     toString() {
         return this.format(this.defaultFormat);
     }
 
-    get string() {
+    get formatted() {
         return this.format();
     }
-    set string(val: string) {
+    set formatted(val: string) {
         this.parse(val);
     }
 
-    get _date() {
+    get inDate() {
         let tz = moment.tz.guess();
         let m = this.moment.clone().tz(tz);
         return m.toDate();
     }
-    set _date(val: Date) {
+    set inDate(val: Date) {
         let tz = moment.tz.guess();
         this.moment = moment.tz(val, tz);
     }
 
-    get moment_read() {
+    get moment_read(): Moment {
         this.version == 0;
         return this.moment;
     }
-    get moment_write() {
+    get moment_write(): Moment {
         this.version++;
         return this.moment;
     }
@@ -75,35 +96,45 @@ export class MomentWrapper {
     get day() { return this.moment_read.day() }
     set day(val: number) { this.moment_write.day(val) }
 
-    get days() { return this.moment_read.days() }
-    set days(val: number) { this.moment_write.days(val) }
+    // get days() { return this.moment_read.days() }
+    // set days(val: number) { this.moment_write.days(val) }
 
+    // @deprecate
     get date() { return this.version * 0 + this.moment_read.date() }
+    // @deprecate
     set date(val: number) { this.moment_write.date(val); }
+
+    get dayOfMonth() { return this.date }
+    set dayOfMonth(val: number) { this.date = val }
+
+    get daysInMonth() { return this.moment_read.daysInMonth() }
 
     get hour() { return this.moment_read.hour() }
     set hour(val: number) { this.moment_write.hour(val) }
 
-    get hours() { return this.moment_read.hours() }
-    set hours(val: number) { this.moment_write.hours(val) }
+    // get hours() { return this.moment_read.hours() }
+    // set hours(val: number) { this.moment_write.hours(val) }
 
     get minute() { return this.moment_read.minute() }
     set minute(val: number) { this.moment_write.minute(val) }
 
-    get minutes() { return this.moment_read.minutes() }
-    set minutes(val: number) { this.moment_write.minutes(val) }
+    // get minutes() { return this.moment_read.minutes() }
+    // set minutes(val: number) { this.moment_write.minutes(val) }
 
     get second() { return this.moment_read.second() }
     set second(val: number) { this.moment_write.second(val) }
 
-    get seconds() { return this.moment_read.seconds() }
-    set seconds(val: number) { this.moment_write.seconds(val) }
+    // get seconds() { return this.moment_read.seconds() }
+    // set seconds(val: number) { this.moment_write.seconds(val) }
 
     get millisecond() { return this.moment_read.millisecond() }
     set millisecond(val: number) { this.moment_write.millisecond(val) }
 
-    get milliseconds() { return this.moment_read.milliseconds() }
-    set milliseconds(val: number) { this.moment_write.milliseconds(val) }
+    // get milliseconds() { return this.moment_read.milliseconds() }
+    // set milliseconds(val: number) { this.moment_write.milliseconds(val) }
+
+    get nanosecond() { return this.moment_read.millisecond() * 1000000 }
+    set nanosecond(val: number) { this.moment_write.millisecond(val / 1000000) }
 
     get weekday() { return this.moment_read.weekday() }
     set weekday(val: number) { this.moment_write.weekday(val) }
@@ -141,102 +172,38 @@ export class MomentWrapper {
     get dayOfYear() { return this.moment_read.dayOfYear() }
     set dayOfYear(val: number) { this.moment_write.dayOfYear(val) }
 
+    get epochMilli() { return this.moment_read.valueOf() }
+    set epochMilli(val: number) {
+        this.moment = moment(val);
+        this.version++;
+    }
+
+    get epochSecond() { return this.epochMilli / 1000 }
+    set epochSecond(val: number) { this.epochMilli = val * 1000 }
+
+    get epochDay() { return this.epochMilli / 1000 / 86400 }
+    set epochDay(val: number) { this.epochMilli = val * 1000 * 86400 }
+
+    get isLeapYear() { return this.moment_read.isLeapYear() }
+    get isLeapMonth() { return this.moment_read.isLeapYear() && this.month1 == 2 }
+
+    get tz() { return this.moment_read.tz() }
+    set tz(val: ZoneRegion | undefined) { if (val != null) this.moment_write.tz(val) }
+
+    get tzKeepLocal() { return this.moment_read.tz() }
+    set tzKeepLocal(val: ZoneRegion | undefined) { if (val != null) this.moment_write.tz(val, true) }
+
+    get utcOffset() { return this.moment_read.utcOffset() }
+    set utcOffset(val: number | ZoneOffset) { this.moment_write.utcOffset(val); }
+
+    get utcOffsetKeepLocal() { return this.moment_read.utcOffset() }
+    set utcOffsetKeepLocal(val: number | ZoneOffset) { this.moment_write.utcOffset(val, true); }
+
+    get isUtcOffset() { return this.moment_read.isUtcOffset() }
+    get isDST() { return this.moment_read.isDST() }
+    get zoneAbbr(): ZoneRegion { return this.moment_read.zoneAbbr() }
+    get zoneName(): ZoneRegion { return this.moment_read.zoneName() }
+
 }
 
-export class LocalDate extends MomentWrapper {
-
-    constructor(inp?: any) {
-        super('YYYY-MM-DD', inp);
-    }
-
-}
-
-export class LocalDateTime extends MomentWrapper {
-
-    constructor(inp?: any) {
-        super('YYYY-MM-DD hh:mm:ss', inp);
-    }
-
-}
-
-export class ZonedDateTime extends MomentWrapper {
-
-    constructor(inp?: any) {
-        super('YYYY-MM-DD hh:mm:ss', inp);
-    }
-
-}
-
-export class OffsetDateTime extends MomentWrapper {
-
-    constructor(inp?: any) {
-        super('YYYY-MM-DD hh:mm:ss', inp);
-    }
-
-}
-
-export class LunarDate {
-
-    _lunar: Lunar
-    onchange: (val: LunarDate) => void
-
-    constructor(lunar: Lunar) {
-        this._lunar = lunar;
-    }
-
-    static fromMoment(m: Moment) {
-        let solar = Solar.fromYmd(m.year(), m.month() + 1, m.date());
-        let lunar = solar.getLunar();
-        return new LunarDate(lunar);
-    }
-
-    get lunar() {
-        return this._lunar;
-    }
-    set lunar(val: Lunar) {
-        this._lunar = val;
-        if (this.onchange != null)
-            this.onchange(this);
-    }
-
-    get year() { return this.lunar.getYear(); }
-    set year(val: number) {
-        this.lunar = Lunar.fromYmd(val, this.monthSigned, this.date);
-    }
-
-    get monthSigned() { return this.lunar.getMonth(); }
-    set monthSigned(val: number) {
-        this.lunar = Lunar.fromYmd(this.year, val, this.date);
-    }
-
-    get month() { return Math.abs(this.monthSigned) }
-    set month(val: number) { this.monthSigned = val }
-
-    get isLeapMonth() { return this.monthSigned < 0 }
-    set isLeapMonth(val: boolean) {
-        let num = Math.abs(this.monthSigned);
-        this.monthSigned = val ? -num : num;
-    }
-
-    get date() { return this.lunar.getDay(); }
-    set date(val: number) {
-        this.lunar = Lunar.fromYmd(this.year, this.monthSigned, val);
-    }
-
-    get solar() { return this.lunar.getSolar(); }
-    set solar(val) { this.lunar = val.getLunar(); }
-
-    get moment() {
-        let solar = this.solar;
-        return moment({
-            year: solar.getYear(),
-            month: solar.getMonth() - 1,
-            date: solar.getDay()
-        });
-    }
-    set moment(m: Moment) {
-        let l = LunarDate.fromMoment(m);
-        this.lunar = l.lunar;
-    }
-
-}
+export default MomentWrapper;

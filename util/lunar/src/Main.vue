@@ -1,7 +1,8 @@
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
 import moment from 'moment-timezone';
-import { LocalDate, LunarDate } from "@skeljs/core/src/lang/time";
+import LocalDate from "@skeljs/core/src/lang/time/LocalDate";
+import LunarDate from "@skeljs/core/src/lang/time/LunarDate";
 
 import FieldRow from "@skeljs/core/src/ui/FieldRow.vue";
 import CmdButton from "@skeljs/core/src/ui/CmdButton.vue";
@@ -30,20 +31,20 @@ const localDate = ref<LocalDate>(new LocalDate({
     date: 27
 }));
 
-const year = computed({
-    get() { return localDate.value.year },
-    set(val: number) { localDate.value.year = val }
-});
+// const year = computed({
+//     get() { return localDate.value.year },
+//     set(val: number) { localDate.value.year = val }
+// });
 
-const month = computed({
-    get() { return localDate.value.month + 1 },
-    set(val: number) { localDate.value.month = val - 1 }
-});
+// const month = computed({
+//     get() { return localDate.value.month + 1 },
+//     set(val: number) { localDate.value.month = val - 1 }
+// });
 
-const dayOfMonth = computed({
-    get() { return localDate.value.date },
-    set(val: number) { localDate.value.date = val }
-});
+// const dayOfMonth = computed({
+//     get() { return localDate.value.date },
+//     set(val: number) { localDate.value.date = val }
+// });
 
 const lunar = computed(() => {
     let lunarDate = LunarDate.fromMoment(localDate.value.moment_read);
@@ -85,12 +86,14 @@ const matches = computed(() => {
 onMounted(() => {
 });
 
+console.log("start");
+
 </script>
 
 <template>
     <div class="component-root" ref="rootElement">
         <FieldRow label="预设 (Preset)" icon="far-user">
-            <select v-model="localDate.string">
+            <select v-model="localDate.formatted">
                 <option value="1982-04-27">雨田</option>
                 <option value="1983-02-06">女鬼</option>
             </select>
@@ -102,7 +105,9 @@ onMounted(() => {
             <span class='hint'>月</span>
             <input class="day" type="number" v-model="localDate.date">
             <span class='hint'>日</span>
-            <input type="date" v-model="localDate.string">
+            <input class="leap" type="checkbox" v-model="localDate.isLeapMonth">
+            <span class='hint'>润月 (Leap Month)</span>
+            <input type="date" v-model="localDate.isoFormat">
         </FieldRow>
         <FieldRow label="阴历 (Lunar Birthday)" icon="far-moon">
             <input class="year" type="number" v-model="lunar.year">

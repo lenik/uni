@@ -22,7 +22,6 @@
         "jquery-ui": "^1.13.2",
         "jquery-ui-themes": "^1.12.0",
         "lunar-javascript": "^1.6.9",
-        "moment": "^2.30.1",
         "moment-timezone": "^0.5.45",
         "pinia": "^2.1.7",
         "sass": "^1.69.6",
