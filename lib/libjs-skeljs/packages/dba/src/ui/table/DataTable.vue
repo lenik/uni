@@ -40,6 +40,8 @@ export interface Props {
     vBand?: boolean
 
     watch?: boolean
+
+    nullValue?: any
 }
 </script>
 
@@ -57,7 +59,8 @@ const props = withDefaults(defineProps<Props>(), {
     version: 0,
     hBand: true,
     vBand: false,
-    watch: false
+    watch: false,
+    nullValue: '\\N',
 });
 
 const emit = defineEmits<{

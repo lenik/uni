@@ -219,6 +219,12 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
                         anyList.forEach(row => row._class = entityClass);
                 }
 
+                let fn = (val: any) => {
+                    if (val == null)
+                        return 'xxx';
+                    else
+                        return val;
+                };
                 rows = convertToDataRows(fields, data.columns, anyList);
             }
 
