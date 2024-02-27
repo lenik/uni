@@ -26,6 +26,7 @@ export class EntityType implements IEntityType {
     }
 
     declare(declaredProperties: EntityPropertyMap) {
+        // save object key as property.name
         for (let k in declaredProperties) {
             let prop = declaredProperties[k];
             prop.name = k;
@@ -34,13 +35,30 @@ export class EntityType implements IEntityType {
         let base = this.ordinalPositionBase;
         let sorted = Object.values(declaredProperties).sort(
             (a, b) => a._g_index! - b._g_index!);
+
         for (let i = 0; i < sorted.length; i++) {
             let prop = sorted[i];
 
             let name = prop.name!;
             let prev = this.property[name];
-            if (prev != null)
+            if (prev != null) {
                 prop.position = prev.position;
+
+                prop.type ||= prev.type;
+                prop.precision ||= prev.precision;
+                prop.scale ||= prev.scale;
+
+                prop.label ||= prev.label;
+                prop.description ||= prev.description;
+                prop.icon ||= prev.icon;
+
+                prop.validator ||= prev.validator;
+
+                if (prop.primaryKey == null) prop.primaryKey = prev.primaryKey;
+                if (prop.nullable == null) prop.nullable = prev.nullable;
+                // prop.unique
+            }
+
             prop.position ||= base + i;
 
             delete prop._g_index;
