@@ -88,7 +88,7 @@ export interface IEntityProperty {
 
     name?: string
     position?: integer
-    type: string | (new () => IEntityType) // ts type, not java type
+    type: string | (new () => IEntityType) | IEntityType // ts type, not java type
     primaryKey?: boolean
 
     // javaType: string
@@ -107,7 +107,7 @@ export class EntityProperty implements IEntityProperty {
 
     name?: string
     position?: integer
-    type: string
+    type: string | (new () => IEntityType) | IEntityType
     primaryKey?: boolean
 
     // javaType: string
