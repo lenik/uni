@@ -11,16 +11,37 @@ public class Core
         super("@skeljs/core", "src", priority);
     }
 
-    @SourcePath("lang/type")
-    public class LangType
+    @SourcePath("lang/basetype")
+    public class BaseType
             extends Source {
-        public final EsmName _char = type("char");
         public final EsmName _byte = type("byte");
         public final EsmName _short = type("short");
         public final EsmName integer = type("integer");
         public final EsmName _long = type("long");
         public final EsmName _float = type("float");
         public final EsmName _double = type("double");
+        public final EsmName _char = type("char");
+        // public final EsmName _boolean = type("boolean");
+//        public final EsmName string = type("string");
+        public final EsmName BigInteger = type("BigInteger");
+        public final EsmName BigDecimal = type("BigDecimal");
+    }
+
+    @SourcePath("lang/typespec")
+    public class TypeSpec
+            extends Source {
+        public final EsmName BYTE = value("BYTE");
+        public final EsmName SHORT = value("SHORT");
+        public final EsmName INT = value("INT");
+        public final EsmName LONG = value("LONG");
+        public final EsmName FLOAT = value("FLOAT");
+        public final EsmName DOUBLE = value("DOUBLE");
+        public final EsmName BIG_INTEGER = value("BIG_INTEGER");
+        public final EsmName BIG_DECIMAL = value("BIG_DECIMAL");
+        public final EsmName BOOLEAN = value("BOOLEAN");
+        public final EsmName CHAR = value("CHAR");
+        public final EsmName STRING = value("STRING");
+        public final EsmName DATE = value("DATE");
     }
 
     public class LangTime {
@@ -89,7 +110,8 @@ public class Core
 
     }
 
-    public final LangType type = add(new LangType());
+    public final BaseType baseType = add(new BaseType());
+    public final TypeSpec typeSpec = add(new TypeSpec());
     public final LangTime time = new LangTime();
 
     public final LoggingApi loggingApi = add(new LoggingApi());

@@ -168,31 +168,31 @@ public class TsTypeResolver {
         switch (typeId) {
         case TypeId._char:
         case TypeId.CHARACTER:
-            return EsmModules.core.type._char;
+            return EsmModules.core.baseType._char;
 
         case TypeId._byte:
         case TypeId.BYTE:
-            return EsmModules.core.type._byte;
+            return EsmModules.core.baseType._byte;
 
         case TypeId._short:
         case TypeId.SHORT:
-            return EsmModules.core.type._short;
+            return EsmModules.core.baseType._short;
 
         case TypeId._int:
         case TypeId.INTEGER:
-            return EsmModules.core.type.integer;
+            return EsmModules.core.baseType.integer;
 
         case TypeId._long:
         case TypeId.LONG:
-            return EsmModules.core.type._long;
+            return EsmModules.core.baseType._long;
 
         case TypeId._float:
         case TypeId.FLOAT:
-            return EsmModules.core.type._float;
+            return EsmModules.core.baseType._float;
 
         case TypeId._double:
         case TypeId.DOUBLE:
-            return EsmModules.core.type._double;
+            return EsmModules.core.baseType._double;
 
         case TypeId.INSTANT:
             return EsmModules.core.time.Instant;

@@ -1,4 +1,4 @@
-import type { integer } from "@skeljs/core/src/lang/type";
+import type { integer } from "@skeljs/core/src/lang/basetype";
 import { Party } from './Party';
 import PersonType from './PersonType';
 

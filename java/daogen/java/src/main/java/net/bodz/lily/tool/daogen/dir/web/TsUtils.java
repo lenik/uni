@@ -17,13 +17,13 @@ public class TsUtils {
 
     static HashMap<String, EsmName> aliases = new HashMap<>();
     static {
-        aliases.put("byte", EsmModules.core.type._byte);
-        aliases.put("short", EsmModules.core.type._short);
-        aliases.put("integer", EsmModules.core.type.integer);
-        aliases.put("long", EsmModules.core.type._long);
-        aliases.put("float", EsmModules.core.type._float);
-        aliases.put("double", EsmModules.core.type._double);
-        aliases.put("char", EsmModules.core.type._char);
+        aliases.put("byte", EsmModules.core.baseType._byte);
+        aliases.put("short", EsmModules.core.baseType._short);
+        aliases.put("integer", EsmModules.core.baseType.integer);
+        aliases.put("long", EsmModules.core.baseType._long);
+        aliases.put("float", EsmModules.core.baseType._float);
+        aliases.put("double", EsmModules.core.baseType._double);
+        aliases.put("char", EsmModules.core.baseType._char);
         aliases.put("Moment", EsmModules.momentTz.Moment);
     }
 

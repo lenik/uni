@@ -1,4 +1,4 @@
-import type { integer } from '@skeljs/core/src/lang/type';
+import type { integer } from '@skeljs/core/src/lang/basetype';
 import { simpleName } from "@skeljs/core/src/logging/api";
 import type { Validator } from "@skeljs/core/src/ui/types";
 
