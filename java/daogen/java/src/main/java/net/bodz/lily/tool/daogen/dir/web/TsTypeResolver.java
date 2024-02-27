@@ -154,13 +154,19 @@ public class TsTypeResolver {
             return EsmModules.core.type._double;
 
         case TypeId.INSTANT:
+            return EsmModules.core.time.Instant;
         case TypeId.ZONED_DATE_TIME:
+            return EsmModules.core.time.ZonedDateTime;
         case TypeId.OFFSET_DATE_TIME:
+            return EsmModules.core.time.OffsetDateTime;
         case TypeId.LOCAL_DATE_TIME:
+            return EsmModules.core.time.LocalDateTime;
         case TypeId.LOCAL_DATE:
+            return EsmModules.core.time.LocalDate;
         case TypeId.LOCAL_TIME:
+            return EsmModules.core.time.LocalTime;
         case TypeId.OFFSET_TIME:
-            return EsmModules.moment.Moment;
+            return EsmModules.core.time.OffsetTime;
 
         default:
             return null;

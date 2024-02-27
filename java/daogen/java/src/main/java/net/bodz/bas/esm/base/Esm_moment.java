@@ -7,7 +7,7 @@ public class Esm_moment
         extends EsmModule {
 
     public Esm_moment(int priority) {
-        super("moment", priority);
+        super("moment-timezone", priority);
     }
 
     public final EsmName Moment = main._interface("Moment");

@@ -23,6 +23,16 @@ public class Core
         public final EsmName _double = type("double");
     }
 
+    public class LangTime {
+        public final EsmName Instant = defaultClass("lang/time/Instant");
+        public final EsmName LocalDate = defaultClass("lang/time/LocalDate");
+        public final EsmName LocalTime = defaultClass("lang/time/LocalTime");
+        public final EsmName LocalDateTime = defaultClass("lang/time/LocalDateTime");
+        public final EsmName OffsetTime = defaultClass("lang/time/OffsetTime");
+        public final EsmName OffsetDateTime = defaultClass("lang/time/OffsetDateTime");
+        public final EsmName ZonedDateTime = defaultClass("lang/time/ZonedDateTime");
+    }
+
     @SourcePath("logging/api")
     public class LoggingApi
             extends Source {
@@ -80,6 +90,7 @@ public class Core
     }
 
     public final LangType type = add(new LangType());
+    public final LangTime time = new LangTime();
 
     public final LoggingApi loggingApi = add(new LoggingApi());
     public final UiTypes uiTypes = add(new UiTypes());

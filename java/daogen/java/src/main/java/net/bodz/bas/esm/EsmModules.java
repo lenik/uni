@@ -26,7 +26,7 @@ public interface EsmModules {
 
     Esm_jQuery jQuery = new Esm_jQuery(PRIORITY_BASE);
     Esm_vue vue = new Esm_vue(PRIORITY_BASE);
-    Esm_moment moment = new Esm_moment(PRIORITY_BASE);
+    Esm_moment momentTz = new Esm_moment(PRIORITY_BASE);
     Esm_datatables datatables = new Esm_datatables(PRIORITY_DATATABLES);
 
     Core core = new Core(PRIORITY_SKELJS_CORE);
