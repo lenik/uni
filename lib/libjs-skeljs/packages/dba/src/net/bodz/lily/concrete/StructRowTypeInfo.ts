@@ -4,17 +4,22 @@ import StructRowValidators from './StructRowValidators';
 
 export class StructRowTypeInfo extends EntityType {
 
-    static validators = new StructRowValidators();
+    name = "net.bodz.lily.concrete.StructRow"
+    icon = "far-cube"
+    label = "Content Version"
+    description = "Content data with version."
 
-    static declaredProperty: EntityPropertyMap = {
-        creationDate: property({ type: 'date', icon: 'fa-tag' }),
-        lastModifiedDate: property({ type: 'date', icon: 'fa-tag' }),
-        version: property({ type: 'number', icon: 'fa-tag' }),
+    validators = new StructRowValidators();
+
+    declaredProperty: EntityPropertyMap = {
+        creationDate: property({ type: 'date', icon: 'far-calendar-plus' }),
+        lastModifiedDate: property({ type: 'date', icon: 'far-edit' }),
+        version: property({ type: 'number', icon: 'far-code-branch' }),
     };
 
     constructor() {
         super();
-        this.declare(StructRowTypeInfo.declaredProperty);
+        this.declare(this.declaredProperty);
     }
 
 }

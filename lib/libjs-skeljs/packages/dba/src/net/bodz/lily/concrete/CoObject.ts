@@ -13,9 +13,7 @@ export abstract class CoObject extends StructRow {
 
     label?: string
     description?: string
-    comment?: string
-    image?: string
-    imageAlt?: string
+    icon?: string
 
     // state
 

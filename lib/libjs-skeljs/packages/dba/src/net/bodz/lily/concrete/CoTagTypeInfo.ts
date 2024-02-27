@@ -4,15 +4,20 @@ import CoTagValidators from './CoTagValidators';
 
 export class CoTagTypeInfo extends CoCodeTypeInfo {
 
-    static validators = new CoTagValidators();
+    name = "net.bodz.lily.concrete.CoTagType"
+    icon = "fa-tag"
+    label = "Concrete Tag Type"
+    description = "Definition of a tag type."
 
-    static declaredProperty: EntityPropertyMap = {
+    validators = new CoTagValidators();
+
+    declaredProperty: EntityPropertyMap = {
         // id: primaryKey({ type: 'number', precision: 20, })
     };
 
     constructor() {
         super();
-        this.declare(CoTagTypeInfo.declaredProperty);
+        this.declare(this.declaredProperty);
     }
 
 }

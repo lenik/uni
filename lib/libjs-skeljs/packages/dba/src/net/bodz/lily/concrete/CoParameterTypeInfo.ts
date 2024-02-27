@@ -5,15 +5,20 @@ import CoParameterValidators from './CoParameterValidators';
 
 export class CoParameterTypeInfo extends CoCodeTypeInfo {
 
-    static validators = new CoParameterValidators();
+    name = "net.bodz.lily.concrete.CoParameter"
+    icon = "fa-adjust"
+    label = "Concrete Parameter"
+    description = "Definition of a parameter type."
 
-    static declaredProperty: EntityPropertyMap = {
+    validators = new CoParameterValidators();
+
+    declaredProperty: EntityPropertyMap = {
         // id: primaryKey({ type: 'number', precision: 20, })
     };
 
     constructor() {
         super();
-        this.declare(CoParameterTypeInfo.declaredProperty);
+        this.declare(this.declaredProperty);
     }
 
 }

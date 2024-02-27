@@ -5,27 +5,36 @@ import StructRowTypeInfo from './StructRowTypeInfo';
 
 export class CoObjectTypeInfo extends StructRowTypeInfo {
 
-    static validators = new CoObjectValidators();
+    name = "net.bodz.lily.concrete.CoObject"
+    icon = "far-gem"
+    label = "Concrete Object"
+    description = "A concrete object is a physical object that can be perceived through the senses, such as touch or sight. Examples of concrete objects include a table, a chair, a book, a car, or a tree. These objects have a tangible presence and can be easily identified and described."
 
-    static declaredProperty: EntityPropertyMap = {
-        label: property({ type: 'string', icon: 'fa-tag' }),
-        description: property({ type: 'string', icon: 'far-info-circle' }),
-        icon: property({ type: 'string', icon: 'fa-image' }),
+    validators = new CoObjectValidators();
 
-        flags: property({ type: 'integer', icon: 'fa-tag' }),
-        priority: property({ type: 'integer', icon: 'fa-tag' }),
-        state: property({ type: 'integer', icon: 'fa-tag' }),
+    declaredProperty: EntityPropertyMap = {
+        id: property({ type: 'number', icon: 'far-key' }),
+        name: property({ type: 'string', icon: 'far-id-card' }),
+        properties: property({ type: 'any', icon: 'fab-pagelines' }),
 
-        ownerUser: property({ type: 'any', icon: 'fa-user' }),
-        ownerGroup: property({ type: 'any', icon: 'fa-group' }),
+        label: property({ type: 'string', icon: 'far-tag' }),
+        description: property({ type: 'string', icon: 'far-sticky-note' }),
+        icon: property({ type: 'string', icon: 'far-image' }),
 
-        acl: property({ type: 'integer', icon: 'fa-tag' }),
-        accessMode: property({ type: 'integer', icon: 'fa-tag' }),
+        flags: property({ type: 'integer', icon: 'far-toggle-on' }),
+        priority: property({ type: 'integer', icon: 'far-lightbulb' }),
+        state: property({ type: 'string', icon: 'far-heart' }),
+
+        ownerUser: property({ type: 'any', icon: 'far-user' }),
+        ownerGroup: property({ type: 'any', icon: 'far-users' }),
+
+        acl: property({ type: 'integer', icon: 'far-user-lock' }),
+        accessMode: property({ type: 'integer', icon: 'far-key' }),
     };
 
     constructor() {
         super();
-        this.declare(CoObjectTypeInfo.declaredProperty);
+        this.declare(this.declaredProperty);
     }
 
 }

@@ -4,15 +4,20 @@ import IdEntityValidators from './IdEntityValidators';
 
 export class IdEntityTypeInfo extends CoObjectTypeInfo {
 
-    static validators = new IdEntityValidators();
+    name = "net.bodz.lily.concrete.IdEntity"
+    icon = "fa-key"
+    label = "Concrete IdEntity"
+    description = "An entity has an id column."
 
-    static declaredProperty: EntityPropertyMap = {
+    validators = new IdEntityValidators();
+
+    declaredProperty: EntityPropertyMap = {
         id: primaryKey({ type: 'number', precision: 20, })
     };
 
     constructor() {
         super();
-        this.declare(IdEntityTypeInfo.declaredProperty);
+        this.declare(this.declaredProperty);
     }
 
 }

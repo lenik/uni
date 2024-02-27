@@ -4,15 +4,20 @@ import CoPhaseValidators from './CoPhaseValidators';
 
 export class CoPhaseTypeInfo extends CoCodeTypeInfo {
 
-    static validators = new CoPhaseValidators();
+    name = "net.bodz.lily.concrete.CoPhase"
+    icon = "fa-leaf"
+    label = "Concrete Phase"
+    description = "Definition of a phase type."
 
-    static declaredProperty: EntityPropertyMap = {
+    validators = new CoPhaseValidators();
+
+    declaredProperty: EntityPropertyMap = {
         // id: primaryKey({ type: 'number', precision: 20, })
     };
 
     constructor() {
         super();
-        this.declare(CoPhaseTypeInfo.declaredProperty);
+        this.declare(this.declaredProperty);
     }
 
 }

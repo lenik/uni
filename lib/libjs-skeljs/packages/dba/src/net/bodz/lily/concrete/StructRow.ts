@@ -5,7 +5,7 @@ import { integer } from '@skeljs/core/src/lang/type';
 import StructRowTypeInfo from './StructRowTypeInfo';
 
 export abstract class StructRow {
-    static TYPE = new StructRowTypeInfo();
+    static TYPE: any = new StructRowTypeInfo();
 
     // content
 

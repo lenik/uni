@@ -5,17 +5,22 @@ import IdEntityTypeInfo from './IdEntityTypeInfo';
 
 export class CoNodeTypeInfo extends IdEntityTypeInfo {
 
-    static validators = new CoNodeValidators();
+    name = "net.bodz.lily.concrete.CoNode"
+    icon = "fa-sitemap"
+    label = "Concrete Node"
+    description = "A node can have parent, hence multiple nodes forms a tree."
 
-    static declaredProperty: EntityPropertyMap = {
-        parent: property({ type: 'any', }),
+    validators = new CoNodeValidators();
+
+    declaredProperty: EntityPropertyMap = {
+        parent: property({ type: 'any', icon: "far-tree" }),
         refCount: property({ type: 'integer', nullable: false, precision: 19 }),
         depth: property({ type: 'integer', precision: 19 }),
     };
 
     constructor() {
         super();
-        this.declare(CoNodeTypeInfo.declaredProperty);
+        this.declare(this.declaredProperty);
     }
 
 }
