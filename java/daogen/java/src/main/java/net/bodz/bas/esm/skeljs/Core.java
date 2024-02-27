@@ -27,8 +27,15 @@ public class Core
         public final EsmName BigDecimal = type("BigDecimal");
     }
 
-    @SourcePath("lang/typespec")
-    public class TypeSpec
+    @SourcePath("lang/typeinfo")
+    public class TypeInfo
+            extends Source {
+        public final EsmName ITypeInfo = _interface("ITypeInfo");
+        public final EsmName TypeInfo = _class("TypeInfo");
+    }
+
+    @SourcePath("lang/baseinfo")
+    public class BaseInfo
             extends Source {
         public final EsmName BYTE = value("BYTE");
         public final EsmName SHORT = value("SHORT");
@@ -41,10 +48,14 @@ public class Core
         public final EsmName BOOLEAN = value("BOOLEAN");
         public final EsmName CHAR = value("CHAR");
         public final EsmName STRING = value("STRING");
+        public final EsmName ENUM = value("ENUM");
         public final EsmName DATE = value("DATE");
+        public final EsmName JSON = value("JSON");
     }
 
-    public class LangTime {
+    @SourcePath("lang/time")
+    public class LangTime
+            extends Source {
         public final EsmName Instant = defaultClass("lang/time/Instant");
         public final EsmName LocalDate = defaultClass("lang/time/LocalDate");
         public final EsmName LocalTime = defaultClass("lang/time/LocalTime");
@@ -52,6 +63,16 @@ public class Core
         public final EsmName OffsetTime = defaultClass("lang/time/OffsetTime");
         public final EsmName OffsetDateTime = defaultClass("lang/time/OffsetDateTime");
         public final EsmName ZonedDateTime = defaultClass("lang/time/ZonedDateTime");
+        public final EsmName LunarDate = defaultClass("lang/time/LunarDate");
+
+        public final EsmName Instant_TYPE = value("Instant/TYPE");
+        public final EsmName LocalDate_TYPE = value("LocalDate/TYPE");
+        public final EsmName LocalTime_TYPE = value("LocalTime/TYPE");
+        public final EsmName LocalDateTime_TYPE = value("LocalDateTime/TYPE");
+        public final EsmName OffsetTime_TYPE = value("OffsetTime/TYPE");
+        public final EsmName OffsetDateTime_TYPE = value("OffsetDateTime/TYPE");
+        public final EsmName ZonedDateTime_TYPE = value("ZonedDateTime/TYPE");
+        public final EsmName LunarDate_TYPE = value("LunarDate/TYPE");
     }
 
     @SourcePath("logging/api")
@@ -110,8 +131,9 @@ public class Core
 
     }
 
+    public final TypeInfo typeInfo = add(new TypeInfo());
     public final BaseType baseType = add(new BaseType());
-    public final TypeSpec typeSpec = add(new TypeSpec());
+    public final BaseInfo baseInfo = add(new BaseInfo());
     public final LangTime time = new LangTime();
 
     public final LoggingApi loggingApi = add(new LoggingApi());
