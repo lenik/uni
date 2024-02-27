@@ -127,6 +127,11 @@ onMounted(() => {
     &.attached {
         position: static;
         width: auto !important;
+        overflow: hidden;
+
+        .content {
+            overflow: auto;
+        }
     }
 
     &.detached {
