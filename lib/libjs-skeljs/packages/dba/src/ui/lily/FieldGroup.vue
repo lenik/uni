@@ -36,17 +36,45 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="header">
-        <Icon :name="type.icon" v-if="type.icon != null" />
-        <span class="label" v-if="type.label != null">{{ type.label }}</span>
-        <span class="fqcn" v-else>{{ type.name }}</span>
-        <hr>
+    <div class="field-group">
+        <div class="header">
+            <Icon :name="type.icon" v-if="type.icon != null" />
+            <span class="label" v-if="type.label != null">{{ type.label }}</span>
+            <span class="fqcn" v-else>{{ type.name }}</span>
+        </div>
+        <div class="body">
+            <slot></slot>
+        </div>
     </div>
-    <slot></slot>
 </template>
 
 <style scoped lang="scss">
 .field-group {
-    padding: 0;
+    margin-left: 1em;
+    margin: .5em 0;
+    --radius: .3em;
+}
+
+.header {
+    margin-left: -1em;
+    border-radius: var(--radius) var(--radius) 0 0;
+    border: solid 1px gray;
+    font-size: 75%;
+    font-weight: 400;
+    background-color: hsl(190, 25%, 65%);
+    color: white;
+    display: inline-block;
+    padding: 0 1em 0 .5em;
+
+    .icon {
+        margin-right: .5em;
+    }
+}
+
+.body {
+    border-radius: 0 0 var(--radius) var(--radius);
+    border: solid 1px hsl(80, 30%, 60%);
+    background-color: hsl(80, 60%, 98%);
+    padding: 0 .3em;
 }
 </style>
