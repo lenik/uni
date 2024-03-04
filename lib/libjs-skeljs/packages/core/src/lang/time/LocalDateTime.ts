@@ -1,6 +1,18 @@
-import MomentWrapper from "./MomentWapper";
+import { MomentWrapper, MomentWrapperType } from "./MomentWapper";
 import Instant from "./Instant";
 import LocalDate from "./LocalDate";
+
+export class LocalDateTimeType extends MomentWrapperType<LocalDateTime>{
+
+    get name() { return "LocalDateTime"; }
+    get icon() { return "far-clock"; }
+    get description() { return "a local date time."; }
+
+    override create(): LocalDateTime {
+        return LocalDateTime.now();
+    }
+
+}
 
 export class LocalDateTime extends MomentWrapper {
 

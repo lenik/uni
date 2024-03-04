@@ -1,7 +1,21 @@
-import MomentWrapper from "./MomentWapper";
+import { MomentWrapper, MomentWrapperType } from "./MomentWapper";
 import Instant from "./Instant";
 
+export class LocalDateType extends MomentWrapperType<LocalDate>{
+
+    get name() { return "LocalDate"; }
+    get icon() { return "far-clock"; }
+    get description() { return "a local date."; }
+
+    override create(): LocalDate {
+        return LocalDate.now();
+    }
+
+}
+
 export class LocalDate extends MomentWrapper {
+
+    static TYPE = new LocalDateType();
 
     static YYYY_MM_DD = 'YYYY-MM-DD';
     static YY_MM_DD = 'YY-MM-DD';

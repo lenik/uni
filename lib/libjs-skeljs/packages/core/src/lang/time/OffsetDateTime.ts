@@ -1,7 +1,21 @@
 import Instant from "./Instant";
-import MomentWrapper, { ZoneOffset } from "./MomentWapper";
+import { MomentWrapper, MomentWrapperType, ZoneOffset, defaultUtcOffset } from "./MomentWapper";
+
+export class OffsetDateTimeType extends MomentWrapperType<OffsetDateTime>{
+
+    get name() { return "OffsetDateTime"; }
+    get icon() { return "far-clock"; }
+    get description() { return "an offset date time."; }
+
+    override create(): OffsetDateTime {
+        return OffsetDateTime.now(defaultUtcOffset);
+    }
+
+}
 
 export class OffsetDateTime extends MomentWrapper {
+
+    static TYPE = new OffsetDateTimeType();
 
     static DATE_TIME = 'YYYY-MM-DD hh:mm:ss Z';
     static ISO_LOCAL_DATE_TIME = 'YYYY-MM-DDThh:mm:ssZ';

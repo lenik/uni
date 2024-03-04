@@ -1,6 +1,20 @@
-import { MomentWrapper } from "./MomentWapper";
+import { MomentWrapper, MomentWrapperType } from "./MomentWapper";
+
+export class InstantType extends MomentWrapperType<Instant>{
+
+    get name() { return "Instant"; }
+    get icon() { return "far-clock"; }
+    get description() { return "an instant"; }
+
+    override create(): Instant {
+        return Instant.now();
+    }
+
+}
 
 export class Instant extends MomentWrapper {
+
+    static TYPE = new InstantType();
 
     static UNIX_MS_TIMESTAMP = 'x';
     static UNIX_TIMESTAMP = 'X';

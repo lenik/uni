@@ -1,8 +1,26 @@
 import moment, { Moment } from "moment-timezone";
+import TypeInfo from "../TypeInfo";
+import { format } from "path";
 
 export type ZoneId = ZoneOffset | ZoneRegion;
 export type ZoneOffset = string | number;
 export type ZoneRegion = string;
+
+export abstract class MomentWrapperType<T extends MomentWrapper> extends TypeInfo<T> {
+
+    abstract create(): T
+
+    parse(s: string): T {
+        let instance = this.create();
+        instance.parse(s);
+        return instance;
+    }
+
+    format(val: T): string {
+        return val.toString();
+    }
+
+}
 
 export class MomentWrapper {
     moment: Moment
@@ -205,5 +223,10 @@ export class MomentWrapper {
     get zoneName(): ZoneRegion { return this.moment_read.zoneName() }
 
 }
+
+let _m = moment();
+export const defaultUtcOffset = _m.utcOffset();
+export const defaultZoneAbbr = _m.zoneAbbr();
+export const defaultZoneName = _m.zoneName();
 
 export default MomentWrapper;

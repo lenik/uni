@@ -1,7 +1,21 @@
-import MomentWrapper from "./MomentWapper";
+import { MomentWrapper, MomentWrapperType } from "./MomentWapper";
 import Instant from "./Instant";
 
+export class LocalTimeType extends MomentWrapperType<LocalTime>{
+
+    get name() { return "LocalTime"; }
+    get icon() { return "far-clock"; }
+    get description() { return "a local time."; }
+
+    override create(): LocalTime {
+        return LocalTime.now();
+    }
+
+}
+
 export class LocalTime extends MomentWrapper {
+
+    static TYPE = new LocalTimeType();
 
     static HH_MM_SS = 'hh:mm:ss';
     static HHMMSS = 'hhmmss';

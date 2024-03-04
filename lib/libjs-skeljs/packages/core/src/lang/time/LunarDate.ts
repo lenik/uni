@@ -1,8 +1,27 @@
 import moment from 'moment-timezone';
 import { Moment } from 'moment-timezone';
 import { Solar, Lunar } from 'lunar-javascript';
+import TypeInfo from '../TypeInfo';
+
+export class LunarDateType extends TypeInfo<LunarDate>{
+
+    get name() { return "LunarDate"; }
+    get icon() { return "far-clock"; }
+    get description() { return "a lunar local date."; }
+
+    parse(s: string): LunarDate {
+        throw 'not implemented';
+    }
+
+    format(val: LunarDate): string {
+        throw 'not implemented';
+    }
+
+}
 
 export class LunarDate {
+
+    static TYPE = new LunarDateType();
 
     _lunar: Lunar
     onchange: (val: LunarDate) => void
@@ -15,6 +34,10 @@ export class LunarDate {
         let solar = Solar.fromYmd(m.year(), m.month() + 1, m.date());
         let lunar = solar.getLunar();
         return new LunarDate(lunar);
+    }
+
+    static now() {
+        return this.fromMoment(moment());
     }
 
     get lunar() {
