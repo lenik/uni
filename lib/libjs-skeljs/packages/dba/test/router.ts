@@ -8,7 +8,6 @@ export const links = {
     "DataAdminDemo": 'Data Admin demo',
     "DataObjvDemo": 'Data row by object[]',
     "DataTabDemo": 'Table data modeled in DataTab type',
-    "PersonAdmin": 'Person Admin',
 };
 
 const router = createRouter({
@@ -21,7 +20,6 @@ const router = createRouter({
         { path: '/DataAdminDemo', component: () => import('./DataTables/DataAdminDemo.vue') },
         { path: '/DataObjvDemo', component: () => import('./DataTables/DataObjvDemo.vue') },
         { path: '/DataTabDemo', component: () => import('./DataTables/DataTabDemo.vue') },
-        { path: '/PersonAdmin', component: () => import('../src/net/bodz/lily/schema/contact/PersonAdmin.vue') },
     ]
 });
 
