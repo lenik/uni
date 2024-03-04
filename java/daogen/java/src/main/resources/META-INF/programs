@@ -3,3 +3,5 @@ main cfgconv = net.bodz.lily.tool.daogen.config.ConfigFormatConv
 main daogen = net.bodz.lily.tool.daogen.DaoCodeGenerator
 main foob = net.bodz.lily.tool.daogen.FooBuilderCodegen
 main ls-entity = net.bodz.lily.tool.ListEntity
+main predefs = net.bodz.lily.tool.TsPredefs
+main tstool = net.bodz.lily.tool.TsTool

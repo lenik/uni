@@ -5,7 +5,8 @@ dist_bin_SCRIPTS = \
     java/criterion \
     java/daogen \
     java/foob \
-    java/ls-entity
+    java/ls-entity \
+    java/tstool
 
 dist_man_MANS =
 
@@ -35,6 +36,7 @@ install-debug:
 	sudo ln -snf $$PWD/java/daogen.in /bin/daogen
 	sudo ln -snf $$PWD/java/foob.in /bin/foob
 	sudo ln -snf $$PWD/java/ls-entity.in /bin/ls-entity
+	sudo ln -snf $$PWD/java/tstool.in /bin/tstool
 
 autobuild:
 	@echo "autobuild isn't supported, yet."

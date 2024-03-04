@@ -1,0 +1,19 @@
+#!/bin/bash
+
+pkgdatadir="@pkgdatadir@"
+if [ "${pkgdatadir/@/}" != "$pkgdatadir" ]; then
+    __FILE__=$(readlink -f "${BASH_SOURCE[0]}")
+    __DIR__=${__FILE__%/*}
+    pkgdatadir="$__DIR__"
+fi
+
+opts=()
+if [ -f pom.xml ]; then
+    opts+=( -r "$PWD" )
+fi
+
+opts+=( -r "$pkgdatadir" )
+
+#echo main "${opts[@]}" tstool "$@"
+exec main "${opts[@]}" tstool "$@"
+
