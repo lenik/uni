@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { onMounted, ref } from "vue";
-import { Moment } from "moment";
+import { Moment } from "moment-timezone";
 
 // import { } from "./types";
 import type { LogEntry } from "../logging/api";

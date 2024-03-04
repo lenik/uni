@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { computed, onMounted, ref } from "vue";
-import moment from "moment";
+import moment from "moment-timezone";
 
 import { Command, Status } from "@skeljs/core/src/ui/types";
 import { LogEntry, logsExample, parseException } from "@skeljs/core/src/logging/api";
