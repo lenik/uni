@@ -38,7 +38,7 @@ public class JsonStats
     @Override
     protected void structAnalyze(String json) {
         lenStats.add(json.length());
-        if (!json.isEmpty()) {
+        if (! json.isEmpty()) {
             char firstChar = json.charAt(0);
             firstCharStats.add(firstChar);
         }
@@ -46,6 +46,8 @@ public class JsonStats
         try {
             JsonVariant any = JsonFn.parseAny(json);
             switch (any.getType()) {
+            case NULL:
+                break;
             case OBJECT:
                 JsonObject jo = any.getObject();
                 for (String sk : jo.keySet()) {
