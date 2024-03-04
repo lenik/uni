@@ -1,30 +1,15 @@
-
-export interface ITypeInfo<T> {
-
-    get name(): string
-    get label(): string | undefined
-    get description(): string | undefined
-    get icon(): string | undefined
-    get display(): string  // default: label or name
-
-    createElement(parentElement: HTMLElement, val: any): HTMLElement
-
-    validate(T: any): void
-
-    parse(s: string): T
-
-    format(val: T): string
-
-    get nullText(): string
-
-}
+import ITypeInfo from './ITypeInfo';
 
 export abstract class TypeInfo<T> implements ITypeInfo<T> {
 
-    abstract get name(): string
+    abstract get name(): string;
 
     get label(): string | undefined {
         return undefined;
+    }
+
+    get display(): string {
+        return this.label || this.name;
     }
 
     get description(): string | undefined {
@@ -32,11 +17,7 @@ export abstract class TypeInfo<T> implements ITypeInfo<T> {
     }
 
     get icon(): string | undefined {
-        return "fas-question"
-    }
-
-    get display() {
-        return this.label || this.name;
+        return "fas-question";
     }
 
     createElement(parentElement: HTMLElement, val: any): HTMLElement {

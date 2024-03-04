@@ -4,10 +4,10 @@ import { onMounted, ref } from "vue";
 import { Person } from "./Person";
 
 import FieldRow from '@skeljs/core/src/ui/FieldRow.vue';
-import RefEditor from '../../../../../../src/ui/input/RefEditor.vue';
+import RefEditor from '../../../../../ui/input/RefEditor.vue';
 import PersonChooseDialog from './PersonChooseDialog.vue';
 
-import { getDefaultFieldRowProps } from "../../../../../../src/ui/lily/defaults";
+import { getDefaultFieldRowProps } from "../../../../../ui/lily/defaults";
 
 defineOptions({
     inheritAttrs: false

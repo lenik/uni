@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMounted, ref } from "vue";
 import { } from "../../../../core/src/ui/types";
-import { IEntityType } from "../../net/bodz/lily/entity";
+import IEntityType from "../../net/bodz/lily/entity/IEntityType";
 
 export interface Props {
     type: IEntityType

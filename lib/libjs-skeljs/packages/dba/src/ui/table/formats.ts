@@ -32,7 +32,7 @@ export class DefaultFormats {
 
     decimal2 = (n: number) => toFixed(n, 2);
 
-    integer = (n: number) => toFixed(n, 0);
+    int = (n: number) => toFixed(n, 0);
 
     percent = (n: number, scale?: number): string | FormatFunc => {
         if (scale == null) {

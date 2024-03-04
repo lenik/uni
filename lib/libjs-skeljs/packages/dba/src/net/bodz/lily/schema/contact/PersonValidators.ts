@@ -1,5 +1,5 @@
 import { ValidateResult } from "@skeljs/core/src/ui/types"
-import { Moment } from "moment";
+import { Moment } from "moment-timezone";
 import { Person } from "./Person"
 
 export function validate_birthday(val: Moment) {

@@ -1,4 +1,4 @@
-import { EntityPropertyMap, property } from '../../../lily/entity';
+import { EntityPropertyMap, property } from '../../entity/EntityType';
 import { PartyType } from './PartyType';
 
 import * as validators from './PersonValidators';

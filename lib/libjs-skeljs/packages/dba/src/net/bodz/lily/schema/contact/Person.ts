@@ -1,4 +1,4 @@
-import type { integer } from "@skeljs/core/src/lang/basetype";
+import type { int } from "@skeljs/core/src/lang/basetype";
 import { Party } from './Party';
 import PersonType from './PersonType';
 
@@ -8,15 +8,15 @@ export class Person extends Party {
     gender?: string
 
     father?: Person
-    fatherId?: integer
+    fatherId?: int
     mother?: Person
-    motherId?: integer
+    motherId?: int
 
-    roleCount?: integer
+    roleCount?: int
     // roles: string[]
 
     employee: boolean
-    bankCount?: integer
+    bankCount?: int
     homeland?: string
     passport?: string
     ssn?: string

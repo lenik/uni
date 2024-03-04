@@ -1,9 +1,9 @@
-import { integer } from '../../entity';
+import { int } from '../../entity';
 import { IdEntity } from '../../concrete/IdEntity';
 
 import { ContactType } from './ContactType';
 
-export class Contact extends IdEntity<integer> {
+export class Contact extends IdEntity<int> {
     static TYPE = new ContactType();
 
     org: any
@@ -14,7 +14,7 @@ export class Contact extends IdEntity<integer> {
     usage?: string
 
     zone: any
-    zoneId?: integer
+    zoneId?: int
 
     country?: string
     r1?: string

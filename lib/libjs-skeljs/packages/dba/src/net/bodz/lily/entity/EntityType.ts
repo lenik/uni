@@ -1,29 +1,16 @@
-import type { integer } from '@skeljs/core/src/lang/basetype';
+import TypeInfo from "@skeljs/core/src/lang/TypeInfo";
+import { IEntityType, EntityPropertyMap } from "./IEntityType";
+import IEntityProperty from "./IEntityProperty";
+import EntityProperty from "./EntityProperty";
 import { simpleName } from "@skeljs/core/src/logging/api";
-import type { Validator } from "@skeljs/core/src/ui/types";
 
-export interface IEntityType {
-    name: string        // Java class name
-    icon?: string
+export { IEntityType, EntityPropertyMap };
 
-    label?: string
-    description?: string
-
-    property: EntityPropertyMap
-}
-
-export class EntityType implements IEntityType {
-    name: string        // Java class name
-    icon?: string
-
-    label?: string
-    description?: string
+export abstract class EntityType extends TypeInfo<any> implements IEntityType {
+    abstract override get name(): string        // Java class name
 
     property: EntityPropertyMap = {}
     ordinalPositionBase: number = 0
-
-    constructor() {
-    }
 
     declare(declaredProperties: EntityPropertyMap) {
         // save object key as property.name
@@ -72,71 +59,22 @@ export class EntityType implements IEntityType {
         return simpleName(this.name);
     }
 
-    get properties() {
+    get properties(): EntityProperty[] {
         let v = Object.values(this.property);
         v.sort((a, b) => a.position! - b.position!);
         return v;
     }
 
-}
-
-export interface EntityPropertyMap {
-    [propertyName: string]: EntityProperty
-}
-
-export interface IEntityProperty {
-
-    name?: string
-    position?: integer
-    type: string | (new () => IEntityType) | IEntityType // ts type, not java type
-    primaryKey?: boolean
-
-    // javaType: string
-    precision?: integer
-    scale?: integer
-    nullable?: boolean
-
-    icon?: string
-    label?: string
-    description?: string
-
-    validator?: Validator
-}
-
-export class EntityProperty implements IEntityProperty {
-
-    name?: string
-    position?: integer
-    type: string | (new () => IEntityType) | IEntityType
-    primaryKey?: boolean
-
-    // javaType: string
-    precision?: integer
-    scale?: integer
-    nullable?: boolean
-
-    icon?: string
-    label?: string
-    description?: string
-
-    validator?: Validator
-
-    _g_index?: integer;
-
-    constructor(o: IEntityProperty) {
-        Object.assign(this, o);
+    format(val: any): string {
+        let json = JSON.stringify(val);
+        return json;
     }
 
-    get display() {
-        if (this.label != null && this.label.length)
-            return this.label;
-        let name = this.name;
-        if (name != null) {
-            let ucfirst = name.substring(0, 1).toUpperCase();
-            return ucfirst + name.substring(1);
-        }
-        return null;
+    parse(s: string) {
+        let obj = JSON.parse(s);
+        return obj;
     }
+
 }
 
 let _next_g_index: number = 1;
@@ -151,3 +89,5 @@ export function primaryKey(a: IEntityProperty): EntityProperty {
     prop.primaryKey = true;
     return prop;
 }
+
+export default EntityType;

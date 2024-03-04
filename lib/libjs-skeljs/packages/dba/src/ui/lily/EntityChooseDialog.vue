@@ -5,7 +5,7 @@ import { computed, inject, onMounted, ref } from "vue";
 import { simpleName } from "@skeljs/core/src/logging/api";
 import { DialogSelectCallback } from '@skeljs/core/src/ui/types';
 import { Selection } from '../table/types';
-import { EntityType } from '../../lily/entity';
+import { EntityType } from '../../net/bodz/lily/entity/EntityType';
 import { SERVER_URL } from './context';
 
 import Dialog from '@skeljs/core/src/ui/Dialog.vue';

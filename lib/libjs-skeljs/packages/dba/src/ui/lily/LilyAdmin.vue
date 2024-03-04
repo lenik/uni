@@ -4,7 +4,7 @@ import $ from 'jquery';
 import { computed, inject, onMounted, ref } from 'vue';
 import { Api } from 'datatables.net';
 
-import { EntityType } from '../../lily/entity';
+import IEntityType from '../../net/bodz/lily/entity/IEntityType';
 import { Selection, ColumnType } from '../table/types';
 import { SERVER_URL } from './context';
 
@@ -20,7 +20,7 @@ import { obj2Row } from '../table/objconv';
 const model = defineModel<any>();
 
 interface Props {
-    type: EntityType
+    type: IEntityType
     serverUrl?: string
     url?: string
 }

@@ -3,8 +3,8 @@
 import { onMounted, ref } from "vue";
 import { DialogSelectCallback } from "@skeljs/core/src/ui/types";
 
-import { EntityType } from '../../../../../../src/lily/entity';
-import EntityChooseDialog from '../../../../../../src/ui/lily/EntityChooseDialog.vue';
+import { EntityType } from '../../entity/EntityType';
+import EntityChooseDialog from '../../../../../ui/lily/EntityChooseDialog.vue';
 
 import { Person } from './Person';
 

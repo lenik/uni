@@ -1,10 +1,14 @@
-import TypeInfo from "./typeinfo";
-import { BigDecimal, BigInteger, byte, char, double, float, integer, long, short } from "./basetype";
 import Big from "big.js";
+import {
+    BigDecimal, BigInteger,
+    InetAddress,
+    byte, char, double, float, int, long, short,
+} from "./basetype";
+import TypeInfo from "./TypeInfo";
 
 export abstract class NumberType<T> extends TypeInfo<T> {
 
-    get icon() { return "far-hashtag" }
+    get icon() { return "far-hashtag"; }
 
 }
 
@@ -22,7 +26,7 @@ export class ByteType extends NumberType<byte> {
 
 export class ShortType extends NumberType<short> {
 
-    get name() { return "byte"; }
+    get name() { return "short"; }
 
     parse(s: string): byte {
         let n = parseInt(s);
@@ -32,9 +36,9 @@ export class ShortType extends NumberType<short> {
 
 }
 
-export class IntegerType extends NumberType<integer> {
+export class IntType extends NumberType<int> {
 
-    get name() { return "integer"; }
+    get name() { return "int"; }
 
     parse(s: string) {
         let n = parseInt(s);
@@ -47,7 +51,7 @@ export class IntegerType extends NumberType<integer> {
 export class LongType extends NumberType<long> {
 
     get name() { return "long"; }
-    get description() { return "long integer" }
+    get description() { return "long int"; }
 
     parse(s: string) {
         let n = parseInt(s);
@@ -70,7 +74,7 @@ export class FloatType extends NumberType<float> {
 
 export class DoubleType extends NumberType<double> {
 
-    get name() { return "float"; }
+    get name() { return "double"; }
 
     parse(s: string) {
         let n = parseFloat(s);
@@ -181,26 +185,185 @@ export class DateType extends TypeInfo<Date> {
 
 }
 
-export class JSONType extends TypeInfo<any> {
+export abstract class CollectionType<E = any, C = E[]> extends TypeInfo<C> {
 
-    get name() { return "Object"; }
-    get icon() { return "far-js"; }
+    itemType: TypeInfo<E>
 
-    format(val: any): string {
-        return JSON.stringify(val);
+    constructor(itemType: TypeInfo<E>) {
+        super();
+        this.itemType = itemType;
     }
 
-    parse(s: string): Date {
-        return JSON.parse(s);
+    get name() { return "Collection"; }
+    get icon() { return "far-cube"; }
+
+    abstract create(): C;
+    abstract add(collection: C, item: E): boolean;
+    abstract remove(collection: C, item: E): boolean;
+    abstract toArray(collection: C): E[];
+
+    format(val: C): string {
+        let array = this.toArray(val);
+        return JSON.stringify(array);
+    }
+
+    parse(s: string): C {
+        let instance = this.create();
+        let a = JSON.parse(s);
+        if (!Array.isArray(a))
+            throw 'not an array: ' + a;
+        for (let i = 0; i < a.length; i++) {
+            let item = a[i];
+            let elm = item as E; // TODO
+            this.add(instance, elm)
+        }
+        return instance;
     }
 
 }
 
-export default TypeInfo;
+export class ArrayType<E> extends CollectionType<E, E[]> {
+
+    constructor(itemType: TypeInfo<E>) {
+        super(itemType);
+    }
+
+    get name() { return "Array"; }
+    get icon() { return "far-cube"; }
+
+    override create() {
+        return [];
+    }
+
+    override add(array: E[], item: E): boolean {
+        array.push(item);
+        return true;
+    }
+
+    override remove(array: E[], item: E): boolean {
+        let pos = array.indexOf(item);
+        if (pos == -1)
+            return false;
+        array.splice(pos, 1);
+        return true;
+    }
+
+    override toArray(array: E[]): E[] {
+        return array;
+    }
+
+}
+
+export class ListType<E> extends ArrayType<E> {
+
+    constructor(itemType: TypeInfo<E>) {
+        super(itemType);
+    }
+
+    get name() { return "List"; }
+    get icon() { return "far-cube"; }
+
+}
+
+export class SetType<E> extends CollectionType<E, Set<E>> {
+
+    get name() { return "Set"; }
+    get icon() { return "far-cube"; }
+
+    constructor(itemType: TypeInfo<E>) {
+        super(itemType);
+    }
+
+    override create() {
+        return new Set<E>();
+    }
+
+    override add(set: Set<E>, item: E): boolean {
+        if (set.has(item))
+            return false;
+        set.add(item);
+        return true;
+    }
+
+    override remove(set: Set<E>, item: E): boolean {
+        return set.delete(item);
+    }
+
+    override toArray(set: Set<E>): E[] {
+        return [...set];
+    }
+
+}
+
+export type MapEntry<K, V> = [key: K, val: V];
+
+export class MapType<K, V> extends TypeInfo<Map<K, V>> {
+
+    keyType: TypeInfo<K>
+    valueType: TypeInfo<V>
+
+    constructor(keyType: TypeInfo<K>, valueType: TypeInfo<V>) {
+        super();
+        this.keyType = keyType;
+        this.valueType = valueType;
+    }
+
+    get name() { return "Map"; }
+    get icon() { return "far-cube"; }
+
+    create() {
+        let map = new Map<K, V>();
+        return map;
+    }
+
+    toObject(map: Map<K, V>): any {
+        let obj: any = {};
+        map.keys().forEach(k => {
+            let v = map.get(k);
+            obj[k] = v;
+        });
+        return obj;
+    }
+
+    format(val: Map<K, V>): string {
+        let obj = this.toObject(val);
+        return JSON.stringify(obj);
+    }
+
+    parse(s: string): Map<K, V> {
+        let instance = this.create();
+        let obj = JSON.parse(s);
+        if (Array.isArray(obj))
+            throw 'not an object: ' + obj;
+        for (let k in obj) {
+            let v = obj[k];
+            let key = k as K; // TODO
+            let value = v as V; // TODO
+            instance.set(key, value);
+        }
+        return instance;
+    }
+
+}
+
+export class InetAddressType extends TypeInfo<InetAddress> {
+
+    get name() { return "InetAddress"; }
+    get icon() { return "far-globe"; }
+
+    format(val: InetAddress): string {
+        return val;
+    }
+
+    parse(s: string): InetAddress {
+        return s;
+    }
+
+}
 
 export const BYTE = new ByteType();
 export const SHORT = new ShortType();
-export const INT = new IntegerType();
+export const INT = new IntType();
 export const LONG = new LongType();
 export const FLOAT = new FloatType();
 export const DOUBLE = new DoubleType();
@@ -210,6 +373,24 @@ export const BIG_DECIMAL = new BigDecimalType();
 export const BOOLEAN = new BooleanType();
 export const CHAR = new CharType();
 export const STRING = new StringType();
+
 export const ENUM = new EnumType();
 export const DATE = new DateType();
-export const JSON = new JSONType();
+
+export function ARRAY<E>(itemType: TypeInfo<E>): ListType<E> {
+    return new ArrayType<E>(itemType);
+}
+
+export function LIST<E>(itemType: TypeInfo<E>): ListType<E> {
+    return new ListType<E>(itemType);
+}
+
+export function SET<E>(itemType: TypeInfo<E>): SetType<E> {
+    return new SetType<E>(itemType);
+}
+
+export function MAP<K, V>(keyType: TypeInfo<K>, valueType: TypeInfo<V>): MapType<K, V> {
+    return new MapType<K, V>(keyType, valueType);
+}
+
+export const INET_ADDRESS = new InetAddressType();

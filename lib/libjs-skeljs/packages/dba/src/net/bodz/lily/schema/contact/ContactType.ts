@@ -1,4 +1,4 @@
-import { EntityPropertyMap, property } from '../../entity';
+import { EntityPropertyMap, property } from '../../entity/EntityType';
 import { IdEntityType } from '../../concrete/IdEntityType';
 
 export default class ContactType extends IdEntityType<number> {
