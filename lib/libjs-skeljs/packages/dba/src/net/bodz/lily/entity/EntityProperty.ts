@@ -1,13 +1,13 @@
 import { int } from "@skeljs/core/src/lang/basetype"
 import { Validator } from "@skeljs/core/src/ui/types"
 import IEntityProperty from "./IEntityProperty"
-import IEntityType from "./IEntityType"
+import ITypeInfo from "@skeljs/core/src/lang/ITypeInfo"
 
 export class EntityProperty implements IEntityProperty {
 
     name?: string
     position?: int
-    type: string | (new () => IEntityType) | IEntityType
+    type: ITypeInfo<any>
     primaryKey?: boolean
 
     // javaType: string
