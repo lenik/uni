@@ -1,6 +1,5 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +30,9 @@ public class TsTypeResolver
 
     @Override
     public String resolveClass(Class<?> javaClass) {
+        if (javaClass == null)
+            throw new NullPointerException("null javaClass: " + propertyName);
+
         switch (TypeKind.getTypeId(javaClass)) {
         case TypeId._boolean:
         case TypeId.BOOLEAN:
@@ -47,14 +49,17 @@ public class TsTypeResolver
         if (baseTypeName != null)
             return imports.importName(baseTypeName);
 
-        if (javaClass.isArray() || List.class.isAssignableFrom(javaClass))
+        if (javaClass.isArray())
             return resolveClass(javaClass.getComponentType()) + "[]";
 
         String builtin = builtins.meet(javaClass);
         if (builtin != null)
             return builtin;
 
-        return null;
+        if (importAsType)
+            return imports.importDefaultType(javaClass);
+        else
+            return imports.importDefault(javaClass);
     }
 
     @Override

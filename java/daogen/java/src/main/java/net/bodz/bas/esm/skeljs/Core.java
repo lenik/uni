@@ -11,13 +11,6 @@ public class Core
         super("@skeljs/core", "src", priority);
     }
 
-    @SourcePath("lang/typeinfo")
-    public class TypeInfo
-            extends Source {
-        public final EsmName ITypeInfo = _interface("ITypeInfo");
-        public final EsmName TypeInfo = _class("TypeInfo");
-    }
-
     @SourcePath("lang/basetype")
     public class BaseType
             extends Source {
@@ -100,15 +93,6 @@ public class Core
         public final EsmName OffsetDateTime = childDefault("OffsetDateTime");
         public final EsmName ZonedDateTime = childDefault("ZonedDateTime");
         public final EsmName LunarDate = childDefault("LunarDate");
-
-//        public final EsmName Instant_TYPE = value("Instant/TYPE");
-//        public final EsmName LocalDate_TYPE = value("LocalDate/TYPE");
-//        public final EsmName LocalTime_TYPE = value("LocalTime/TYPE");
-//        public final EsmName LocalDateTime_TYPE = value("LocalDateTime/TYPE");
-//        public final EsmName OffsetTime_TYPE = value("OffsetTime/TYPE");
-//        public final EsmName OffsetDateTime_TYPE = value("OffsetDateTime/TYPE");
-//        public final EsmName ZonedDateTime_TYPE = value("ZonedDateTime/TYPE");
-//        public final EsmName LunarDate_TYPE = value("LunarDate/TYPE");
     }
 
     @SourcePath("logging/api")
@@ -167,7 +151,10 @@ public class Core
 
     }
 
-    public final TypeInfo typeInfo = add(new TypeInfo());
+    public final EsmName TypeInfo = defaultClass("lang/TypeInfo");
+    public final EsmName Predef = defaultClass("lang/Predef");
+    public final EsmName PredefType = defaultClass("lang/PredefType");
+
     public final BaseType baseType = add(new BaseType());
     public final BaseInfo baseInfo = add(new BaseInfo());
     public final BasType basType = add(new BasType());

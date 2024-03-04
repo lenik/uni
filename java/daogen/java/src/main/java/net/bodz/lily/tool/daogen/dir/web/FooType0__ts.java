@@ -68,14 +68,14 @@ public class FooType0__ts
         {
             staticFields1(out, table, OutFormat.TS_CLASS);
 
-            IType type = table.getEntityType();
+            IType type = table.getPotatoType();
             String iconName = "fa-tag";
             String label = type.getLabel().toString();
             if (Nullables.isEmpty(description))
                 description = type.getDescription().toString();
 
             out.println();
-            out.printf("get name() { return \"%s\"; }\n", table.getEntityTypeName());
+            out.printf("get name() { return \"%s\"; }\n", table.getJavaType());
             if (iconName != null)
                 out.printf("get icon() { return \"%s\"; }\n", iconName);
             if (label != null)
@@ -174,10 +174,10 @@ public class FooType0__ts
         // composite property, need to be declared in the user type.
         // check if exists:
         String head = Split.headDomain(cname.propertyName).a;
-        IProperty headProperty = table.getEntityType().getProperty(head);
+        IProperty headProperty = table.getPotatoType().getProperty(head);
         if (headProperty == null)
             logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.",
-                    table.getEntityTypeName(), head, cname.propertyName);
+                    table.getJavaType(), head, cname.propertyName);
     }
 
     void declProperty(TypeScriptWriter out, IColumnMetadata column, //

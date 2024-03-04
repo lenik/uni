@@ -135,7 +135,7 @@ public class FinishProcessor
      * Bind runtime IProperty to the table metadata.
      */
     void bindProperties(DefaultTableMetadata table) {
-        IType type = table.getEntityType();
+        IType type = table.getPotatoType();
         if (type == null)
             return;
 

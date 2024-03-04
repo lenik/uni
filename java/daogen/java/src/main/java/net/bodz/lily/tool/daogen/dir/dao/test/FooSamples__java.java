@@ -25,6 +25,7 @@ import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.predef.Predef;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.typer.Typers;
 import net.bodz.bas.typer.std.ISampleGenerator;
 import net.bodz.lily.concrete.CoObject;
@@ -90,7 +91,7 @@ public class FooSamples__java
     }
 
     void fields(JavaSourceWriter out, ITableMetadata table, List<IColumnMetadata> columns) {
-        IType entityType = table.getEntityType();
+        IType entityType = table.getPotatoType();
         Set<String> compositeHeads = templates.getCompositeHeads(table);
 
         // foreign key references as member properties
@@ -98,7 +99,7 @@ public class FooSamples__java
             CrossReference xref = table.getForeignKeys().get(fkName);
             if (xref.isCompositeProperty())
                 continue;
-            String parentClassName = xref.getParentTable().getEntityTypeName();
+            String parentClassName = xref.getParentTable().getJavaType().getFullName();
             out.printf("public %s %s;\n", //
                     out.im.name(parentClassName), xref.getJavaName());
             for (IColumnMetadata foreignColumn : xref.getForeignColumns())
@@ -123,7 +124,7 @@ public class FooSamples__java
     }
 
     void mtdBuild(JavaSourceWriter out, ITableMetadata table, List<IColumnMetadata> columns) {
-        IType entityType = table.getEntityType();
+        IType entityType = table.getPotatoType();
         Set<String> compositeHeads = templates.getCompositeHeads(table);
 
         out.println("@Override");
@@ -207,10 +208,10 @@ public class FooSamples__java
                 if (xref.isCompositeProperty())
                     continue;
 
-                String parentClassName = xref.getParentTable().getEntityTypeName();
+                QualifiedName parentClassName = xref.getParentTable().getJavaType();
                 String parentMapperName = null;
 
-                IType parentType = xref.getParentTable().getEntityType();
+                IType parentType = xref.getParentTable().getPotatoType();
                 if (parentType != null) {
                     IEntityTypeInfo parentInfo = EntityTypes.getTypeInfo(parentType.getJavaClass());
                     if (parentInfo != null) {
@@ -220,10 +221,7 @@ public class FooSamples__java
                     }
                 }
                 if (parentMapperName == null) {
-                    int lastDot = parentClassName.lastIndexOf('.');
-                    String pkg = parentClassName.substring(0, lastDot);
-                    String simple = parentClassName.substring(lastDot + 1);
-                    parentMapperName = pkg + ".dao." + simple + "Mapper";
+                    parentMapperName = parentClassName.packageName + ".dao." + parentClassName.name + "Mapper";
                 }
 
                 String templateField = xref.getJavaName();

@@ -23,6 +23,8 @@ public class Attrs
     }
 
     public void putQuoted(String key, Object value) {
+        if (value == null)
+            return;
         String s = value.toString();
         String quoted = StringQuote.qqJavaString(s);
         put(key, quoted);

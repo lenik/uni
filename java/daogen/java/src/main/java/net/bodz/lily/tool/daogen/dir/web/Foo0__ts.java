@@ -15,6 +15,7 @@ import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
+import net.bodz.lily.tool.daogen.util.TsTemplates;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
@@ -42,8 +43,7 @@ public class Foo0__ts
                 extend.baseParams);
         out.enter();
         {
-            out.printf("static TYPE = new %s();\n", //
-                    out.importDefault(typeName));
+            TsTemplates.lazyProp(out, "_typeInfo", "TYPE", out.importDefault(typeName));
             out.println();
 
             for (IColumnMetadata column : table.getColumns()) {
@@ -100,10 +100,10 @@ public class Foo0__ts
         // composite property, need to be declared in the user type.
         // check if exists:
         String head = Split.headDomain(cname.propertyName).a;
-        IProperty headProperty = table.getEntityType().getProperty(head);
+        IProperty headProperty = table.getPotatoType().getProperty(head);
         if (headProperty == null)
-            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.",
-                    table.getEntityTypeName(), head, cname.propertyName);
+            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.", table.getJavaType(),
+                    head, cname.propertyName);
     }
 
     void defineProperty(TypeScriptWriter out, IColumnMetadata column) {

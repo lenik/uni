@@ -46,13 +46,13 @@ public class FooType1__ts
         out.println();
         out.enter();
         {
-            IType entityType = table.getEntityType();
+            IType entityType = table.getPotatoType();
             String entityIcon = "fa-tag";
             String entityLabel = entityType.getLabel().toString();
             if (Nullables.isEmpty(entityDescription))
                 entityDescription = entityType.getDescription().toString();
 
-            out.printf("get name() { return \"%s\"; }\n", table.getEntityTypeName());
+            out.printf("get name() { return \"%s\"; }\n", table.getJavaType());
             if (entityIcon != null)
                 out.printf("get icon() { return \"%s\"; }\n", entityIcon);
             if (entityLabel != null)
@@ -104,6 +104,9 @@ public class FooType1__ts
         boolean notNull = clazz.isPrimitive() || aNotNull;
 
         Type type = property.getPropertyGenericType();
+        if (type == null)
+            throw new IllegalArgumentException("property's generic type is null: " + property);
+
         String tsType = typeResolver().property(property.getName()).resolveGeneric(type);
 
         String label = property.getLabel().toString();

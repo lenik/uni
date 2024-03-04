@@ -99,8 +99,8 @@ public class FooValidators0__ts
 
     void validateForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table) {
         String propertyName = xref.getJavaName();
-        Class<?> type = xref.getParentTable().getEntityClass();
-        String tsType = typeResolver().importAsType().property(propertyName).resolveClass(type);
+        QualifiedName javaType = xref.getParentTable().getJavaType();
+        String tsType = typeResolver().importAsType().property(propertyName).resolve(javaType);
 
         out.printf("validate%s(val: %s) {\n", //
                 Strings.ucfirst(propertyName), //

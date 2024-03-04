@@ -11,6 +11,7 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
+import net.bodz.lily.tool.daogen.util.TsTemplates;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
@@ -36,8 +37,8 @@ public class Foo1__ts
                 javaExtend.baseParams);
         out.enter();
         {
-            out.printf("static TYPE = new %s();\n", //
-                    out.importDefault(typeName));
+            TsTemplates.lazyProp(out, "_typeInfo", "TYPE", out.importDefault(typeName));
+            out.println();
 
             if (javaExtend.clazz != null) {
                 int i = 0;
