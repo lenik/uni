@@ -4,16 +4,19 @@ import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.codegen.ClassPathInfo;
 import net.bodz.bas.esm.EsmImports;
 import net.bodz.bas.esm.EsmPackageMap;
+import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.dir.web.TsTypeResolver;
 import net.bodz.lily.tool.daogen.dir.web.TsUtils;
+import net.bodz.lily.tool.daogen.util.ITsImporterAware;
 
 public abstract class JavaGen__vue
-        extends JavaGenFileType {
+        extends JavaGenFileType
+        implements
+            ITsImporterAware {
 
-    protected TsTypeResolver tsTypes;
+    TypeScriptWriter tsOut;
 
     public JavaGen__vue(JavaGenProject project, ClassPathInfo name) {
         super(project, name);
@@ -35,13 +38,16 @@ public abstract class JavaGen__vue
         return false;
     }
 
-    protected final void buildVue(ITreeOut out, ITableMetadata model) {
-        EsmImports imports = new EsmImports(null);
-        EsmPackageMap packageMap = TsUtils.getPackageMap(project.web.baseDir);
+    @Override
+    public ITsImporter getTsImporter() {
+        return tsOut;
+    }
 
-        TypeScriptWriter tsOut = new TypeScriptWriter(pathInfo.getQName(), out.indented(), //
+    protected final void buildVue(ITreeOut out, ITableMetadata model) {
+        EsmPackageMap packageMap = TsUtils.getPackageMap(project.web.baseDir);
+        EsmImports imports = new EsmImports(null);
+        tsOut = new TypeScriptWriter(pathInfo.getQName(), out.indented(), //
                 imports, packageMap);
-        tsTypes = new TsTypeResolver(tsOut);
 
         TypeScriptWriter buf;
 

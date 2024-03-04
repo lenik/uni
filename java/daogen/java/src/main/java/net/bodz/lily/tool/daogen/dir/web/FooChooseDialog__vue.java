@@ -1,26 +1,17 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.t.catalog.CrossReference;
-import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__vue;
 
 public class FooChooseDialog__vue
-        extends JavaGen__vue {
-
-    TsTemplates templates;
+        extends DTDriven__vue {
 
     public FooChooseDialog__vue(JavaGenProject project) {
         super(project, project.Esm_FooChooseDialog);
-        templates = new TsTemplates(project);
     }
 
     @Override
@@ -63,6 +54,10 @@ public class FooChooseDialog__vue
         out.println("}>();");
         out.println();
         out.println("// property shortcuts");
+
+        out.println();
+        dumpTypeMap(out);
+
         out.println();
         out.printf("const entityChooseDialog = %s<undefined | InstanceType<typeof %s>>();", //
                 out.name(EsmModules.vue.ref), //
@@ -78,6 +73,7 @@ public class FooChooseDialog__vue
             out.leave();
         }
         out.println("}");
+
         out.println();
         out.printf("%s(() => {\n", //
                 out.name(EsmModules.vue.onMounted));
@@ -93,27 +89,12 @@ public class FooChooseDialog__vue
         out.println("<template>");
         out.enter();
         {
-            out.printf("<EntityChooseDialog ref=\"entityChooseDialog\" :type=\"%s.TYPE\" :modal=\"modal\">\n", //
+            out.printf(
+                    "<EntityChooseDialog ref=\"entityChooseDialog\" :type=\"%s.TYPE\" :typeMap=\"typeMap\" :modal=\"modal\">\n", //
                     out.importName(project.Foo.qName));
             out.enter();
             {
-                Set<String> handledXrefs = new HashSet<>();
-
-                for (IColumnMetadata column : table.getColumns()) {
-                    if (column.isCompositeProperty()) {
-                        // checkCompositeProperty(table, column);
-                        continue;
-                    }
-
-                    if (column.isForeignKey()) {
-                        CrossReference xref = table.getForeignKeyFromColumn(column.getName());
-                        if (handledXrefs.add(xref.getConstraintName()))
-                            templates.declFKColumn(out, xref);
-                    } else {
-                        templates.declColumn(out, column);
-                    }
-                }
-
+                buildColumns(out, table);
                 out.leave();
             }
             out.println("</EntityChooseDialog>");

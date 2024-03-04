@@ -2,38 +2,16 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 import net.bodz.bas.err.LoadException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.esm.EsmModule;
 import net.bodz.bas.esm.EsmModules;
-import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.EsmPackageMap;
 import net.bodz.bas.json.JsonObject;
 import net.bodz.lily.tool.daogen.util.NpmDir;
 
 public class TsUtils {
-
-    static HashMap<String, EsmName> aliases = new HashMap<>();
-    static {
-        aliases.put("byte", EsmModules.core.baseType._byte);
-        aliases.put("short", EsmModules.core.baseType._short);
-        aliases.put("integer", EsmModules.core.baseType.integer);
-        aliases.put("long", EsmModules.core.baseType._long);
-        aliases.put("float", EsmModules.core.baseType._float);
-        aliases.put("double", EsmModules.core.baseType._double);
-        aliases.put("char", EsmModules.core.baseType._char);
-        aliases.put("Moment", EsmModules.momentTz.Moment);
-    }
-
-    public static EsmName getAlias1(String type) {
-        if (type == null)
-            throw new NullPointerException("type");
-        if (type.isEmpty())
-            throw new IllegalArgumentException("empty string");
-        return aliases.get(type);
-    }
 
     public static EsmPackageMap getPackageMap(File webDir) {
         NpmDir npmDir = NpmDir.closest(webDir);

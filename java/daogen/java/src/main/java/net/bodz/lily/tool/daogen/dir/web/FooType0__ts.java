@@ -75,13 +75,13 @@ public class FooType0__ts
                 description = type.getDescription().toString();
 
             out.println();
-            out.printf("name = \"%s\"\n", table.getEntityTypeName());
+            out.printf("get name() { return \"%s\"; }\n", table.getEntityTypeName());
             if (iconName != null)
-                out.printf("icon = \"%s\"\n", iconName);
+                out.printf("get icon() { return \"%s\"; }\n", iconName);
             if (label != null)
-                out.printf("label = \"%s\"\n", label);
+                out.printf("get label() { return \"%s\"; }\n", label);
             if (description != null)
-                out.printf("description = \"%s\"\n", description);
+                out.printf("get description() { return \"%s\"; }\n", description);
 
             staticFields2(out, table, OutFormat.TS_CLASS);
 
@@ -186,7 +186,7 @@ public class FooType0__ts
         boolean notNull = ! column.isNullable(true);
 
         String javaType = project.config.javaType(column);
-        String tsType = tsTypes.resolveValue(javaType, column.getName());
+        String tsType = typeResolver().property(column.getName()).resolve(javaType);
 
         String label = column.getLabel();
         String description = column.getDescription();
@@ -199,7 +199,7 @@ public class FooType0__ts
         else
             out.print(out.name(EsmModules.dba.entity.property));
 
-        Attrs attrs = new Attrs(TsConfig.newLineProps);
+        Attrs attrs = new Attrs(TsCodeStyle.newLineProps);
         attrs.putQuoted("type", tsType);
         if (notNull)
             attrs.put("nullable", false);
@@ -266,13 +266,13 @@ public class FooType0__ts
             throw new NullPointerException("parentType");
         QualifiedName parentTypeInfo = parentType.nameAdd(project.typeInfoSuffix);
 
-        String parentTsTypeInfo = tsTypes.resolveValue(parentTypeInfo, property);
+        String parentTsTypeInfo = typeResolver().property(property).resolve(parentTypeInfo);
 
         out.print(property);
         out.print(": ");
         out.print(out.name(EsmModules.dba.entity.property));
 
-        Attrs attrs = new Attrs(TsConfig.newLineProps);
+        Attrs attrs = new Attrs(TsCodeStyle.newLineProps);
         attrs.put("type", parentTsTypeInfo);
         if (anyNotNull)
             attrs.put("nullable", false);

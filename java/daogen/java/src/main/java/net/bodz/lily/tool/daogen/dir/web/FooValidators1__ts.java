@@ -71,8 +71,8 @@ public class FooValidators1__ts
 
     void validateProperty(TypeScriptWriter out, IProperty property) {
         Type type = property.getPropertyGenericType();
-
-        String tsType = tsTypes.resolveType(type, property.getName());
+        String tsType = typeResolver().property(property.getName())//
+                .importAsType().resolveGeneric(type);
 
         out.printf("validate%s(val: %s) {\n", //
                 Strings.ucfirst(property.getName()), //

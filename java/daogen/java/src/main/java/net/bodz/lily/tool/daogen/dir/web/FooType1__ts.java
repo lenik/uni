@@ -52,13 +52,13 @@ public class FooType1__ts
             if (Nullables.isEmpty(entityDescription))
                 entityDescription = entityType.getDescription().toString();
 
-            out.printf("name = \"%s\"\n", table.getEntityTypeName());
+            out.printf("get name() { return \"%s\"; }\n", table.getEntityTypeName());
             if (entityIcon != null)
-                out.printf("icon = \"%s\"\n", entityIcon);
+                out.printf("get icon() { return \"%s\"; }\n", entityIcon);
             if (entityLabel != null)
-                out.printf("label = \"%s\"\n", entityLabel);
+                out.printf("get label() { return \"%s\"; }\n", entityLabel);
             if (entityDescription != null)
-                out.printf("description = \"%s\"\n", entityDescription);
+                out.printf("get description() { return \"%s\"; }\n", entityDescription);
 
             out.println();
             out.printf("validators = new %s(this);\n", //
@@ -104,7 +104,7 @@ public class FooType1__ts
         boolean notNull = clazz.isPrimitive() || aNotNull;
 
         Type type = property.getPropertyGenericType();
-        String tsType = tsTypes.resolveValue(type, property.getName());
+        String tsType = typeResolver().property(property.getName()).resolveGeneric(type);
 
         String label = property.getLabel().toString();
         String description = property.getDescription().toString();
@@ -114,7 +114,7 @@ public class FooType1__ts
         out.print(": ");
         out.print(out.name(EsmModules.dba.entity.property));
 
-        Attrs attrs = new Attrs(TsConfig.newLineProps);
+        Attrs attrs = new Attrs(TsCodeStyle.newLineProps);
         attrs.putQuoted("type", tsType);
         if (notNull)
             attrs.put("nullable", false);

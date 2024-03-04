@@ -269,7 +269,7 @@ public class FooEditor__vue
         String propertyName = cname.propertyName;
 
         Class<?> type = column.getJavaClass();
-        String tsType = tsTypes.resolveType(type, propertyName);
+        String tsType = typeResolver().importAsType().property(property.getName()).resolveClass(type);
 
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //
@@ -281,15 +281,19 @@ public class FooEditor__vue
             Attrs inputAttrs = new Attrs();
             switch (tsType) {
             case "number":
-            case "integer":
+            case "byte":
+            case "short":
+            case "int":
             case "long":
+            case "float":
+            case "double":
                 inputAttrs.put("type", "number");
-                break;
-            case "string":
-                inputAttrs.put("type", "text");
                 break;
             case "boolean":
                 inputAttrs.put("type", "checkbox");
+                break;
+            case "string":
+                inputAttrs.put("type", "text");
                 break;
             case "Date":
                 inputAttrs.put("type", "date");
@@ -299,7 +303,12 @@ public class FooEditor__vue
             }
 
             if (useInput) {
-                inputAttrs.put("v-model", "model." + propertyName);
+                switch (tsType) {
+                case "Date":
+                    inputAttrs.put("v-model", "model." + propertyName + ".dateString");
+                default:
+                    inputAttrs.put("v-model", "model." + propertyName);
+                }
                 String xml = inputAttrs.toXml("input", true);
                 out.println(xml);
 

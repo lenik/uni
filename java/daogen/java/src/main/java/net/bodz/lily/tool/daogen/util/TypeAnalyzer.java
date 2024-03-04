@@ -1,7 +1,7 @@
 package net.bodz.lily.tool.daogen.util;
 
-import net.bodz.bas.codegen.IImportNaming;
-import net.bodz.bas.esm.IImportTsNaming;
+import net.bodz.bas.codegen.IJavaImporter;
+import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.CoEntity;
@@ -10,29 +10,36 @@ import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.MiscTemplates;
-import net.bodz.lily.tool.daogen.dir.web.TsTypeResolver;
 
-public class TypeAnalyzer {
+public class TypeAnalyzer
+        implements
+            ITsImporterAware {
 
-    JavaGenProject project;
-    IImportNaming naming;
-    IImportTsNaming tsNaming;
-    boolean typeScript;
+    final JavaGenProject project;
+    final IJavaImporter javaImporter;
+    final ITsImporter tsImporter;
+    final boolean typeScript;
 
-    public TypeAnalyzer(JavaGenProject project, IImportNaming naming) {
+    public TypeAnalyzer(JavaGenProject project, IJavaImporter javaImporter) {
         this.project = project;
-        this.naming = naming;
+        this.javaImporter = javaImporter;
+        this.tsImporter = null;
         this.typeScript = false;
     }
 
-    public TypeAnalyzer(JavaGenProject project, IImportTsNaming tsNaming) {
+    public TypeAnalyzer(JavaGenProject project, ITsImporter tsImporter) {
         this.project = project;
-        this.naming = tsNaming;
-        this.tsNaming = tsNaming;
+        this.javaImporter = null;
+        this.tsImporter = tsImporter;
         this.typeScript = true;
     }
 
-    public TypeExtendInfo getExtendInfo(ITableMetadata table, QualifiedName qName) {
+    @Override
+    public ITsImporter getTsImporter() {
+        return tsImporter;
+    }
+
+    public final TypeExtendInfo getExtendInfo(ITableMetadata table, QualifiedName qName) {
         return getExtendInfo(table, qName, null);
     }
 
@@ -59,10 +66,10 @@ public class TypeAnalyzer {
                 if (info.idType != null) {
                     info.baseClass = CoEntity.class;
                     if (typeScript) {
-                        TsTypeResolver tsTypes = new TsTypeResolver(tsNaming);
-                        info.baseParams = "<" + tsTypes.resolveType(info.idType, "<id>") + ">";
+                        info.baseParams = "<" + typeResolver().property("<id>")//
+                                .importAsType().resolve(info.idType) + ">";
                     } else {
-                        info.baseParams = "<" + naming.importName(info.idType) + ">";
+                        info.baseParams = "<" + javaImporter.importName(info.idType) + ">";
                     }
                 } else {
                     info.baseClass = StructRow.class;
@@ -91,11 +98,13 @@ public class TypeAnalyzer {
                     case ID_TYPE:
                         String idType;
                         if (typeScript) {
-                            TsTypeResolver tsTypes = new TsTypeResolver(tsNaming);
-                            idType = tsTypes.resolveType(info.idType, "<" + param.name() + ">");
-                        } else
+                            idType = typeResolver().property("<" + param.name() + ">")//
+                                    .importAsType().resolve(info.idType);
+                            baseParamsBuf.append(", " + tsImporter.importName(idType));
+                        } else {
                             idType = info.idType.getFullName();
-                        baseParamsBuf.append(", " + naming.importName(idType));
+                            baseParamsBuf.append(", " + javaImporter.importName(idType));
+                        }
                         break;
                     case THIS_TYPE:
                         baseParamsBuf.append(", " + info.simpleName);
@@ -114,7 +123,7 @@ public class TypeAnalyzer {
                             typeAgainParams.append(", TypeParamType.THIS_TYPE");
                         else
                             typeAgainParams.append(", " + //
-                                    naming.importName(TypeParamType.class) //
+                                    javaImporter.importName(TypeParamType.class) //
                                     + "." + TypeParamType.THIS_TYPE.name());
                         break;
                     default:

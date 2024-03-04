@@ -15,15 +15,14 @@ public class Dba
     public class LilyEntity
             extends Source {
 
-        public final EsmName IEntityType = _interface("IEntityType");
-        public final EsmName EntityType = _class("EntityType");
-        public final EsmName EntityPropertyMap = _interface("EntityPropertyMap");
-        public final EsmName IEntityProperty = _interface("IEntityProperty");
-        public final EsmName EntityProperty = _class("EntityProperty");
+        public final EsmName IEntityType = childDefault("IEntityType");
+        public final EsmName EntityType = childDefault("EntityType");
+        public final EsmName IEntityProperty = childDefault("IEntityProperty");
+        public final EsmName EntityProperty = childDefault("EntityProperty");
 
-        public final EsmName primaryKey = name("primaryKey");
-        public final EsmName property = name("property");
-
+        public final EsmName EntityPropertyMap = _interface("EntityType/EntityPropertyMap");
+        public final EsmName primaryKey = name("EntityType/primaryKey");
+        public final EsmName property = name("EntityType/property");
     }
 
     @SourcePath("ui/table/types")

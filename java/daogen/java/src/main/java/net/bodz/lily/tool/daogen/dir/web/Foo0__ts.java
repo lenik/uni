@@ -116,7 +116,7 @@ public class Foo0__ts
 
         String javaType = project.config.javaType(column);
         // String simpleType = Split.packageName(javaType).b;
-        String tsType = tsTypes.resolveValue(javaType, cname.propertyName);
+        String tsType = typeResolver().property(cname.propertyName).resolve(javaType);
 
 //        EsmName esmName = TsUtils.getAlias(tsType);
 //        if (esmName != null)

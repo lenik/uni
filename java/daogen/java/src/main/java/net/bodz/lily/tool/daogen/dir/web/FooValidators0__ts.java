@@ -88,7 +88,8 @@ public class FooValidators0__ts
         ColumnNaming cname = project.config.naming(column);
 
         String javaType = project.config.javaType(column);
-        String tsType = tsTypes.resolveType(javaType, cname.propertyName);
+        String tsType = typeResolver().property(cname.propertyName)//
+                .importAsType().resolve(javaType);
 
         out.printf("validate%s(val: %s) {\n", //
                 cname.ucfirstPropertyName, //
@@ -99,7 +100,8 @@ public class FooValidators0__ts
     void validateForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table) {
         String propertyName = xref.getJavaName();
         Class<?> type = xref.getParentTable().getEntityClass();
-        String tsType = tsTypes.resolveType(type, propertyName);
+        String tsType = typeResolver().importAsType().property(propertyName).resolveClass(type);
+
         out.printf("validate%s(val: %s) {\n", //
                 Strings.ucfirst(propertyName), //
                 tsType);

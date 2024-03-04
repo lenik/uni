@@ -11,7 +11,7 @@ import net.bodz.bas.c.java.util.Dates;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
-import net.bodz.bas.codegen.IImportNaming;
+import net.bodz.bas.codegen.IJavaImporter;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.t.predef.Predef;
 
@@ -19,9 +19,9 @@ public class JavaSamples
         extends RandomBased {
 
     int maxStringLen = 1000;
-    IImportNaming naming;
+    IJavaImporter naming;
 
-    public JavaSamples(long rootSeed, Object seedObj, IImportNaming naming) {
+    public JavaSamples(long rootSeed, Object seedObj, IJavaImporter naming) {
         super(rootSeed, seedObj);
         this.naming = naming;
     }
