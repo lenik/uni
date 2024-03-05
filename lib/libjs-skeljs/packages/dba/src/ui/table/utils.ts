@@ -1,4 +1,5 @@
 import $ from 'jquery';
+// (window as any).jQuery = $;
 
 import DataTables from 'datatables.net';
 import type { Api } from 'datatables.net';
@@ -8,6 +9,20 @@ import type { ColumnType, CreateOptions, SymbolCompileFunc } from './types';
 import { compileOnCreate, compileRender, parseOrder, parseSpecParams } from './types';
 import format from './formats';
 import ITypeInfo from '@skeljs/core/src/lang/ITypeInfo';
+
+// if ($.fn.DataTable == null) {
+//     let dtn = DataTables;
+//     console.error('$.fn.DataTable is null. autofixed.');
+//     let fn = $.fn as any;
+//     fn.dataTable = DataTables;
+//     fn.dataTableSettings = (DataTables as any).settings;
+//     fn.dataTableExt = DataTables.ext;
+//     (DataTables as any).$ = $;
+//     fn.DataTable = function (opts) {
+//         return $(this).dataTable(opts).api();
+//     };
+//     fn.DataTable.Api = DataTables.Api;
+// }
 
 export function getColumns(table: any, options: CreateOptions): ColumnType[] {
     let $table = $(table);
@@ -281,7 +296,8 @@ $.fn.DataTable.Api.register("autoPageSize()", function (this: Api<any>) {
 function debugHtml(outer, vars: any) {
     for (let k in vars)
         vars[k] = format('decimal2', vars[k]);
-    let msg = `<span class='outer'>out ${vars.outerHeight}</span>`
+    let outerName = "." + outer.className;
+    let msg = `<span class='outer' title='${outerName}'>out ${vars.outerHeight}</span>`
         + `, <span class='wrapper'>wrapper ${vars.wrapperHeight}</span>`
         + `, <span class="tbody">tbody ${vars.bodyHeight}</span>`
         + `, <span class="adds" title="wrapper - tbody">adds ${vars.dtAdds}</span>`
