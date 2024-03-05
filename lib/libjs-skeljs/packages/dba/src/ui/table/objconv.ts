@@ -96,15 +96,17 @@ function setDeep(obj: any, propv: string[], val: any) {
     return obj;
 }
 
-export function row2Obj(row: any[], columns: ColumnType[]) {
+export function row2Obj(row: any[], columnTypes: ColumnType[]) {
     let obj: any = {};
-    if (columns == null)
+    if (columnTypes == null)
         throw new Error("columns isn't specified");
-    if (columns.length < row.length)
+    if (columnTypes.length < row.length)
         throw new Error("insufficient column types");
     for (let i = 0; i < row.length; i++) {
-        let col = columns[i];
+        let col = columnTypes[i];
         let field = col.field;
+        if (field == null)
+            throw new Error('null field name: ' + col);
         let propv = splitPropv(field);
         setDeep(obj, propv, row[i]);
     }

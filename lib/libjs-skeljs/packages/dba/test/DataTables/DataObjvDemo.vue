@@ -42,4 +42,8 @@ let ddl = new Converter({
 
 <style lang="scss"></style>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.dt-container {
+    flex: 1;
+}
+</style>

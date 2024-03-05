@@ -18,4 +18,8 @@ import DataTable from '../../src/ui/table/DataTable.vue';
     </DataTable>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.dt-container {
+    flex: 1;
+}
+</style>

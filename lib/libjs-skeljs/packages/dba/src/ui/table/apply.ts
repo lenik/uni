@@ -117,7 +117,8 @@ export function _useDataTable(table: any,
     // let dt = new DataTables($table, config);
 
     // dataTableApi.selectSingle();
-    (dataTableApi as any).autoPageSize();
+    if (config.autoPageSize)
+        (dataTableApi as any).autoPageSize();
 
     if (onApplied != null)
         onApplied(dataTableApi, table, setup);

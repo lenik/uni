@@ -323,6 +323,7 @@ export class ValidateResult implements IValidateResult {
     error?: boolean
     errorCode?: number
     type?: string
+    exception?: any
     message?: string
     help?: string
     target?: any

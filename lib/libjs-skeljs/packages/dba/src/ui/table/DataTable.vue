@@ -41,12 +41,14 @@ export interface Props {
      */
     version?: number
 
+    pageSize?: string | number
     hBand?: boolean
     vBand?: boolean
 
     watch?: boolean
 
     nullValue?: any
+    debug?: boolean
 }
 
 const defaultTypeMap: IDataTypeMap = Object.assign({}, baseTypeMap, timeTypeMap, basTypeMap);
@@ -66,6 +68,7 @@ const props = withDefaults(defineProps<Props>(), {
     compile: formats,
     multi: false,
     version: 0,
+    pageSize: 'auto',
     hBand: true,
     vBand: false,
     watch: false,
@@ -100,6 +103,8 @@ const actualDataUrl = computed(() => {
     }
     return undefined;
 });
+
+const debugDisplay = computed(() => bool(props.debug) ? 'block' : 'none');
 
 // DataTable shortcuts
 
@@ -149,6 +154,16 @@ function initDataTable() {
     let tableElement: HTMLElement = tableRef.value!;
 
     let config = props.config || {};
+
+    if (props.pageSize != null)
+        if (props.pageSize == 'auto')
+            config.autoPageSize = true;
+        else {
+            switch (typeof props.pageSize) {
+                case 'string': config.pageLength = parseInt(props.pageSize); break;
+                case 'number': config.pageLength = props.pageSize; break;
+            }
+        }
 
     let multiSelect = bool(props.multi);
     if (multiSelect)
@@ -429,7 +444,7 @@ ul.pagination {
 }
 
 .debug {
-    display: none;
+    display: v-bind(debugDisplay);
     border-top: solid 1px gray;
     box-sizing: border-box;
     font-weight: 300;

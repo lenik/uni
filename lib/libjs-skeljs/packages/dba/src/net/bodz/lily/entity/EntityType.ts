@@ -1,10 +1,9 @@
 import TypeInfo from "@skeljs/core/src/lang/TypeInfo";
-import { IEntityType, EntityPropertyMap } from "./IEntityType";
+import IEntityType from "./IEntityType";
 import IEntityProperty from "./IEntityProperty";
 import EntityProperty from "./EntityProperty";
+import EntityPropertyMap from "./EntityPropertyMap";
 import { simpleName } from "@skeljs/core/src/logging/api";
-
-export { IEntityType, EntityPropertyMap };
 
 export abstract class EntityType extends TypeInfo<any> implements IEntityType {
     abstract override get name(): string        // Java class name

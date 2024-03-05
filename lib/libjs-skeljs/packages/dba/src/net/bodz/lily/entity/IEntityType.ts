@@ -1,5 +1,6 @@
 import ITypeInfo from "@skeljs/core/src/lang/ITypeInfo";
 import EntityProperty from "./EntityProperty";
+import EntityPropertyMap from "./EntityPropertyMap";
 
 export interface IEntityType extends ITypeInfo<any> {
     get name(): string        // Java class name
@@ -11,10 +12,6 @@ export interface IEntityType extends ITypeInfo<any> {
      */
     get properties(): EntityProperty[];
 
-}
-
-export interface EntityPropertyMap {
-    [propertyName: string]: EntityProperty
 }
 
 export default IEntityType;

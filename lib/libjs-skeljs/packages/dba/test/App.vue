@@ -44,7 +44,11 @@ const stat = {
             <ProjectInfo :stat="stat" label="DBA Test Apps" description="Test applications of skeljs::dba package. ">
             </ProjectInfo>
         </template>
-        <router-view></router-view>
+        <template #main>
+            <div class="main">
+                <router-view></router-view>
+            </div>
+        </template>
         <template #footer>
             <Copyright />
         </template>
@@ -56,7 +60,9 @@ const stat = {
     background: #444;
 }
 
-#v-options {
-    padding: 0;
+.main {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 </style>

@@ -27,6 +27,7 @@ export interface Props {
     watch?: boolean
 }
 </script>
+
 <script setup lang="ts">
 
 import { computed, onMounted, ref, watch } from "vue";
@@ -171,7 +172,8 @@ function validate(val: any = model.value, event?: Event): ValidateResult {
             } catch (err) {
                 result = {
                     error: true,
-                    message: err
+                    exception: err,
+                    message: err.toString(), // 'Error: message'
                 };
             }
     }
@@ -182,13 +184,13 @@ function validate(val: any = model.value, event?: Event): ValidateResult {
     return result;
 }
 
-function formatError(s: string) {
-    if (s == null) return "(no more information)";
-    let first = s.substring(0, 1);
-    s = first.toUpperCase() + s.substring(1);
-    if (s.match(/\w$/))
-        s += "!";
-    return s;
+function formatError(err: string) {
+    if (err == null) return "(no more information)";
+    let first = err.substring(0, 1);
+    err = first.toUpperCase() + err.substring(1);
+    if (err.match(/\w$/))
+        err += "!";
+    return err;
 }
 
 onMounted(() => {
@@ -205,14 +207,16 @@ if (props.watch) {
 </script>
 
 <template>
-    <component :is="tagName" class="component-root field-row" :class="{ required, optional, ok, error }" ref="rootElement">
+    <component :is="tagName" class="component-root field-row" :class="{ required, optional, ok, error }"
+        ref="rootElement">
         <component :is="childTagName" class="icon-label">
             <Icon :name="_icon" v-if="_icon != null" />
             <span class="label" :class="{ morebit, morehalf, more2 }"> {{ _label }} </span>
             <Icon v-if="after == 'label'" :name="expanded ? collapseIcon : expandIcon" class="toggler"
                 @click="expanded = !expanded" />
         </component>
-        <component :is="childTagName" class="content" v-if="description == null && _validator == null && _required != true">
+        <component :is="childTagName" class="content"
+            v-if="description == null && _validator == null && _required != true">
             <div class="content">
                 <slot>
                 </slot>
