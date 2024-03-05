@@ -4,11 +4,12 @@ import DataTables from 'datatables.net';
 import type { Api } from 'datatables.net';
 
 import { replaceLiteralOrRegex } from '@skeljs/core/src/lang/string.js';
-import type { ColumnType, SymbolCompileFunc } from './types';
+import type { ColumnType, CreateOptions, SymbolCompileFunc } from './types';
 import { compileOnCreate, compileRender, parseOrder, parseSpecParams } from './types';
 import format from './formats';
+import ITypeInfo from '@skeljs/core/src/lang/ITypeInfo';
 
-export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[] {
+export function getColumns(table: any, options: CreateOptions): ColumnType[] {
     let $table = $(table);
     let columns: ColumnType[] = [];
 
@@ -17,12 +18,16 @@ export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[]
         let column: ColumnType = {
             position: position,
             field: $th.data("field"),
-            type: $th.data('type'),
+            typeKey: $th.data('type'),
             priority: $th.data("priority") || 0,
             ascending: parseOrder($th.data("order")),
             styleClass: $th.attr('class'),
             oncreate: compileOnCreate($th.attr("oncreate")),
         };
+
+        let typeInfo: ITypeInfo<any> | undefined = undefined;
+        if (options.typeMap != null && column.typeKey != null)
+            typeInfo = column.type = options.typeMap[column.typeKey];
 
         let params = parseSpecParams($th.data("param")) || {};
         for (let i = 0; i < th.attributes.length; i++) {
@@ -34,9 +39,18 @@ export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[]
 
         let dataFormat = $th.data("format");
         if (dataFormat != null) {
-            let fn = compile(dataFormat);
-            column.render = function (data: string | null, type: string, row: any[], meta: any) {
+            let fn = options.compile(dataFormat);
+            column.render = (data: string | null, type: string, row: any[], meta: any) => {
                 return fn(data);
+            };
+        }
+        else if (typeInfo != null) {
+            column.render = (data: string | null, type: string, row: any[], meta: any) => {
+                if (data == null)
+                    return typeInfo!.nullText;
+                let val = JSON.parse(data);
+                // let val = typeInfo.parse(data);
+                return typeInfo!.format(val);
             };
         }
 
@@ -44,6 +58,19 @@ export function getColumns(table: any, compile: SymbolCompileFunc): ColumnType[]
         let render = script || $th.data("render");
         if (render != null) { // override
             column.render = compileRender(render);
+        }
+        else if (typeInfo?.createElement != null) {
+            let fn = typeInfo.createElement!;
+            column.render = (data: string | null, type: string, row: any[], meta: any) => {
+                if (data == null)
+                    return typeInfo!.nullText;
+                let val = JSON.parse(data);
+                // let val = typeInfo.parse(data);
+                return typeInfo!.format(val);
+                let parent = document.createElement('div');
+                fn(parent, val);
+                return parent.innerHTML;
+            };
         }
 
         columns.push(column);
@@ -95,8 +122,8 @@ export function getColumnsConfig(columns: ColumnType[]) {
 
                 $(cell).attr('data-field', c.field);
 
-                if (c.type != null)
-                    $(cell).attr('data-type', c.type!);
+                if (c.typeKey != null)
+                    $(cell).attr('data-type', c.typeKey!);
 
                 if (c.oncreate != null)
                     c.oncreate(cell, cellData, rowData, row, col);
@@ -251,7 +278,7 @@ $.fn.DataTable.Api.register("autoPageSize()", function (this: Api<any>) {
     return _autoPageSize.call(this, ...arguments);
 });
 
-function debugHtml(outer, vars) {
+function debugHtml(outer, vars: any) {
     for (let k in vars)
         vars[k] = format('decimal2', vars[k]);
     let msg = `<span class='outer'>out ${vars.outerHeight}</span>`

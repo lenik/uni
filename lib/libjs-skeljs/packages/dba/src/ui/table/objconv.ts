@@ -1,4 +1,4 @@
-
+import { _throw } from '@skeljs/core/src/logging/api';
 import { ColumnType, DataTab } from './types';
 
 interface KeyOccurs {
@@ -99,9 +99,9 @@ function setDeep(obj: any, propv: string[], val: any) {
 export function row2Obj(row: any[], columns: ColumnType[]) {
     let obj: any = {};
     if (columns == null)
-        throw "columns isn't specified";
+        throw new Error("columns isn't specified");
     if (columns.length < row.length)
-        throw "insufficient column types";
+        throw new Error("insufficient column types");
     for (let i = 0; i < row.length; i++) {
         let col = columns[i];
         let field = col.field;
@@ -190,7 +190,7 @@ export function convertToDataRows(fields: string[], cols: any[], rows: any[],
 
     if (cols == null) {
         if (isArray)
-            throw "array[] without cols definition.";
+            throw new Error("array[] without cols definition.");
         let dataTab = objv2Tab(rows);
         cols = dataTab.columns;
     }

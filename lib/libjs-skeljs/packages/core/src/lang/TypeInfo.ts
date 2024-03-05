@@ -1,5 +1,7 @@
 import ITypeInfo from './ITypeInfo';
 
+// export { ITypeInfo };
+
 export abstract class TypeInfo<T> implements ITypeInfo<T> {
 
     abstract get name(): string;

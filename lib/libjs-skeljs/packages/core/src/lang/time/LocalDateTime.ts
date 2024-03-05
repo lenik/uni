@@ -16,6 +16,8 @@ export class LocalDateTimeType extends MomentWrapperType<LocalDateTime>{
 
 export class LocalDateTime extends MomentWrapper {
 
+    static TYPE = new LocalDateTimeType();
+
     static DATE_TIME = 'YYYY-MM-DD hh:mm:ss';
     static ISO_LOCAL_DATE_TIME = 'YYYY-MM-DDThh:mm:ss';
     static DEFAULT_FORMAT = this.ISO_LOCAL_DATE_TIME;

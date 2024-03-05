@@ -394,3 +394,20 @@ export function MAP<K, V>(keyType: TypeInfo<K>, valueType: TypeInfo<V>): MapType
 }
 
 export const INET_ADDRESS = new InetAddressType();
+
+export const typeMap = {
+    'BYTE': BYTE,
+    'SHORT': SHORT,
+    'INT': INT,
+    'LONG': LONG,
+    'FLOAT': FLOAT,
+    'DOUBLE': DOUBLE,
+    'BIG_INTEGER': BIG_INTEGER,
+    'BIG_DECIMAL': BIG_DECIMAL,
+    'BOOLEAN': BOOLEAN,
+    'CHAR': CHAR,
+    'STRING': STRING,
+    'ENUM': ENUM,
+    'DATE': DATE,
+    'INET_ADDRESS': INET_ADDRESS,
+};

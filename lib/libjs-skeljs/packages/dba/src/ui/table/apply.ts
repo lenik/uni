@@ -16,12 +16,12 @@ import type { Api, Config } from "datatables.net";
 // import lang_de from 'datatables.net-plugins/i18n/de-DE.mjs';
 import lang_zh from 'datatables.net-plugins/i18n/zh.mjs';
 
-import type { SymbolCompileFunc, SetupDataFunc, ColumnType, OnAppliedFunc } from "./types";
+import type { SymbolCompileFunc, SetupDataFunc, ColumnType, OnAppliedFunc, CreateOptions } from "./types";
 import { getColumns, getColumnsConfig, getExtrasConfig } from "./utils";
 
 import { configAjaxData } from './ajax-lily';
 import { convertToDataRows } from './objconv';
-import { showError } from '@skeljs/core/src/logging/api';
+import { _throw, showError } from '@skeljs/core/src/logging/api';
 
 export interface DataTableInstance {
     api: Api<any>,
@@ -30,13 +30,13 @@ export interface DataTableInstance {
 
 export function _useDataTable(table: any,
     configOverride: Config,
-    compile: SymbolCompileFunc,
+    options: CreateOptions,
     setupData: SetupDataFunc,
     onApplied?: OnAppliedFunc
 ): DataTableInstance {
 
     if (table == null)
-        throw "table is null.";
+        throw new Error("table is null.");
 
     let $table = $(table);
     let dom = $table.attr("dom");
@@ -80,7 +80,7 @@ export function _useDataTable(table: any,
         baseConfig.deferRender = true;
     }
 
-    let columns = getColumns(table, compile);
+    let columns = getColumns(table, options);
 
     if (columns.filter(c => c.ascending != null).length == 0) {
         // by default ID-descend
@@ -128,7 +128,7 @@ export function _useDataTable(table: any,
     };
 }
 
-export function useDataTable(table: HTMLElement, configOverride: Config, compile: SymbolCompileFunc, fetch: () => any) {
+export function useDataTable(table: HTMLElement, configOverride: Config, fetch: () => any, options: CreateOptions) {
     let setupData = (config: Config, columns: ColumnType[]) => {
         let fields = columns.map(c => c.field);
 
@@ -148,11 +148,11 @@ export function useDataTable(table: HTMLElement, configOverride: Config, compile
         $(table!).data('reload', loadData);
     };
 
-    return _useDataTable(table, configOverride, compile, setupData, onApplied);
+    return _useDataTable(table, configOverride, options, setupData, onApplied);
 }
 
-export function useAjaxDataTable(table: HTMLElement, configOverride: Config, compile: SymbolCompileFunc) {
-    let $table = $(table);
+export function useAjaxDataTable(_table: HTMLElement, configOverride: Config, options: CreateOptions) {
+    let $table = $(_table);
     let dataUrl = $table.data("url");
     let fetchSizeAttr = $table.attr("fetch-size");
     let fetchSize = fetchSizeAttr == undefined ? undefined : parseInt(fetchSizeAttr);
@@ -169,7 +169,7 @@ export function useAjaxDataTable(table: HTMLElement, configOverride: Config, com
     let setupData = (config: Config, columns: ColumnType[]) => {
         configAjaxData(config, dataUrl, fetchSize, columns, params);
     };
-    return _useDataTable(table, config, compile, setupData);
+    return _useDataTable(_table, config, options, setupData);
 }
 
 // Remember the last selection after reload.

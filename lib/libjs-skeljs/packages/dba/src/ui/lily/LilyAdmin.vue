@@ -1,29 +1,31 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import $ from 'jquery';
 import { computed, inject, onMounted, ref } from 'vue';
 import { Api } from 'datatables.net';
 
 import IEntityType from '../../net/bodz/lily/entity/IEntityType';
+import EntityType from '../../net/bodz/lily/entity/EntityType';
 import { Selection, ColumnType } from '../table/types';
 import { SERVER_URL } from './context';
 
 import { Command, Status } from '@skeljs/core/src/ui/types';
-import { showError } from '@skeljs/core/src/logging/api';
+import { showError, _throw } from '@skeljs/core/src/logging/api';
 import { VarMap } from '@skeljs/core/src/lang/VarMap';
 
+export interface Props {
+    type: EntityType
+    serverUrl?: string
+    url?: string
+}
+</script>
+
+<script setup lang="ts">
 import DataAdmin from '../table/DataAdmin.vue';
 import DataTable from '../table/DataTable.vue';
 import { getDefaultCommands, getDefaultStatuses } from './defaults';
 import { obj2Row } from '../table/objconv';
 
 const model = defineModel<any>();
-
-interface Props {
-    type: IEntityType
-    serverUrl?: string
-    url?: string
-}
 
 const props = withDefaults(defineProps<Props>(), {
 });
@@ -39,7 +41,7 @@ const _url = computed(() => {
     if (svr != null)
         return svr + "/" + props.type.simpleName;
 
-    throw "either lily-url or server-url have to be specified."
+    throw new Error("either lily-url or server-url have to be specified.");
 });
 
 // app states

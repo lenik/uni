@@ -4,11 +4,15 @@ import $ from 'jquery';
 import { ref, onMounted, computed, getCurrentInstance } from "vue";
 import { Api } from "datatables.net";
 
+import { typeMap as baseTypeMap } from '@skeljs/core/src/lang/baseinfo';
+import { typeMap as timeTypeMap } from '@skeljs/core/src/lang/time';
+import { typeMap as basTypeMap } from '@skeljs/core/src/lang/bas-info';
+
 import { bool } from "@skeljs/core/src/ui/types";
 import { baseName } from "@skeljs/core/src/io/url";
-import { showError } from "@skeljs/core/src/logging/api";
+import { _throw, showError } from "@skeljs/core/src/logging/api";
 
-import { ColumnType, DataTab, Selection, SymbolCompileFunc } from "./types";
+import { ColumnType, DataTab, IDataTypeMap, Selection, SymbolCompileFunc } from "./types";
 import { DataTableInstance, useAjaxDataTable, useDataTable } from "./apply";
 import formats from "./formats";
 import { objv2Tab } from "./objconv";
@@ -26,6 +30,7 @@ export interface Props {
     dataUrl?: string
     lilyUrl?: string // lily-specific: entity controller URL
 
+    typeMap?: IDataTypeMap
     compile?: SymbolCompileFunc
 
     config?: any
@@ -43,6 +48,9 @@ export interface Props {
 
     nullValue?: any
 }
+
+const defaultTypeMap: IDataTypeMap = Object.assign({}, baseTypeMap, timeTypeMap, basTypeMap);
+
 </script>
 
 <script setup lang="ts">
@@ -54,6 +62,7 @@ const selection = defineModel<Selection>();
 
 const props = withDefaults(defineProps<Props>(), {
     captionPosition: 'bottom',
+    typeMap: defaultTypeMap,
     compile: formats,
     multi: false,
     version: 0,
@@ -77,6 +86,20 @@ const captionAtBottom = computed(() => props.caption != null
     && (props.captionPosition == 'bottom'
         || props.captionPosition == 'both'
     ));
+
+const actualDataUrl = computed(() => {
+    if (props.dataUrl != null)
+        return props.dataUrl;
+    if (props.lilyUrl != null) {
+        let url = props.lilyUrl;
+        if (url.endsWith("/"))
+            url = url.substring(0, url.length - 1);
+        let classHint = baseName(url);
+        let dataUrl = url + "/__data__" + classHint;
+        return dataUrl;
+    }
+    return undefined;
+});
 
 // DataTable shortcuts
 
@@ -137,8 +160,14 @@ function initDataTable() {
 
     let instance: DataTableInstance | undefined;
 
+    let options = {
+        compile: props.compile,
+        typeMap: props.typeMap,
+    };
+
     if (props.dataTab != null) {
-        instance = useDataTable(tableElement, config, props.compile, () => props.dataTab);
+        let fetch = () => props.dataTab;
+        instance = useDataTable(tableElement, config, fetch, options);
     }
 
     else if (props.dataObjv != null) {
@@ -146,30 +175,19 @@ function initDataTable() {
             let dataTab = objv2Tab(props.dataObjv!);
             return dataTab;
         };
-        instance = useDataTable(tableElement, config, props.compile, fetch);
+        instance = useDataTable(tableElement, config, fetch, options);
     }
 
     else {
-        let dataUrl = props.dataUrl;
-        if (dataUrl == null && props.lilyUrl != null) {
-            let url = props.lilyUrl;
-            if (url.endsWith("/"))
-                url = url.substring(0, url.length - 1);
-            let classHint = baseName(url);
-            dataUrl = url + "/__data__" + classHint;
-            // props.dataUrl = dataUrl;
-            // config.url = dataUrl;
-            $(tableElement).data('url', dataUrl);
-        }
-
+        let dataUrl = actualDataUrl.value;
         if (dataUrl != null) {
-            instance = useAjaxDataTable(tableElement, config, props.compile);
+            $(tableElement).data('url', dataUrl);
+            instance = useAjaxDataTable(tableElement, config, options);
         }
     }
 
     if (instance == null) {
-        showError('invalid use of <DataTable>');
-        throw 'invalid use of <DataTable>';
+        throw new Error('invalid use of <DataTable>');
     }
 
     api.value = instance.api;
@@ -187,7 +205,6 @@ function initDataTable() {
 }
 
 function onDtSelect(e: Event, dt: Api<any>, type: string, indexes: number[], select: boolean) {
-
     let selectedRows = dt.rows({ selected: true }).data().toArray() as any[][];
     let selectedIndexes = dt.rows({ selected: true }).indexes().toArray() as number[];
     let sel = new Selection(columns.value!, selectedRows, selectedIndexes);
@@ -209,7 +226,8 @@ onMounted(() => {
 <template>
     <div class="dt-container">
         <div class="caption" v-if="captionAtTop">{{ caption }}</div>
-        <table ref="tableRef" class="dataTable second" :class="dataTableCss" v-bind="$attrs">
+        <table ref="tableRef" class="dataTable second" :class="dataTableCss" v-bind="$attrs" :data-url="dataUrl"
+            :lily-url="lilyUrl">
             <thead>
                 <tr>
                     <slot>

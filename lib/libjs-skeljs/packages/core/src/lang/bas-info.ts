@@ -1,6 +1,6 @@
 import TypeInfo from "./TypeInfo";
 
-export class JSONVariantType extends TypeInfo<any> {
+export class JsonVariantType extends TypeInfo<any> {
 
     get name() { return "Object"; }
     get icon() { return "far-js"; }
@@ -15,4 +15,8 @@ export class JSONVariantType extends TypeInfo<any> {
 
 }
 
-export const JSON_VARIANT = new JSONVariantType();
+export const JSON_VARIANT = new JsonVariantType();
+
+export const typeMap = {
+    'JSON_VARIANT': JSON_VARIANT,
+};

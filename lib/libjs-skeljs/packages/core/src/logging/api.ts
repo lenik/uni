@@ -187,3 +187,8 @@ export const logsExample: LogEntry[] = [
     },
     { level: "fatal", time: moment(), message: "system broken!" },
 ];
+
+export function _throw(exception: any) {
+    console.log('exception thrown: ' + exception);
+    throw new Error(exception);
+}

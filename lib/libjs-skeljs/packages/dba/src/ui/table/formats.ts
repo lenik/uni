@@ -1,3 +1,4 @@
+import { _throw } from "@skeljs/core/src/logging/api";
 
 export type FormatFunc = (data: any) => string;
 
@@ -8,7 +9,7 @@ export class DefaultFormats {
     format = (fmt: string, data?: any): FormatFunc | string => {
         let code = eval('this.' + fmt);
         if (code == null)
-            throw "invalid format: " + fmt;
+            throw new Error("invalid format: " + fmt);
         if (data === undefined)
             return code;
         else

@@ -1,4 +1,5 @@
 import type { Api, Config } from "datatables.net";
+import { ITypeInfo, TypeInfo } from '@skeljs/core/src/lang/TypeInfo';
 
 import { row2Obj } from './objconv';
 
@@ -11,12 +12,23 @@ export interface DataTabColumn {
     title: string
 }
 
+export interface CreateOptions {
+    compile: SymbolCompileFunc
+    typeMap?: IDataTypeMap
+    // setupData: SetupDataFunc
+    // onApplied?: OnAppliedFunc
+}
+
 export type RenderFunc
     = (data: string | null, type: string, row: any[], meta: any) => void;
 export type FormatFunc
     = (data: any) => string;
 export type OnCellCreateFunc
     = (cell: HTMLElement, cellData: any, rowData: any, row: number, col: number) => void;
+
+export interface IDataTypeMap {
+    [name: string]: ITypeInfo<any>
+}
 
 export type SymbolCompileFunc
     = (code: string) => any;
@@ -38,10 +50,13 @@ export interface ColumnType {
 
     field: string           // data-field
     params?: TextMap
-    type?: string           // data-type
+
+    type?: ITypeInfo<any>   // data-type
+    typeKey?: string
+
     primaryKey?: boolean
     format?: string         // data-format
-    formatter?: FormatFunc   // override format
+    formatter?: FormatFunc  // override format
 
     ascending?: boolean     // data-order = asc(true) | desc(false) | undefined
     priority?: number       // data-order-priority

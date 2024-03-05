@@ -1,24 +1,25 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import $ from 'jquery';
 import { computed, inject, onMounted, ref } from "vue";
-import { simpleName } from "@skeljs/core/src/logging/api";
+import { simpleName, _throw } from "@skeljs/core/src/logging/api";
 import { DialogSelectCallback } from '@skeljs/core/src/ui/types';
 import { Selection } from '../table/types';
 import { EntityType } from '../../net/bodz/lily/entity/EntityType';
 import { SERVER_URL } from './context';
 
-import Dialog from '@skeljs/core/src/ui/Dialog.vue';
-import DataTable from '../table/DataTable.vue';
-
-const model = defineModel();
-
-interface Props {
+export interface Props {
     modal?: boolean | string
     type: EntityType
     serverUrl?: string
     url?: string
 }
+</script>
+
+<script setup lang="ts">
+import Dialog from '@skeljs/core/src/ui/Dialog.vue';
+import DataTable from '../table/DataTable.vue';
+
+const model = defineModel();
 
 const props = withDefaults(defineProps<Props>(), {
     modal: true,
@@ -53,7 +54,7 @@ const _url = computed(() => {
     if (svr != null)
         return svr + "/" + props.type.simpleName;
 
-    throw "either lily-url or server-url have to be specified."
+    throw new Error("either lily-url or server-url have to be specified.");
 });
 
 const dataTableComp = ref();

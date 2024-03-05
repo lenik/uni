@@ -5,7 +5,7 @@ import type { Config } from "datatables.net";
 import { isEqual } from 'lodash-es';
 
 import { baseName } from "@skeljs/core/src/io/url";
-import { showError } from "@skeljs/core/src/logging/api";
+import { _throw, showError } from "@skeljs/core/src/logging/api";
 
 import { AjaxProtocol } from "./ajax";
 import { convertToDataRows } from './objconv';
@@ -52,9 +52,9 @@ export class Lily extends AjaxProtocol {
     toRowArray(_data: any): any[][] {
         let data: TableData = _data;
         if (data == null)
-            throw "null response";
+            throw new Error("null response");
         if (!Array.isArray(data.rows))
-            throw "no rows array in the response data";
+            throw new Error("no rows array in the response data");
         if (this.addClassColumn) {
             if (data.rows.length > 0) {
                 let firstRow = data.rows[0];
@@ -77,7 +77,7 @@ let defaultFetchSize = 500;
 export function configAjaxData(config: Config, dataUrl: string, fetchSize: number | undefined,
     columns: ColumnType[], params?: any) {
 
-    if (dataUrl == null) throw "dataUrl null";
+    if (dataUrl == null) throw new Error("dataUrl null");
 
     let batch = fetchSize || defaultFetchSize;
     let ratio = 0.2;
@@ -104,7 +104,7 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
             try {
                 params = eval('ans = ' + params);
             } catch (err) {
-                throw "Bad filter: " + err + "\n" + params;
+                throw new Error("Bad filter: " + err + "\n" + params);
             }
         }
         $.extend(query, params);
