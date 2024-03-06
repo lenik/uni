@@ -13,6 +13,14 @@ export class JsonVariantType extends TypeInfo<any> {
         return JSON.parse(s);
     }
 
+    override fromJson(jv: any) {
+        return jv;
+    }
+
+    override toJson(val: any) {
+        return val;
+    }
+
 }
 
 export const JSON_VARIANT = new JsonVariantType();

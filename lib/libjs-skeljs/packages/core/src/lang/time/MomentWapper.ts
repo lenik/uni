@@ -10,14 +10,24 @@ export abstract class MomentWrapperType<T extends MomentWrapper> extends TypeInf
 
     abstract create(): T
 
-    parse(s: string): T {
+    override parse(s: string): T {
         let instance = this.create();
         instance.parse(s);
         return instance;
     }
 
-    format(val: T): string {
+    override format(val: T): string {
         return val.toString();
+    }
+
+    override fromJson(jv: any): T {
+        let str = jv as string;
+        return this.parse(str);
+    }
+
+    override toJson(val: T) {
+        let jv = this.format(val);
+        return jv;
     }
 
 }

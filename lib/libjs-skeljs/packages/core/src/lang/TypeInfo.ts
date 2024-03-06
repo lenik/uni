@@ -22,13 +22,6 @@ export abstract class TypeInfo<T> implements ITypeInfo<T> {
         return "fas-question";
     }
 
-    createElement(parentElement: HTMLElement, val: any): HTMLElement {
-        throw "not implemented";
-    }
-
-    validate(val: T) {
-    }
-
     abstract parse(s: string): T
 
     format(val: T): string {
@@ -40,6 +33,21 @@ export abstract class TypeInfo<T> implements ITypeInfo<T> {
 
     get nullText(): string {
         return "null";
+    }
+
+    validate(val: T) {
+    }
+
+    renderHtml(val: any): HTMLElement | string | undefined {
+        return undefined;
+    }
+
+    fromJson(jv: any): T {
+        return jv as T;
+    }
+
+    toJson(val: T): any {
+        return val;
     }
 
 }

@@ -1,5 +1,5 @@
-
 export interface IJsonForm {
+
     get wantObjectContext(): boolean
 
     /**
@@ -8,5 +8,8 @@ export interface IJsonForm {
     */
     jsonOut(context: any): any;
 
-    jsonIn(v: any): void;
+    jsonIn(jv: any): void;
+
 }
+
+export default IJsonForm;

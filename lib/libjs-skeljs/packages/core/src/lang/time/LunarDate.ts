@@ -5,16 +5,24 @@ import TypeInfo from '../TypeInfo';
 
 export class LunarDateType extends TypeInfo<LunarDate>{
 
-    get name() { return "LunarDate"; }
-    get icon() { return "far-clock"; }
-    get description() { return "a lunar local date."; }
+    override get name() { return "LunarDate"; }
+    override get icon() { return "far-clock"; }
+    override get description() { return "a lunar local date."; }
 
-    parse(s: string): LunarDate {
+    override parse(s: string): LunarDate {
         throw 'not implemented';
     }
 
-    format(val: LunarDate): string {
+    override format(val: LunarDate): string {
         throw 'not implemented';
+    }
+
+    override fromJson(jv: any): LunarDate {
+        return this.parse(jv as string);
+    }
+
+    override toJson(val: LunarDate) {
+        return this.format(val);
     }
 
 }

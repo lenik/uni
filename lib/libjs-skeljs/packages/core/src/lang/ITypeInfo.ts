@@ -1,5 +1,6 @@
+import IJsonConverter from './IJsonConverter';
 
-export interface ITypeInfo<T> {
+export interface ITypeInfo<T> extends IJsonConverter<T> {
 
     get name(): string
     get label(): string | undefined
@@ -7,16 +8,13 @@ export interface ITypeInfo<T> {
     get description(): string | undefined
     get icon(): string | undefined
 
-    createElement(parentElement: HTMLElement, val: any): HTMLElement
+    parse(s: string): T
+    format(val: T): string
+    get nullText(): string
 
     validate(T: any): void
 
-    parse(s: string): T
-
-    format(val: T): string
-
-    get nullText(): string
-
+    renderHtml(val: any): HTMLElement | string | undefined
 }
 
 export default ITypeInfo;

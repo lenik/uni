@@ -6,110 +6,248 @@ import {
 } from "./basetype";
 import TypeInfo from "./TypeInfo";
 
+function parseIntEx(s: string) {
+    let norm = normalizeNumber(s);
+    return parseInt(norm);
+}
+
+function parseBigInt(s: string) {
+    let norm = normalizeNumber(s);
+    return BigInt(norm)
+}
+
+function parseDecimal(s: string): number {
+    let norm = normalizeNumber(s);
+    let n = parseFloat(norm);
+    return n;
+}
+
+function normalizeNumber(s: string): string {
+    let norm = s.replace(/,/g, '');
+    return norm;
+}
+
+function rjoin(array: number[], delim: string, padSize = 3) {
+    let PADS = '000000000000';
+    let s = '';
+    for (let i = array.length - 1; i >= 0; i--) {
+        let n = String(array[i]);
+        if (i != array.length - 1) {
+            s += delim;
+            let pad = PADS.substring(0, padSize - n.length);
+            s += pad;
+        }
+        s += n;
+    }
+    return s;
+}
+
+function formatInteger(n: number) {
+    let v: number[] = [];
+    n = Math.floor(n);
+    while (n != 0) {
+        let rem = n % 1000;
+        n = Math.floor(n / 1000);
+        v.push(rem);
+    }
+    return rjoin(v, ',');
+}
+
+function formatDecimal(n: number) {
+    let negative = n < 0;
+    if (negative) n = -n;
+    let s = negative ? '-' : '';
+
+    let integer = Math.floor(n);
+    s += formatInteger(integer);
+
+    let decimal = n - integer;
+    if (decimal != 0) {
+        let d = String(decimal);
+        if (!d.startsWith('0.'))
+            throw new Error("unexpected: " + d);
+        d = d.substring(2);
+        s += '.' + d;
+    }
+    return s;
+}
+
+function formatBigInt(n: BigInteger) {
+    let v: number[] = [];
+    while (n != 0n) {
+        let rem = n % 1000n;
+        n /= 1000n;
+        v.push(Number(rem));
+    }
+    return rjoin(v, ',');
+}
+
+function formatBigDecimal(n: BigDecimal) {
+    let s = n.toString();
+    let dot = s.indexOf('.');
+    let integer = dot == -1 ? s : s.substring(0, dot);
+    let decimal = dot == -1 ? null : s.substring(dot + 1);
+    s = formatBigInt(BigInt(integer));
+    if (decimal != null)
+        s += '.' + decimal;
+    return s;
+}
+
 export abstract class NumberType<T> extends TypeInfo<T> {
 
-    get icon() { return "far-hashtag"; }
+    override get icon() { return "far-hashtag"; }
 
 }
 
 export class ByteType extends NumberType<byte> {
 
-    get name() { return "byte"; }
+    override get name() { return "byte"; }
 
-    parse(s: string): byte {
-        let n = parseInt(s);
+    override parse(s: string): byte {
+        let n = parseIntEx(s);
         let val = Math.floor(n) & 0xFF;
         return val;
+    }
+
+    override format(val: number): string {
+        return formatInteger(val);
     }
 
 }
 
 export class ShortType extends NumberType<short> {
 
-    get name() { return "short"; }
+    override get name() { return "short"; }
 
-    parse(s: string): byte {
-        let n = parseInt(s);
+    override parse(s: string): byte {
+        let n = parseIntEx(s);
         let val = Math.floor(n) & 0xFFFF;
         return val;
+    }
+
+    override format(val: number): string {
+        return formatInteger(val);
     }
 
 }
 
 export class IntType extends NumberType<int> {
 
-    get name() { return "int"; }
+    override get name() { return "int"; }
 
-    parse(s: string) {
-        let n = parseInt(s);
+    override parse(s: string) {
+        let n = parseIntEx(s);
         let val = Math.floor(n) & 0xFFFF_FFFF;
         return val;
+    }
+
+    override format(val: number): string {
+        return formatInteger(val);
     }
 
 }
 
 export class LongType extends NumberType<long> {
 
-    get name() { return "long"; }
-    get description() { return "long int"; }
+    override get name() { return "long"; }
+    override get description() { return "long int"; }
 
-    parse(s: string) {
-        let n = parseInt(s);
+    override parse(s: string) {
+        let n = parseIntEx(s);
         n = Math.floor(n) & 0xFFFF_FFFF_FFFF_FFFF;
         return n;
+    }
+
+    override format(val: number): string {
+        return formatInteger(val);
     }
 
 }
 
 export class FloatType extends NumberType<float> {
 
-    get name() { return "float"; }
+    override get name() { return "float"; }
 
-    parse(s: string) {
-        let n = parseFloat(s);
+    override parse(s: string) {
+        let n = parseDecimal(s);
         return n;
+    }
+
+    override format(val: number): string {
+        return formatDecimal(val);
     }
 
 }
 
 export class DoubleType extends NumberType<double> {
 
-    get name() { return "double"; }
+    override get name() { return "double"; }
 
-    parse(s: string) {
-        let n = parseFloat(s);
+    override parse(s: string) {
+        let n = parseDecimal(s);
         return n;
+    }
+
+    override format(val: number): string {
+        return formatDecimal(val);
     }
 
 }
 
 export class BigIntegerType extends NumberType<BigInteger> {
 
-    get name() { return "BigInteger"; }
+    override get name() { return "BigInteger"; }
 
-    parse(s: string): BigInteger {
-        let b = BigInt(s);
+    override parse(s: string): BigInteger {
+        let b = parseBigInt(s);
         return b;
+    }
+
+    override format(val: BigInteger): string {
+        return formatBigInt(val);
+    }
+
+    override fromJson(jv: any): bigint {
+        let s = jv as string;
+        return BigInt(s);
+    }
+
+    override toJson(val: bigint) {
+        return String(val);
     }
 
 }
 
 export class BigDecimalType extends NumberType<BigDecimal> {
 
-    get name() { return "BigDecimal"; }
+    override get name() { return "BigDecimal"; }
 
-    parse(s: string): BigDecimal {
-        let b = Big(s);
+    override parse(s: string): BigDecimal {
+        let norm = normalizeNumber(s);
+        let b = Big(norm);
         return b;
+    }
+
+    override format(val: BigDecimal): string {
+        return formatBigDecimal(val);
+    }
+
+    override fromJson(jv: any): BigDecimal {
+        let str = jv as string;
+        return Big(str);
+    }
+
+    override toJson(val: BigDecimal) {
+        return String(val);
     }
 
 }
 
 export class BooleanType extends TypeInfo<boolean> {
 
-    get name() { return "boolean"; }
+    override get name() { return "boolean"; }
 
-    parse(s: string): boolean {
+    override parse(s: string): boolean {
         switch (s) {
             case "true":
             case "yes":
@@ -118,7 +256,7 @@ export class BooleanType extends TypeInfo<boolean> {
             case "no":
                 return false;
         }
-        let num = parseInt(s);
+        let num = parseIntEx(s);
         if (num)
             return true;
         return false;
@@ -128,10 +266,10 @@ export class BooleanType extends TypeInfo<boolean> {
 
 export class CharType extends TypeInfo<char> {
 
-    get name() { return "char"; }
-    get icon() { return "fa-font"; }
+    override get name() { return "char"; }
+    override get icon() { return "fa-font"; }
 
-    parse(s: string) {
+    override parse(s: string) {
         if (s.length)
             return s.charAt(0);
         else
@@ -142,14 +280,14 @@ export class CharType extends TypeInfo<char> {
 
 export class StringType extends TypeInfo<string> {
 
-    get name() { return "string"; }
-    get icon() { return "fa-font"; }
+    override get name() { return "string"; }
+    override get icon() { return "fa-font"; }
 
-    format(val: string): string {
+    override format(val: string): string {
         return val;
     }
 
-    parse(s: string) {
+    override parse(s: string) {
         return s;
     }
 
@@ -157,14 +295,14 @@ export class StringType extends TypeInfo<string> {
 
 export class EnumType extends TypeInfo<string> {
 
-    get name() { return "enum"; }
-    get icon() { return "fas-list-ol"; }
+    override get name() { return "enum"; }
+    override get icon() { return "fas-list-ol"; }
 
-    format(val: string): string {
+    override format(val: string): string {
         return val;
     }
 
-    parse(s: string) {
+    override parse(s: string) {
         return s;
     }
 
@@ -172,15 +310,23 @@ export class EnumType extends TypeInfo<string> {
 
 export class DateType extends TypeInfo<Date> {
 
-    get name() { return "Date"; }
-    get icon() { return "fa-clock"; }
+    override get name() { return "Date"; }
+    override get icon() { return "fa-clock"; }
 
-    format(val: Date): string {
+    override format(val: Date): string {
         return val.toISOString();
     }
 
-    parse(s: string): Date {
+    override parse(s: string): Date {
         return new Date(s);
+    }
+
+    override fromJson(jv: any): Date {
+        return this.parse(jv);
+    }
+
+    override toJson(val: Date) {
+        return this.format(val);
     }
 
 }
@@ -194,20 +340,20 @@ export abstract class CollectionType<E = any, C = E[]> extends TypeInfo<C> {
         this.itemType = itemType;
     }
 
-    get name() { return "Collection"; }
-    get icon() { return "far-cube"; }
+    override get name() { return "Collection"; }
+    override get icon() { return "far-cube"; }
 
     abstract create(): C;
     abstract add(collection: C, item: E): boolean;
     abstract remove(collection: C, item: E): boolean;
     abstract toArray(collection: C): E[];
 
-    format(val: C): string {
+    override format(val: C): string {
         let array = this.toArray(val);
         return JSON.stringify(array);
     }
 
-    parse(s: string): C {
+    override parse(s: string): C {
         let instance = this.create();
         let a = JSON.parse(s);
         if (!Array.isArray(a))
@@ -228,8 +374,8 @@ export class ArrayType<E> extends CollectionType<E, E[]> {
         super(itemType);
     }
 
-    get name() { return "Array"; }
-    get icon() { return "far-cube"; }
+    override get name() { return "Array"; }
+    override get icon() { return "far-cube"; }
 
     override create() {
         return [];
@@ -252,6 +398,26 @@ export class ArrayType<E> extends CollectionType<E, E[]> {
         return array;
     }
 
+    override fromJson(jv: any): E[] {
+        let array: E[] = [];
+        for (let i = 0; i < jv.length; i++) {
+            let jvItem = jv[i];
+            let item = this.itemType.fromJson(jvItem);
+            array.push(item);
+        }
+        return array;
+    }
+
+    override toJson(array: E[]) {
+        let ja: any = [];
+        for (let i = 0; i < array.length; i++) {
+            let item = array[i];
+            let jaItem = this.itemType.toJson(item);
+            ja.push(jaItem);
+        }
+        return ja;
+    }
+
 }
 
 export class ListType<E> extends ArrayType<E> {
@@ -260,15 +426,15 @@ export class ListType<E> extends ArrayType<E> {
         super(itemType);
     }
 
-    get name() { return "List"; }
-    get icon() { return "far-cube"; }
+    override get name() { return "List"; }
+    override get icon() { return "far-cube"; }
 
 }
 
 export class SetType<E> extends CollectionType<E, Set<E>> {
 
-    get name() { return "Set"; }
-    get icon() { return "far-cube"; }
+    override get name() { return "Set"; }
+    override get icon() { return "far-cube"; }
 
     constructor(itemType: TypeInfo<E>) {
         super(itemType);
@@ -293,6 +459,25 @@ export class SetType<E> extends CollectionType<E, Set<E>> {
         return [...set];
     }
 
+    override fromJson(jv: any): Set<E> {
+        let set = new Set<E>();
+        for (let i = 0; i < jv.length; i++) {
+            let jvItem = jv[i];
+            let item = this.itemType.fromJson(jvItem);
+            set.add(item);
+        }
+        return set;
+    }
+
+    override toJson(set: Set<E>) {
+        let ja: any = [];
+        for (let item of set) {
+            let jaItem = this.itemType.toJson(item);
+            ja.push(jaItem);
+        }
+        return ja;
+    }
+
 }
 
 export type MapEntry<K, V> = [key: K, val: V];
@@ -308,8 +493,8 @@ export class MapType<K, V> extends TypeInfo<Map<K, V>> {
         this.valueType = valueType;
     }
 
-    get name() { return "Map"; }
-    get icon() { return "far-cube"; }
+    override get name() { return "Map"; }
+    override get icon() { return "far-cube"; }
 
     create() {
         let map = new Map<K, V>();
@@ -318,19 +503,20 @@ export class MapType<K, V> extends TypeInfo<Map<K, V>> {
 
     toObject(map: Map<K, V>): any {
         let obj: any = {};
-        map.keys().forEach(k => {
+        let keys = map.keys();
+        for (let k of map.keys()) {
             let v = map.get(k);
             obj[k] = v;
-        });
+        }
         return obj;
     }
 
-    format(val: Map<K, V>): string {
+    override format(val: Map<K, V>): string {
         let obj = this.toObject(val);
         return JSON.stringify(obj);
     }
 
-    parse(s: string): Map<K, V> {
+    override parse(s: string): Map<K, V> {
         let instance = this.create();
         let obj = JSON.parse(s);
         if (Array.isArray(obj))
@@ -344,19 +530,50 @@ export class MapType<K, V> extends TypeInfo<Map<K, V>> {
         return instance;
     }
 
+    override fromJson(jv: any): Map<K, V> {
+        let map = new Map<K, V>();
+        for (let jKey in jv) {
+            let jVal = jv[jKey];
+            let key = this.keyType.fromJson(jKey);
+            let value = this.valueType.fromJson(jVal);
+            map.set(key, value);
+        }
+        return map;
+    }
+
+    override toJson(map: Map<K, V>) {
+        let jo: any = {};
+        for (let key of map.keys()) {
+            let value = map.get(key)!;
+            let jKey = this.keyType.toJson(key);
+            let jVal = this.valueType.toJson(value);
+            jo[jKey] = jVal;
+        }
+        return jo;
+    }
+
 }
 
 export class InetAddressType extends TypeInfo<InetAddress> {
 
-    get name() { return "InetAddress"; }
-    get icon() { return "far-globe"; }
+    override get name() { return "InetAddress"; }
+    override get icon() { return "far-globe"; }
 
-    format(val: InetAddress): string {
+    override format(val: InetAddress): string {
         return val;
     }
 
-    parse(s: string): InetAddress {
+    override parse(s: string): InetAddress {
         return s;
+    }
+
+    override fromJson(jv: any): InetAddress {
+        let str = jv as string;
+        return this.parse(str);
+    }
+
+    override toJson(val: InetAddress) {
+        return this.format(val);
     }
 
 }
