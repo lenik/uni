@@ -487,5 +487,31 @@ ul.pagination {
             border-right: solid var(--hi-width) var(--hi-color) !important;
         }
     }
+
+    ::v-deep() {
+
+        th[data-type=BYTE],
+        th[data-type=SHORT],
+        th[data-type=INT],
+        th[data-type=LONG],
+        th[data-type=FLOAT],
+        th[data-type=DOUBLE],
+        th[data-type=BIG_INTEGER],
+        th[data-type=BIG_DECIMAL] {
+            text-align: center;
+        }
+
+        td[data-type=BYTE],
+        td[data-type=SHORT],
+        td[data-type=INT],
+        td[data-type=LONG],
+        td[data-type=FLOAT],
+        td[data-type=DOUBLE],
+        td[data-type=BIG_INTEGER],
+        td[data-type=BIG_DECIMAL] {
+            text-align: right;
+        }
+    }
+
 }
 </style>

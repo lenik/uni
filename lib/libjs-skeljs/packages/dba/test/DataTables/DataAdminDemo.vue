@@ -94,15 +94,16 @@ const statuses = ref([
         <template #columns>
             <th data-field="name">Name</th>
             <th data-field="sex">Gender</th>
-            <th data-type="number" data-format="decimal2" data-field="age">Age</th>
+            <th data-field="age" data-type="INT" data-format="decimal2">Age</th>
+            <th data-field="salary" data-type="INT" data-format="decimal2">Salary</th>
             <th data-field="info.interest">Interests</th>
             <th data-field="info.hate">Hates</th>
         </template>
         <template #side-tools> Side Tools </template>
         <template #preview> My preview </template>
         <template #editor>
-            <Dialog ref="editDialog" modal="true" title="Edit Something" :cmds="{ ok: true, cancel: true }"> Hello, world.
-            </Dialog>
+            <Dialog ref="editDialog" modal="true" title="Edit Something" :cmds="{ ok: true, cancel: true }"> Hello,
+                world. </Dialog>
         </template>
     </DataAdmin>
 </template>

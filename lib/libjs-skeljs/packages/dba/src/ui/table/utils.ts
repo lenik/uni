@@ -41,8 +41,12 @@ export function getColumns(table: any, options: CreateOptions): ColumnType[] {
         };
 
         let typeInfo: ITypeInfo<any> | undefined = undefined;
-        if (options.typeMap != null && column.typeKey != null)
-            typeInfo = column.type = options.typeMap[column.typeKey];
+        if (options.typeMap != null) {
+            let defaultTypeKey = options.typeMap.STRING != null ? 'STRING' : undefined;
+            column.typeKey ||= defaultTypeKey;
+            if (column.typeKey != null)
+                typeInfo = column.type = options.typeMap[column.typeKey];
+        }
 
         let params = parseSpecParams($th.data("param")) || {};
         for (let i = 0; i < th.attributes.length; i++) {
@@ -55,37 +59,47 @@ export function getColumns(table: any, options: CreateOptions): ColumnType[] {
         let dataFormat = $th.data("format");
         if (dataFormat != null) {
             let fn = options.compile(dataFormat);
-            column.render = (data: string | null, type: string, row: any[], meta: any) => {
+            column.render = (data: any, type: string, row: any[], meta: any) => {
                 return fn(data);
             };
         }
+
         else if (typeInfo != null) {
-            column.render = (data: string | null, type: string, row: any[], meta: any) => {
+            column.render = (data: any, type: string, row: any[], meta: any) => {
+                switch (type) {
+                    case 'type':
+                    case 'sort':
+                    case undefined:
+                        return data;
+                }
+
                 if (data == null)
                     return typeInfo!.nullText;
-                let val = JSON.parse(data);
-                // let val = typeInfo.parse(data);
-                return typeInfo!.format(val);
+                let val: any = data;
+                if (typeof data == 'string')
+                    val = typeInfo!.parse(data);
+
+                switch (type) {
+                    case 'filter':
+                        return typeInfo!.format(val);
+                    case 'display':
+                        let parent = document.createElement('div');
+                        let content = typeInfo!.renderHtml(val);
+                        if (content == undefined)
+                            return typeInfo!.format(val);
+                        else {
+                            return content;
+                        }
+                    default:
+                        throw new Error("unexpected render type: " + type);
+                }
             };
         }
 
-        let script = $("script.render", th).text();
-        let render = script || $th.data("render");
-        if (render != null) { // override
-            column.render = compileRender(render);
-        }
-        else if (typeInfo?.createElement != null) {
-            let fn = typeInfo.createElement!;
-            column.render = (data: string | null, type: string, row: any[], meta: any) => {
-                if (data == null)
-                    return typeInfo!.nullText;
-                let val = JSON.parse(data);
-                // let val = typeInfo.parse(data);
-                return typeInfo!.format(val);
-                let parent = document.createElement('div');
-                fn(parent, val);
-                return parent.innerHTML;
-            };
+        // <script.render> overrides all.
+        let renderScript = $("script.render", th).text() || $th.data("render");
+        if (renderScript != null) {
+            column.render = compileRender(renderScript);
         }
 
         columns.push(column);
@@ -95,7 +109,7 @@ export function getColumns(table: any, options: CreateOptions): ColumnType[] {
 
 export function getColumnsConfig(columns: ColumnType[]) {
 
-    function renderRegExp(data: string | null, type: string, row: any[], meta: any) {
+    function renderRegExp(data: any, type: string, row: any[], meta: any) {
         if (data == null)
             return;
         // slow:

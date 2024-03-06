@@ -12,7 +12,8 @@ import DataTable from '../../src/ui/table/DataTable.vue';
     <DataTable data-url="people-object.json" dom="ftip">
         <th data-field="name">Name</th>
         <th data-field="sex">Gender</th>
-        <th data-field="age" data-type="number" data-format="decimal2">Age</th>
+        <th data-field="age" data-type="INT" data-format="decimal2">Age</th>
+        <th data-field="salary" data-type="INT">Salary</th>
         <th data-field="info.interest">Interests</th>
         <th data-field="info.hate">Hates</th>
     </DataTable>

@@ -28,7 +28,8 @@ console.log(JSON.stringify({
     <DataTable :data-tab="peopleTab" dom="ftip" caption="People Data">
         <th data-field="name">Name</th>
         <th data-field="sex">Gender</th>
-        <th data-type="number" data-format="decimal2" data-field="age">Age</th>
+        <th data-field="age" data-type="INT" data-format="decimal2">Age</th>
+        <th data-field="salary" data-type="INT" data-format="decimal2">Salary</th>
         <th data-field="info.interest">Interests</th>
         <th data-field="info.hate">Hates</th>
     </DataTable>

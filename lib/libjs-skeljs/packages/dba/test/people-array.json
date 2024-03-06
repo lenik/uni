@@ -1,8 +1,8 @@
 {
-    "columns": ["name", "age", "sex", "info"],
+    "columns": ["name", "age", "sex","salary", "info"],
     "rows": [
-        ["Tom", 20, "m", { "interest": "reading", "hate": "sleep" }],
-        ["Lucy", 16, "f", { "hate": "play games" }],
-        ["Lily", 12, "f", null]
+        ["Tom", 20, "m", 1200, { "interest": "reading", "hate": "sleep" }],
+        ["Lucy", 16, "f", 100, { "hate": "play games" }],
+        ["Lily", 12, "f", 22000, null]
     ]
 }
