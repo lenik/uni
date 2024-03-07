@@ -14,7 +14,7 @@ export class InstantType extends MomentWrapperType<Instant>{
 
 export class Instant extends MomentWrapper {
 
-    static TYPE = new InstantType();
+    static readonly TYPE = new InstantType();
 
     static UNIX_MS_TIMESTAMP = 'x';
     static UNIX_TIMESTAMP = 'X';

@@ -15,7 +15,7 @@ export class OffsetDateTimeType extends MomentWrapperType<OffsetDateTime>{
 
 export class OffsetDateTime extends MomentWrapper {
 
-    static TYPE = new OffsetDateTimeType();
+    static readonly TYPE = new OffsetDateTimeType();
 
     static DATE_TIME = 'YYYY-MM-DD hh:mm:ss Z';
     static ISO_LOCAL_DATE_TIME = 'YYYY-MM-DDThh:mm:ssZ';

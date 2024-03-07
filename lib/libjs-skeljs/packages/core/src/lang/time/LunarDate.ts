@@ -29,7 +29,7 @@ export class LunarDateType extends TypeInfo<LunarDate>{
 
 export class LunarDate {
 
-    static TYPE = new LunarDateType();
+    static readonly TYPE = new LunarDateType();
 
     _lunar: Lunar
     onchange: (val: LunarDate) => void

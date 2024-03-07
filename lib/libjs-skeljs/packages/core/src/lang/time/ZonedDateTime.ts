@@ -15,7 +15,7 @@ export class ZonedDateTimeType extends MomentWrapperType<ZonedDateTime>{
 
 export class ZonedDateTime extends MomentWrapper {
 
-    static TYPE = new ZonedDateTimeType();
+    static readonly TYPE = new ZonedDateTimeType();
 
     static DATE_TIME = 'YYYY-MM-DD hh:mm:ss Z';
     static ISO_LOCAL_DATE_TIME = 'YYYY-MM-DDThh:mm:ssZ';

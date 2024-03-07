@@ -15,7 +15,7 @@ export class OffsetTimeType extends MomentWrapperType<OffsetTime>{
 
 export class OffsetTime extends MomentWrapper {
 
-    static TYPE = new OffsetTimeType();
+    static readonly TYPE = new OffsetTimeType();
 
     static HH_MM_SS_Z = 'hh:mm:ssZ';
     static HHMMSS_Z = 'hhmmssZ';

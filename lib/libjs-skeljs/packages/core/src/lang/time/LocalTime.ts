@@ -15,7 +15,7 @@ export class LocalTimeType extends MomentWrapperType<LocalTime>{
 
 export class LocalTime extends MomentWrapper {
 
-    static TYPE = new LocalTimeType();
+    static readonly TYPE = new LocalTimeType();
 
     static HH_MM_SS = 'hh:mm:ss';
     static HHMMSS = 'hhmmss';

@@ -15,7 +15,7 @@ export class LocalDateType extends MomentWrapperType<LocalDate>{
 
 export class LocalDate extends MomentWrapper {
 
-    static TYPE = new LocalDateType();
+    static readonly TYPE = new LocalDateType();
 
     static YYYY_MM_DD = 'YYYY-MM-DD';
     static YY_MM_DD = 'YY-MM-DD';
