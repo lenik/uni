@@ -8,7 +8,7 @@ import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.dir.web.TsUtils;
+import net.bodz.lily.tool.daogen.dir.web.TsConfig;
 import net.bodz.lily.tool.daogen.util.ITsImporterAware;
 
 public abstract class JavaGen__vue
@@ -44,7 +44,7 @@ public abstract class JavaGen__vue
     }
 
     protected final void buildVue(ITreeOut out, ITableMetadata model) {
-        EsmPackageMap packageMap = TsUtils.getPackageMap(project.web.baseDir);
+        EsmPackageMap packageMap = TsConfig.getPackageMap(project.web.baseDir);
         EsmImports imports = new EsmImports(null);
         tsOut = new TypeScriptWriter(pathInfo.getQName(), out.indented(), //
                 imports, packageMap);

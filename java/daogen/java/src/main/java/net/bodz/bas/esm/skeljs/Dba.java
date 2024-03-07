@@ -20,7 +20,9 @@ public class Dba
         public final EsmName IEntityProperty = childDefault("IEntityProperty");
         public final EsmName EntityProperty = childDefault("EntityProperty");
 
-        public final EsmName EntityPropertyMap = _interface("EntityType/EntityPropertyMap");
+        public final EsmName EntityPropertyMap = childDefault("EntityPropertyMap");
+        // public final EsmName EntityPropertyMap = _interface("EntityType/EntityPropertyMap");
+
         public final EsmName primaryKey = name("EntityType/primaryKey");
         public final EsmName property = name("EntityType/property");
     }

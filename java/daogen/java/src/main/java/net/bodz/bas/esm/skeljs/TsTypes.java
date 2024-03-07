@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
@@ -64,7 +65,6 @@ public class TsTypes
 
         addType(JsonVariant.class, basType.JsonVariant);
         addType(JsonMap.class, basType.JsonVariant);
-        addType(State.class, baseType._int);
 
         addType(Instant.class, time.Instant);
         addType(LocalDate.class, time.LocalDate);
@@ -74,6 +74,9 @@ public class TsTypes
         addType(OffsetDateTime.class, time.OffsetDateTime);
         addType(ZonedDateTime.class, time.ZonedDateTime);
 
+        addType(ZoneId.class, baseType._string);
+
+        addType(State.class, EsmModules.core.state.DefaultState);
     }
 
     public EsmName forClassName(String className) {

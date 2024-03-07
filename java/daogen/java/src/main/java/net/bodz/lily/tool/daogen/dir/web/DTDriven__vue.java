@@ -1,6 +1,7 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -108,6 +109,8 @@ public abstract class DTDriven__vue
 
         IProperty property = column.getProperty();
         Type type = property.getPropertyGenericType();
+        if (type instanceof TypeVariable<?>)
+            type = property.getPropertyClass();
 
         String typeInfo = typeInfoResolver().property(property.getName())//
                 .resolveGeneric(type);

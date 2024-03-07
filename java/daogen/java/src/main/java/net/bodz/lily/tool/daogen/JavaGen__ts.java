@@ -9,7 +9,7 @@ import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
-import net.bodz.lily.tool.daogen.dir.web.TsUtils;
+import net.bodz.lily.tool.daogen.dir.web.TsConfig;
 import net.bodz.lily.tool.daogen.util.ITsImporterAware;
 
 public abstract class JavaGen__ts
@@ -44,7 +44,7 @@ public abstract class JavaGen__ts
         QualifiedName qName = pathInfo.getQName();
         EsmImports imports = EsmImports.forLocal(qName);
 
-        EsmPackageMap packageMap = TsUtils.getPackageMap(project.web.baseDir);
+        EsmPackageMap packageMap = TsConfig.getPackageMap(project.web.baseDir);
         tsOut = new TypeScriptWriter(qName, buf.indented(), imports, packageMap);
 
         buildTsBody(tsOut, model);

@@ -112,6 +112,14 @@ public class Core
 
     }
 
+    @SourcePath("net/bodz/bas/repr/state")
+    public class State
+            extends Source {
+
+        public final EsmName DefaultState = childDefault("DefaultState");
+
+    }
+
     @SourcePath("ui/types")
     public class UiTypes
             extends Source {
@@ -162,6 +170,8 @@ public class Core
     public final LangTime time = new LangTime();
 
     public final LoggingApi loggingApi = add(new LoggingApi());
+    public final State state = add(new State());
+
     public final UiTypes uiTypes = add(new UiTypes());
     public final VarMap VarMap = add(new VarMap());
 

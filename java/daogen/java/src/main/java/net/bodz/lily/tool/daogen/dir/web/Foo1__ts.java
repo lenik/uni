@@ -1,6 +1,7 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.potato.element.IProperty;
@@ -74,6 +75,8 @@ public class Foo1__ts
         boolean aNotNull = property.getAnnotation(NotNull.class) != null;
         Class<?> propertyClass = property.getPropertyClass();
         Type type = property.getPropertyGenericType();
+        if (type instanceof TypeVariable<?>)
+            type = property.getPropertyClass();
 
         boolean notNull = propertyClass.isPrimitive() || aNotNull;
 

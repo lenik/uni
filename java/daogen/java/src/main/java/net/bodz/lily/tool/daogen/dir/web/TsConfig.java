@@ -2,16 +2,20 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.ZoneId;
 
+import net.bodz.bas.c.type.TypePoMap;
 import net.bodz.bas.err.LoadException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.esm.EsmModule;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmPackageMap;
+import net.bodz.bas.fmt.json.JsonVariant;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.site.json.JsonMap;
 import net.bodz.lily.tool.daogen.util.NpmDir;
 
-public class TsUtils {
+public class TsConfig {
 
     public static EsmPackageMap getPackageMap(File webDir) {
         NpmDir npmDir = NpmDir.closest(webDir);
@@ -37,6 +41,12 @@ public class TsUtils {
                 .localPriority(EsmModules.PRIORITY_LOCAL)//
                 .build();
 
+        packageMap.put("java.time", EsmModules.core);
+
+        packageMap.put("net.bodz.bas.i18n", EsmModules.core);
+        packageMap.put("net.bodz.bas.repr", EsmModules.core);
+        packageMap.put("net.bodz.bas.db", EsmModules.dba);
+
         packageMap.put("net.bodz.lily.concrete", EsmModules.basic);
 
         packageMap.put("net.bodz.lily.schema", EsmModules.basic);
@@ -46,6 +56,18 @@ public class TsUtils {
         packageMap.put("net.bodz.violet.schema.art.ArtifactModel", EsmModules.fab);
 
         return packageMap;
+    }
+
+    static TypePoMap<Class<?>> equivTypeMap = new TypePoMap<>();
+
+    static {
+        equivTypeMap.put(JsonMap.class, JsonVariant.class);
+        equivTypeMap.put(ZoneId.class, String.class);
+    }
+
+    public static Class<?> getEquivType(Class<?> clazz) {
+        Class<?> equiv = equivTypeMap.meet(clazz);
+        return equiv != null ? equiv : clazz;
     }
 
 }

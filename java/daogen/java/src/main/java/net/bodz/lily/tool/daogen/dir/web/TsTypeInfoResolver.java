@@ -10,6 +10,7 @@ import net.bodz.bas.esm.skeljs.TsTypeInfos;
 import net.bodz.bas.esm.skeljs.TsTypes;
 import net.bodz.bas.t.predef.Predef;
 import net.bodz.bas.t.predef.PredefMetadata;
+import net.bodz.bas.t.tuple.QualifiedName;
 
 public class TsTypeInfoResolver
         extends AbstractTsResolver<TsTypeInfoResolver> {
@@ -43,6 +44,12 @@ public class TsTypeInfoResolver
 
     @Override
     public String resolveClass(Class<?> javaClass) {
+        if (javaClass == null)
+            throw new NullPointerException("javaClass");
+        if (javaClass == Object.class)
+            System.err.println();
+        javaClass = TsConfig.getEquivType(javaClass);
+
         EsmName tsTypeInfo = TsTypeInfos.INSTANCE.forClass(javaClass);
         if (tsTypeInfo != null) {
             String alias = imports.importName(tsTypeInfo);
@@ -63,12 +70,22 @@ public class TsTypeInfoResolver
         if (tsType != null)
             return imports.importName(tsType) + ".TYPE";
 
-        return imports.importDefault(javaClass) + ".TYPE";
+        QualifiedName qName = QualifiedName.of(javaClass);
+        return resolveQName(qName);
     }
 
     @Override
     public String resolveNotFoundClass(String className) {
-        return imports.importDefault(className) + ".TYPE";
+        QualifiedName qName = QualifiedName.parse(className);
+        return resolveQName(qName);
+    }
+
+    String resolveQName(QualifiedName qName) {
+        if (qName == null)
+            throw new NullPointerException("qName");
+        if (qName.equals(thisType))
+            return "this";
+        return imports.importDefault(qName) + ".TYPE";
     }
 
 }

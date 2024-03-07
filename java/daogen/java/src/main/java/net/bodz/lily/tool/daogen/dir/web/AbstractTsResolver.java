@@ -15,6 +15,7 @@ public abstract class AbstractTsResolver<This> {
 
     boolean importAsType;
     String propertyName;
+    QualifiedName thisType;
 
     public AbstractTsResolver(ITsImporter imports) {
         if (imports == null)
@@ -34,6 +35,16 @@ public abstract class AbstractTsResolver<This> {
 
     public This property(String propertyName) {
         this.propertyName = propertyName;
+        return _this();
+    }
+
+    public This thisType(QualifiedName thisType) {
+        this.thisType = thisType;
+        return _this();
+    }
+
+    public This thisType(String thisTypeName) {
+        this.thisType = QualifiedName.parse(thisTypeName);
         return _this();
     }
 

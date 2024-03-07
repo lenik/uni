@@ -13,9 +13,7 @@ import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.skeljs.Core.BasInfo;
 import net.bodz.bas.esm.skeljs.Core.BaseInfo;
-import net.bodz.bas.esm.skeljs.Core.LangTime;
 import net.bodz.bas.fmt.json.JsonVariant;
-import net.bodz.bas.site.json.JsonMap;
 
 public class TsTypeInfos
         extends TsTypeMap {
@@ -23,7 +21,6 @@ public class TsTypeInfos
     {
         BaseInfo baseInfo = EsmModules.core.baseInfo;
         BasInfo basInfo = EsmModules.core.basInfo;
-        LangTime time = EsmModules.core.time;
 
         addType(byte.class, baseInfo.BYTE);
         addType(short.class, baseInfo.SHORT);
@@ -56,16 +53,7 @@ public class TsTypeInfos
         addAbstractType(Map.class, baseInfo.MAP);
 
         addType(JsonVariant.class, basInfo.JSON_VARIANT);
-        addType(JsonMap.class, basInfo.JSON_VARIANT);
         addAbstractType(InetAddress.class, EsmModules.core.baseInfo.INET_ADDRESS);
-
-//        addType(Instant.class, time.Instant_TYPE);
-//        addType(LocalDate.class, time.LocalDate_TYPE);
-//        addType(LocalTime.class, time.LocalTime_TYPE);
-//        addType(LocalDateTime.class, time.LocalDateTime_TYPE);
-//        addType(OffsetTime.class, time.OffsetTime_TYPE);
-//        addType(OffsetDateTime.class, time.OffsetDateTime_TYPE);
-//        addType(ZonedDateTime.class, time.ZonedDateTime_TYPE);
     }
 
     @Override

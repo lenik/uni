@@ -176,8 +176,8 @@ public class FooType0__ts
         String head = Split.headDomain(cname.propertyName).a;
         IProperty headProperty = table.getPotatoType().getProperty(head);
         if (headProperty == null)
-            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.",
-                    table.getJavaType(), head, cname.propertyName);
+            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.", table.getJavaType(),
+                    head, cname.propertyName);
     }
 
     void declProperty(TypeScriptWriter out, IColumnMetadata column, //
@@ -186,7 +186,8 @@ public class FooType0__ts
         boolean notNull = ! column.isNullable(true);
 
         String javaType = project.config.javaType(column);
-        String tsType = typeResolver().property(column.getName()).resolve(javaType);
+        // String tsType = typeResolver().property(column.getName()).resolve(javaType);
+        String tsTypeInfo = typeInfoResolver().property(column.getName()).resolve(javaType);
 
         String label = column.getLabel();
         String description = column.getDescription();
@@ -200,7 +201,7 @@ public class FooType0__ts
             out.print(out.name(EsmModules.dba.entity.property));
 
         Attrs attrs = new Attrs(TsCodeStyle.newLineProps);
-        attrs.putQuoted("type", tsType);
+        attrs.put("type", tsTypeInfo);
         if (notNull)
             attrs.put("nullable", false);
 
@@ -264,9 +265,12 @@ public class FooType0__ts
         QualifiedName parentType = parentTable.getJavaType();
         if (parentType == null)
             throw new NullPointerException("parentType");
-        QualifiedName parentTypeInfo = parentType.nameAdd(project.typeInfoSuffix);
 
-        String parentTsTypeInfo = typeResolver().property(property).resolve(parentTypeInfo);
+        String parentTsTypeInfo = typeInfoResolver().property(property)//
+                .resolve(parentType);
+
+        if (table.getJavaType().equals(parentType))
+            parentTsTypeInfo = "this";
 
         out.print(property);
         out.print(": ");

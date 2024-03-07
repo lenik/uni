@@ -1,6 +1,7 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.EsmModules;
@@ -71,6 +72,9 @@ public class FooValidators1__ts
 
     void validateProperty(TypeScriptWriter out, IProperty property) {
         Type type = property.getPropertyGenericType();
+        if (type instanceof TypeVariable<?>)
+            type = property.getPropertyClass();
+
         String tsType = typeResolver().property(property.getName())//
                 .importAsType().resolveGeneric(type);
 

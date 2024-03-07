@@ -1,6 +1,7 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.Strings;
@@ -106,8 +107,10 @@ public class FooType1__ts
         Type type = property.getPropertyGenericType();
         if (type == null)
             throw new IllegalArgumentException("property's generic type is null: " + property);
+        if (type instanceof TypeVariable<?>)
+            type = property.getPropertyClass();
 
-        String tsType = typeResolver().property(property.getName()).resolveGeneric(type);
+        String tsTypeInfo = typeInfoResolver().property(property.getName()).resolveGeneric(type);
 
         String label = property.getLabel().toString();
         String description = property.getDescription().toString();
@@ -118,7 +121,7 @@ public class FooType1__ts
         out.print(out.name(EsmModules.dba.entity.property));
 
         Attrs attrs = new Attrs(TsCodeStyle.newLineProps);
-        attrs.putQuoted("type", tsType);
+        attrs.put("type", tsTypeInfo);
         if (notNull)
             attrs.put("nullable", false);
 

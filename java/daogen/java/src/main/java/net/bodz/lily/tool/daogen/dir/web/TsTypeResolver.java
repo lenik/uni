@@ -33,6 +33,8 @@ public class TsTypeResolver
         if (javaClass == null)
             throw new NullPointerException("null javaClass: " + propertyName);
 
+        javaClass = TsConfig.getEquivType(javaClass);
+
         switch (TypeKind.getTypeId(javaClass)) {
         case TypeId._boolean:
         case TypeId.BOOLEAN:
