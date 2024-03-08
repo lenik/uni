@@ -5,7 +5,7 @@ import EntityPropertyMap from "./EntityPropertyMap";
 export interface IEntityType extends ITypeInfo<any> {
     get name(): string        // Java class name
 
-    property: EntityPropertyMap
+    get property(): EntityPropertyMap
 
     /**
      * sorted properties.

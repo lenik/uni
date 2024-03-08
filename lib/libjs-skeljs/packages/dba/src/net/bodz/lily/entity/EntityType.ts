@@ -3,30 +3,43 @@ import IEntityType from "./IEntityType";
 import IEntityProperty from "./IEntityProperty";
 import EntityProperty from "./EntityProperty";
 import EntityPropertyMap from "./EntityPropertyMap";
-import { simpleName } from "@skeljs/core/src/logging/api";
 
 export abstract class EntityType extends TypeInfo<any> implements IEntityType {
-    abstract override get name(): string        // Java class name
 
-    property: EntityPropertyMap = {}
-    ordinalPositionBase: number = 0
+    private allProps: EntityPropertyMap = {}
+    private applied = false;
+    // private declStack: EntityPropertyMap[] | undefined = []
+    private ordinalPositionBase: number = 0
 
-    declare(declaredProperties: EntityPropertyMap) {
+    /**
+     * Java class name
+     */
+    abstract override get name(): string
+
+    get simpleName() {
+        if (this.name == null) return this.name;
+        let lastDot = this.name.lastIndexOf('.');
+        return lastDot == -1 ? this.name : this.name.substring(lastDot + 1);
+    }
+
+    protected abstract preamble(): void;
+
+    protected declare(props: EntityPropertyMap) {
         // save object key as property.name
-        for (let k in declaredProperties) {
-            let prop = declaredProperties[k];
+        for (let k in props) {
+            let prop = props[k];
             prop.name = k;
         }
 
         let base = this.ordinalPositionBase;
-        let sorted = Object.values(declaredProperties).sort(
+        let sorted = Object.values(props).sort(
             (a, b) => a._g_index! - b._g_index!);
 
         for (let i = 0; i < sorted.length; i++) {
             let prop = sorted[i];
 
             let name = prop.name!;
-            let prev = this.property[name];
+            let prev = this.allProps[name];
             if (prev != null) {
                 prop.position = prev.position;
 
@@ -48,18 +61,22 @@ export abstract class EntityType extends TypeInfo<any> implements IEntityType {
             prop.position ||= base + i;
 
             delete prop._g_index;
-            this.property[name] = prop;
+            this.allProps[name] = prop;
         }
 
         this.ordinalPositionBase += sorted.length;
     }
 
-    get simpleName() {
-        return simpleName(this.name);
+    get property() {
+        if (!this.applied) {
+            this.preamble();
+            this.applied = true;
+        }
+        return this.allProps;
     }
 
     get properties(): EntityProperty[] {
-        let v = Object.values(this.property);
+        let v = Object.values(this.allProps);
         v.sort((a, b) => a.position! - b.position!);
         return v;
     }
