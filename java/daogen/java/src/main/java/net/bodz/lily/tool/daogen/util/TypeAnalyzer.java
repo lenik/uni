@@ -1,6 +1,11 @@
 package net.bodz.lily.tool.daogen.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.codegen.IJavaImporter;
+import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
@@ -44,102 +49,105 @@ public class TypeAnalyzer
     }
 
     public TypeExtendInfo getExtendInfo(ITableMetadata table, //
-            QualifiedName qName, //
-            QualifiedName baseClassName) {
+            QualifiedName type, //
+            QualifiedName baseType) {
 
         TypeExtendInfo info = new TypeExtendInfo();
-        info.className = qName;
-        info.simpleName = qName.name;
+        info.type = type;
 
         try {
-            info.clazz = Class.forName(info.className.getFullName());
+            info.javaClass = Class.forName(info.type.getFullName());
         } catch (ClassNotFoundException e1) {
         }
 
         MiscTemplates templates = new MiscTemplates(project);
         info.idType = templates.getIdType(table);
 
-        if (baseClassName == null) {
+        if (baseType == null) {
             if (table.getBaseTypeName() != null)
-                baseClassName = QualifiedName.parse(table.getBaseTypeName());
+                baseType = QualifiedName.parse(table.getBaseTypeName());
             else {
+                Class<?> baseClass;
                 if (info.idType != null) {
-                    info.baseClass = CoEntity.class;
+                    baseClass = CoEntity.class;
                     if (typeScript) {
-                        info.baseParams = "<" + typeResolver().property("<id>")//
-                                .importAsType().resolve(info.idType) + ">";
+                        String tsIdType = typeResolver().property("<id>")//
+                                .importAsType().resolve(info.idType);
+                        info.baseTypeArgs = array(tsIdType);
                     } else {
-                        info.baseParams = "<" + javaImporter.importName(info.idType) + ">";
+                        info.baseTypeArgs = array(javaImporter.importName(info.idType));
                     }
                 } else {
-                    info.baseClass = StructRow.class;
+                    baseClass = StructRow.class;
                 }
-                baseClassName = QualifiedName.parse(info.baseClass.getCanonicalName());
+                baseType = QualifiedName.parse(baseClass.getCanonicalName());
             }
         }
-        info.baseClassName = baseClassName;
+        info.setBaseType(baseType);
 
-        try {
-            info.baseClass = Class.forName(baseClassName.getFullName());
-            assert info.baseClass.getCanonicalName().equals(baseClassName.getFullName());
-        } catch (ClassNotFoundException e) {
-            // baseClass may be generated one.
-        }
-
-        if (info.baseClass != null) {
-            TypeParameters aTypeParams = info.baseClass.getAnnotation(TypeParameters.class);
-            if (aTypeParams != null) {
-                StringBuilder paramsBuf = new StringBuilder();
-                StringBuilder baseParamsBuf = new StringBuilder();
-                StringBuilder recBuf = new StringBuilder();
-                StringBuilder typeAgainParams = new StringBuilder();
-                for (TypeParamType param : aTypeParams.value()) {
-                    switch (param) {
-                    case ID_TYPE:
-                        String idType;
-                        if (typeScript) {
-                            idType = typeResolver().property("<" + param.name() + ">")//
-                                    .importAsType().resolve(info.idType);
-                            baseParamsBuf.append(", " + tsImporter.importName(idType));
-                        } else {
-                            idType = info.idType.getFullName();
-                            baseParamsBuf.append(", " + javaImporter.importName(idType));
-                        }
-                        break;
-                    case THIS_TYPE:
-                        baseParamsBuf.append(", " + info.simpleName);
-                        break;
-                    case THIS_REC:
-                        if (typeScript)
-                            paramsBuf.append(", this_t");
-                        else
-                            paramsBuf.append(", this_t extends " + info.simpleName + "<%R>");
-
-                        baseParamsBuf.append(", this_t");
-                        recBuf.append(", this_t");
-
-                        if (typeScript)
-                            // not used.
-                            typeAgainParams.append(", TypeParamType.THIS_TYPE");
-                        else
-                            typeAgainParams.append(", " + //
-                                    javaImporter.importName(TypeParamType.class) //
-                                    + "." + TypeParamType.THIS_TYPE.name());
-                        break;
-                    default:
-                        baseParamsBuf.append(", any");
-                    }
-                }
-                String rec = recBuf.length() == 0 ? "" : recBuf.substring(2);
-
-                String params = paramsBuf.length() == 0 ? "" : ("<" + paramsBuf.substring(2) + ">");
-                info.params = params.replace("%R", rec);
-
-                info.baseParams = baseParamsBuf.length() == 0 ? "" : "<" + baseParamsBuf.substring(2) + ">";
-                info.typeAgain = typeAgainParams.length() == 0 ? null : typeAgainParams.substring(2);
-            }
+        if (info.javaBaseClass != null) {
+            TypeParameters aBaseTypeParams = info.javaBaseClass.getAnnotation(TypeParameters.class);
+            if (aBaseTypeParams != null)
+                parseGenerics(info, aBaseTypeParams.value());
         }
         return info;
+    }
+
+    void parseGenerics(TypeExtendInfo info, TypeParamType[] baseTypeVarTypes) {
+        List<String> typeVars = new ArrayList<>();
+        List<String> baseTypeArgs = new ArrayList<>();
+        List<QualifiedName> baseTypeBounds = new ArrayList<>();
+        List<String> recursiveArgs = new ArrayList<>();
+        List<TypeParamType> typeVarTypes = new ArrayList<>();
+        for (int i = 0; i < baseTypeVarTypes.length; i++) {
+            TypeParamType baseParamType = baseTypeVarTypes[i];
+            switch (baseParamType) {
+            case ID_TYPE:
+                if (typeScript) {
+                    String tsIdType = typeResolver().property("<ID>")//
+                            .importAsType().resolve(info.idType);
+                    baseTypeArgs.add(tsIdType);
+                } else {
+                    baseTypeArgs.add(javaImporter.importName(info.idType));
+                }
+                baseTypeBounds.add(info.idType);
+                break;
+            case THIS_TYPE:
+                baseTypeArgs.add(info.type.name);
+                baseTypeBounds.add(info.type);
+                break;
+            case THIS_REC:
+                if (typeScript)
+                    typeVars.add("this_t");
+                else
+                    typeVars.add("this_t extends " + info.type.name + "<%R>");
+
+                baseTypeArgs.add("this_t");
+                baseTypeBounds.add(ThisType.QNAME);
+                recursiveArgs.add("this_t");
+
+                if (typeScript)
+                    typeVarTypes.add(TypeParamType.THIS_TYPE);
+                break;
+            default:
+                throw new UnexpectedException();
+            }
+        }
+
+        String[] _typeVars = typeVars.toArray(new String[0]);
+        String rec = StringArray.join(", ", recursiveArgs);
+        for (int i = 0; i < _typeVars.length; i++)
+            _typeVars[i] = _typeVars[i].replace("%R", rec);
+        info.typeVars = _typeVars;
+        info.typeVarTypes = typeVarTypes.toArray(new TypeParamType[0]);
+
+        info.baseTypeArgs = baseTypeArgs.toArray(new String[0]);
+        info.baseTypeBounds = baseTypeBounds.toArray(new QualifiedName[0]);
+        info.baseTypeVarTypes = baseTypeVarTypes;
+    }
+
+    static String[] array(String... args) {
+        return args;
     }
 
 }

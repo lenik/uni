@@ -37,10 +37,10 @@ public class Foo0__ts
 
         // out.localName(tableType.baseClassName);
         out.printf("export class %s%s extends %s%s {\n", //
-                extend.simpleName, //
-                extend.params, //
-                out.importDefault(extend.baseClassName), //
-                extend.baseParams);
+                extend.type.name, //
+                extend.angledTypeVars(), //
+                out.importDefault(extend.baseType), //
+                extend.angledBaseTypeArgs());
         out.enter();
         {
             TsTemplates.lazyProp(out, "_typeInfo", "TYPE", out.importDefault(typeName));
@@ -91,7 +91,7 @@ public class Foo0__ts
         out.println("}");
 
         out.println();
-        out.printf("export default %s;\n", extend.simpleName);
+        out.printf("export default %s;\n", extend.type.name);
     }
 
     void checkCompositeProperty(ITableMetadata table, IColumnMetadata column) {

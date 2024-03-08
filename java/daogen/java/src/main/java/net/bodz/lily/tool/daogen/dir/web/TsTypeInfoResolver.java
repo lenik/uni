@@ -83,8 +83,11 @@ public class TsTypeInfoResolver
     String resolveQName(QualifiedName qName) {
         if (qName == null)
             throw new NullPointerException("qName");
-        if (qName.equals(thisType))
-            return "this";
+        if (thisType != null) {
+            QualifiedName qName_TypeInfo = qName.append("TypeInfo");
+            if (qName_TypeInfo.equals(thisType))
+                return "this";
+        }
         return imports.importDefault(qName) + ".TYPE";
     }
 

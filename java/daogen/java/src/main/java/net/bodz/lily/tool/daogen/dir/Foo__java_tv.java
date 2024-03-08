@@ -24,7 +24,7 @@ public class Foo__java_tv
         TypeExtendInfo extend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, project.Foo.qName, project._Foo_stuff.qName);
 
-        String simpleName = extend.simpleName;
+        String simpleName = extend.type.name;
 
         out.print("@" + out.im.name(Table.class) + "(");
         {
@@ -38,8 +38,11 @@ public class Foo__java_tv
             out.println(")");
         }
 
-        out.printf("public class %s%s\n", simpleName, extend.params);
-        out.printf("        extends %s%s {\n", out.importName(extend.baseClassName), extend.baseParams);
+        out.printf("public class %s%s\n", //
+                simpleName, extend.angledTypeVars());
+        out.printf("        extends %s%s {\n", //
+                out.importName(extend.baseType), //
+                extend.angledBaseTypeArgs());
         out.enter();
         {
             out.println();

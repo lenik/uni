@@ -1,6 +1,10 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.bodz.bas.c.object.Nullables;
+import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.UnexpectedException;
@@ -17,6 +21,7 @@ import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
+import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
@@ -42,13 +47,13 @@ public class FooType0__ts
         String description = table.getDescription();
 
         QualifiedName validatorsClass = project.Esm_Foo_stuff_Validators.qName;
-        QualifiedName superType = extend.baseClassName.nameAdd(project.typeInfoSuffix);
+        QualifiedName superType = extend.baseType.nameAdd(project.typeInfoSuffix);
 
         boolean useNs = false;
 
         if (useNs) {
             out.printf("export namespace %s_NS {\n", //
-                    extend.simpleName);
+                    extend.type.name);
             out.enter();
             {
                 staticFields1(out, table, OutFormat.TS_NAMESPACE);
@@ -61,7 +66,7 @@ public class FooType0__ts
         }
 
         out.printf("export class %s extends %s {\n", //
-                extend.simpleName, //
+                extend.type.name, //
                 out.importDefault(superType));
         out.println();
         out.enter();
@@ -90,50 +95,63 @@ public class FooType0__ts
                     out.importDefault(validatorsClass));
 
             out.println();
-            out.printf("declaredProperty: %s = {\n", //
-                    out.importName(EsmModules.dba.entity.EntityPropertyMap));
-            out.enter();
+            out.println("override preamble() {");
             {
-                for (IColumnMetadata column : table.getColumns()) {
-                    if (column.isExcluded())
-                        continue;
-
-                    if (column.isCompositeProperty()) {
-                        checkCompositeProperty(table, column);
-                        continue;
-                    }
-
-                    if (column.isForeignKey())
-                        continue;
-
-                    declProperty(out, column, true);
+                out.enter();
+                out.println("super.preamble();");
+                out.println("this.declare({");
+                {
+                    out.enter();
+                    declareProps(out, table);
+                    out.leave();
                 }
-
-                for (CrossReference xref : table.getForeignKeys().values()) {
-                    if (xref.isExcluded(table))
-                        continue;
-
-                    if (xref.isCompositeProperty())
-                        continue;
-
-                    out.println();
-                    declForeignKeyProperty(out, xref, table, validatorsClass);
-
-                    for (String fkColumnName : xref.getForeignKey().getColumnNames()) {
-                        IColumnMetadata column = table.getColumn(fkColumnName);
-                        declProperty(out, column, false);
-                    }
-                }
+                out.println("});");
                 out.leave();
             }
             out.println("}");
 
             out.println();
-            out.println("constructor() {");
+
+            List<String> ctorArgs = new ArrayList<>();
+            for (TypeParamType varType : extend.typeVarTypes) {
+                switch (varType) {
+                case THIS_REC:
+                    ctorArgs.add("selfType");
+                    break;
+                default:
+                }
+            }
+
+            out.printf("constructor(%s) {", StringArray.join(", ", ctorArgs));
             out.enter();
             {
-                out.println("super();");
-                out.printf("this.declare(this.declaredProperty);\n");
+                List<String> superArgs = new ArrayList<>();
+                boolean initSelfType = false;
+                // for (TypeParamType baseVarType : extend.baseTypeVarTypes) {
+                for (int i = 0; i < extend.baseTypeVarTypes.length; i++) {
+                    TypeParamType baseVarType = extend.baseTypeVarTypes[i];
+                    switch (baseVarType) {
+                    case THIS_REC:
+                        superArgs.add("selfType");
+                        break;
+
+                    case THIS_TYPE:
+                        initSelfType = true;
+                        break;
+
+                    case ID_TYPE:
+                        superArgs.add(extend.baseTypeArgs[i]);
+                        break;
+
+                    default:
+                    }
+                }
+
+                out.printf("super(%s);\n", StringArray.join(", ", superArgs));
+
+                if (initSelfType)
+                    out.println("this.selfType = this;");
+
                 out.leave();
             }
             out.println("}");
@@ -144,8 +162,40 @@ public class FooType0__ts
         out.println("}");
 
         out.println();
-        out.printf("export default %s;\n", extend.simpleName);
+        out.printf("export default %s;\n", extend.type.name);
+    }
 
+    void declareProps(TypeScriptWriter out, ITableMetadata table) {
+        for (IColumnMetadata column : table.getColumns()) {
+            if (column.isExcluded())
+                continue;
+
+            if (column.isCompositeProperty()) {
+                checkCompositeProperty(table, column);
+                continue;
+            }
+
+            if (column.isForeignKey())
+                continue;
+
+            declProperty(out, column, true);
+        }
+
+        for (CrossReference xref : table.getForeignKeys().values()) {
+            if (xref.isExcluded(table))
+                continue;
+
+            if (xref.isCompositeProperty())
+                continue;
+
+            out.println();
+            declForeignKeyProperty(out, xref, table);
+
+            for (String fkColumnName : xref.getForeignKey().getColumnNames()) {
+                IColumnMetadata column = table.getColumn(fkColumnName);
+                declProperty(out, column, false);
+            }
+        }
     }
 
     void staticFields1(TypeScriptWriter out, ITableMetadata table, OutFormat fmt) {
@@ -232,8 +282,7 @@ public class FooType0__ts
         out.println("),");
     }
 
-    public void declForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table,
-            QualifiedName validatorsClass) {
+    public void declForeignKeyProperty(TypeScriptWriter out, CrossReference xref, ITableMetadata table) {
         TableKey foreignKey = xref.getForeignKey();
         IColumnMetadata[] columns = foreignKey.resolve(table);
         TableOid parentOid = xref.getParentKey().getId();

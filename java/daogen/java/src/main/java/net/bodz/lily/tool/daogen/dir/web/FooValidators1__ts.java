@@ -52,10 +52,10 @@ public class FooValidators1__ts
         out.leave();
         out.println("}");
 
-        if (extend.clazz != null) {
-            IType type = BeanTypeProvider.getInstance().getType(extend.clazz);
+        if (extend.javaClass != null) {
+            IType type = BeanTypeProvider.getInstance().getType(extend.javaClass);
             for (IProperty property : type.getProperties()) {
-                if (property.getDeclaringClass() == extend.clazz) {
+                if (property.getDeclaringClass() == extend.javaClass) {
                     out.println();
                     validateProperty(out, property);
                 }

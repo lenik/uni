@@ -40,18 +40,23 @@ public class Foo_stuff__java
         if (description != null)
             templates.javaDoc(out, description);
 
-        if (extend.typeAgain != null)
-            out.printf("@%s({ %s })\n", //
+        String bracedTypeParamTypes = extend.bracedTypeParamTypes();
+        if (bracedTypeParamTypes != null)
+            out.printf("@%s(%s)\n", //
                     out.importName(TypeParameters.class), //
-                    extend.typeAgain);
+                    bracedTypeParamTypes);
 
         if (extend.idType != null)
             out.printf("@%s(%s.class)\n", //
                     out.importName(IdType.class), //
                     out.importName(idType));
 
-        out.printf("public abstract class %s%s\n", extend.simpleName, extend.params);
-        out.printf("        extends %s%s {\n", out.importName(extend.baseClassName), extend.baseParams);
+        out.printf("public abstract class %s%s\n", //
+                extend.type.name, //
+                extend.angledTypeVars());
+        out.printf("        extends %s%s {\n", //
+                out.importName(extend.baseType), //
+                extend.angledBaseTypeArgs());
         out.enter();
         {
             out.println();
@@ -201,8 +206,8 @@ public class Foo_stuff__java
         String head = Split.headDomain(cname.propertyName).a;
         IProperty headProperty = table.getPotatoType().getProperty(head);
         if (headProperty == null)
-            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.",
-                    table.getJavaType(), head, cname.propertyName);
+            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.", table.getJavaType(),
+                    head, cname.propertyName);
     }
 
 }

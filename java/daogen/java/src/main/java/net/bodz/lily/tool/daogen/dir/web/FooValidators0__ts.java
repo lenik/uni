@@ -28,7 +28,7 @@ public class FooValidators0__ts
         out.name(EsmModules.core.uiTypes.ValidateResult);
 
         QualifiedName className = project.Esm_Foo_stuff_Validators.qName;
-        QualifiedName superType = extend.baseClassName.nameAdd(project.validatorsSuffix);
+        QualifiedName superType = extend.baseType.nameAdd(project.validatorsSuffix);
 
         out.printf("export class %s extends %s {\n", //
                 className.name, //

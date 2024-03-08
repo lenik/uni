@@ -112,7 +112,8 @@ public abstract class DTDriven__vue
         if (type instanceof TypeVariable<?>)
             type = property.getPropertyClass();
 
-        String typeInfo = typeInfoResolver().property(property.getName())//
+        String typeInfo = typeInfoResolver() //
+                .property(property.getName()) //
                 .resolveGeneric(type);
         String typeInfoKey = addTypeInfo(typeInfo);
 
@@ -137,7 +138,8 @@ public abstract class DTDriven__vue
             label = labelFromProperty(propertyName);
 
         QualifiedName type = xref.getParentTable().getJavaType();
-        String typeInfo = typeInfoResolver().property(propertyName)//
+        String typeInfo = typeInfoResolver()//
+                .property(propertyName)//
                 .resolve(type);
         String typeInfoKey = addTypeInfo(typeInfo);
 

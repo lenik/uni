@@ -162,7 +162,7 @@ public class FooEditor__vue
 
             out.enter();
             {
-                if (info.clazz != null && CoEntity.class.isAssignableFrom(info.clazz)) {
+                if (info.javaClass != null && CoEntity.class.isAssignableFrom(info.javaClass)) {
                     List<IColumnMetadata> columns = table.getColumns();
                     Map<String, IColumnMetadata> property2Column = new HashMap<>();
                     for (IColumnMetadata column : columns) {
@@ -172,9 +172,9 @@ public class FooEditor__vue
 
                     Set<String> handled = new HashSet<>();
 
-                    Class<?> bringToTopClass = info.baseClass;
+                    Class<?> bringToTopClass = info.javaBaseClass;
 
-                    for (Class<?> decl : TypeChain.supersFromRoot(info.clazz)) {
+                    for (Class<?> decl : TypeChain.supersFromRoot(info.javaClass)) {
                         if (! StructRow.class.isAssignableFrom(decl))
                             continue;
 
@@ -269,7 +269,9 @@ public class FooEditor__vue
         String propertyName = cname.propertyName;
 
         Class<?> type = column.getJavaClass();
-        String tsType = typeResolver().importAsType().property(property.getName()).resolveClass(type);
+        String tsType = typeResolver().importAsType()//
+                .property(property.getName())//
+                .resolveClass(type);
 
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //
@@ -298,6 +300,19 @@ public class FooEditor__vue
             case "Date":
                 inputAttrs.put("type", "date");
                 break;
+            case "LocalDate":
+                inputAttrs.put("type", "date");
+                break;
+            case "Instant":
+            case "LocalDateTime":
+            case "ZonedDateTime":
+            case "OffsetDateTime":
+                inputAttrs.put("type", "datetime");
+                break;
+            case "LocalTime":
+            case "OffsetTime":
+                inputAttrs.put("type", "time");
+                break;
             default:
                 useInput = false;
             }
@@ -305,7 +320,17 @@ public class FooEditor__vue
             if (useInput) {
                 switch (tsType) {
                 case "Date":
+                    inputAttrs.put("v-model", "model." + propertyName);
+                    break;
+                case "LocalDate":
                     inputAttrs.put("v-model", "model." + propertyName + ".dateString");
+                    break;
+                case "Instant":
+                case "LocalDateTime":
+                case "ZonedDateTime":
+                case "OffsetDateTime":
+                    inputAttrs.put("v-model", "model." + propertyName + ".dateString");
+                    break;
                 default:
                     inputAttrs.put("v-model", "model." + propertyName);
                 }
@@ -322,8 +347,6 @@ public class FooEditor__vue
                 Class<? extends Predef<?, ?>> predefType = (Class<? extends Predef<?, ?>>) type;
                 selectOptions(out, propertyName, _predefMap(predefType));
 
-                // } else if (CoTag.class.isAssignableFrom(type)) {
-
                 // } else if (CoCategory.class.isAssignableFrom(type)) {
 
             } else if (type == JsonVariant.class) {
@@ -333,7 +356,8 @@ public class FooEditor__vue
                 out.println(xml);
 
             } else {
-                logger.error("unsupported property: " + propertyName + " of " + type);
+                logger.errorf("undefined input type(%s) for property %s.", //
+                        type, propertyName);
             }
 
             out.leave();

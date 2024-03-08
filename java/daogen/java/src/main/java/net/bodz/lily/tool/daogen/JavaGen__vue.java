@@ -9,6 +9,8 @@ import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.dir.web.TsConfig;
+import net.bodz.lily.tool.daogen.dir.web.TsTypeInfoResolver;
+import net.bodz.lily.tool.daogen.dir.web.TsTypeResolver;
 import net.bodz.lily.tool.daogen.util.ITsImporterAware;
 
 public abstract class JavaGen__vue
@@ -41,6 +43,20 @@ public abstract class JavaGen__vue
     @Override
     public ITsImporter getTsImporter() {
         return tsOut;
+    }
+
+    @Override
+    public TsTypeResolver typeResolver() {
+        TsTypeResolver resolver = ITsImporterAware.super.typeResolver();
+        resolver.thisType(pathInfo.getQName());
+        return resolver;
+    }
+
+    @Override
+    public TsTypeInfoResolver typeInfoResolver() {
+        TsTypeInfoResolver resolver = ITsImporterAware.super.typeInfoResolver();
+        resolver.thisType(pathInfo.getQName());
+        return resolver;
     }
 
     protected final void buildVue(ITreeOut out, ITableMetadata model) {

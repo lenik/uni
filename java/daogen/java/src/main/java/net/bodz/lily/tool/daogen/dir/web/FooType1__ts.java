@@ -66,27 +66,28 @@ public class FooType1__ts
                     out.importDefault(validatorsClass));
 
             out.println();
-            out.printf("declaredProperty: %s = {\n", //
-                    out.im.name(EsmModules.dba.entity.EntityPropertyMap));
-            out.enter();
+            out.println("override preamble() {");
             {
-                if (extend.clazz != null) {
-                    IType type = BeanTypeProvider.getInstance().getType(extend.clazz);
-                    for (IProperty property : type.getProperties()) {
-                        if (property.getDeclaringClass() == extend.clazz) {
-                            declProperty(out, property, validatorsClass);
-                        }
-                    }
+                out.enter();
+                out.println("super.preamble();");
+                out.println("this.declare({");
+                {
+                    out.enter();
+                    if (extend.javaClass != null)
+                        declareProps(out, extend.javaClass);
+                    out.leave();
                 }
+                out.println("});");
                 out.leave();
             }
             out.println("}");
+
             out.println();
             out.println("constructor() {");
             out.enter();
             {
+                // extend.baseParams;
                 out.println("super();");
-                out.printf("this.declare(this.declaredProperty);\n");
                 out.leave();
             }
             out.println("}");
@@ -99,7 +100,16 @@ public class FooType1__ts
         out.printf("export default %s;\n", tsName);
     }
 
-    void declProperty(TypeScriptWriter out, IProperty property, QualifiedName validatorsClass) {
+    void declareProps(TypeScriptWriter out, Class<?> clazz) {
+        IType type = BeanTypeProvider.getInstance().getType(clazz);
+        for (IProperty property : type.getProperties()) {
+            if (property.getDeclaringClass() == clazz) {
+                declProperty(out, property);
+            }
+        }
+    }
+
+    void declProperty(TypeScriptWriter out, IProperty property) {
         boolean aNotNull = property.getAnnotation(NotNull.class) != null;
         Class<?> clazz = property.getPropertyClass();
         boolean notNull = clazz.isPrimitive() || aNotNull;

@@ -33,20 +33,20 @@ public class Foo1__ts
         QualifiedName typeName = project.Esm_FooType.qName;
 
         out.printf("export class %s extends %s%s {\n", //
-                javaExtend.simpleName, //
-                out.importDefault(javaExtend.baseClassName), //
-                javaExtend.baseParams);
+                javaExtend.type.name, //
+                out.importDefault(javaExtend.baseType), //
+                javaExtend.angledBaseTypeArgs());
         out.enter();
         {
             TsTemplates.lazyProp(out, "_typeInfo", "TYPE", out.importDefault(typeName));
             out.println();
 
-            if (javaExtend.clazz != null) {
+            if (javaExtend.javaClass != null) {
                 int i = 0;
-                IType type = BeanTypeProvider.getInstance().getType(javaExtend.clazz);
+                IType type = BeanTypeProvider.getInstance().getType(javaExtend.javaClass);
                 for (IProperty property : type.getProperties()) {
                     Class<?> declaringClass = property.getDeclaringClass();
-                    if (declaringClass == javaExtend.clazz) {
+                    if (declaringClass == javaExtend.javaClass) {
                         if (i++ == 0)
                             out.println();
                         declProperty(out, property);
@@ -68,7 +68,7 @@ public class Foo1__ts
         out.println("}");
 
         out.println();
-        out.printf("export default %s;\n", javaExtend.simpleName);
+        out.printf("export default %s;\n", javaExtend.type.name);
     }
 
     void declProperty(TypeScriptWriter out, IProperty property) {
