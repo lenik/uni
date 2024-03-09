@@ -30,7 +30,7 @@ public class Core
         public final EsmName Timestamp = type("Timestamp");
 
         public final EsmName Enum = type("Enum");
-        public final EsmName _List = type("_List");
+        public final EsmName List = type("List");
         public final EsmName _Set = type("_Set");
         public final EsmName _Map = type("_Map");
 
@@ -177,5 +177,6 @@ public class Core
 
     public final EsmName Dialog = vue("ui/Dialog.vue");
     public final EsmName FieldRow = vue("ui/FieldRow.vue");
+    public final EsmName JsonEditor = vue("ui/input/JsonEditor.vue");
 
 }

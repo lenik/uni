@@ -267,15 +267,16 @@ public class FooEditor__vue
     void fieldRow(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
         ColumnNaming cname = project.naming(column);
         String propertyName = cname.propertyName;
+        String propertyModel = "model." + propertyName;
 
         Class<?> type = column.getJavaClass();
         String tsType = typeResolver().importAsType()//
                 .property(property.getName())//
                 .resolveClass(type);
 
-        out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
+        out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"%s\">\n", //
                 propertyName, //
-                propertyName);
+                propertyModel);
 
         out.enter();
         {
@@ -291,15 +292,28 @@ public class FooEditor__vue
             case "double":
                 inputAttrs.put("type", "number");
                 break;
+
+            case "BigDecimal":
+            case "BigInteger":
+                inputAttrs.put("type", "number");
+                break;
+
             case "boolean":
                 inputAttrs.put("type", "checkbox");
                 break;
             case "string":
+            case "InetAddress":
                 inputAttrs.put("type", "text");
                 break;
-            case "Date":
+
+            case "SQLDate":
                 inputAttrs.put("type", "date");
                 break;
+            case "Date":
+            case "Timestamp":
+                inputAttrs.put("type", "datetime");
+                break;
+
             case "LocalDate":
                 inputAttrs.put("type", "date");
                 break;
@@ -320,19 +334,19 @@ public class FooEditor__vue
             if (useInput) {
                 switch (tsType) {
                 case "Date":
-                    inputAttrs.put("v-model", "model." + propertyName);
+                    inputAttrs.put("v-model", propertyModel);
                     break;
                 case "LocalDate":
-                    inputAttrs.put("v-model", "model." + propertyName + ".dateString");
+                    inputAttrs.put("v-model", propertyModel + ".dateString");
                     break;
                 case "Instant":
                 case "LocalDateTime":
                 case "ZonedDateTime":
                 case "OffsetDateTime":
-                    inputAttrs.put("v-model", "model." + propertyName + ".dateString");
+                    inputAttrs.put("v-model", propertyModel + ".dateString");
                     break;
                 default:
-                    inputAttrs.put("v-model", "model." + propertyName);
+                    inputAttrs.put("v-model", propertyModel);
                 }
                 String xml = inputAttrs.toXml("input", true);
                 out.println(xml);
@@ -350,11 +364,9 @@ public class FooEditor__vue
                 // } else if (CoCategory.class.isAssignableFrom(type)) {
 
             } else if (type == JsonVariant.class) {
-                inputAttrs.put("class", "json-editor");
-                inputAttrs.put("v-model", "model." + propertyName);
-                String xml = inputAttrs.toXml("textarea", true);
-                out.println(xml);
-
+                out.printf("<%s v-model=\"%s\" />\n", //
+                        out.importName(EsmModules.core.JsonEditor), //
+                        "model." + propertyName);
             } else {
                 logger.errorf("undefined input type(%s) for property %s.", //
                         type, propertyName);

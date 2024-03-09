@@ -112,22 +112,23 @@ public class TypeAnalyzer
                 }
                 baseTypeBounds.add(info.idType);
                 break;
+
             case THIS_TYPE:
                 baseTypeArgs.add(info.type.name);
                 baseTypeBounds.add(info.type);
                 break;
+
             case THIS_REC:
                 if (typeScript)
                     typeVars.add("this_t");
                 else
                     typeVars.add("this_t extends " + info.type.name + "<%R>");
 
+                recursiveArgs.add("this_t");
+                typeVarTypes.add(TypeParamType.THIS_TYPE);
+
                 baseTypeArgs.add("this_t");
                 baseTypeBounds.add(ThisType.QNAME);
-                recursiveArgs.add("this_t");
-
-                if (typeScript)
-                    typeVarTypes.add(TypeParamType.THIS_TYPE);
                 break;
             default:
                 throw new UnexpectedException();

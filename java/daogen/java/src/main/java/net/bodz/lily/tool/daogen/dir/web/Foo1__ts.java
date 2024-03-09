@@ -80,7 +80,9 @@ public class Foo1__ts
 
         boolean notNull = propertyClass.isPrimitive() || aNotNull;
 
-        String tsType = typeResolver().property(property.getName()).resolveGeneric(type);
+        String tsType = typeResolver()//
+                .property(property.getName())//
+                .resolveGeneric(type);
 
         out.print(property.getName());
         if (! notNull)

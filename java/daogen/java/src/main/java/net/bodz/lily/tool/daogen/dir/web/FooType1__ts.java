@@ -83,11 +83,13 @@ public class FooType1__ts
             out.println("}");
 
             out.println();
-            out.println("constructor() {");
+            out.printf("constructor(%s) {\n", extend.getCtorParams(this));
             out.enter();
             {
                 // extend.baseParams;
-                out.println("super();");
+                out.printf("super(%s);\n", extend.getSuperCtorArgs(this));
+                if (extend.isSelfTypeNeeded())
+                    out.println("this.selfType = this;");
                 out.leave();
             }
             out.println("}");

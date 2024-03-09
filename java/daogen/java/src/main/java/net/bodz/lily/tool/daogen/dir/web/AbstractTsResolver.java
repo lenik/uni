@@ -48,7 +48,7 @@ public abstract class AbstractTsResolver<This> {
         return _this();
     }
 
-    public String importName(QualifiedName qName) {
+    protected String importName(QualifiedName qName) {
         if (importAsType)
             return imports.importDefaultType(qName);
         else

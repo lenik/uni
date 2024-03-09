@@ -40,7 +40,7 @@ public class Foo_stuff__java
         if (description != null)
             templates.javaDoc(out, description);
 
-        String bracedTypeParamTypes = extend.bracedTypeParamTypes();
+        String bracedTypeParamTypes = extend.bracedTypeParamTypes(out);
         if (bracedTypeParamTypes != null)
             out.printf("@%s(%s)\n", //
                     out.importName(TypeParameters.class), //

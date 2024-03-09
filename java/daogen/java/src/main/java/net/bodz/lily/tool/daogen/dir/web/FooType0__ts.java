@@ -1,10 +1,6 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.bodz.bas.c.object.Nullables;
-import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.UnexpectedException;
@@ -21,7 +17,6 @@ import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
-import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
@@ -42,7 +37,8 @@ public class FooType0__ts
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
         TypeExtendInfo extend = new TypeAnalyzer(project, out)//
-                .getExtendInfo(table, project.Esm_Foo_stuff_Type.qName);
+                .getExtendInfo(table, //
+                        project.Esm_Foo_stuff_Type.qName);
 
         String description = table.getDescription();
 
@@ -112,46 +108,12 @@ public class FooType0__ts
 
             out.println();
 
-            List<String> ctorArgs = new ArrayList<>();
-            for (TypeParamType varType : extend.typeVarTypes) {
-                switch (varType) {
-                case THIS_REC:
-                    ctorArgs.add("selfType");
-                    break;
-                default:
-                }
-            }
-
-            out.printf("constructor(%s) {", StringArray.join(", ", ctorArgs));
+            out.printf("constructor(%s) {\n", extend.getCtorParams(this));
             out.enter();
             {
-                List<String> superArgs = new ArrayList<>();
-                boolean initSelfType = false;
-                // for (TypeParamType baseVarType : extend.baseTypeVarTypes) {
-                for (int i = 0; i < extend.baseTypeVarTypes.length; i++) {
-                    TypeParamType baseVarType = extend.baseTypeVarTypes[i];
-                    switch (baseVarType) {
-                    case THIS_REC:
-                        superArgs.add("selfType");
-                        break;
-
-                    case THIS_TYPE:
-                        initSelfType = true;
-                        break;
-
-                    case ID_TYPE:
-                        superArgs.add(extend.baseTypeArgs[i]);
-                        break;
-
-                    default:
-                    }
-                }
-
-                out.printf("super(%s);\n", StringArray.join(", ", superArgs));
-
-                if (initSelfType)
+                out.printf("super(%s);\n", extend.getSuperCtorArgs(this));
+                if (extend.isSelfTypeNeeded())
                     out.println("this.selfType = this;");
-
                 out.leave();
             }
             out.println("}");

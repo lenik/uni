@@ -13,6 +13,7 @@ import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
 
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
@@ -57,7 +58,7 @@ public class TsTypes
         addType(java.sql.Date.class, baseType.SQLDate);
         addType(Timestamp.class, baseType.Timestamp);
 
-//        addAbstractType(List.class, baseType._List);
+        addAbstractType(List.class, baseType.List);
 //        addAbstractType(Set.class, baseType._Set);
 //        addAbstractType(Map.class, baseType._Map);
 
