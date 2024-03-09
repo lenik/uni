@@ -302,13 +302,17 @@ onMounted(() => {
 <template>
     <DataAdmin ref="admin" :type="type" :tools="tools" :statuses="statuses" dom="frtip" :lily-url="_url" fetch-size="10"
         processing=".processing" v-model:instance="model" :multi="multiMode" @select="extractRow">
+
         <template #columns>
             <slot name="columns"></slot>
         </template>
+
         <template #preview>
             <slot name="preview"></slot>
         </template>
+
         <template #side-tools> Side Tools</template>
+
         <template #editor>
             <slot name="editor"></slot>
         </template>
@@ -333,6 +337,20 @@ onMounted(() => {
 .entity-editor {
     .field-row {
         margin: .5em 0;
+
+        textarea {
+            flex: 1;
+        }
+
+        .jsoneditor-wrapper {
+            flex: 1;
+        }
+    }
+}
+
+.detachable.detached::conditional(min-width: 600px) {
+    >.content {
+        columns: 2;
     }
 }
 </style>

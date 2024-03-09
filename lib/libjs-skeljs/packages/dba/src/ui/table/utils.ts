@@ -81,12 +81,19 @@ export function getColumns(table: any, options: CreateOptions): ColumnType[] {
 
                 switch (type) {
                     case 'filter':
-                        return typeInfo!.format(val);
+                        if (val == null)
+                            return typeInfo!.nullText;
+                        else
+                            return typeInfo!.format(val);
+
                     case 'display':
                         let parent = document.createElement('div');
                         let content = typeInfo!.renderHtml(val);
                         if (content == undefined)
-                            return typeInfo!.format(val);
+                            if (val == null)
+                                return typeInfo!.nullText;
+                            else
+                                return typeInfo!.format(val);
                         else {
                             return content;
                         }
