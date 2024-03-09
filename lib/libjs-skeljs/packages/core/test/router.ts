@@ -17,6 +17,7 @@ import IconDemo from "./IconDemo.vue";
 import FieldRowDemo from "./FieldRowDemo.vue";
 import CmdButtonsDemo from "./CmdButtonsDemo.vue";
 import CgiDemo from "./CgiDemo.vue";
+import JsonEditorDemo from "./JsonEditorDemo.vue";
 
 export const root = uiExtract([
     Index,
@@ -30,6 +31,7 @@ export const root = uiExtract([
         ...ui(FieldRowDemo, 'field row demo'),
         ...ui(CmdButtonsDemo, 'grouped cmd buttons demo'),
         ...ui(CgiDemo, 'CGI utils'),
+        ...ui(JsonEditorDemo, 'JSON Editor demo'),
     }, {
         label: 'index page'
     }

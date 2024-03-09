@@ -43,6 +43,8 @@ function rjoin(array: number[], delim: string, padSize = 3) {
 }
 
 function formatInteger(n: number) {
+    let negative = n < 0;
+    if (negative) n = -n;
     let v: number[] = [];
     n = Math.floor(n);
     while (n != 0) {
@@ -50,7 +52,9 @@ function formatInteger(n: number) {
         n = Math.floor(n / 1000);
         v.push(rem);
     }
-    return rjoin(v, ',');
+    let s = rjoin(v, ',');
+    if (negative) s = "-" + s;
+    return s;
 }
 
 function formatDecimal(n: number) {
@@ -73,13 +77,17 @@ function formatDecimal(n: number) {
 }
 
 function formatBigInt(n: BigInteger) {
+    let negative = n < 0;
+    if (negative) n = -n;
     let v: number[] = [];
     while (n != 0n) {
         let rem = n % 1000n;
         n /= 1000n;
         v.push(Number(rem));
     }
-    return rjoin(v, ',');
+    let s = rjoin(v, ',');
+    if (negative) s = "-" + s;
+    return s;
 }
 
 function formatBigDecimal(n: BigDecimal) {

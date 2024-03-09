@@ -21,15 +21,16 @@ export class ZonedDateTime extends MomentWrapper {
     static ISO_LOCAL_DATE_TIME = 'YYYY-MM-DDThh:mm:ssZ';
     static DEFAULT_FORMAT = this.ISO_LOCAL_DATE_TIME;
 
-    constructor(tz: ZoneId, inp?: moment.MomentInput, format?: string) {
+    constructor(tz?: ZoneId, inp?: moment.MomentInput, format?: string) {
         super(format || ZonedDateTime.DEFAULT_FORMAT, inp);
-        if (typeof tz == 'number')
-            this.utcOffset = tz;
-        else
-            this.tz = tz;
+        if (tz != null)
+            if (typeof tz == 'number')
+                this.utcOffset = tz;
+            else
+                this.tz = tz;
     }
 
-    static parse(s: string, tz: ZoneId, format = ZonedDateTime.DEFAULT_FORMAT) {
+    static parse(s: string, tz?: ZoneId, format = ZonedDateTime.DEFAULT_FORMAT) {
         return new ZonedDateTime(tz, s, format);
     }
 

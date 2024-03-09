@@ -21,12 +21,13 @@ export class OffsetDateTime extends MomentWrapper {
     static ISO_LOCAL_DATE_TIME = 'YYYY-MM-DDThh:mm:ssZ';
     static DEFAULT_FORMAT = this.ISO_LOCAL_DATE_TIME;
 
-    constructor(offset: ZoneOffset, inp?: moment.MomentInput, format?: string) {
+    constructor(offset?: ZoneOffset, inp?: moment.MomentInput, format?: string) {
         super(format || OffsetDateTime.DEFAULT_FORMAT, inp);
-        this.utcOffset = offset;
+        if (offset != null)
+            this.utcOffset = offset;
     }
 
-    static parse(s: string, offset: ZoneOffset, format = OffsetDateTime.DEFAULT_FORMAT) {
+    static parse(s: string, offset?: ZoneOffset, format = OffsetDateTime.DEFAULT_FORMAT) {
         return new OffsetDateTime(offset, s, format);
     }
 

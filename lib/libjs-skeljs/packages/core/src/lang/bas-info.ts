@@ -9,7 +9,7 @@ export class JsonVariantType extends TypeInfo<any> {
         return JSON.stringify(val);
     }
 
-    parse(s: string): Date {
+    parse(s: string): any {
         return JSON.parse(s);
     }
 

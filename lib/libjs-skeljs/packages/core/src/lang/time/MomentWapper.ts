@@ -41,6 +41,9 @@ export class MomentWrapper {
         this.defaultFormat = defaultFormat;
         if (inp instanceof moment) {
             this.moment = inp as Moment;
+        } else if (typeof inp == 'string') {
+            this.moment = moment();
+            this.parse(inp as string);
         } else {
             this.moment = moment(inp);
         }

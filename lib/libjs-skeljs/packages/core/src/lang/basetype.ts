@@ -18,7 +18,7 @@ export type BigInteger = bigint;
 export type BigDecimal = Big;
 
 export type Array<E> = E[];
-// export type _List<E> = E[];
+export type List<E> = E[];
 // export type _Set<E> = Set<E>;
 // export type _Map<K, V> = Map<K, V>;
 
@@ -26,7 +26,7 @@ export type InetAddress = string;
 
 export interface IExample {
 
-    get name();
+    get name(): string;
     get ordinal(): int;
     get icon(): string | undefined;
     get label(): string | undefined;
@@ -37,7 +37,7 @@ export interface IExample {
 
 export class Example implements IExample {
 
-    get name();
+    get name(): string;
     get ordinal(): int;
     get icon(): string | undefined;
     get label(): string | undefined;
