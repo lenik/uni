@@ -756,9 +756,9 @@ public class MiscTemplates {
 //        Class<?> type = column.getType();
 //        if (JsonMap.class.isAssignableFrom(type)) {
         switch (column.getSqlTypeName()) {
-        case "json":
-        case "jsonb":
-            return String.format("#{%s.jsonStr}::jsonb", cname.propertyName);
+//        case "json":
+//        case "jsonb":
+//            return String.format("#{%s.jsonStr}::jsonb", cname.propertyName);
         default:
             return String.format("#{%s}", cname.propertyName);
         }
