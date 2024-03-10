@@ -1,35 +1,36 @@
-<script setup lang="ts">
+<script lang="ts">
+import { computed, ref } from 'vue';
+import { links } from './router';
 
-import { ref } from 'vue';
-
-import TabViews, { ViewHandles, getSelectedViewName } from '../src/ui/layout/TabViews.vue';
-
+import type { ViewHandles } from '../src/ui/layout/TabViews.vue';
+import TabViews, { getSelectedViewName } from '../src/ui/layout/TabViews.vue';
 import View from '../src/ui/layout/View.vue';
-import NodeTree from '../src/ui/tree/NodeTree.vue';
 
-import { root } from './router';
+export const title = 'List of Test Samples';
 
 const views: ViewHandles = {
-    dtn: {
+    index: {
         selected: true,
-        label: "DataTable",
-        icon: "far-table",
+        label: "Directory",
+        icon: "far-list",
     },
 };
 
 const initialView = getSelectedViewName(views);
-const view = ref(initialView);
+</script>
 
+<script setup lang="ts">
+const view = ref(initialView);
 </script>
 
 <template>
     <TabViews :views="views" v-model:view="view">
-        <View name="dtn" :selection="view">
-            <node-tree :node="root">
-                <template v-slot="{ path, node }">
-                    <router-link :to="path"> {{ node[2]?.label || path }} </router-link>
-                </template>
-            </node-tree>
+        <View name="index" :selection="view">
+            <ul>
+                <li v-for="(it, k) in links" :key="k">
+                    <router-link :to="k"> {{ it }} </router-link>
+                </li>
+            </ul>
         </View>
     </TabViews>
-</template>
+</template>./router-bak

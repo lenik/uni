@@ -255,6 +255,7 @@ if (props.watch) {
     display: v-bind("tagName == 'tr' ? 'table-row' : 'flex'");
     flex-direction: row;
     align-items: v-bind(alignItems);
+    break-inside: avoid;
 }
 
 .icon-label {

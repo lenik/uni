@@ -1,6 +1,10 @@
-<script setup lang="ts">
+<script lang="ts">
+import { computed, ref } from 'vue';
 
-import { ref } from 'vue';
+export const title = 'icon demo';
+</script>
+
+<script setup lang="ts">
 import Icon from '../src/ui/Icon.vue';
 
 var sets = [

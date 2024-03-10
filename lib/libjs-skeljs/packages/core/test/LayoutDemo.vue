@@ -1,7 +1,10 @@
+<script lang="ts">
+import { computed, ref } from 'vue';
+
+export const title = 'model-c layout demo';
+</script>
+
 <script setup lang="ts">
-
-import { ref } from 'vue';
-
 import NotImpl from '../src/ui/demo/NotImpl.vue';
 import TabViews, { getSelectedViewName, ViewHandles } from '../src/ui/layout/TabViews.vue';
 import View from '../src/ui/layout/View.vue';

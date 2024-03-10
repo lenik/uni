@@ -1,4 +1,5 @@
-import { MomentWrapper, MomentWrapperType } from "./MomentWapper";
+import MomentWrapper from "./MomentWapper";
+import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
 
 export class LocalDateType extends MomentWrapperType<LocalDate>{

@@ -9,8 +9,8 @@ import JSONEditor from 'jsoneditor';
 type ModeType = 'tree' | 'view' | 'form' | 'code' | 'text' | 'preview';
 
 export interface Props {
+    textMode?: boolean,
     expandAll?: boolean,
-    parsed?: boolean,
     gutter?: boolean,
 
     className?: (e: { path: string[], field: string, value: string }) => string,
@@ -64,8 +64,8 @@ export interface Props {
 const model = defineModel<any>();
 
 const props = withDefaults(defineProps<Props>(), {
+    textMode: false,
     expandAll: true,
-    parsed: true,
     gutter: false,
 
     escapeUnicode: undefined,
@@ -114,14 +114,37 @@ const emit = defineEmits<{
 const rootElement = ref<HTMLElement>();
 const editor = ref();
 
-let refresh = (val: any) => {
+function refresh() {
     let ed = editor.value;
     if (ed != null) {
-        let json = val || model.value;
+        let json = model.value;
         ed.set(json);
     }
 };
-watch(model, (newVal) => refresh(newVal));
+
+function updateText(jsonText: string) {
+    jsonTextInView = jsonText;
+    model.value = jsonText;
+}
+
+function updateObject(json: any) {
+    let jsonText = JSON.stringify(json);
+    jsonTextInView = jsonText;
+    model.value = json;
+}
+
+let jsonTextInView: string;
+watch(model, (newVal, oldVal) => {
+    if (newVal === oldVal)
+        return;
+    let jsonText;
+    if (props.textMode)
+        jsonText = newVal;
+    else
+        jsonText = JSON.stringify(newVal);
+    if (jsonText != jsonTextInView)
+        refresh()
+});
 
 // methods
 
@@ -176,19 +199,19 @@ onMounted(() => {
         emit('change');
     if (props.mode == 'text' || props.mode == 'code') {
         options.onChangeText = (jsonText: string) => {
-            if (props.parsed)
+            if (props.textMode)
+                updateText(jsonText);
+            else
                 try {
                     let parsed = JSON.parse(jsonText);
-                    model.value = parsed;
+                    updateObject(parsed);
                 } catch (err) {
                 }
-            else
-                model.value = jsonText;
             emit('changeText', jsonText);
         };
     } else {
         options.onChangeJSON = (json: any) => {
-            model.value = json;
+            updateText(json);
             emit('changeJson', json);
         };
     }
@@ -201,7 +224,7 @@ onMounted(() => {
     options.onValidationError = (errors: any[]) =>
         emit('validationError', errors);
 
-    let ed = new JSONEditor(div, options);
+    let ed = new JSONEditor(rootElement.value!, options);
     refresh();
 
     let aceEditor = ed.aceEditor;

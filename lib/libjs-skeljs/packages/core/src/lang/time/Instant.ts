@@ -1,4 +1,5 @@
-import { MomentWrapper, MomentWrapperType } from "./MomentWapper";
+import MomentWrapper from "./MomentWapper";
+import MomentWrapperType from "./MomentWapperType";
 
 export class InstantType extends MomentWrapperType<Instant>{
 

@@ -1,4 +1,5 @@
 import Big from 'big.js';
+import { LocalDate, OffsetDateTime, ZonedDateTime } from './time';
 
 export type byte = number;
 export type short = number;
@@ -9,10 +10,6 @@ export type double = number;
 export type char = string;
 export type _string = string;
 export type _boolean = boolean;
-
-export type _Date = Date;
-export type SQLDate = Date;
-export type Timestamp = Date;
 
 export type BigInteger = bigint;
 export type BigDecimal = Big;

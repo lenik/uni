@@ -1,6 +1,10 @@
-<script setup lang="ts">
+<script lang="ts">
+import { computed, ref } from 'vue';
 
-import { ref } from 'vue';
+export const title = 'dialog demo';
+</script>
+
+<script setup lang="ts">
 import Dialog from '../src/ui/Dialog.vue';
 
 const modal = ref();

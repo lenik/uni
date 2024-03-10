@@ -1,8 +1,11 @@
+<script lang="ts">
+import { computed, ref } from 'vue';
+
+export const title = 'recursive node tree demo';
+</script>
+
 <script setup lang="ts">
-
-import { ref } from 'vue';
-
-import { UiNode } from '../src/ui/tree/ui-node';
+import { UiNode } from '../src/ui/ui-node';
 
 import NodeTree from '../src/ui/tree/NodeTree.vue';
 
@@ -26,8 +29,9 @@ const root: UiNode<any> = ['root', {
 
 <template>
     <node-tree :node="root" :max-depth="1">
+
         <template v-slot="{ path, value }">
-            {{ path }}: {{ value }}
+            <p> {{ path }}: {{ value }} </p>
         </template>
     </node-tree>
 </template>

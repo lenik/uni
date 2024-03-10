@@ -1,5 +1,6 @@
+import MomentWrapper, { ZoneId, defaultUtcOffset } from "./MomentWapper";
+import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
-import { MomentWrapper, MomentWrapperType, ZoneId, defaultUtcOffset } from "./MomentWapper";
 
 export class ZonedDateTimeType extends MomentWrapperType<ZonedDateTime>{
 
@@ -17,9 +18,9 @@ export class ZonedDateTime extends MomentWrapper {
 
     static readonly TYPE = new ZonedDateTimeType();
 
-    static DATE_TIME = 'YYYY-MM-DD hh:mm:ss Z';
-    static ISO_LOCAL_DATE_TIME = 'YYYY-MM-DDThh:mm:ssZ';
-    static DEFAULT_FORMAT = this.ISO_LOCAL_DATE_TIME;
+    static DATE_TIME = 'YYYY-MM-DD HH:mm:ss Z';
+    static ISO_ZONED_DATE_TIME = 'YYYY-MM-DDTHH:mm:ssZ';
+    static DEFAULT_FORMAT = this.ISO_ZONED_DATE_TIME;
 
     constructor(tz?: ZoneId, inp?: moment.MomentInput, format?: string) {
         super(format || ZonedDateTime.DEFAULT_FORMAT, inp);
@@ -34,7 +35,7 @@ export class ZonedDateTime extends MomentWrapper {
         return new ZonedDateTime(tz, s, format);
     }
 
-    static now(tz: ZoneId) {
+    static now(tz?: ZoneId) {
         return new ZonedDateTime(tz);
     }
 
@@ -65,10 +66,10 @@ export class ZonedDateTime extends MomentWrapper {
     }
 
     get isoFormat() {
-        return this.format(ZonedDateTime.ISO_LOCAL_DATE_TIME);
+        return this.format(ZonedDateTime.ISO_ZONED_DATE_TIME);
     }
     set isoFormat(val: string) {
-        this.parse(ZonedDateTime.ISO_LOCAL_DATE_TIME, val);
+        this.parse(ZonedDateTime.ISO_ZONED_DATE_TIME, val);
     }
 
     get date_time() {

@@ -1,5 +1,7 @@
 <script lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+
+export const title = 'JSON Editor demo';
 
 export interface Props {
 }
@@ -35,6 +37,16 @@ const json = ref({
     msg: 'demo of json11editor'
 });
 
+const jsonText = computed({
+    get(): string {
+        return JSON.stringify(json.value);
+    },
+    set(val: string) {
+        let parsed = JSON.parse(val);
+        json.value = parsed;
+    }
+});
+
 function onJsonChange(value) {
     console.log('value:', value)
 }
@@ -48,7 +60,8 @@ function onTextChange(value: string) {
 <template>
     <div class="component-root" ref="rootElement">
         <JsonEditor v-model="json" @changeJson="onJsonChange" @changeText="onTextChange"></JsonEditor>
-        <pre v-text="json"></pre>
+        <textarea v-model="jsonText"></textarea>
+        <pre v-text="json" />
     </div>
 </template>
 

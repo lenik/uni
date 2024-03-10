@@ -1,4 +1,5 @@
-import { MomentWrapper, MomentWrapperType, ZoneOffset, defaultUtcOffset } from "./MomentWapper";
+import MomentWrapper, { ZoneOffset, defaultUtcOffset } from "./MomentWapper";
+import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
 
 export class OffsetTimeType extends MomentWrapperType<OffsetTime>{
@@ -17,21 +18,22 @@ export class OffsetTime extends MomentWrapper {
 
     static readonly TYPE = new OffsetTimeType();
 
-    static HH_MM_SS_Z = 'hh:mm:ssZ';
+    static HH_MM_SS_Z = 'HH:mm:ssZ';
     static HHMMSS_Z = 'hhmmssZ';
     static ISO_OFFSET_TIME = this.HH_MM_SS_Z;
     static DEFAULT_FORMAT = this.ISO_OFFSET_TIME;
 
-    constructor(offset: ZoneOffset, inp?: moment.MomentInput, format?: string) {
+    constructor(offset?: ZoneOffset, inp?: moment.MomentInput, format?: string) {
         super(format || OffsetTime.DEFAULT_FORMAT, inp);
-        this.utcOffset = offset;
+        if (offset != null)
+            this.utcOffset = offset;
     }
 
     static parse(s: string, offset: ZoneOffset, format = OffsetTime.DEFAULT_FORMAT) {
         return new OffsetTime(offset, s, format);
     }
 
-    static now(offset: ZoneOffset) {
+    static now(offset?: ZoneOffset) {
         return new OffsetTime(offset);
     }
     F

@@ -1,8 +1,12 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import 'jquery-ui-themes/themes/le-frog/jquery-ui.css';
 
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+
+export const title = 'jquery-ui dialog demo';
+</script>
+
+<script setup lang="ts">
 import UiDialog from '../src/ui/UiDialog.vue';
 
 const modal = ref();
@@ -12,19 +16,17 @@ const nonModal = ref();
 
 <template>
     <div>
-        Various dialogs:
+        <p> Various dialogs: </p>
         <ul>
             <li @click="modal.open()">modal</li>
             <li @click="nonModal.open()">centered</li>
         </ul>
     </div>
-
     <UiDialog ref="modal" modal title="Model UiDialog" @closed="console.log('closed')">
-        sample content.
+        <p>sample content.</p>
     </UiDialog>
-
     <UiDialog ref="nonModal" title=" Non-modal UiDialog">
-        sample content.
+        <p>sample content.</p>
     </UiDialog>
 </template>
 

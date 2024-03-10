@@ -1,6 +1,10 @@
-<script setup lang="ts">
+<script lang="ts">
+import { computed, ref } from 'vue';
 
-import { ref } from 'vue';
+export const title = 'field row demo';
+</script>
+
+<script setup lang="ts">
 import FieldRow from '../src/ui/FieldRow.vue';
 
 const userName = ref<string>('Tom');
@@ -61,45 +65,34 @@ const valids: any = ref({});
 </script>
 
 <template>
-    <h2>
-        FieldRow (div)
-    </h2>
-
+    <h2> FieldRow (div) </h2>
     <FieldRow v-bind="fieldRowProps" icon="fa-user" label="User Name" v-model="userName" :validator="validateUsername"
         v-model:valid="valids.user">
         <input type="text" v-model="userName" placeholder="enter text...">
-        <template #description>
-            A username is a unique identifier used by individuals to access various online platforms or websites. It is
-            typically chosen by the user during the registration process and is often required along with a password to
-            log
-            in to an account.
-        </template>
-    </FieldRow>
 
+        <template #description> A username is a unique identifier used by individuals to access various online platforms
+            or websites. It is typically chosen by the user during the registration process and is often required along
+            with a password to log in to an account. </template>
+    </FieldRow>
     <FieldRow v-bind="fieldRowProps" icon="fa-key" label="Password" v-model="password" :validator="validatePassword"
         v-model:valid="valids.password">
         <input type="text" v-model="password" placeholder="enter password...">
-        <template #description>
-            A password is a secret combination of characters that is used to prove one's identity or gain access to a
-            computer system, online account, or electronic device. It serves as a security measure to ensure that only
-            authorized individuals can access sensitive information or perform certain actions.
+
+        <template #description> A password is a secret combination of characters that is used to prove one's identity or
+            gain access to a computer system, online account, or electronic device. It serves as a security measure to
+            ensure that only authorized individuals can access sensitive information or perform certain actions.
         </template>
     </FieldRow>
-
     <FieldRow v-bind="fieldRowProps" icon="fa-key" label="Age" v-model="age" :validator="validateAge"
         v-model:valid="valids.age">
         <input type="number" v-model="age" placeholder="choose your age">
-        <template #description>
-            Age is a term that generally refers to the length of time a person has been alive since their birth. It is
-            commonly used to indicate the stage of life someone is in and is often measured in years. Age can have various
-            implications and is often used as a factor in determining legal rights, responsibilities, and privileges.
-        </template>
+
+        <template #description> Age is a term that generally refers to the length of time a person has been alive since
+            their birth. It is commonly used to indicate the stage of life someone is in and is often measured in years.
+            Age can have various implications and is often used as a factor in determining legal rights,
+            responsibilities, and privileges. </template>
     </FieldRow>
-
-
-    <h2>
-        FieldRow (table)
-    </h2>
+    <h2> FieldRow (table) </h2>
     <table>
         <thead>
             <tr>
@@ -107,55 +100,41 @@ const valids: any = ref({});
                 <th>Content</th>
             </tr>
         </thead>
-
-        <FieldRow v-bind="fieldRowProps" icon="fa-user" label="User Name" v-model="userName" :validator="validateUsername"
-            v-model:valid="valids.user">
+        <FieldRow v-bind="fieldRowProps" icon="fa-user" label="User Name" v-model="userName"
+            :validator="validateUsername" v-model:valid="valids.user">
             <input type="text" v-model="userName" placeholder="enter text...">
-            <template #description>
-                A username is a unique identifier used by individuals to access various online platforms or websites. It is
-                typically chosen by the user during the registration process and is often required along with a password to
-                log
-                in to an account.
-            </template>
-        </FieldRow>
 
+            <template #description> A username is a unique identifier used by individuals to access various online
+                platforms or websites. It is typically chosen by the user during the registration process and is often
+                required along with a password to log in to an account. </template>
+        </FieldRow>
         <FieldRow v-bind="fieldRowProps" icon="fa-key" label="Password" v-model="password" :validator="validatePassword"
             v-model:valid="valids.password">
             <input type="text" v-model="password" placeholder="enter password...">
-            <template #description>
-                A password is a secret combination of characters that is used to prove one's identity or gain access to a
-                computer system, online account, or electronic device. It serves as a security measure to ensure that only
-                authorized individuals can access sensitive information or perform certain actions.
-            </template>
-        </FieldRow>
 
+            <template #description> A password is a secret combination of characters that is used to prove one's
+                identity or gain access to a computer system, online account, or electronic device. It serves as a
+                security measure to ensure that only authorized individuals can access sensitive information or perform
+                certain actions. </template>
+        </FieldRow>
         <FieldRow v-bind="fieldRowProps" icon="fa-key" label="Age" v-model="age" :validator="validateAge"
             v-model:valid="valids.age">
             <input type="number" v-model="age" placeholder="choose your age">
-            <template #description>
-                Age is a term that generally refers to the length of time a person has been alive since their birth. It is
-                commonly used to indicate the stage of life someone is in and is often measured in years. Age can have
-                various
-                implications and is often used as a factor in determining legal rights, responsibilities, and privileges.
-            </template>
+
+            <template #description> Age is a term that generally refers to the length of time a person has been alive
+                since their birth. It is commonly used to indicate the stage of life someone is in and is often measured
+                in years. Age can have various implications and is often used as a factor in determining legal rights,
+                responsibilities, and privileges. </template>
         </FieldRow>
-
     </table>
-
-    <div>
-        model values:
-        <ul>
+    <div> model values: <ul>
             <li>User name: {{ userName }}</li>
             <li>Password: {{ password }}</li>
             <li>Age: {{ age }}</li>
         </ul>
     </div>
-    <div>
-        error states:
-        <ul>
-            <li v-for="(valid, k) in valids" :key="k">
-                Key {{ k }}: {{ valid }}
-            </li>
+    <div> error states: <ul>
+            <li v-for="(valid, k) in valids" :key="k"> Key {{ k }}: {{ valid }} </li>
         </ul>
     </div>
 </template>

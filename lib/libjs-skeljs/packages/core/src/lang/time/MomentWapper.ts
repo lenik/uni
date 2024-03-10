@@ -1,56 +1,46 @@
 import moment, { Moment } from "moment-timezone";
-import TypeInfo from "../TypeInfo";
-import { format } from "path";
 
 export type ZoneId = ZoneOffset | ZoneRegion;
-export type ZoneOffset = string | number;
+export type ZoneOffset = number;
 export type ZoneRegion = string;
 
-export abstract class MomentWrapperType<T extends MomentWrapper> extends TypeInfo<T> {
-
-    abstract create(): T
-
-    override parse(s: string): T {
-        let instance = this.create();
-        instance.parse(s);
-        return instance;
-    }
-
-    override format(val: T): string {
-        return val.toString();
-    }
-
-    override fromJson(jv: any): T {
-        let str = jv as string;
-        return this.parse(str);
-    }
-
-    override toJson(val: T) {
-        let jv = this.format(val);
-        return jv;
-    }
-
-}
-
 export class MomentWrapper {
-    moment: Moment
+    private _moment: Moment
     version = 0
     defaultFormat: string
 
     constructor(defaultFormat: string, inp?: moment.MomentInput) {
         this.defaultFormat = defaultFormat;
         if (inp instanceof moment) {
-            this.moment = inp as Moment;
+            this._moment = inp as Moment;
         } else if (typeof inp == 'string') {
-            this.moment = moment();
+            this._moment = moment();
             this.parse(inp as string);
         } else {
-            this.moment = moment(inp);
+            this._moment = moment(inp);
         }
     }
 
+    get moment(): Moment {
+        this.version == 0;
+        return this._moment;
+    }
+    set moment(val: Moment) {
+        this._moment = val;
+        this.version++;
+    }
+
+    get momentConst(): Moment {
+        this.version == 0;
+        return this._moment;
+    }
+    get momentMutable(): Moment {
+        this.version++;
+        return this._moment;
+    }
+
     format(fmt?: string) {
-        return this.moment_read.format(fmt || this.defaultFormat);
+        return this.momentConst.format(fmt || this.defaultFormat);
     }
 
     parse(s: string, fmt?: string) {
@@ -89,7 +79,7 @@ export class MomentWrapper {
 
     get inDate() {
         let tz = moment.tz.guess();
-        let m = this.moment.clone().tz(tz);
+        let m = this.momentConst.clone().tz(tz);
         return m.toDate();
     }
     set inDate(val: Date) {
@@ -97,113 +87,104 @@ export class MomentWrapper {
         this.moment = moment.tz(val, tz);
     }
 
-    get moment_read(): Moment {
-        this.version == 0;
-        return this.moment;
-    }
-    get moment_write(): Moment {
-        this.version++;
-        return this.moment;
-    }
+    get year() { return this.momentConst.year() }
+    set year(val: number) { this.momentMutable.year(val) }
 
-    get year() { return this.moment_read.year() }
-    set year(val: number) { this.moment_write.year(val) }
+    get quarter() { return this.momentConst.quarter() }
+    set quarter(val: number) { this.momentMutable.quarter(val) }
 
-    get quarter() { return this.moment_read.quarter() }
-    set quarter(val: number) { this.moment_write.quarter(val) }
+    get quarters() { return this.momentConst.quarters() }
+    set quarters(val: number) { this.momentMutable.quarters(val) }
 
-    get quarters() { return this.moment_read.quarters() }
-    set quarters(val: number) { this.moment_write.quarters(val) }
+    get month() { return this.momentConst.month() }
+    set month(val: number) { this.momentMutable.month(val) }
 
-    get month() { return this.moment_read.month() }
-    set month(val: number) { this.moment_write.month(val) }
+    get month1() { return this.momentConst.month() + 1 }
+    set month1(val: number) { this.momentMutable.month(val - 1) }
 
-    get month1() { return this.moment_read.month() + 1 }
-    set month1(val: number) { this.moment_write.month(val - 1) }
+    get monthName() { return this.momentConst.month + "" }
+    set monthName(val: string) { this.momentMutable.month(val) }
 
-    get monthName() { return this.moment_read.month + "" }
-    set monthName(val: string) { this.moment_write.month(val) }
-
-    get day() { return this.moment_read.day() }
-    set day(val: number) { this.moment_write.day(val) }
+    get day() { return this.momentConst.day() }
+    set day(val: number) { this.momentMutable.day(val) }
 
     // get days() { return this.moment_read.days() }
     // set days(val: number) { this.moment_write.days(val) }
 
     // @deprecate
-    get date() { return this.version * 0 + this.moment_read.date() }
+    get date() { return this.version * 0 + this.momentConst.date() }
     // @deprecate
-    set date(val: number) { this.moment_write.date(val); }
+    set date(val: number) { this.momentMutable.date(val); }
 
     get dayOfMonth() { return this.date }
     set dayOfMonth(val: number) { this.date = val }
 
-    get daysInMonth() { return this.moment_read.daysInMonth() }
+    get daysInMonth() { return this.momentConst.daysInMonth() }
 
-    get hour() { return this.moment_read.hour() }
-    set hour(val: number) { this.moment_write.hour(val) }
+    get hour() { return this.momentConst.hour() }
+    set hour(val: number) { this.momentMutable.hour(val) }
 
     // get hours() { return this.moment_read.hours() }
     // set hours(val: number) { this.moment_write.hours(val) }
 
-    get minute() { return this.moment_read.minute() }
-    set minute(val: number) { this.moment_write.minute(val) }
+    get minute() { return this.momentConst.minute() }
+    set minute(val: number) { this.momentMutable.minute(val) }
 
     // get minutes() { return this.moment_read.minutes() }
     // set minutes(val: number) { this.moment_write.minutes(val) }
 
-    get second() { return this.moment_read.second() }
-    set second(val: number) { this.moment_write.second(val) }
+    get second() { return this.momentConst.second() }
+    set second(val: number) { this.momentMutable.second(val) }
 
     // get seconds() { return this.moment_read.seconds() }
     // set seconds(val: number) { this.moment_write.seconds(val) }
 
-    get millisecond() { return this.moment_read.millisecond() }
-    set millisecond(val: number) { this.moment_write.millisecond(val) }
+    get millisecond() { return this.momentConst.millisecond() }
+    set millisecond(val: number) { this.momentMutable.millisecond(val) }
 
     // get milliseconds() { return this.moment_read.milliseconds() }
     // set milliseconds(val: number) { this.moment_write.milliseconds(val) }
 
-    get nanosecond() { return this.moment_read.millisecond() * 1000000 }
-    set nanosecond(val: number) { this.moment_write.millisecond(val / 1000000) }
+    get nanosecond() { return this.momentConst.millisecond() * 1000000 }
+    set nanosecond(val: number) { this.momentMutable.millisecond(val / 1000000) }
 
-    get weekday() { return this.moment_read.weekday() }
-    set weekday(val: number) { this.moment_write.weekday(val) }
+    get weekday() { return this.momentConst.weekday() }
+    set weekday(val: number) { this.momentMutable.weekday(val) }
 
-    get isoWeekday() { return this.moment_read.isoWeekday() }
-    set isoWeekday(val: number) { this.moment_write.isoWeekday(val) }
+    get isoWeekday() { return this.momentConst.isoWeekday() }
+    set isoWeekday(val: number) { this.momentMutable.isoWeekday(val) }
 
-    get isoWeekdayName() { return this.moment_read.isoWeekday() + '' }
-    set isoWeekdayName(val: string) { this.moment_write.isoWeekday(val) }
+    get isoWeekdayName() { return this.momentConst.isoWeekday() + '' }
+    set isoWeekdayName(val: string) { this.momentMutable.isoWeekday(val) }
 
-    get weekYear() { return this.moment_read.weekYear() }
-    set weekYear(val: number) { this.moment_write.weekYear(val) }
+    get weekYear() { return this.momentConst.weekYear() }
+    set weekYear(val: number) { this.momentMutable.weekYear(val) }
 
-    get isoWeekYear() { return this.moment_read.isoWeekYear() }
-    set isoWeekYear(val: number) { this.moment_write.isoWeekYear(val) }
+    get isoWeekYear() { return this.momentConst.isoWeekYear() }
+    set isoWeekYear(val: number) { this.momentMutable.isoWeekYear(val) }
 
-    get week() { return this.moment_read.week() }
-    set week(val: number) { this.moment_write.week(val) }
+    get week() { return this.momentConst.week() }
+    set week(val: number) { this.momentMutable.week(val) }
 
-    get weeks() { return this.moment_read.weeks() }
-    set weeks(val: number) { this.moment_write.weeks(val) }
+    get weeks() { return this.momentConst.weeks() }
+    set weeks(val: number) { this.momentMutable.weeks(val) }
 
-    get isoWeek() { return this.moment_read.isoWeek() }
-    set isoWeek(val: number) { this.moment_write.isoWeek(val) }
+    get isoWeek() { return this.momentConst.isoWeek() }
+    set isoWeek(val: number) { this.momentMutable.isoWeek(val) }
 
-    get isoWeeks() { return this.moment_read.isoWeeks() }
-    set isoWeeks(val: number) { this.moment_write.isoWeeks(val) }
+    get isoWeeks() { return this.momentConst.isoWeeks() }
+    set isoWeeks(val: number) { this.momentMutable.isoWeeks(val) }
 
-    get weeksInYear() { return this.moment_read.weeksInYear() }
+    get weeksInYear() { return this.momentConst.weeksInYear() }
 
-    get isoWeeksInYear() { return this.moment_read.isoWeeksInYear() }
+    get isoWeeksInYear() { return this.momentConst.isoWeeksInYear() }
 
-    get isoWeeksInIsoWeekYear() { return this.moment_read.isoWeeksInISOWeekYear() }
+    get isoWeeksInIsoWeekYear() { return this.momentConst.isoWeeksInISOWeekYear() }
 
-    get dayOfYear() { return this.moment_read.dayOfYear() }
-    set dayOfYear(val: number) { this.moment_write.dayOfYear(val) }
+    get dayOfYear() { return this.momentConst.dayOfYear() }
+    set dayOfYear(val: number) { this.momentMutable.dayOfYear(val) }
 
-    get epochMilli() { return this.moment_read.valueOf() }
+    get epochMilli() { return this.momentConst.valueOf() }
     set epochMilli(val: number) {
         this.moment = moment(val);
         this.version++;
@@ -215,25 +196,91 @@ export class MomentWrapper {
     get epochDay() { return this.epochMilli / 1000 / 86400 }
     set epochDay(val: number) { this.epochMilli = val * 1000 * 86400 }
 
-    get isLeapYear() { return this.moment_read.isLeapYear() }
-    get isLeapMonth() { return this.moment_read.isLeapYear() && this.month1 == 2 }
+    get isLeapYear() { return this.momentConst.isLeapYear() }
+    get isLeapMonth() { return this.momentConst.isLeapYear() && this.month1 == 2 }
 
-    get tz() { return this.moment_read.tz() }
-    set tz(val: ZoneRegion | undefined) { if (val != null) this.moment_write.tz(val) }
+    get tz() { return this.momentConst.tz() }
+    set tz(val: ZoneRegion | undefined) { if (val != null) this.momentMutable.tz(val) }
 
-    get tzKeepLocal() { return this.moment_read.tz() }
-    set tzKeepLocal(val: ZoneRegion | undefined) { if (val != null) this.moment_write.tz(val, true) }
+    get tzKeepLocal() { return this.momentConst.tz() }
+    set tzKeepLocal(val: ZoneRegion | undefined) { if (val != null) this.momentMutable.tz(val, true) }
 
-    get utcOffset() { return this.moment_read.utcOffset() }
-    set utcOffset(val: number | ZoneOffset) { this.moment_write.utcOffset(val); }
+    get utcOffset() { return this.momentConst.utcOffset() }
+    set utcOffset(val: ZoneOffset) { this.momentMutable.utcOffset(val); }
+    parseUtcOffset(val: ZoneOffset | string) { this.momentMutable.utcOffset(val); }
 
-    get utcOffsetKeepLocal() { return this.moment_read.utcOffset() }
-    set utcOffsetKeepLocal(val: number | ZoneOffset) { this.moment_write.utcOffset(val, true); }
+    get utcOffsetKeepLocal() { return this.momentConst.utcOffset() }
+    set utcOffsetKeepLocal(val: ZoneOffset) { this.momentMutable.utcOffset(val, true); }
+    parseUtcOffsetKeepLocal(val: ZoneOffset | string) { this.momentMutable.utcOffset(val, true); }
 
-    get isUtcOffset() { return this.moment_read.isUtcOffset() }
-    get isDST() { return this.moment_read.isDST() }
-    get zoneAbbr(): ZoneRegion { return this.moment_read.zoneAbbr() }
-    get zoneName(): ZoneRegion { return this.moment_read.zoneName() }
+    get isUtcOffset() { return this.momentConst.isUtcOffset() }
+    get isDST() { return this.momentConst.isDST() }
+    get zoneAbbr(): ZoneRegion { return this.momentConst.zoneAbbr() }
+    get zoneName(): ZoneRegion { return this.momentConst.zoneName() }
+
+    get zoneOffset() {
+        if (this.utcOffset == null)
+            return null;
+        let offset = this.utcOffset;
+        let negative = offset < 0;
+        if (negative) offset = -offset;
+        let s = negative ? '-' : '+';
+        let hour = Math.floor(this.utcOffset / 60);
+        let min = this.utcOffset % 60;
+        if (hour < 10)
+            s += '0';
+        s += hour;
+        s += ':';
+        if (min < 10)
+            s += '0';
+        s += min;
+        return s;
+    }
+    set zoneOffset(s: string | null) {
+        if (s == null) {
+            this.utcOffset = null!;
+            return;
+        }
+        let negative = s.startsWith('-');
+        if (negative || s.startsWith('+'))
+            s = s.substring(1);
+        let colon = s.indexOf(':');
+        let hourstr = colon == -1 ? s : s.substring(0, colon);
+        let minStr = colon == -1 ? undefined : s.substring(colon + 1);
+        let hour = parseInt(hourstr);
+        let min = minStr == null ? 0 : parseInt(minStr);
+        let offset = hour * 60 + min;
+        if (negative) offset = -offset;
+        this.utcOffsetKeepLocal = offset;
+    }
+
+    get timeZone() {
+        if (this.zoneName?.length)
+            return this.zoneName;
+        let zoneOffset = this.zoneOffset;
+        return zoneOffset;
+    }
+
+    set timeZone(tz: string | null) {
+        if (!(tz?.length)) {
+            this.zoneOffset = null;
+            return;
+        }
+        switch (tz.charAt(0)) {
+            case '+':
+            case '-':
+                this.zoneOffset = tz;
+                break;
+            default:
+                this.tzKeepLocal = tz;
+        }
+    }
+
+    toDate(): Date {
+        const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ssZ';
+        let s = this.format(DATE_FORMAT);
+        return new Date(s);
+    }
 
 }
 

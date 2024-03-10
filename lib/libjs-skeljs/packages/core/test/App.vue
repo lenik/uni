@@ -1,7 +1,10 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import { ref } from 'vue';
 
+export const title = 'Core Test Site'
+</script>
+
+<script setup lang="ts">
 import ModelC from '../src/ui/layout/ModelC.vue';
 import SiteBar from '../src/ui/menu/SiteBar.vue';
 import ProjectInfo from '../src/ui/demo/ProjectInfo.vue';
@@ -24,16 +27,16 @@ const stat = {
 
 <template>
     <ModelC>
+
         <template #site-bar>
             <SiteBar :items="siteMenu" :title="'Title1'" />
         </template>
 
         <template #project-info>
             <ProjectInfo :stat="stat" label="Test Apps">
-                Test applications of skeljs::core package.
+                <p> Test applications of skeljs::core package. </p>
             </ProjectInfo>
         </template>
-
         <router-view></router-view>
 
         <template #footer>

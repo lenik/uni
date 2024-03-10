@@ -600,7 +600,7 @@ export const CHAR = new CharType();
 export const STRING = new StringType();
 
 export const ENUM = new EnumType();
-export const DATE = new DateType();
+// export const DATE = new DateType();
 
 export function ARRAY<E>(itemType: TypeInfo<E>): ListType<E> {
     return new ArrayType<E>(itemType);
@@ -633,6 +633,6 @@ export const typeMap = {
     'CHAR': CHAR,
     'STRING': STRING,
     'ENUM': ENUM,
-    'DATE': DATE,
+    // 'DATE': DATE,
     'INET_ADDRESS': INET_ADDRESS,
 };
