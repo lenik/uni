@@ -44,14 +44,72 @@ defineOptions({
     inheritAttrs: false
 })
 
-const rootElement = ref();
+const rootElement = ref<HTMLElement>();
 const titleElement = ref();
 
 onMounted(() => {
-    makeMovable(rootElement.value, titleElement.value);
+    makeMovable(rootElement.value!, titleElement.value);
 });
 
+function findContainer(elm: HTMLElement): HTMLElement | null {
+    let node = elm.parentElement;
+    while (node != null) {
+        let styleMap = node.computedStyleMap();
+        let overflow = styleMap.get('overflow');
+        if (overflow != null) {
+            switch (overflow.toString()) {
+                case 'hidden':
+                    return node;
+                // case 'scroll':
+                // case 'auto':
+            }
+        }
+        node = node.parentElement;
+    }
+    return null;
+}
 
+function enlargeWidth(scale: number, add = 0) {
+    let div = rootElement.value!;
+    // let styleMap = div.computedStyleMap();
+    // let styleWidth: CSSNumericValue = styleMap.get("width") as CSSNumericValue;
+    // let newWidth = styleWidth.mul(scale).toString();
+    let width = div.offsetWidth;
+    let height = div.offsetHeight;
+    let newWidth = width * scale + add;
+    let newHeight;
+
+    let container = findContainer(div);
+    // || document.body;
+    if (container != null) {
+        let maxWidth = container.offsetWidth - 30;
+        let maxHeight = container.offsetHeight - 30;
+
+        if (newWidth > maxWidth)
+            newWidth = maxWidth;
+
+        if (height > maxHeight)
+            newHeight = maxHeight;
+    }
+
+    if (newWidth != null)
+        div.style.width = newWidth + 'px';
+    if (newHeight != null)
+        div.style.height = newHeight + 'px';
+}
+
+function addColumn(n: number) {
+    let div = rootElement.value!;
+    let frameWidth = 40;
+    let columnWidth = 400;
+    enlargeWidth(1, columnWidth);
+    let columns = div.getAttribute('columns');
+    let nCol = 1;
+    if (columns != null)
+        nCol = parseInt(columns);
+    let nNewCol = nCol + n;
+    div.setAttribute('columns', String(nNewCol));
+}
 </script>
 
 <template>
@@ -61,6 +119,9 @@ onMounted(() => {
             <div ref="titleElement" class="title">{{ title }}</div>
             <div class="toggler" @click="transparentMode = !transparentMode" v-if="_detached">
                 <Icon :name="transparentMode ? 'far-eye' : 'fas-low-vision'" />
+            </div>
+            <div class="toggler" @click="addColumn(1)" title="Enlarge width by 2x.">
+                <Icon name="far-arrows-alt-h" />
             </div>
             <div class="toggler" @click="_detached = !_detached" :title="_detached ? 'Attach' : 'Detach'">
                 <Icon :name="_detached ? 'far-thumbtack' : 'far-window-restore'" />
@@ -163,6 +224,20 @@ onMounted(() => {
         background-color: hsl(0, 0%, 90%);
     }
 
+}
+
+.detachable.detached {
+    &[columns='2']>.content {
+        columns: 2;
+    }
+
+    &[columns='3']>.content {
+        columns: 3;
+    }
+
+    &[columns='4']>.content {
+        columns: 4;
+    }
 }
 
 .demo {
