@@ -18,7 +18,6 @@ import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.fmt.json.JsonVariant;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
@@ -280,7 +279,6 @@ public class FooEditor__vue
 
         out.enter();
         {
-            boolean useInput = true;
             Attrs inputAttrs = new Attrs();
             switch (tsType) {
             case "number":
@@ -306,45 +304,31 @@ public class FooEditor__vue
                 inputAttrs.put("type", "text");
                 break;
 
+            case "JavaDate":
             case "SQLDate":
-                inputAttrs.put("type", "date");
-                break;
-            case "Date":
             case "Timestamp":
-                inputAttrs.put("type", "datetime");
-                break;
 
             case "LocalDate":
-                inputAttrs.put("type", "date");
-                break;
+            case "LocalTime":
+            case "OffsetTime":
             case "Instant":
             case "LocalDateTime":
             case "ZonedDateTime":
             case "OffsetDateTime":
-                inputAttrs.put("type", "datetime");
+                out.printf("<%s v-model=\"%s\" />\n", //
+                        out.importName(EsmModules.core.DateTime), //
+                        propertyModel);
                 break;
-            case "LocalTime":
-            case "OffsetTime":
-                inputAttrs.put("type", "time");
+
+            case "JsonVariant":
+                out.printf("<%s v-model=\"%s\" />\n", //
+                        out.importName(EsmModules.core.JsonEditor), //
+                        propertyModel);
                 break;
-            default:
-                useInput = false;
             }
 
-            if (useInput) {
+            if (! inputAttrs.isEmpty()) {
                 switch (tsType) {
-                case "Date":
-                    inputAttrs.put("v-model", propertyModel);
-                    break;
-                case "LocalDate":
-                    inputAttrs.put("v-model", propertyModel + ".dateString");
-                    break;
-                case "Instant":
-                case "LocalDateTime":
-                case "ZonedDateTime":
-                case "OffsetDateTime":
-                    inputAttrs.put("v-model", propertyModel + ".dateString");
-                    break;
                 default:
                     inputAttrs.put("v-model", propertyModel);
                 }
@@ -363,10 +347,6 @@ public class FooEditor__vue
 
                 // } else if (CoCategory.class.isAssignableFrom(type)) {
 
-            } else if (type == JsonVariant.class) {
-                out.printf("<%s v-model=\"%s\" />\n", //
-                        out.importName(EsmModules.core.JsonEditor), //
-                        "model." + propertyName);
             } else {
                 logger.errorf("undefined input type(%s) for property %s.", //
                         type, propertyName);

@@ -3,6 +3,7 @@ package net.bodz.bas.esm.skeljs;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -54,10 +55,6 @@ public class TsTypes
         addType(BigInteger.class, baseType.BigInteger);
         addType(BigDecimal.class, baseType.BigDecimal);
 
-        addType(Date.class, baseType._Date);
-        addType(java.sql.Date.class, baseType.SQLDate);
-        addType(Timestamp.class, baseType.Timestamp);
-
         addAbstractType(List.class, baseType.List);
 //        addAbstractType(Set.class, baseType._Set);
 //        addAbstractType(Map.class, baseType._Map);
@@ -66,6 +63,11 @@ public class TsTypes
 
         addType(JsonVariant.class, basType.JsonVariant);
         addType(JsonMap.class, basType.JsonVariant);
+
+        addType(Date.class, time.JavaDate);
+        addType(java.sql.Date.class, time.SQLDate);
+        addType(Time.class, time.SQLTime);
+        addType(Timestamp.class, time.Timestamp);
 
         addType(Instant.class, time.Instant);
         addType(LocalDate.class, time.LocalDate);

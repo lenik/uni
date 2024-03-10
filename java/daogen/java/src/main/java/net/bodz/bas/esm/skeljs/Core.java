@@ -25,9 +25,9 @@ public class Core
         public final EsmName _string = type("_string");
         public final EsmName BigInteger = type("BigInteger");
         public final EsmName BigDecimal = type("BigDecimal");
-        public final EsmName _Date = type("_Date");
-        public final EsmName SQLDate = type("SQLDate");
-        public final EsmName Timestamp = type("Timestamp");
+//        public final EsmName _Date = type("_Date");
+//        public final EsmName SQLDate = type("SQLDate");
+//        public final EsmName Timestamp = type("Timestamp");
 
         public final EsmName Enum = type("Enum");
         public final EsmName List = type("List");
@@ -52,7 +52,7 @@ public class Core
         public final EsmName CHAR = value("CHAR");
         public final EsmName STRING = value("STRING");
         public final EsmName ENUM = value("ENUM");
-        public final EsmName DATE = value("DATE");
+//        public final EsmName DATE = value("DATE");
 
         public final EsmName ARRAY = value("ARRAY");
 
@@ -85,6 +85,15 @@ public class Core
     @SourcePath("lang/time")
     public class LangTime
             extends Source {
+        public final EsmName JavaDate = type("JavaDate");
+        public final EsmName SQLDate = type("SQLDate");
+        public final EsmName SQLTime = type("SQLTime");
+        public final EsmName Timestamp = type("Timestamp");
+        public final EsmName JAVA_DATE = value("JAVA_DATE");
+        public final EsmName SQL_DATE = value("SQL_DATE");
+        public final EsmName SQL_TIME = value("SQL_TIME");
+        public final EsmName TIMESTAMP = value("TIMESTAMP");
+
         public final EsmName Instant = childDefault("Instant");
         public final EsmName LocalDate = childDefault("LocalDate");
         public final EsmName LocalTime = childDefault("LocalTime");
@@ -177,6 +186,7 @@ public class Core
 
     public final EsmName Dialog = vue("ui/Dialog.vue");
     public final EsmName FieldRow = vue("ui/FieldRow.vue");
+    public final EsmName DateTime = vue("ui/input/DateTime.vue");
     public final EsmName JsonEditor = vue("ui/input/JsonEditor.vue");
 
 }

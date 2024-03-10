@@ -3,6 +3,7 @@ package net.bodz.bas.esm.skeljs;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -13,6 +14,7 @@ import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.skeljs.Core.BasInfo;
 import net.bodz.bas.esm.skeljs.Core.BaseInfo;
+import net.bodz.bas.esm.skeljs.Core.LangTime;
 import net.bodz.bas.fmt.json.JsonVariant;
 
 public class TsTypeInfos
@@ -21,6 +23,7 @@ public class TsTypeInfos
     {
         BaseInfo baseInfo = EsmModules.core.baseInfo;
         BasInfo basInfo = EsmModules.core.basInfo;
+        LangTime time = EsmModules.core.time;
 
         addType(byte.class, baseInfo.BYTE);
         addType(short.class, baseInfo.SHORT);
@@ -44,9 +47,10 @@ public class TsTypeInfos
         addType(BigInteger.class, baseInfo.BIG_INTEGER);
         addType(BigDecimal.class, baseInfo.BIG_DECIMAL);
 
-        addType(Date.class, baseInfo.DATE);
-        addType(java.sql.Date.class, baseInfo.DATE);
-        addType(Timestamp.class, baseInfo.DATE);
+        addType(Date.class, time.JAVA_DATE);
+        addType(java.sql.Date.class, time.SQL_DATE);
+        addType(Time.class, time.SQL_TIME);
+        addType(Timestamp.class, time.TIMESTAMP);
 
         addAbstractType(List.class, baseInfo.LIST);
         addAbstractType(Set.class, baseInfo.SET);
