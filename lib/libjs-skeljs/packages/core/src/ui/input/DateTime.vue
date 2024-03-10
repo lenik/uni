@@ -370,7 +370,7 @@ onMounted(() => {
 }
 
 .debug {
-    // display: none;
+    display: none;
     list-style: none;
     margin: 0;
     padding: 0;

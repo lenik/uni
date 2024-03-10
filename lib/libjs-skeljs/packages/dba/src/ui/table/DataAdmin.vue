@@ -1,12 +1,25 @@
-<script setup lang="ts">
-
+<script lang="ts">
 import { computed, onMounted, ref } from "vue";
 import moment from "moment-timezone";
 
 import { Command, Status } from "@skeljs/core/src/ui/types";
 import { LogEntry, logsExample, parseException } from "@skeljs/core/src/logging/api";
-import { EntityType } from "./types";
 
+import EntityType from "../../net/bodz/lily/entity/EntityType";
+import { } from "./types";
+
+export interface Props {
+    type?: EntityType
+    tabindex?: number
+
+    tools: Command[]
+    statuses: Status[]
+    previewDetached?: boolean
+    logsDetached?: boolean
+}
+</script>
+
+<script setup lang="ts">
 import CmdButtons from '@skeljs/core/src/ui/CmdButtons.vue';
 import Dialog from '@skeljs/core/src/ui/Dialog.vue';
 import Detachable from '@skeljs/core/src/ui/layout/Detachable.vue';
@@ -19,16 +32,6 @@ defineOptions({
 })
 
 const instanceModel = defineModel<any>('instance');
-
-interface Props {
-    type?: EntityType
-    tabindex?: number
-
-    tools: Command[]
-    statuses: Status[]
-    previewDetached?: boolean
-    logsDetached?: boolean
-}
 
 const props = withDefaults(defineProps<Props>(), {
     previewDetached: false,

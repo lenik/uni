@@ -283,6 +283,7 @@ onMounted(() => {
                     break;
 
                 case 'e':
+                    console.log('open selection');
                     openSelected();
                     break;
                 default:
@@ -345,12 +346,6 @@ onMounted(() => {
         .jsoneditor-wrapper {
             flex: 1;
         }
-    }
-}
-
-.detachable.detached::conditional(min-width: 600px) {
-    >.content {
-        columns: 2;
     }
 }
 </style>
