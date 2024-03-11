@@ -29,7 +29,8 @@
         "sass": "^1.71.1",
         "velbit-fontawesome-pro": "^5.15.4",
         "vue": "^3.4.21",
-        "vue-router": "^4.3.0"
+        "vue-router": "^4.3.0",
+        "vuetify": "^3.5.8"
     },
     "devDependencies": {
         "@tsconfig/node18": "^18.2.2",

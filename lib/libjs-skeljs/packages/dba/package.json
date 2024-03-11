@@ -13,6 +13,7 @@
     },
     "dependencies": {
         "@skeljs/core": "workspace:^",
+        "blueimp-file-upload": "^10.32.0",
         "bootstrap": "^4.6.2",
         "clipboard": "^2.0.11",
         "datatables-tabletools": "^2.2.2",
@@ -37,7 +38,8 @@
         "pinia": "^2.1.7",
         "vue": "^3.4.21",
         "vue-draggable-resizable": "3.0.0-beta.2",
-        "vue-router": "^4.3.0"
+        "vue-router": "^4.3.0",
+        "vuetify": "^3.5.8"
     },
     "devDependencies": {
         "@tsconfig/node18": "^18.2.2",
