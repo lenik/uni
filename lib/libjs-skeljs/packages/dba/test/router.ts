@@ -2,12 +2,13 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 
 export const links = {
     "": 'Directory',
-    "Project": 'Project',
+    "Project": "component Project",
     "AjaxArrayDemo": 'Ajax with row=array',
     "AjaxObjectDemo": 'Ajax with row=object',
     "DataAdminDemo": 'Data Admin demo',
     "DataObjvDemo": 'Data row by object[]',
     "DataTabDemo": 'Table data modeled in DataTab type',
+    "AttachmentsEditorDemo": "component AttachmentsEditorDemo",
 };
 
 const router = createRouter({
@@ -20,6 +21,7 @@ const router = createRouter({
         { path: '/DataAdminDemo', component: () => import('./DataTables/DataAdminDemo.vue') },
         { path: '/DataObjvDemo', component: () => import('./DataTables/DataObjvDemo.vue') },
         { path: '/DataTabDemo', component: () => import('./DataTables/DataTabDemo.vue') },
+        { path: '/AttachmentsEditorDemo', component: () => import('./input/AttachmentsEditorDemo.vue') },
     ]
 });
 
