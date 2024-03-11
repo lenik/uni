@@ -86,6 +86,7 @@ const mainOverflowType = computed(() => props.scrollable ? 'auto' : 'hidden');
     flex: 1;
 
     > ::v-deep(.main) {
+        position: relative;
         flex: 1;
         overflow: v-bind(mainOverflowType);
     }
