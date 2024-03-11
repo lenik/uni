@@ -14,7 +14,7 @@ export interface ITypeInfo<T> extends IJsonConverter<T> {
 
     validate(T: any): void
 
-    renderHtml(val: any): HTMLElement | string | undefined
+    renderHtml(val: any, context: any): HTMLElement | string | undefined
 }
 
 export default ITypeInfo;

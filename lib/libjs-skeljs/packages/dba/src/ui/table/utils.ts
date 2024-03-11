@@ -88,7 +88,7 @@ export function getColumns(table: any, options: CreateOptions): ColumnType[] {
 
                     case 'display':
                         let parent = document.createElement('div');
-                        let content = typeInfo!.renderHtml(val);
+                        let content = typeInfo!.renderHtml(val, row);
                         if (content == undefined)
                             if (val == null)
                                 return typeInfo!.nullText;

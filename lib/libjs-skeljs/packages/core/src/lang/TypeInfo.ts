@@ -38,7 +38,7 @@ export abstract class TypeInfo<T> implements ITypeInfo<T> {
     validate(val: T) {
     }
 
-    renderHtml(val: any): HTMLElement | string | undefined {
+    renderHtml(val: any, context: any): HTMLElement | string | undefined {
         return undefined;
     }
 
