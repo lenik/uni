@@ -10,6 +10,7 @@ export const links = {
     "IconDemo": 'icon demo',
     "": 'List of Test Samples',
     "JsonEditorDemo": 'JSON Editor demo',
+    "JsonWithRefs": 'JSON with (circular) references: parser and formatter test.',
     "LayoutDemo": 'model-c layout demo',
     "MenuDemo": 'menu demo',
     "NodeTreeDemo": 'recursive node tree demo',
@@ -19,7 +20,6 @@ export const links = {
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
-        { path: '/', component: () => import('./Index.vue') },
         { path: '/App', component: () => import('./App.vue') },
         { path: '/CgiDemo', component: () => import('./CgiDemo.vue') },
         { path: '/CmdButtonsDemo', component: () => import('./CmdButtonsDemo.vue') },
@@ -27,7 +27,9 @@ const router = createRouter({
         { path: '/DialogDemo', component: () => import('./DialogDemo.vue') },
         { path: '/FieldRowDemo', component: () => import('./FieldRowDemo.vue') },
         { path: '/IconDemo', component: () => import('./IconDemo.vue') },
+        { path: '/', component: () => import('./Index.vue') },
         { path: '/JsonEditorDemo', component: () => import('./JsonEditorDemo.vue') },
+        { path: '/JsonWithRefs', component: () => import('./JsonWithRefs.vue') },
         { path: '/LayoutDemo', component: () => import('./LayoutDemo.vue') },
         { path: '/MenuDemo', component: () => import('./MenuDemo.vue') },
         { path: '/NodeTreeDemo', component: () => import('./NodeTreeDemo.vue') },

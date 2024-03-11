@@ -6,6 +6,7 @@ import { isEqual } from 'lodash-es';
 
 import { baseName } from "@skeljs/core/src/io/url";
 import { _throw, showError } from "@skeljs/core/src/logging/api";
+import { derefByPath, wireUp } from "@skeljs/core/src/lang/json";
 
 import { AjaxProtocol } from "./ajax";
 import { convertToDataRows } from './objconv';
@@ -203,6 +204,8 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
                 showError("Invalid response: " + data);
                 return;
             }
+
+            data = wireUp(data);
 
             let anyList: any[] = data.rows!;
             let rows: any[] = [];

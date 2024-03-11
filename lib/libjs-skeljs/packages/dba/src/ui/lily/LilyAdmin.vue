@@ -11,6 +11,7 @@ import { SERVER_URL } from './context';
 import { Command, Status } from '@skeljs/core/src/ui/types';
 import { showError, _throw } from '@skeljs/core/src/logging/api';
 import { VarMap } from '@skeljs/core/src/lang/VarMap';
+import { wireUp } from '@skeljs/core/src/lang/json';
 
 export interface Props {
     type: EntityType
@@ -132,6 +133,7 @@ function openNew() {
 
     $.ajax(newUrl)
         .done((data) => {
+            let wired = wireUp(data.data);
             model.value = data.data;
             editorDialog.value?.open(saveNew);
         });
@@ -145,6 +147,7 @@ function openSelected() {
     let fetchUrl = _url.value + "/" + idPath + "?" + params.queryString;
 
     $.ajax(fetchUrl).done((data) => {
+        let wired = wireUp(data.data);
         model.value = data.data;
         editorDialog.value?.open(saveSelected);
     });
