@@ -112,13 +112,13 @@ const emit = defineEmits<{
 
 // property shortcuts
 const rootElement = ref<HTMLElement>();
-const editor = ref();
+const editorRef = ref();
 
 function refresh() {
-    let ed = editor.value;
-    if (ed != null) {
+    let editor = editorRef.value;
+    if (editor != null) {
         let json = model.value;
-        ed.set(json);
+        editor.set(json);
     }
 };
 
@@ -225,7 +225,7 @@ onMounted(() => {
         emit('validationError', errors);
 
     let ed = new JSONEditor(rootElement.value!, options);
-    refresh();
+    editorRef.value = ed;
 
     let aceEditor = ed.aceEditor;
     let renderer = aceEditor.renderer;
@@ -233,11 +233,11 @@ onMounted(() => {
     if (!props.gutter)
         renderer.setShowGutter(false);
 
+    refresh();
+
     if (props.mode == 'tree')
         if (props.expandAll)
             ed.expandAll();
-
-    editor.value = ed;
 });
 
 </script>
