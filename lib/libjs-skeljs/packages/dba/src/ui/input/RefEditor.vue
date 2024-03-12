@@ -54,12 +54,7 @@ function remove() {
     model.value = undefined;
     id.value = undefined;
 }
-function remove2(event: Event) {
-    if (props.rightRemove) {
-        remove();
-        event.preventDefault();
-    }
-}
+
 function openDialog() {
     props.dialog?.open(onDialogSelect);
 }
@@ -80,7 +75,7 @@ onMounted(() => {
 <template>
     <span class="ref-editor" ref="rootElement" :class="{ specified, unspecified, hasId, hasLabel }">
         <input type="hidden" :value="model?.id || id">
-        <div class="info" @click="openDialog" @contextmenu="(e) => remove2(e)">
+        <div class="info" @click="openDialog" @contextmenu.prevent="rightRemove && remove()">
             <template v-if="specified">
                 <slot>
                     <span class="id" v-if="hasId"> {{ model?.id || id }} </span>

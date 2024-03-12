@@ -8,7 +8,10 @@ import Attachment from "@skeljs/core/src/net/bodz/lily/entity/Attachment";
 import { beginWait, endWait } from "@skeljs/core/src/skel/waitbox";
 
 import "blueimp-file-upload/css/jquery.fileupload.css";
-import "blueimp-file-upload";
+import FileUpload from "blueimp-file-upload";
+import { server } from "typescript";
+
+console.log(FileUpload);
 
 export interface Props {
     serviceUrl?: string // injectable
@@ -36,7 +39,7 @@ const emit = defineEmits<{
 const rootElement = ref<HTMLElement>();
 const fileInput = ref<HTMLInputElement>();
 const progressDiv = ref<HTMLElement>();
-const completeDiv = ref<HTMLElement>();
+const completionDiv = ref<HTMLElement>();
 
 const serverUrl = inject<string>(SERVER_URL)!;
 const realServiceUrl = computed(() => {
@@ -88,8 +91,11 @@ function idHref(a: Attachment, id: string | number) {
 }
 
 function url(a: Attachment, id: string | number) {
-    let href = idHref(a, id);
-    let url = indexUrl.value + "/" + href;
+    let url: string;
+    if (a.path != null)
+        url = serverUrl + a.path;
+    else
+        url = indexUrl.value + "/" + idHref(a, id);
     return url;
 }
 
@@ -99,11 +105,19 @@ function remove(i: int) {
         attachments.splice(i, 1);
 }
 
+function setPercent(percent: number) {
+    let $comp = $(completionDiv.value!);
+    $comp.text(percent + "%");
+    $comp.css("width", percent + "%");
+}
+
 onMounted(() => {
+
     let $input = $(fileInput.value!) as any;
     $input.fileupload({
         dataType: 'json',
         submit: function () {
+            setPercent(0);
             $(progressDiv.value!).show();
             beginWait();
         },
@@ -111,15 +125,14 @@ onMounted(() => {
             endWait();
             $(progressDiv.value!).hide();
         },
-        progress: function (e, data) {
+        progress: function (e: JQuery.Event, data) {
             let percent = Math.floor(data.loaded / data.total * 1000) / 10;
-            let $comp = $(completeDiv.value!);
-            $comp.text(percent + "%");
-            $comp.css("width", percent + "%");
+            setPercent(percent);
         },
         done: function (e: JQuery.Event, data) {
             data.result.files.forEach(function (file) {
                 var attachment = new Attachment({
+                    path: file.url,
                     name: file.name,
                     size: file.size,
                     sha1: file.sha1,
@@ -137,12 +150,15 @@ onMounted(() => {
 
 <template>
     <div class="attachments-editor" ref="rootElement">
-        <input type="file" ref="fileInput" class="upload" :data-url="serviceUploadUrl">
-        <div class="progress" ref="progressDiv">
-            <div class="text" ref="progressText">0%</div>
+        <div class="control">
+            <input type="file" ref="fileInput" class="upload" :data-url="serviceUploadUrl">
+            <div class="filler"></div>
+            <div class="progress" ref="progressDiv">
+                <div class="completion" ref="completionDiv">0%</div>
+            </div>
         </div>
         <ul class="previews" v-if="model != null">
-            <li v-for="(attachment, i) in model" :key="i">
+            <li v-for="(attachment, i) in model" :key="i" @contextmenu.prevent="remove(i)">
                 <img :src="url(attachment, id)">
                 <div class="caption">{{ attachment.name }}
                     <Icon name="far-trash" @click="remove(i)" />
@@ -154,11 +170,22 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .attachments-editor {
-    padding: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .control {
+        display: flex;
+        flex-direction: row;
+
+    }
+
+    .filler {
+        flex: 1;
+    }
 }
 
 .progress {
-    display: inline-block;
     background: #eee;
     border-radius: 5px;
     border: solid 1px #888;
@@ -166,7 +193,7 @@ onMounted(() => {
     padding: 2px;
     width: 5em;
 
-    >div {
+    .completion {
         background: #0af;
         width: 0%;
         height: 1.5em;
@@ -181,22 +208,34 @@ onMounted(() => {
 }
 
 .previews {
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: stretch;
     list-style: none;
     margin: 0;
     padding: 0;
     // border: dashed 1px gray;
-    background-color: #ffe;
+    background-color: #ffffee;
 
     li {
-        margin: .5em;
-        border: solid 1px gray;
+        border: dashed 1px gray;
+        margin-top: .3em;
+        padding: .5em .8em;
         text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: end;
+
+        &:not(:first-child) {
+            margin-left: .5em;
+        }
 
         img {
             max-width: 4em;
             max-height: 4em;
             object-fit: contain;
+            flex: 1;
         }
 
         .caption {
