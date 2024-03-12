@@ -184,7 +184,7 @@ public class MiscTemplates {
             case TS_CLASS:
                 // defs.add("get FIELD_" + cname.constFieldName + "() { return "//
                 // + StringQuote.qqJavaString(cname.column) + "; }");
-                defs.add("static FIELD_" + cname.constFieldName + " = "//
+                defs.add("static readonly FIELD_" + cname.constFieldName + " = "//
                         + StringQuote.qqJavaString(cname.column) + ";");
             }
         }
@@ -228,7 +228,7 @@ public class MiscTemplates {
 
                 case TS_CLASS:
                     // defs.add("get " + precisionVar + "() { return " + precision + "; }");
-                    defs.add("static " + precisionVar + " = " + precision + ";");
+                    defs.add("static readonly " + precisionVar + " = " + precision + ";");
                     break;
 
                 case TS_NAMESPACE:
@@ -286,7 +286,7 @@ public class MiscTemplates {
 
             case TS_CLASS:
                 // defs.add("get " + varName + "() { return " + expr + "; }");
-                defs.add("static " + varName + " = " + expr + ";");
+                defs.add("static readonly " + varName + " = " + expr + ";");
                 break;
 
             case TS_NAMESPACE:

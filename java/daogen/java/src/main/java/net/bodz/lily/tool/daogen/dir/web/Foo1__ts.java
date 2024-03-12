@@ -38,7 +38,7 @@ public class Foo1__ts
                 javaExtend.angledBaseTypeArgs());
         out.enter();
         {
-            TsTemplates.lazyProp(out, "_typeInfo", "TYPE", out.importDefault(typeName));
+            TsTemplates.lazyProp_INSTANCE(out, "_typeInfo", "TYPE", out.importDefault(typeName));
             out.println();
 
             if (javaExtend.javaClass != null) {

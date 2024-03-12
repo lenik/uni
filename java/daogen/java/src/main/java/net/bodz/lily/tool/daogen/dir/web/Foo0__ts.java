@@ -43,7 +43,8 @@ public class Foo0__ts
                 extend.angledBaseTypeArgs());
         out.enter();
         {
-            TsTemplates.lazyProp(out, "_typeInfo", "TYPE", out.importDefault(typeName));
+            out.println();
+            TsTemplates.lazyProp_INSTANCE(out, "_typeInfo", "TYPE", out.importDefault(typeName));
             out.println();
 
             for (IColumnMetadata column : table.getColumns()) {

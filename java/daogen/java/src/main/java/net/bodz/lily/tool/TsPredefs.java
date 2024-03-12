@@ -117,7 +117,7 @@ public class TsPredefs
         {
             out.enter();
             out.println();
-            TsTemplates.lazyProp(out, "_typeInfo", "TYPE", typeInfoType.name);
+            TsTemplates.lazyProp_NEW(out, "_typeInfo", "TYPE", typeInfoType.name);
 
             out.println();
             out.printf("constructor(key: %s, name: string, label?: string, icon?: string, description?: string) {\n",

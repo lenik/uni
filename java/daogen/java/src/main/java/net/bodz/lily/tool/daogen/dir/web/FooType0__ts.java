@@ -67,13 +67,31 @@ public class FooType0__ts
         out.println();
         out.enter();
         {
+            // CATALOG, SCHEMA, TABLE
             staticFields1(out, table, OutFormat.TS_CLASS);
+
+            staticFields2(out, table, OutFormat.TS_CLASS);
 
             IType type = table.getPotatoType();
             String iconName = "fa-tag";
             String label = type.getLabel().toString();
             if (Nullables.isEmpty(description))
                 description = type.getDescription().toString();
+
+            out.println();
+            out.printf("readonly validators = new %s(this);\n", //
+                    out.importDefault(validatorsClass));
+
+            out.println();
+            out.printf("constructor(%s) {\n", extend.getCtorParams(this));
+            out.enter();
+            {
+                out.printf("super(%s);\n", extend.getSuperCtorArgs(this));
+                if (extend.isSelfTypeNeeded())
+                    out.println("this.selfType = this;");
+                out.leave();
+            }
+            out.println("}");
 
             out.println();
             out.printf("get name() { return \"%s\"; }\n", table.getJavaType());
@@ -83,12 +101,6 @@ public class FooType0__ts
                 out.printf("get label() { return \"%s\"; }\n", label);
             if (description != null)
                 out.printf("get description() { return \"%s\"; }\n", description);
-
-            staticFields2(out, table, OutFormat.TS_CLASS);
-
-            out.println();
-            out.printf("validators = new %s(this);\n", //
-                    out.importDefault(validatorsClass));
 
             out.println();
             out.println("override preamble() {");
@@ -106,17 +118,11 @@ public class FooType0__ts
             }
             out.println("}");
 
-            out.println();
-
-            out.printf("constructor(%s) {\n", extend.getCtorParams(this));
-            out.enter();
-            {
-                out.printf("super(%s);\n", extend.getSuperCtorArgs(this));
-                if (extend.isSelfTypeNeeded())
-                    out.println("this.selfType = this;");
-                out.leave();
+            if (extend.typeVarCount() > 0) {
+                out.println();
+                out.printf("static readonly INSTANCE = new %s();\n", //
+                        extend.type.name);
             }
-            out.println("}");
 
             out.println();
             out.leave();

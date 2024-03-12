@@ -42,6 +42,14 @@ public class TypeExtendInfo {
         }
     }
 
+    public int typeVarCount() {
+        return typeVars == null ? 0 : typeVars.length;
+    }
+
+    public int baseTypeArgCount() {
+        return baseTypeArgs == null ? 0 : baseTypeArgs.length;
+    }
+
     public String angledTypeVars() {
         if (typeVars == null || typeVars.length == 0)
             return "";

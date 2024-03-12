@@ -29,7 +29,7 @@ public class FooCriteriaBuilder_stuff__java
     static Map<Class<?>, Class<?>> defaultBases = new LinkedHashMap<>();
     static {
         defaultBases.put(CoMessage.class, CoMessageCriteriaBuilder.class);
-        defaultBases.put(CoMomentInterval.class, CoMomentIntervalCriteriaBuilder.class);
+        defaultBases.put(CoEvent.class, CoEventCriteriaBuilder.class);
         defaultBases.put(CoCategory.class, CoCategoryCriteriaBuilder.class);
         defaultBases.put(CoCode.class, CoCodeCriteriaBuilder.class);
         defaultBases.put(CoNode.class, CoNodeCriteriaBuilder.class);

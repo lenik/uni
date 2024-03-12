@@ -44,7 +44,6 @@ public class FooType1__ts
         out.printf("export class %s extends %s {\n", //
                 tsName, //
                 out.importDefault(superType));
-        out.println();
         out.enter();
         {
             IType entityType = table.getPotatoType();
@@ -53,6 +52,23 @@ public class FooType1__ts
             if (Nullables.isEmpty(entityDescription))
                 entityDescription = entityType.getDescription().toString();
 
+            out.println();
+            out.printf("readonly validators = new %s(this);\n", //
+                    out.importDefault(validatorsClass));
+
+            out.println();
+            out.printf("constructor(%s) {\n", extend.getCtorParams(this));
+            out.enter();
+            {
+                // extend.baseParams;
+                out.printf("super(%s);\n", extend.getSuperCtorArgs(this));
+                if (extend.isSelfTypeNeeded())
+                    out.println("this.selfType = this;");
+                out.leave();
+            }
+            out.println("}");
+
+            out.println();
             out.printf("get name() { return \"%s\"; }\n", table.getJavaType());
             if (entityIcon != null)
                 out.printf("get icon() { return \"%s\"; }\n", entityIcon);
@@ -60,10 +76,6 @@ public class FooType1__ts
                 out.printf("get label() { return \"%s\"; }\n", entityLabel);
             if (entityDescription != null)
                 out.printf("get description() { return \"%s\"; }\n", entityDescription);
-
-            out.println();
-            out.printf("validators = new %s(this);\n", //
-                    out.importDefault(validatorsClass));
 
             out.println();
             out.println("override preamble() {");
@@ -82,17 +94,12 @@ public class FooType1__ts
             }
             out.println("}");
 
-            out.println();
-            out.printf("constructor(%s) {\n", extend.getCtorParams(this));
-            out.enter();
-            {
-                // extend.baseParams;
-                out.printf("super(%s);\n", extend.getSuperCtorArgs(this));
-                if (extend.isSelfTypeNeeded())
-                    out.println("this.selfType = this;");
-                out.leave();
+            if (extend.typeVarCount() > 0) {
+                out.println();
+                out.printf("static readonly INSTANCE = new %s();\n", //
+                        tsName);
             }
-            out.println("}");
+
             out.println();
             out.leave();
         }

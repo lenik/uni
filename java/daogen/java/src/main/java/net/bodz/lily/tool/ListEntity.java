@@ -103,7 +103,7 @@ public class ListEntity
 
         roots.add(CoTalk.class);
         roots.add(CoMessage.class);
-        roots.add(CoMomentInterval.class);
+        roots.add(CoEvent.class);
 
         roots.add(VoteRecord.class);
         // roots.add(IdEntity.class);
