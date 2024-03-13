@@ -201,12 +201,12 @@ public class FinishProcessor
         ColumnNaming[] fv = config.naming(columns);
         ColumnNaming[] pv = config.naming(parentColumns);
 
-        String property;
+        String propertyName;
 
         // 1. [ property = foo ]
         // fk property fooSegment -> parent property *.segment,
         // fk property fooSid -> parent property *.sid
-        property = trimSuffix(fv, pv, //
+        propertyName = trimSuffix(fv, pv, //
                 (ColumnNaming name) -> name.propertyName, //
                 (ColumnNaming name) -> Strings.ucfirst(name.propertyName), //
                 null);
@@ -214,19 +214,19 @@ public class FinishProcessor
         // 2. [ property = foo ]:
         // fk column foo_seg -> parent column foo.seg
         // fk column foo_sid -> parent column foo.sid
-        if (property == null) {
+        if (propertyName == null) {
             String columnHead = trimSuffix(fv, pv, //
                     (ColumnNaming name) -> name.column, //
                     trimRightUnderline);
             if (! Nullables.isEmpty(columnHead))
-                property = StringId.UL.toCamel(columnHead);
+                propertyName = StringId.UL.toCamel(columnHead);
         }
 
         if (n == 1) {
             ColumnNaming column = fv[0];
             KeyColumnNameInfo info = config.keyColumnSettings.parseColumnByAnyFormat(column.column);
             if (info != null) {
-                property = info.getAliasProperty();
+                propertyName = info.getAliasProperty();
                 fv[0].initByPropertyName(info.getAliasProperty());
                 pv[0].initByPropertyName(info.getFieldProperty());
             }
@@ -235,24 +235,29 @@ public class FinishProcessor
         // 4. [ property = cat ]:
         // fk column cat -> parent column foocat.key_a
         // fk column key_b -> parent column foocat.key_b
-        if (property == null) {
+        if (propertyName == null) {
             TableName parentName = config.defaultTableName(parentTable);
             for (ColumnNaming f : fv)
                 if (parentName.simpleClassName.endsWith(f.ucfirstPropertyName)) {
-                    property = f.propertyName;
+                    propertyName = f.propertyName;
                     break;
                 }
         }
 
-        if (property == null) {
+        if (propertyName == null) {
             if (n == 1)
                 // fallback to the property name for single column key.
-                property = fv[0].propertyName;
+                propertyName = fv[0].propertyName;
             else
                 throw new IllegalUsageException("can't determine the xref property name.");
         }
 
-        crossRef.setJavaQName(property);
+        crossRef.setPropertyName(propertyName);
+        IType type = table.getPotatoType();
+        if (type != null) {
+            IProperty property = type.getProperty(propertyName);
+            crossRef.setProperty(property);
+        }
 
         // Assemble descriptions.
         StringBuilder labels = null;
@@ -286,13 +291,13 @@ public class FinishProcessor
             ColumnNaming p = pv[i];
             if (f.propertyName.endsWith(p.ucfirstPropertyName)) {
                 String head = f.propertyName.substring(0, f.propertyName.length() - p.propertyName.length());
-                if (! head.equals(property))
+                if (! head.equals(propertyName))
                     throw new UnexpectedException();
             } else {
                 IColumnMetadata column = columns[i];
                 if (column instanceof DefaultColumnMetadata) {
                     DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
-                    String fkFieldProp = property + Strings.ucfirst(p.propertyName);
+                    String fkFieldProp = propertyName + Strings.ucfirst(p.propertyName);
                     String orig = column.getJavaName();
                     if (Nullables.notEquals(orig, fkFieldProp))
                         mutable.setJavaQName(fkFieldProp);

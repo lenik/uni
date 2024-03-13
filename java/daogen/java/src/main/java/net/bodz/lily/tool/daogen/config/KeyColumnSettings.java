@@ -61,7 +61,9 @@ public class KeyColumnSettings
     }
 
     public String getPreferredMultiColumnSqlAlias(CrossReference ref, String[] columns) {
-        return ref.getJavaName();
+        String alias = ref.getPropertyName();
+        // alias =Strings.lcfirst(alias);
+        return alias;
     }
 
     private static final String K_FORMATS_json = "formats"; // json only
@@ -85,7 +87,7 @@ public class KeyColumnSettings
     @Override
     public void jsonOut(IJsonOut out, JsonFormOptions opts)
             throws IOException, FormatException {
-        if (formats != null && !formats.isEmpty()) {
+        if (formats != null && ! formats.isEmpty()) {
             out.key(K_FORMATS_json);
             out.map(formats);
         }

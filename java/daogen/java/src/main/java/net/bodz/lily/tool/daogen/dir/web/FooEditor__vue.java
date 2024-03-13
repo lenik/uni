@@ -358,7 +358,7 @@ public class FooEditor__vue
     }
 
     void fkRow(TypeScriptWriter out, CrossReference xref, IProperty property) {
-        String propertyName = xref.getJavaName(); // property.getName();
+        String propertyName = xref.getPropertyName();
         String className = xref.getParentTable().getJavaType().getFullName();
 
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
@@ -380,7 +380,7 @@ public class FooEditor__vue
 
             Attrs attrs = new Attrs();
             attrs.put(":dialog", dialogVar);
-            attrs.put("v-model", "model." + xref.getJavaName());
+            attrs.put("v-model", "model." + propertyName);
             attrs.put("v-model:id", "model." + propertyName + "Id");
 
             String xml = attrs.toXml(out.im.name(//

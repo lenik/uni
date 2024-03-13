@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
@@ -18,10 +19,12 @@ import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
+import net.bodz.lily.entity.esm.DTColumn;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__vue;
 import net.bodz.lily.tool.daogen.util.Attrs;
+import net.bodz.lily.tool.daogen.util.DTColumnConfig;
 
 public abstract class DTDriven__vue
         extends JavaGen__vue {
@@ -108,28 +111,50 @@ public abstract class DTDriven__vue
         String description = column.getDescription();
 
         IProperty property = column.getProperty();
-        Type type = property.getPropertyGenericType();
-        if (type instanceof TypeVariable<?>)
-            type = property.getPropertyClass();
 
-        String typeInfo = typeInfoResolver() //
-                .property(property.getName()) //
-                .resolveGeneric(type);
-        String typeInfoKey = addTypeInfo(typeInfo);
+        DTColumn _aColumn = property.getAnnotation(DTColumn.class);
+        DTColumnConfig dtColumn = new DTColumnConfig().parse(_aColumn);
+
+        String typeKey;
+        if (dtColumn.dataType != null)
+            typeKey = dtColumn.dataType;
+        else {
+            Type type = property.getPropertyGenericType();
+            if (type instanceof TypeVariable<?>)
+                type = property.getPropertyClass();
+
+            String typeInfo = typeInfoResolver() //
+                    .property(property.getName()) //
+                    .resolveGeneric(type);
+
+            typeKey = addTypeInfo(typeInfo);
+        }
 
         Attrs a = new Attrs();
-        a.put("data-type", typeInfoKey);
+        Set<String> classList = dtColumn.classList();
+        if (! classList.isEmpty())
+            a.put("class", StringArray.join(" ", classList));
+
+        a.put("data-type", typeKey);
         a.put("data-field", cname.propertyName);
+
+        if (dtColumn.dataFormat != null)
+            a.put("data-format", dtColumn.dataFormat);
+
+        if (dtColumn.dataRender != null)
+            a.put("data-render", dtColumn.dataRender);
+
         if (description != null)
             a.put("title", description);
 
         out.print(a.toXml("th"));
         out.print(label);
         out.println("</th>");
+
     }
 
     public void declFKColumn(TypeScriptWriter out, CrossReference xref) {
-        String propertyName = xref.getJavaName();
+        String propertyName = xref.getPropertyName();
         String label = xref.getLabel();
         String description = xref.getDescription();
         if (label == null)
@@ -137,16 +162,36 @@ public abstract class DTDriven__vue
         if (label == null)
             label = labelFromProperty(propertyName);
 
-        QualifiedName type = xref.getParentTable().getJavaType();
-        String typeInfo = typeInfoResolver()//
-                .property(propertyName)//
-                .resolve(type);
-        String typeInfoKey = addTypeInfo(typeInfo);
+        IProperty property = xref.getProperty();
+        DTColumn _aColumn = property.getAnnotation(DTColumn.class);
+        DTColumnConfig dtColumn = new DTColumnConfig().parse(_aColumn);
+
+        String typeKey;
+        if (dtColumn.dataType != null)
+            typeKey = dtColumn.dataType;
+        else {
+            QualifiedName type = xref.getParentTable().getJavaType();
+            String typeInfo = typeInfoResolver()//
+                    .property(propertyName)//
+                    .resolve(type);
+            typeKey = addTypeInfo(typeInfo);
+        }
 
         Attrs a = new Attrs();
-        a.put("data-type", typeInfoKey);
+
+        Set<String> classList = dtColumn.classList();
+        if (! classList.isEmpty())
+            a.put("class", StringArray.join(" ", classList));
+
+        a.put("data-type", typeKey);
         a.put("data-format", "label");
         a.put("data-field", propertyName);
+
+        if (dtColumn.dataFormat != null)
+            a.put("data-format", dtColumn.dataFormat);
+
+        if (dtColumn.dataRender != null)
+            a.put("data-render", dtColumn.dataRender);
 
         out.print(a.toXml("th"));
         out.print(label);

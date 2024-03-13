@@ -495,7 +495,7 @@ public class MiscTemplates {
         if (parentType == null)
             throw new NullPointerException("parentType");
 
-        String property = xref.getJavaName();
+        String property = xref.getPropertyName();
 
         out.print(out.im.name(parentType) + " " + property);
         out.println(";");
@@ -544,7 +544,7 @@ public class MiscTemplates {
         if (parentType == null)
             throw new NullPointerException("parentType");
 
-        String property = xref.getJavaName();
+        String property = xref.getPropertyName();
         String Property = Strings.ucfirst(property);
 
         out.printf("public %s get%s()", //
@@ -583,7 +583,7 @@ public class MiscTemplates {
         boolean notNull = ! column.isNullable(true);
         String isOrGet = boolean.class == returnType ? "is" : "get";
 
-        String refFieldName = xref.getJavaName();
+        String refFieldName = xref.getPropertyName();
 
         boolean parentNullable = parentColumn.isNullable(false);
         if (parentNullable == false) {

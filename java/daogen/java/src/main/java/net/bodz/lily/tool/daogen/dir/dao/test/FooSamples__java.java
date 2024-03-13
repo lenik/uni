@@ -99,9 +99,9 @@ public class FooSamples__java
             CrossReference xref = table.getForeignKeys().get(fkName);
             if (xref.isCompositeProperty())
                 continue;
-            String parentClassName = xref.getParentTable().getJavaType().getFullName();
+            QualifiedName parentClass = xref.getParentTable().getJavaType();
             out.printf("public %s %s;\n", //
-                    out.im.name(parentClassName), xref.getJavaName());
+                    out.im.name(parentClass), xref.getPropertyName());
             for (IColumnMetadata foreignColumn : xref.getForeignColumns())
                 columns.remove(foreignColumn);
         }
@@ -124,7 +124,6 @@ public class FooSamples__java
     }
 
     void mtdBuild(JavaSourceWriter out, ITableMetadata table, List<IColumnMetadata> columns) {
-        IType entityType = table.getPotatoType();
         Set<String> compositeHeads = templates.getCompositeHeads(table);
 
         out.println("@Override");
@@ -143,26 +142,22 @@ public class FooSamples__java
                     continue;
 
                 String setterName;
-                if (entityType != null) {
-                    IProperty refProperty = entityType.getProperty(xref.getJavaName());
-                    if (refProperty == null) {
-                        logger.warn("no property for xref " + fkName);
-                        continue;
-                    }
-
+                IProperty refProperty = xref.getProperty();
+                if (refProperty != null) {
                     BeanProperty bp = (BeanProperty) refProperty;
                     Method setter = bp.getPropertyDescriptor().getWriteMethod();
                     setterName = setter.getName();
                 } else {
-                    String property = xref.getJavaName();
+                    String property = xref.getPropertyName();
                     setterName = "set" + Strings.ucfirst(property);
                 }
 
                 out.printf("a.%s(%s);\n", //
                         setterName, //
-                        xref.getJavaName());
+                        xref.getPropertyName());
             }
 
+            IType entityType = table.getPotatoType();
             for (IColumnMetadata column : columns) {
                 if (column.isExcluded()) // mixin?
                     continue;
@@ -224,7 +219,7 @@ public class FooSamples__java
                     parentMapperName = parentClassName.packageName + ".dao." + parentClassName.name + "Mapper";
                 }
 
-                String templateField = xref.getJavaName();
+                String templateField = xref.getPropertyName();
 
                 // TODO need to update all entity classes before using TABLE_NAME.
                 // String parentClass = xref.getParentTable().getJavaQName();

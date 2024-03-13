@@ -277,13 +277,14 @@ public class FooType0__ts
                 break;
             }
 
-        String property = xref.getJavaName();
+        String property = xref.getPropertyName();
 
         QualifiedName parentType = parentTable.getJavaType();
         if (parentType == null)
             throw new NullPointerException("parentType");
 
-        String parentTsTypeInfo = typeInfoResolver().property(property)//
+        String parentTsTypeInfo = typeInfoResolver()//
+                .property(property)//
                 .resolve(parentType);
 
         if (table.getJavaType().equals(parentType))

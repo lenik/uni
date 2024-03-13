@@ -111,7 +111,7 @@ public class VFooMapper__xml
                 String nsPrefix = defaultNs ? "" : (mapperNs + ".");
 
                 out.printf("<association property=\"%s\" columnPrefix=\"%s\"\n", //
-                        ref.getJavaQName(), // property
+                        ref.getPropertyName(), // property
                         alias + "_" // columnPrefix
                 );
                 out.printf("    javaType=\"%s\" \n", ref.getParentTable().getJavaType());

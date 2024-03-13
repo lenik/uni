@@ -148,7 +148,7 @@ public class Foo0__ts
         if (parentType == null)
             throw new NullPointerException("parentType");
 
-        String property = xref.getJavaName();
+        String property = xref.getPropertyName();
 
         out.print(property);
         if (! anyNotNull)
