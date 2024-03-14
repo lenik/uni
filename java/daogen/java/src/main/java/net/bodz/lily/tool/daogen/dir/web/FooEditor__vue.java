@@ -268,90 +268,12 @@ public class FooEditor__vue
         String propertyName = cname.propertyName;
         String propertyModel = "model." + propertyName;
 
-        Class<?> type = column.getJavaClass();
-        String tsType = typeResolver().importAsType()//
-                .property(property.getName())//
-                .resolveClass(type);
-
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"%s\">\n", //
                 propertyName, //
                 propertyModel);
-
-        out.enter();
         {
-            Attrs inputAttrs = new Attrs();
-            switch (tsType) {
-            case "number":
-            case "byte":
-            case "short":
-            case "int":
-            case "long":
-            case "float":
-            case "double":
-                inputAttrs.put("type", "number");
-                break;
-
-            case "BigDecimal":
-            case "BigInteger":
-                inputAttrs.put("type", "number");
-                break;
-
-            case "boolean":
-                inputAttrs.put("type", "checkbox");
-                break;
-            case "string":
-            case "InetAddress":
-                inputAttrs.put("type", "text");
-                break;
-
-            case "JavaDate":
-            case "SQLDate":
-            case "Timestamp":
-
-            case "LocalDate":
-            case "LocalTime":
-            case "OffsetTime":
-            case "Instant":
-            case "LocalDateTime":
-            case "ZonedDateTime":
-            case "OffsetDateTime":
-                out.printf("<%s v-model=\"%s\" />\n", //
-                        out.importName(EsmModules.core.DateTime), //
-                        propertyModel);
-                break;
-
-            case "JsonVariant":
-                out.printf("<%s v-model=\"%s\" />\n", //
-                        out.importName(EsmModules.core.JsonEditor), //
-                        propertyModel);
-                break;
-            }
-
-            if (! inputAttrs.isEmpty()) {
-                switch (tsType) {
-                default:
-                    inputAttrs.put("v-model", propertyModel);
-                }
-                String xml = inputAttrs.toXml("input", true);
-                out.println(xml);
-
-            } else if (type.isEnum()) {
-                @SuppressWarnings("unchecked")
-                Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
-                selectOptions(out, propertyName, enumMap(enumType));
-
-            } else if (Predef.class.isAssignableFrom(type)) {
-                @SuppressWarnings("unchecked")
-                Class<? extends Predef<?, ?>> predefType = (Class<? extends Predef<?, ?>>) type;
-                selectOptions(out, propertyName, _predefMap(predefType));
-
-                // } else if (CoCategory.class.isAssignableFrom(type)) {
-
-            } else {
-                logger.errorf("undefined input type(%s) for property %s.", //
-                        type, propertyName);
-            }
-
+            out.enter();
+            editControl(out, column, property);
             out.leave();
         }
         out.println("</FieldRow>");
@@ -359,37 +281,125 @@ public class FooEditor__vue
 
     void fkRow(TypeScriptWriter out, CrossReference xref, IProperty property) {
         String propertyName = xref.getPropertyName();
-        String className = xref.getParentTable().getJavaType().getFullName();
-
         out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //
                 propertyName);
-
-        out.enter();
         {
-
-            QualifiedName qType = QualifiedName.parse(className);
-            QualifiedName qDialogType = qType.nameAdd("ChooseDialog");
-            EsmSource dialogSource = out.packageMap.findSource(qDialogType, "vue", project.Esm_FooEditor.qName);
-            if (dialogSource == null)
-                throw new NullPointerException("can't find source for dialog type " + qDialogType + ", qType=" + qType);
-
-            String dialogVar = Strings.lcfirst(qDialogType.name);
-
-            dialogs.put(dialogVar, dialogSource.defaultExport(qDialogType.name));
-
-            Attrs attrs = new Attrs();
-            attrs.put(":dialog", dialogVar);
-            attrs.put("v-model", "model." + propertyName);
-            attrs.put("v-model:id", "model." + propertyName + "Id");
-
-            String xml = attrs.toXml(out.im.name(//
-                    EsmModules.dba.RefEditor), true);
-            out.println(xml);
-
+            out.enter();
+            refEditor(out, xref, property);
             out.leave();
         }
         out.println("</FieldRow>");
+    }
+
+    void refEditor(TypeScriptWriter out, CrossReference xref, IProperty property) {
+        String propertyName = xref.getPropertyName();
+        String className = xref.getParentTable().getJavaType().getFullName();
+
+        QualifiedName qType = QualifiedName.parse(className);
+        QualifiedName qDialogType = qType.nameAdd("ChooseDialog");
+        EsmSource dialogSource = out.packageMap.findSource(qDialogType, "vue", project.Esm_FooEditor.qName);
+        if (dialogSource == null)
+            throw new NullPointerException("can't find source for dialog type " + qDialogType + ", qType=" + qType);
+
+        String dialogVar = Strings.lcfirst(qDialogType.name);
+        dialogs.put(dialogVar, dialogSource.defaultExport(qDialogType.name));
+
+        Attrs attrs = new Attrs();
+        attrs.put(":dialog", dialogVar);
+        attrs.put("v-model", "model." + propertyName);
+        attrs.put("v-model:id", "model." + propertyName + "Id");
+
+        String xml = attrs.toXml(out.im.name(//
+                EsmModules.dba.RefEditor), true);
+        out.println(xml);
+    }
+
+    void editControl(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
+        ColumnNaming cname = project.naming(column);
+        String propertyName = cname.propertyName;
+        String propertyModel = "model." + propertyName;
+
+        Class<?> type = column.getJavaClass();
+        String tsType = typeResolver().importAsType()//
+                .property(property.getName())//
+                .resolveClass(type);
+
+        Attrs inputAttrs = new Attrs();
+        switch (tsType) {
+        case "number":
+        case "byte":
+        case "short":
+        case "int":
+        case "long":
+        case "float":
+        case "double":
+            inputAttrs.put("type", "number");
+            break;
+
+        case "BigDecimal":
+        case "BigInteger":
+            inputAttrs.put("type", "number");
+            break;
+
+        case "boolean":
+            inputAttrs.put("type", "checkbox");
+            break;
+        case "string":
+        case "InetAddress":
+            inputAttrs.put("type", "text");
+            break;
+
+        case "JavaDate":
+        case "SQLDate":
+        case "Timestamp":
+
+        case "LocalDate":
+        case "LocalTime":
+        case "OffsetTime":
+        case "Instant":
+        case "LocalDateTime":
+        case "ZonedDateTime":
+        case "OffsetDateTime":
+            out.printf("<%s v-model=\"%s\" />\n", //
+                    out.importName(EsmModules.core.DateTime), //
+                    propertyModel);
+            return;
+
+        case "JsonVariant":
+            out.printf("<%s v-model=\"%s\" />\n", //
+                    out.importName(EsmModules.core.JsonEditor), //
+                    propertyModel);
+            return;
+        }
+
+        if (! inputAttrs.isEmpty()) {
+            switch (tsType) {
+            default:
+                inputAttrs.put("v-model", propertyModel);
+            }
+            String xml = inputAttrs.toXml("input", true);
+            out.println(xml);
+            return;
+        }
+
+        if (type.isEnum()) {
+            @SuppressWarnings("unchecked")
+            Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) type;
+            selectOptions(out, propertyName, enumMap(enumType));
+            return;
+        }
+
+        if (Predef.class.isAssignableFrom(type)) {
+            @SuppressWarnings("unchecked")
+            Class<? extends Predef<?, ?>> predefType = (Class<? extends Predef<?, ?>>) type;
+            selectOptions(out, propertyName, _predefMap(predefType));
+            // } else if (CoCategory.class.isAssignableFrom(type)) {
+            return;
+        }
+
+        logger.errorf("undefined input type(%s) for property %s.", //
+                type, propertyName);
     }
 
     void selectOptions(TypeScriptWriter out, String property, Map<?, ?> options) {

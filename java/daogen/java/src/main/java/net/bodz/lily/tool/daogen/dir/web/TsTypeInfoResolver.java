@@ -15,6 +15,8 @@ import net.bodz.bas.t.tuple.QualifiedName;
 public class TsTypeInfoResolver
         extends AbstractTsResolver<TsTypeInfoResolver> {
 
+    boolean dotType = true;
+
     public TsTypeInfoResolver(ITsImporter imports) {
         super(imports);
     }
@@ -83,12 +85,16 @@ public class TsTypeInfoResolver
     String resolveQName(QualifiedName qName) {
         if (qName == null)
             throw new NullPointerException("qName");
-        if (thisType != null) {
-            QualifiedName qName_TypeInfo = qName.append("TypeInfo");
-            if (qName_TypeInfo.equals(thisType))
-                return "this";
-        }
-        return imports.importDefault(qName) + ".TYPE";
+
+        QualifiedName typeInfoName = qName.append("TypeInfo");
+
+        if (thisType != null && thisType.equals(typeInfoName))
+            return "this";
+
+        if (dotType)
+            return imports.importDefault(qName) + ".TYPE";
+        else
+            return imports.importDefault(typeInfoName) + ".INSTANCE";
     }
 
 }
