@@ -292,6 +292,7 @@ if (props.watch) {
 
 .with-description {
     flex: 1;
+    overflow: hidden;
 
     .content {
         display: flex;
