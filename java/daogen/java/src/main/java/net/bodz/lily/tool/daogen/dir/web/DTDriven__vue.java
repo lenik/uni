@@ -13,6 +13,7 @@ import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.codegen.ClassPathInfo;
+import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.t.catalog.CrossReference;
@@ -111,6 +112,8 @@ public abstract class DTDriven__vue
         String description = column.getDescription();
 
         IProperty property = column.getProperty();
+        if (property == null)
+            throw new IllegalUsageException("no property for column " + column.getId());
 
         DTColumn _aColumn = property.getAnnotation(DTColumn.class);
         DTColumnConfig dtColumn = new DTColumnConfig().parse(_aColumn);
@@ -150,7 +153,6 @@ public abstract class DTDriven__vue
         out.print(a.toXml("th"));
         out.print(label);
         out.println("</th>");
-
     }
 
     public void declFKColumn(TypeScriptWriter out, CrossReference xref) {

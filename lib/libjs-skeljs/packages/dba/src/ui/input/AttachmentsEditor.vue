@@ -4,14 +4,9 @@ import { computed, inject, onMounted, ref } from "vue";
 import { int } from "../../../../core/src/lang/basetype";
 import { SERVER_URL } from "../lily/context";
 import Attachment from "@skeljs/core/src/net/bodz/lily/entity/Attachment";
-
 import { beginWait, endWait } from "@skeljs/core/src/skel/waitbox";
-
 import "blueimp-file-upload/css/jquery.fileupload.css";
-import FileUpload from "blueimp-file-upload";
-import { server } from "typescript";
-
-console.log(FileUpload);
+import "blueimp-file-upload";
 
 export interface Props {
     serviceUrl?: string // injectable
@@ -19,6 +14,8 @@ export interface Props {
     //obj?: IHaveAttachments
     id: any
     subDir?: string
+    maxSpeed?: int
+    maxChunkSize?: int
 }
 </script>
 
@@ -28,6 +25,8 @@ import Icon from "@skeljs/core/src/ui/Icon.vue";
 const model = defineModel<Attachment[]>();
 
 const props = withDefaults(defineProps<Props>(), {
+    maxSpeed: 0,
+    maxChunkSize: 0,
 });
 
 const emit = defineEmits<{
@@ -71,7 +70,10 @@ const fileClass = computed(() => {
 
 const serviceUploadUrl = computed(() => {
     let url = realServiceUrl.value;
-    return url + "?class=" + fileClass.value + "/tmp";
+    url += "?class=" + fileClass.value + "/tmp";
+    if (props.maxSpeed != null)
+        url += "&maxSpeed=" + props.maxSpeed;
+    return url;
 });
 
 const indexUrl = computed(() => {
@@ -114,18 +116,19 @@ function setPercent(percent: number) {
 onMounted(() => {
 
     let $input = $(fileInput.value!) as any;
-    $input.fileupload({
+    let fileupload = $input.fileupload({
         dataType: 'json',
+        maxChunkSize: props.maxChunkSize,
         submit: function () {
             setPercent(0);
             $(progressDiv.value!).show();
-            beginWait();
+            // beginWait();
         },
         always: function () {
-            endWait();
+            // endWait();
             $(progressDiv.value!).hide();
         },
-        progress: function (e: JQuery.Event, data) {
+        progressall: function (e: JQuery.Event, data) {
             let percent = Math.floor(data.loaded / data.total * 1000) / 10;
             setPercent(percent);
         },
@@ -144,7 +147,6 @@ onMounted(() => {
             });
         }
     });
-
 });
 </script>
 
@@ -186,6 +188,7 @@ onMounted(() => {
 }
 
 .progress {
+    display: none;
     background: #eee;
     border-radius: 5px;
     border: solid 1px #888;
