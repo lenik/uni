@@ -286,7 +286,6 @@ onMounted(() => {
                     break;
 
                 case 'e':
-                    console.log('open selection');
                     openSelected();
                     break;
                 default:

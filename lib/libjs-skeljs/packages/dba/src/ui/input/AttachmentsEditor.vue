@@ -39,6 +39,7 @@ const rootElement = ref<HTMLElement>();
 const fileInput = ref<HTMLInputElement>();
 const progressDiv = ref<HTMLElement>();
 const completionDiv = ref<HTMLElement>();
+const previewsDiv = ref<HTMLElement>();
 
 const serverUrl = inject<string>(SERVER_URL)!;
 const realServiceUrl = computed(() => {
@@ -113,6 +114,18 @@ function setPercent(percent: number) {
     $comp.css("width", percent + "%");
 }
 
+function scaleMaxSize(elm: HTMLElement, scale: number) {
+    let map = elm.computedStyleMap();
+    let maxWidth = map.get('max-width')!;
+    let maxHeight = map.get('max-height')!;
+    if (maxWidth instanceof CSSNumericValue)
+        maxWidth = maxWidth.mul(scale);
+    if (maxHeight instanceof CSSNumericValue)
+        maxHeight = maxHeight.mul(scale);
+    elm.style.maxWidth = maxWidth.toString();
+    elm.style.maxHeight = maxHeight.toString();
+}
+
 onMounted(() => {
 
     let $input = $(fileInput.value!) as any;
@@ -148,6 +161,24 @@ onMounted(() => {
         }
     });
 });
+
+function onPreviewClick(attachment: Attachment, i: number, e: MouseEvent) {
+    switch (e.button) {
+        case 1:     // middle button
+            remove(i);
+            e.preventDefault();
+            break;
+    }
+}
+
+function onPreviewWheel(attachment: Attachment, i: number, e: WheelEvent) {
+    // console.log(e.deltaMode, e.deltaX, e.deltaY, e.deltaZ);
+    // console.log(WheelEvent.DOM_DELTA_PIXEL, WheelEvent.DOM_DELTA_LINE, WheelEvent.DOM_DELTA_PAGE);
+    let scale = -Math.round(e.deltaY * 0.01);
+    scale = 1 + scale * 0.1;
+    scaleMaxSize(e.target as HTMLElement, scale);
+    e.preventDefault();
+}
 </script>
 
 <template>
@@ -159,8 +190,10 @@ onMounted(() => {
                 <div class="completion" ref="completionDiv">0%</div>
             </div>
         </div>
-        <ul class="previews" v-if="model != null">
-            <li v-for="(attachment, i) in model" :key="i" @contextmenu.prevent="remove(i)">
+        <ul class="previews" v-if="model != null" ref="previewsDiv">
+            <li v-for="(attachment, i) in model" :key="i"
+                @mousedown="(e: MouseEvent) => onPreviewClick(attachment, i, e)"
+                @wheel="(e: WheelEvent) => onPreviewWheel(attachment, i, e)">
                 <img :src="url(attachment, id)">
                 <div class="caption">{{ attachment.name }}
                     <Icon name="far-trash" @click="remove(i)" />
