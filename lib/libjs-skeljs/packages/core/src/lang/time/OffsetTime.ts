@@ -1,6 +1,7 @@
 import MomentWrapper, { ZoneOffset, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
+import { ISO_OFFSET_TIME } from "./formats";
 
 export class OffsetTimeType extends MomentWrapperType<OffsetTime>{
 
@@ -17,11 +18,7 @@ export class OffsetTimeType extends MomentWrapperType<OffsetTime>{
 export class OffsetTime extends MomentWrapper {
 
     static readonly TYPE = new OffsetTimeType();
-
-    static HH_MM_SS_Z = 'HH:mm:ssZ';
-    static HHMMSS_Z = 'hhmmssZ';
-    static ISO_OFFSET_TIME = this.HH_MM_SS_Z;
-    static DEFAULT_FORMAT = this.ISO_OFFSET_TIME;
+    static readonly DEFAULT_FORMAT = ISO_OFFSET_TIME;
 
     constructor(offset?: ZoneOffset, inp?: moment.MomentInput, format?: string) {
         super(format || OffsetTime.DEFAULT_FORMAT, inp);

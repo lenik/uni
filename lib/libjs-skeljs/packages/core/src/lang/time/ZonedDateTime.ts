@@ -1,6 +1,7 @@
 import MomentWrapper, { ZoneId, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
+import { ISO_ZONED_DATE_TIME } from "./formats";
 
 export class ZonedDateTimeType extends MomentWrapperType<ZonedDateTime>{
 
@@ -17,10 +18,7 @@ export class ZonedDateTimeType extends MomentWrapperType<ZonedDateTime>{
 export class ZonedDateTime extends MomentWrapper {
 
     static readonly TYPE = new ZonedDateTimeType();
-
-    static DATE_TIME = 'YYYY-MM-DD HH:mm:ss Z';
-    static ISO_ZONED_DATE_TIME = 'YYYY-MM-DDTHH:mm:ssZ';
-    static DEFAULT_FORMAT = this.ISO_ZONED_DATE_TIME;
+    static readonly DEFAULT_FORMAT = ISO_ZONED_DATE_TIME;
 
     constructor(tz?: ZoneId, inp?: moment.MomentInput, format?: string) {
         super(format || ZonedDateTime.DEFAULT_FORMAT, inp);

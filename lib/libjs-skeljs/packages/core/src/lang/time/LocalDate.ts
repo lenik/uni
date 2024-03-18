@@ -1,6 +1,7 @@
 import MomentWrapper from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
+import { ISO_LOCAL_DATE } from "./formats";
 
 export class LocalDateType extends MomentWrapperType<LocalDate>{
 
@@ -17,13 +18,7 @@ export class LocalDateType extends MomentWrapperType<LocalDate>{
 export class LocalDate extends MomentWrapper {
 
     static readonly TYPE = new LocalDateType();
-
-    static YYYY_MM_DD = 'YYYY-MM-DD';
-    static YY_MM_DD = 'YY-MM-DD';
-    static YYYYMMDD = 'YYYYMMDD';
-    static YYMMDD = 'YYMMDD';
-    static ISO_LOCAL_DATE = this.YYYY_MM_DD;
-    static DEFAULT_FORMAT = this.ISO_LOCAL_DATE;
+    static DEFAULT_FORMAT = ISO_LOCAL_DATE;
 
     constructor(inp?: moment.MomentInput, format?: string) {
         super(format || LocalDate.DEFAULT_FORMAT, inp);

@@ -1,7 +1,7 @@
 import MomentWrapper, { ZoneOffset, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
-
 import Instant from "./Instant";
+import { ISO_OFFSET_DATE_TIME } from "./formats";
 
 export class OffsetDateTimeType extends MomentWrapperType<OffsetDateTime>{
 
@@ -18,10 +18,7 @@ export class OffsetDateTimeType extends MomentWrapperType<OffsetDateTime>{
 export class OffsetDateTime extends MomentWrapper {
 
     static readonly TYPE = new OffsetDateTimeType();
-
-    static DATE_TIME = 'YYYY-MM-DD HH:mm:ss Z';
-    static ISO_LOCAL_DATE_TIME = 'YYYY-MM-DDTHH:mm:ssZ';
-    static DEFAULT_FORMAT = this.ISO_LOCAL_DATE_TIME;
+    static readonly DEFAULT_FORMAT = ISO_OFFSET_DATE_TIME;
 
     constructor(offset?: ZoneOffset, inp?: moment.MomentInput, format?: string) {
         super(format || OffsetDateTime.DEFAULT_FORMAT, inp);
