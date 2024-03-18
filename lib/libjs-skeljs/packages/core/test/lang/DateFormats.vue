@@ -89,12 +89,14 @@ onMounted(() => {
             <thead>
                 <tr>
                     <th class="corner diagonalFalling">Date <br> Format</th>
+                    <th>toString()</th>
                     <th v-for="(f, name) in formats" :key="i"> {{ name }} </th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(d, k) in dates" :key="k">
                     <th>{{ k }}</th>
+                    <td> {{ d.toString() }} </td>
                     <td v-for="(f, name) in formats" :key="name"> {{ d.format(f) }} </td>
                 </tr>
             </tbody>
@@ -150,6 +152,7 @@ table {
 
     td {
         font-weight: 300;
+        white-space: nowrap;
     }
 }
 </style>

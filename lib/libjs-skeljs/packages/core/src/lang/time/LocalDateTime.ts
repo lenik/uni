@@ -1,7 +1,7 @@
 import MomentWrapper from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
-import { ISO_LOCAL_DATE_TIME } from "./formats";
+import { ISO_LOCAL_DATE_TIME, UI_DATE_TIME } from "./formats";
 
 export class LocalDateTimeType extends MomentWrapperType<LocalDateTime>{
 
@@ -59,17 +59,17 @@ export class LocalDateTime extends MomentWrapper {
     }
 
     get isoFormat() {
-        return this.format(LocalDateTime.ISO_LOCAL_DATE_TIME);
+        return this.format(ISO_LOCAL_DATE_TIME);
     }
     set isoFormat(val: string) {
-        this.parse(LocalDateTime.ISO_LOCAL_DATE_TIME, val);
+        this.parse(ISO_LOCAL_DATE_TIME, val);
     }
 
-    get date_time() {
-        return this.format(LocalDateTime.DATE_TIME);
+    get uiFormat() {
+        return this.format(UI_DATE_TIME);
     }
-    set date_time(val: string) {
-        this.parse(LocalDateTime.DATE_TIME, val);
+    set uiFormat(val: string) {
+        this.parse(UI_DATE_TIME, val);
     }
 
 }

@@ -1,7 +1,7 @@
 import MomentWrapper from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
-import { ISO_LOCAL_DATE } from "./formats";
+import { ISO_LOCAL_DATE, UI_DATE, YYMMDD, YYYYMMDD, YY_MM_DD } from "./formats";
 
 export class LocalDateType extends MomentWrapperType<LocalDate>{
 
@@ -55,43 +55,43 @@ export class LocalDate extends MomentWrapper {
     }
 
     get isoFormat() {
-        return this.format(LocalDate.ISO_LOCAL_DATE);
+        return this.format(ISO_LOCAL_DATE);
     }
 
     set isoFormat(s: string) {
-        this.parse(s, LocalDate.ISO_LOCAL_DATE);
+        this.parse(s, ISO_LOCAL_DATE);
     }
 
-    get yyyy_mm_dd() {
-        return this.format(LocalDate.DEFAULT_FORMAT);
+    get uiFormat() {
+        return this.format(UI_DATE);
     }
 
-    set yyyy_mm_dd(s: string) {
-        this.parse(s, LocalDate.DEFAULT_FORMAT);
+    set uiFormat(s: string) {
+        this.parse(s, UI_DATE);
     }
 
     get yy_mm_dd() {
-        return this.format(LocalDate.YY_MM_DD);
+        return this.format(YY_MM_DD);
     }
 
     set yy_mm_dd(s: string) {
-        this.parse(s, LocalDate.YY_MM_DD);
+        this.parse(s, YY_MM_DD);
     }
 
     get yyyymmdd() {
-        return this.format(LocalDate.YYYYMMDD);
+        return this.format(YYYYMMDD);
     }
 
     set yyyymmdd(s: string) {
-        this.parse(s, LocalDate.YYYYMMDD);
+        this.parse(s, YYYYMMDD);
     }
 
     get yymmdd() {
-        return this.format(LocalDate.YYMMDD);
+        return this.format(YYMMDD);
     }
 
     set yymmdd(s: string) {
-        this.parse(s, LocalDate.YYMMDD);
+        this.parse(s, YYMMDD);
     }
 
 }

@@ -1,7 +1,7 @@
 import MomentWrapper, { ZoneId, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
-import { ISO_ZONED_DATE_TIME } from "./formats";
+import { ISO_ZONED_DATE_TIME, UI_DATE_TIME } from "./formats";
 
 export class ZonedDateTimeType extends MomentWrapperType<ZonedDateTime>{
 
@@ -64,17 +64,17 @@ export class ZonedDateTime extends MomentWrapper {
     }
 
     get isoFormat() {
-        return this.format(ZonedDateTime.ISO_ZONED_DATE_TIME);
+        return this.format(ISO_ZONED_DATE_TIME);
     }
     set isoFormat(val: string) {
-        this.parse(ZonedDateTime.ISO_ZONED_DATE_TIME, val);
+        this.parse(ISO_ZONED_DATE_TIME, val);
     }
 
-    get date_time() {
-        return this.format(ZonedDateTime.DATE_TIME);
+    get uiFormat() {
+        return this.format(UI_DATE_TIME);
     }
-    set date_time(val: string) {
-        this.parse(ZonedDateTime.DATE_TIME, val);
+    set uiFormat(val: string) {
+        this.parse(UI_DATE_TIME, val);
     }
 
 }

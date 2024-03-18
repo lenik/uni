@@ -9,18 +9,18 @@ export const ISO_ZONED_DATE_TIME = "YYYY-MM-DDTHH:mm:ssZ";
 export const UI_DATE = 'YYYY-MM-DD';
 export const UI_TIME = 'HH:mm:ss';
 export const UI_DATE_TIME = 'YYYY-MM-DD HH:mm:ss';
-export const UI_OFFSET_DATE_TIME = "YYYY-MM-DD HH:mm:ss Z";
-export const UI_OFFSET_TIME = "HH:mm:ss Z";
-export const UI_ZONED_DATE_TIME = 'YYYY-MM-DD HH:mm:ss Z';
+export const UI_OFFSET_DATE_TIME = "YYYY-MM-DD HH:mm:ssZ";
+export const UI_OFFSET_TIME = "HH:mm:ssZ";
+export const UI_ZONED_DATE_TIME = 'YYYY-MM-DD HH:mm:ssZ';
 
 export const YYYY_MM_DD = 'YYYY-MM-DD';
 export const YY_MM_DD = 'YY-MM-DD';
 export const YYYYMMDD = 'YYYYMMDD';
 export const YYMMDD = 'YYMMDD';
 export const HH_MM_SS = 'HH:mm:ss';
-export const HHMMSS = 'hhmmss';
-export const HH_MM_SS_Z = 'HH:mm:ss Z';
-export const HHMMSS_Z = 'hhmmss Z';
+export const HHMMSS = 'HHmmss';
+export const HH_MM_SS_Z = 'HH:mm:ssZ';
+export const HHMMSS_Z = 'HHmmssZ';
 
 export const formats = {
     ISO_LOCAL_DATE_TIME: ISO_LOCAL_DATE_TIME,

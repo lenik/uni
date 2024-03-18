@@ -1,7 +1,7 @@
 import MomentWrapper from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
-import { ISO_LOCAL_TIME } from "./formats";
+import { HHMMSS, ISO_LOCAL_TIME, UI_TIME } from "./formats";
 
 export class LocalTimeType extends MomentWrapperType<LocalTime>{
 
@@ -61,27 +61,27 @@ export class LocalTime extends MomentWrapper {
     }
 
     get isoFormat() {
-        return this.format(LocalTime.ISO_LOCAL_TIME);
+        return this.format(ISO_LOCAL_TIME);
     }
 
     set isoFormat(val: string) {
-        this.parse(LocalTime.ISO_LOCAL_TIME, val);
+        this.parse(ISO_LOCAL_TIME, val);
     }
 
-    get hh_mm_ss() {
-        return this.format(LocalTime.HH_MM_SS);
+    get uiFormat() {
+        return this.format(UI_TIME);
     }
 
-    set hh_mm_ss(s: string) {
-        this.parse(s, LocalTime.HH_MM_SS);
+    set uiFormat(s: string) {
+        this.parse(s, UI_TIME);
     }
 
     get hhmmss() {
-        return this.format(LocalTime.HHMMSS);
+        return this.format(HHMMSS);
     }
 
     set hhmmss(s: string) {
-        this.parse(s, LocalTime.HHMMSS);
+        this.parse(s, HHMMSS);
     }
 
 }

@@ -1,7 +1,7 @@
 import MomentWrapper, { ZoneOffset, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
-import { ISO_OFFSET_TIME } from "./formats";
+import { HHMMSS_Z, ISO_OFFSET_TIME, UI_OFFSET_TIME } from "./formats";
 
 export class OffsetTimeType extends MomentWrapperType<OffsetTime>{
 
@@ -63,27 +63,27 @@ export class OffsetTime extends MomentWrapper {
     }
 
     get isoFormat() {
-        return this.format(OffsetTime.ISO_OFFSET_TIME);
+        return this.format(ISO_OFFSET_TIME);
     }
 
     set isoFormat(val: string) {
-        this.parse(OffsetTime.ISO_OFFSET_TIME, val);
+        this.parse(ISO_OFFSET_TIME, val);
     }
 
-    get hh_mm_ss_z() {
-        return this.format(OffsetTime.HH_MM_SS_Z);
+    get uiFormat() {
+        return this.format(UI_OFFSET_TIME);
     }
 
-    set hh_mm_ss_z(s: string) {
-        this.parse(s, OffsetTime.HH_MM_SS_Z);
+    set uiFormat(s: string) {
+        this.parse(s, UI_OFFSET_TIME);
     }
 
     get hhmmss_z() {
-        return this.format(OffsetTime.HHMMSS_Z);
+        return this.format(HHMMSS_Z);
     }
 
     set hhmmss_z(s: string) {
-        this.parse(s, OffsetTime.HHMMSS_Z);
+        this.parse(s, HHMMSS_Z);
     }
 
 }
