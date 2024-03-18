@@ -88,7 +88,7 @@ public class LoopRunner
 
     void printSep() {
         int cols = getColumns();
-        String time = Dates.LOCAL_DATE_TIME.format(System.currentTimeMillis());
+        String time = Dates.ISO_LOCAL_DATE_TIME.format(System.currentTimeMillis());
         String lastDuration = Dates.HH_MM_SS_MS.format(this.lastDuration);
         String label = String.format("_%d_ %s ^ %s", ++iteration, time, lastDuration);
         int n = label.length();
