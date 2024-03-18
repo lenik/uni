@@ -40,6 +40,7 @@ export class MomentWrapper {
     }
 
     format(fmt?: string) {
+        console.log('fmt');
         return this.momentConst.format(fmt || this.defaultFormat);
     }
 

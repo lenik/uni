@@ -148,6 +148,7 @@ function openSelected() {
 
     $.ajax(fetchUrl).done((data) => {
         let wired = wireUp(data.data);
+        console.log(wired);
         model.value = data.data;
         editorDialog.value?.open(saveSelected);
     });
