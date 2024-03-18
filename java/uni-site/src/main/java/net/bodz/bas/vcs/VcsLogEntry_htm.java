@@ -2,7 +2,7 @@ package net.bodz.bas.vcs;
 
 import java.io.IOException;
 
-import net.bodz.bas.c.java.util.Dates;
+import net.bodz.bas.c.java.util.DateTimes;
 import net.bodz.bas.html.io.IHtmlOut;
 import net.bodz.bas.html.io.tag.HtmlLi;
 import net.bodz.bas.html.io.tag.HtmlPre;
@@ -35,7 +35,7 @@ public class VcsLogEntry_htm
 
         out.div().text("Version: " + ent.getVersion());
         out.div().text("Author: " + ent.getAuthorName());
-        out.div().text("Date: " + Dates.D10T8.format(ent.getAuthorDate().getTime()));
+        out.div().text("Date: " + DateTimes.ISO_ZONED_DATE_TIME.format(ent.getAuthorDate()));
 
         HtmlUl ul = out.ul();
         for (IFileChangement change : ent.getChanges()) {

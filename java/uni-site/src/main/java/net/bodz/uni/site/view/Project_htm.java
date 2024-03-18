@@ -70,7 +70,7 @@ public class Project_htm
         for (DownloadItem item : project.getDownloadItems()) {
             HtmlLi li = panel.li();
             li.a().href(item.href).text(item.filename);
-            li.text(" (" + item.fileSize + " bytes, " + Dates.YYYY_MM_DD.format(item.lastModified) + ")");
+            li.text(" (" + item.fileSize + " bytes, " + Dates.ISO_LOCAL_DATE.format(item.lastModified) + ")");
         }
 
         out.h2().text("Comments");
@@ -90,7 +90,7 @@ public class Project_htm
                 /** @see VcsLogEntryVbo */
                 li.a().class_("subject").href("logs/" + ent.getVersion()).text(subject);
 
-                long relativeTime = ent.getAuthorDate().getTimeInMillis() - System.currentTimeMillis();
+                long relativeTime = ent.getAuthorDate().toInstant().toEpochMilli() - System.currentTimeMillis();
                 String relativeTimeStr = RelativeTimeFormatter.getInstance()._format(relativeTime);
                 li.span().class_("date").text("(" + relativeTimeStr + ")");
             }

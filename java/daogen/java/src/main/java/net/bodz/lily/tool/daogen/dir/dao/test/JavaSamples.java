@@ -105,11 +105,11 @@ public class JavaSamples
             formatName = "ISO8601";
             break;
         case TypeId.LOCAL_DATE:
-            formatter = DateTimes.YYYY_MM_DD;
+            formatter = DateTimes.ISO_LOCAL_DATE;
             formatName = "YYYY_MM_DD";
             break;
         case TypeId.LOCAL_TIME:
-            formatter = DateTimes.HH_MM_SS;
+            formatter = DateTimes.ISO_LOCAL_TIME;
             formatName = "HH_MM_SS";
             break;
         default:

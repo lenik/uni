@@ -13,9 +13,10 @@ public class LocalDateTimeType
 
     static final Map<String, DateTimeFormatter> formats = new LinkedHashMap<>();
     {
-        formats.put("D10T8", DateTimes.D10T8);
-        formats.put("YYYY_MM_DD", DateTimes.YYYY_MM_DD);
-        formats.put("YY_MM_DD", DateTimes.YY_MM_DD);
+        formats.put("LOCAL_DATE_TIME", DateTimes.ISO_LOCAL_DATE_TIME);
+        formats.put("LOCAL_DATE", DateTimes.ISO_LOCAL_DATE);
+//        formats.put("D10T8", DateTimes.D10T8);
+//        formats.put("YY_MM_DD", DateTimes.YY_MM_DD);
     }
 
     LocalDateTime min;
