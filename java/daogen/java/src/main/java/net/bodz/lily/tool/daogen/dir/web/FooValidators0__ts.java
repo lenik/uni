@@ -92,7 +92,7 @@ public class FooValidators0__ts
                 .importAsType().resolve(javaType);
 
         out.printf("validate%s(val: %s) {\n", //
-                cname.ucfirstPropertyName, //
+                cname.capPropertyName, //
                 tsType);
         out.println("}");
     }

@@ -40,7 +40,7 @@ public class VFooMapper__xml
         out.println("PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\"");
         out.println("\"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">");
 
-        out.println("<mapper namespace=\"" + project.FooMapper + "\">");
+        out.println("<mapper namespace=\"" + project.FooMapper.qName + "\">");
         out.enter();
         {
             out.println();
@@ -107,7 +107,7 @@ public class VFooMapper__xml
                 ITableMetadata parent = ref.getParentTable();
 
                 String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaType().getFullName());
-                boolean defaultNs = mapperNs.equals(project.FooMapper.fullName);
+                boolean defaultNs = mapperNs.equals(project.FooMapper.qName.getFullName());
                 String nsPrefix = defaultNs ? "" : (mapperNs + ".");
 
                 out.printf("<association property=\"%s\" columnPrefix=\"%s\"\n", //

@@ -23,11 +23,9 @@ import net.bodz.bas.t.catalog.DefaultColumnMetadata;
 import net.bodz.bas.t.catalog.DefaultTableMetadata;
 import net.bodz.bas.t.catalog.ICatalogVisitor;
 import net.bodz.bas.t.catalog.IColumnMetadata;
-import net.bodz.bas.t.catalog.ISchemaMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
-import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.concrete.CoEntity;
 import net.bodz.lily.concrete.StructRow;
@@ -51,31 +49,8 @@ public class FinishProcessor
     public void endTableOrView(ITableMetadata table) {
         if (table instanceof DefaultTableMetadata) {
             DefaultTableMetadata mutable = (DefaultTableMetadata) table;
-            setDefaultClassName(mutable);
             excludeInheritedColumns(mutable);
             bindProperties(mutable);
-        }
-    }
-
-    void setDefaultClassName(DefaultTableMetadata table) {
-        QualifiedName qName = table.getJavaType();
-        String packageName = config.defaultPackageName;
-        String simpleName;
-
-        if (qName != null) {
-            if (qName.packageName == null) {
-                qName = qName.packageName(packageName);
-                table.setJavaType(qName);
-            }
-        } else {
-            ISchemaMetadata schema = table.getParent();
-
-            QualifiedName schemaQName = schema.getJavaQName();
-            if (schemaQName != null)
-                packageName += "." + schemaQName;
-
-            simpleName = Phrase.foo_bar(table.getId().getTableName()).FooBar;
-            table.setJavaType(packageName, simpleName);
         }
     }
 
@@ -175,14 +150,14 @@ public class FinishProcessor
     };
 
     @Override
-    public void foreignKey(ITableMetadata table, CrossReference crossRef) {
-        IColumnMetadata[] columns = crossRef.getForeignKey().resolve(table);
-        int n = columns.length;
+    public void foreignKey(ITableMetadata fTable, CrossReference crossRef) {
+        IColumnMetadata[] fColumns = crossRef.getForeignKey().resolve(fTable);
+        int n = fColumns.length;
 
         TableKey parentKey = crossRef.getParentKey();
         TableOid parentOid = parentKey.getId();
 
-        ITableMetadata parentTable = table.getCatalog().getTable(parentOid);
+        ITableMetadata parentTable = fTable.getCatalog().getTable(parentOid);
         if (parentTable == null)
             throw new NullPointerException("parentTable");
         IColumnMetadata[] parentColumns = parentKey.resolve(parentTable);
@@ -193,12 +168,12 @@ public class FinishProcessor
                     "Different column number: foreign key %d, parent key %d", //
                     n, parentColumns.length));
 
-        crossRef.setForeignTable(table);
+        crossRef.setForeignTable(fTable);
         crossRef.setParentTable(parentTable);
-        crossRef.setForeignColumns(columns);
+        crossRef.setForeignColumns(fColumns);
         crossRef.setParentColumns(parentColumns);
 
-        ColumnNaming[] fv = config.naming(columns);
+        ColumnNaming[] fv = config.naming(fColumns);
         ColumnNaming[] pv = config.naming(parentColumns);
 
         String propertyName;
@@ -238,7 +213,7 @@ public class FinishProcessor
         if (propertyName == null) {
             TableName parentName = config.defaultTableName(parentTable);
             for (ColumnNaming f : fv)
-                if (parentName.simpleClassName.endsWith(f.ucfirstPropertyName)) {
+                if (parentName.simpleClassName.endsWith(f.capPropertyName)) {
                     propertyName = f.propertyName;
                     break;
                 }
@@ -253,7 +228,7 @@ public class FinishProcessor
         }
 
         crossRef.setPropertyName(propertyName);
-        IType type = table.getPotatoType();
+        IType type = fTable.getPotatoType();
         if (type != null) {
             IProperty property = type.getProperty(propertyName);
             crossRef.setProperty(property);
@@ -262,8 +237,8 @@ public class FinishProcessor
         // Assemble descriptions.
         StringBuilder labels = null;
         StringBuilder descriptions = null;
-        for (IColumnMetadata column : columns) {
-            String label = column.getLabel();
+        for (IColumnMetadata fColumn : fColumns) {
+            String label = fColumn.getLabel();
             if (label != null) {
                 if (labels == null)
                     labels = new StringBuilder();
@@ -271,7 +246,7 @@ public class FinishProcessor
                     labels.append(" | ");
                 labels.append(label);
             }
-            String description = column.getDescription();
+            String description = fColumn.getDescription();
             if (description != null) {
                 if (descriptions == null)
                     descriptions = new StringBuilder();
@@ -285,22 +260,24 @@ public class FinishProcessor
         if (descriptions != null)
             crossRef.setDescription(descriptions.toString());
 
-        // Rename foreign column's java name to xrefProperty_id
+        // Rename foreign column's java name to xrefProperty_id[*]
         for (int i = 0; i < n; i++) {
             ColumnNaming f = fv[i];
             ColumnNaming p = pv[i];
-            if (f.propertyName.endsWith(p.ucfirstPropertyName)) {
+            // f:bar(fooIdA, fooIdB) ends-with p:foo(IdA, IdB)
+            if (f.propertyName.endsWith(p.capPropertyName)) {
+                // foo
                 String head = f.propertyName.substring(0, f.propertyName.length() - p.propertyName.length());
                 if (! head.equals(propertyName))
                     throw new UnexpectedException();
             } else {
-                IColumnMetadata column = columns[i];
-                if (column instanceof DefaultColumnMetadata) {
-                    DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
-                    String fkFieldProp = propertyName + Strings.ucfirst(p.propertyName);
-                    String orig = column.getJavaName();
-                    if (Nullables.notEquals(orig, fkFieldProp))
-                        mutable.setJavaQName(fkFieldProp);
+                DefaultColumnMetadata fColumn = (DefaultColumnMetadata) fColumns[i];
+                // fooIdA
+                String fProperty = propertyName + Strings.ucfirst(p.propertyName);
+                String orig = fColumn.getJavaName();
+                if (Nullables.notEquals(orig, fProperty)) {
+                    fColumn.setJavaQName(fProperty);
+                    fColumn.setJavaNameComplete(true);
                 }
             }
         }

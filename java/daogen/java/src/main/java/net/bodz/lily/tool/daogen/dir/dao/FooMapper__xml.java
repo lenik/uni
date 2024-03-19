@@ -28,7 +28,7 @@ public class FooMapper__xml
         out.println("PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\"");
         out.println("\"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">");
 
-        out.println("<mapper namespace=\"" + project.FooMapper.fullName + "\">");
+        out.println("<mapper namespace=\"" + project.FooMapper.qName + "\">");
         out.enter();
         {
             out.println();

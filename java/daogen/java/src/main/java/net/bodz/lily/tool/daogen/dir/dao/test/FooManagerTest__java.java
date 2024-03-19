@@ -27,9 +27,9 @@ public class FooManagerTest__java
             {
                 out.printf("extends %s<%s, %s, %s> {\n", //
                         out.im.name(AbstractManagerTest.class), //
-                        out.im.name(project.Foo.fullName), //
-                        out.im.name(project.FooMapper.fullName), //
-                        out.im.name(project.FooManager.fullName));
+                        out.im.name(project.Foo.qName), //
+                        out.im.name(project.FooMapper.qName), //
+                        out.im.name(project.FooManager.qName));
                 out.leave();
             }
 

@@ -431,7 +431,7 @@ public class MiscTemplates {
 
         columnGetterHeader(out, column);
         out.printf("public %s %s%s()", //
-                out.im.name(javaType), isOrGet, n.ucfirstPropertyName);
+                out.im.name(javaType), isOrGet, n.capPropertyName);
         if (impl) {
             out.println(" {");
             out.printf("    return %s;\n", n.fieldName);
@@ -442,7 +442,7 @@ public class MiscTemplates {
         out.println();
 
         columnSetterHeader(out, column);
-        out.printf("public void set%s(%s%s value)", n.ucfirstPropertyName, //
+        out.printf("public void set%s(%s%s value)", n.capPropertyName, //
                 (notNull && ! JavaLang.isPrimitive(javaType)) //
                         ? ("@" + out.im.name(NotNull.class) + " ")
                         : "",
@@ -595,7 +595,7 @@ public class MiscTemplates {
 
         columnGetterHeader(out, column);
         out.printf("public synchronized %s %s%s()", //
-                out.im.name(returnType), isOrGet, n.ucfirstPropertyName);
+                out.im.name(returnType), isOrGet, n.capPropertyName);
         if (impl) {
             out.enterln(" {");
             out.printf("if (%s != null)", refFieldName);
@@ -603,11 +603,11 @@ public class MiscTemplates {
             {
                 if (returnType.isPrimitive()) { // non-null
                     if (parentNullable) {
-                        out.printf("if (%s.%s%s() == null)\n", refFieldName, isOrGet, p.ucfirstPropertyName);
+                        out.printf("if (%s.%s%s() == null)\n", refFieldName, isOrGet, p.capPropertyName);
                         out.printf("    return %s;\n", nullDefault(returnType));
                     }
                 }
-                out.printf("return %s.%s%s();\n", refFieldName, isOrGet, p.ucfirstPropertyName);
+                out.printf("return %s.%s%s();\n", refFieldName, isOrGet, p.capPropertyName);
                 out.leaveln("}");
             }
             out.printf("return %s;\n", n.fieldName);
@@ -618,7 +618,7 @@ public class MiscTemplates {
         out.println();
 
         columnSetterHeader(out, column);
-        out.printf("public synchronized void set%s(%s%s value)", n.ucfirstPropertyName, //
+        out.printf("public synchronized void set%s(%s%s value)", n.capPropertyName, //
                 (notNull && ! returnType.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "",
                 out.im.name(returnType));
         if (impl) {

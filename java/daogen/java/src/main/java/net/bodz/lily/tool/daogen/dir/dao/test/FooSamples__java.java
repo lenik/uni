@@ -240,7 +240,7 @@ public class FooSamples__java
 
         out.println("@Override");
         out.printf("public %s buildWired(%s picker)", //
-                out.im.name(project.Foo.fullName), //
+                out.im.name(project.Foo.qName), //
                 out.im.name(IRandomPicker.class));
         out.println(" throws Exception {");
         out.enter();
@@ -308,7 +308,7 @@ public class FooSamples__java
         }
 
         if (javaExpr != null)
-            out.printf("a.set%s(%s);\n", cname.ucfirstPropertyName, javaExpr);
+            out.printf("a.set%s(%s);\n", cname.capPropertyName, javaExpr);
     }
 
     static boolean canWrite(IType type, IColumnMetadata column) {

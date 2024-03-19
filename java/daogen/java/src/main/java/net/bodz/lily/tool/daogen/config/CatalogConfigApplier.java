@@ -3,11 +3,13 @@ package net.bodz.lily.tool.daogen.config;
 import java.util.List;
 import java.util.Map;
 
+import net.bodz.bas.c.string.Phrase;
 import net.bodz.bas.err.NoSuchKeyException;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.cache.Derived;
 import net.bodz.bas.t.catalog.*;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.util.CanonicalClass;
 import net.bodz.lily.tool.daogen.util.ReferencedTable;
 import net.bodz.lily.tool.daogen.util.ReferencedTableMap;
@@ -35,6 +37,8 @@ public class CatalogConfigApplier
                 if (! javaName.contains("."))
                     javaName = config.defaultPackageName + "." + javaName;
                 mutable.setJavaType(javaName);
+            } else {
+                setDefaultJavaType(mutable);
             }
 
             String base = config.getTableBase(table.getName());
@@ -43,6 +47,28 @@ public class CatalogConfigApplier
         }
         tableSettings = config.resolveTable(table.getName());
         return true;
+    }
+
+    void setDefaultJavaType(DefaultTableMetadata table) {
+        QualifiedName qName = table.getJavaType();
+        String simpleName;
+
+        if (qName != null) {
+            if (qName.packageName == null)
+                qName = qName.packageName(config.defaultPackageName);
+        } else {
+            String packageName = config.defaultPackageName;
+
+            ISchemaMetadata schema = table.getParent();
+
+            QualifiedName schemaQName = schema.getJavaQName();
+            if (schemaQName != null)
+                packageName += "." + schemaQName;
+
+            simpleName = Phrase.foo_bar(table.getId().getTableName()).FooBar;
+            qName = new QualifiedName(packageName, simpleName);
+        }
+        table.setJavaType(qName);
     }
 
     @Override

@@ -11,6 +11,7 @@ import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.DuplicatedKeyException;
 import net.bodz.bas.err.FormatException;
+import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.NotImplementedException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fmt.api.ElementHandlerException;
@@ -26,6 +27,7 @@ import net.bodz.bas.t.catalog.ColumnOid;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.map.ListMap;
+import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.TableName;
 import net.bodz.lily.tool.daogen.util.DialectFn;
@@ -114,7 +116,13 @@ public class CatalogConfig
         n.fullName = table.getId().getFullName();
         n.fullNameQuoted = DialectFn.quoteQName(n.fullName);
 
-        String simple = table.getJavaType().name;
+        QualifiedName type = table.getJavaType();
+        if (type == null) {
+//            type = QualifiedName.of(IdEntity.class);
+            throw new IllegalUsageException("unknown java type, table: " + table.getId());
+        }
+
+        String simple = type.name;
         if (simple == null) {
             simple = StringId.UL.toCamel(n.tableName);
             simple = Strings.ucfirst(simple);
@@ -136,14 +144,15 @@ public class CatalogConfig
 
     public String javaName(ITableMetadata table, IColumnMetadata column, boolean defaultToCamelCase) {
         String name = getExplicitSpecifiedJavaName(table, column);
-//        boolean explicit = name != null;
+        if (name != null && column.isJavaNameComplete())
+            return name;
 
         if (name == null) {
+            String columnName = column.getName();
             if (defaultToCamelCase) {
-                String columnName = column.getName();
                 name = StringId.UL.toCamel(columnName);
             } else
-                return null;
+                name = columnName;
         }
 
         if (column.isForeignKey()) {

@@ -112,8 +112,9 @@ public abstract class DTDriven__vue
         String description = column.getDescription();
 
         IProperty property = column.getProperty();
-        if (property == null)
+        if (property == null) {
             throw new IllegalUsageException("no property for column " + column.getId());
+        }
 
         DTColumn _aColumn = property.getAnnotation(DTColumn.class);
         DTColumnConfig dtColumn = new DTColumnConfig().parse(_aColumn);

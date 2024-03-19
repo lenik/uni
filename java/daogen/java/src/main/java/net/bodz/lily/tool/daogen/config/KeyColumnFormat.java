@@ -19,7 +19,8 @@ import net.bodz.bas.json.JsonObject;
 public class KeyColumnFormat
         implements
             IRstForm,
-            IJsonForm {
+            IJsonForm,
+            INameDecorator {
 
     Pattern pattern;
     String aliasFormat;
@@ -61,6 +62,21 @@ public class KeyColumnFormat
             String component = m.replaceAll(componentFormat);
             return new KeyColumnNameInfo(alias, component);
         }
+        return null;
+    }
+
+    @Override
+    public boolean isDecorated(String s) {
+        return false;
+    }
+
+    @Override
+    public String decorate(String s) {
+        return null;
+    }
+
+    @Override
+    public String undecorate(String s) {
         return null;
     }
 

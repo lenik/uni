@@ -67,7 +67,7 @@ public class ColumnUtils {
             }
 
         if ((infoset & GET_GETTER) != 0) {
-            String methodName = (bool ? "is" : "get") + n.ucfirstPropertyName;
+            String methodName = (bool ? "is" : "get") + n.capPropertyName;
             try {
                 m.getter = m.bestKnownClass.getMethod(methodName);
             } catch (NoSuchMethodException e) {
@@ -81,7 +81,7 @@ public class ColumnUtils {
             argType = m.getter.getReturnType();
 
         if ((infoset & GET_SETTER) != 0) {
-            String methodName = "set" + n.ucfirstPropertyName;
+            String methodName = "set" + n.capPropertyName;
             try {
                 m.setter = m.bestKnownClass.getMethod(methodName, argType);
             } catch (NoSuchMethodException e) {

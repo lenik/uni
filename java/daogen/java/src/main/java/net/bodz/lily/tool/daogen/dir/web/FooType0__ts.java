@@ -3,6 +3,7 @@ package net.bodz.lily.tool.daogen.dir.web;
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
@@ -73,6 +74,9 @@ public class FooType0__ts
             staticFields2(out, table, OutFormat.TS_CLASS);
 
             IType type = table.getPotatoType();
+            if (type == null)
+                throw new IllegalUsageException("type isn't defined: " + table.getJavaType());
+
             String iconName = "fa-tag";
             String label = type.getLabel().toString();
             if (Nullables.isEmpty(description))
@@ -241,7 +245,7 @@ public class FooType0__ts
 
         if (validator) {
             String validatorFn = String.format("this.validators.validate%s", //
-                    cname.ucfirstPropertyName);
+                    cname.capPropertyName);
             attrs.put("validator", validatorFn);
         }
 

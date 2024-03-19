@@ -133,7 +133,7 @@ public class Foo_stuff__java
                 // out.printf(" this.id = id;\n");
                 for (IColumnMetadata k : primaryKeyCols) {
                     ColumnNaming cname = project.naming(k);
-                    out.printf("    this.%s = id.get%s();\n", cname.fieldName, cname.ucfirstPropertyName);
+                    out.printf("    this.%s = id.get%s();\n", cname.fieldName, cname.capPropertyName);
                 }
                 out.printf("}\n");
             } else {
@@ -142,12 +142,12 @@ public class Foo_stuff__java
                     out.println();
                     out.println("@Override");
                     out.printf("public %s id() {\n", out.importName(idType));
-                    out.printf("    return get%s();\n", cname.ucfirstPropertyName);
+                    out.printf("    return get%s();\n", cname.capPropertyName);
                     out.printf("}\n");
                     out.println();
                     out.println("@Override");
                     out.printf("public void id(%s id) {\n", out.importName(idType));
-                    out.printf("    set%s(id);\n", cname.ucfirstPropertyName);
+                    out.printf("    set%s(id);\n", cname.capPropertyName);
                     out.printf("}\n");
                 }
             }
