@@ -14,7 +14,7 @@ export class MomentWrapper {
         if (inp instanceof moment) {
             this._moment = inp as Moment;
         } else if (typeof inp == 'string') {
-            this._moment = moment();
+            // this._moment = moment(inp, defaultFormat);
             this.parse(inp as string);
         } else {
             this._moment = moment(inp);
@@ -40,12 +40,11 @@ export class MomentWrapper {
     }
 
     format(fmt?: string) {
-        console.log('fmt');
         return this.momentConst.format(fmt || this.defaultFormat);
     }
 
     parse(s: string, fmt?: string) {
-        this.moment = moment(s, fmt || this.defaultFormat);
+        this.moment = moment.parseZone(s, fmt || this.defaultFormat);
         this.version++;
     }
 

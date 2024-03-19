@@ -2,6 +2,7 @@ import MomentWrapper, { ZoneId, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
 import { ISO_ZONED_DATE_TIME, UI_DATE_TIME } from "./formats";
+import moment from "moment-timezone";
 
 export class ZonedDateTimeType extends MomentWrapperType<ZonedDateTime>{
 
@@ -29,8 +30,46 @@ export class ZonedDateTime extends MomentWrapper {
                 this.tz = tz;
     }
 
+    format(fmt?: string | undefined): string {
+        const BzzB = "[\[]zz[\]]";
+        let zzOpt = false;
+        let realFormat = fmt || this.defaultFormat;
+        if (realFormat.endsWith(BzzB)) {
+            realFormat = realFormat.substring(0, realFormat.length - BzzB.length);
+            zzOpt = true;
+        }
+        if (realFormat === ISO_ZONED_DATE_TIME) {
+            zzOpt = true;
+        }
+
+        let s = super.format(realFormat);
+
+        if (zzOpt) {
+            let tz = this.tz;
+            if (tz != null)
+                s += "[" + tz + "]";
+        }
+        return s;
+    }
+
     static parse(s: string, tz?: ZoneId, format = ZonedDateTime.DEFAULT_FORMAT) {
-        return new ZonedDateTime(tz, s, format);
+        const BzzB = "[\[]zz[\]]";
+        let zzOpt = false;
+        let realFormat = format;
+        if (realFormat.endsWith(BzzB)) {
+            realFormat = realFormat.substring(0, realFormat.length - BzzB.length);
+            zzOpt = true;
+        }
+
+        let bracket = s.lastIndexOf('[');
+        if (bracket != -1) {
+            if (!s.endsWith("]"))
+                throw new Error("invalid zone-id: " + s.substring(bracket));
+            let zoneIdStr = s.substring(bracket + 1, s.length - 1);
+            s = s.substring(0, bracket - 1);
+            if (tz == null) tz = zoneIdStr;
+        }
+        return new ZonedDateTime(tz, s, realFormat);
     }
 
     static now(tz?: ZoneId) {
