@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.codegen.XmlSourceBuffer;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -110,10 +111,13 @@ public class VFooMapper__xml
                 boolean defaultNs = mapperNs.equals(project.FooMapper.qName.getFullName());
                 String nsPrefix = defaultNs ? "" : (mapperNs + ".");
 
-                out.printf("<association property=\"%s\" columnPrefix=\"%s\"\n", //
+                String[] parentKeyCols = parent.getPrimaryKey().getColumnNames();
+                String notNullColumns = StringArray.join(", ", parentKeyCols);
+
+                out.printf("<association property=\"%s\" columnPrefix=\"%s\" notNullColumn=\"%s\" \n", //
                         ref.getPropertyName(), // property
-                        alias + "_" // columnPrefix
-                );
+                        alias + "_", // columnPrefix
+                        notNullColumns);
                 out.printf("    javaType=\"%s\" \n", ref.getParentTable().getJavaType());
                 out.printf("    resultMap=\"%s\" />\n", nsPrefix + "objlist_map");
             }
