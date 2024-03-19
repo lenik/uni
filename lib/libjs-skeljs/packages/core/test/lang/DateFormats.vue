@@ -10,7 +10,7 @@ import LocalTime from '../../src/lang/time/LocalTime';
 import OffsetDateTime from '../../src/lang/time/OffsetDateTime';
 import OffsetTime from '../../src/lang/time/OffsetTime';
 import ZonedDateTime from '../../src/lang/time/ZonedDateTime';
-import formats from '../../src/lang/time/formats';
+import formats, { ISO_LOCAL_DATE, ISO_OFFSET_DATE_TIME } from '../../src/lang/time/formats';
 
 export const title = "Table of date formats";
 
@@ -60,7 +60,24 @@ let fmtgroups = {
         HHMMSS_Z: formats.HHMMSS_Z,
     },
 
-}
+    "zone patterns": {
+        z: "z",
+        zz: "zz",
+        zzz: "zzz",
+        zzzz: "zzzz",
+        zzzzz: "zzzzz",
+        Z: "Z",
+        ZZ: "ZZ",
+        ZZZ: "ZZZ",
+        ZZZZ: "ZZZZ",
+        ZZZZZ: "ZZZZZ",
+    },
+};
+
+let myZdt = ZonedDateTime.parse('2020-02-02T20:20:33.444444+09:00[Asia/Tokyo]');
+let s1 = myZdt.format(ISO_OFFSET_DATE_TIME);
+console.log(s1);
+
 let dates = {
     Instant: Instant.now(),
     LocalDateTime: LocalDateTime.now(),
@@ -69,9 +86,8 @@ let dates = {
     OffsetDateTime: OffsetDateTime.now(),
     OffsetTime: OffsetTime.now(),
     ZonedDateTime: ZonedDateTime.now(),
+    myZdt: myZdt,
 };
-
-// methods
 
 defineExpose({ update });
 
@@ -102,6 +118,24 @@ onMounted(() => {
             </tbody>
         </table>
     </div>
+    <!-- <div class="patterns">
+        <h3>Section: Patterns</h3>
+        <table cellspacing="0">
+            <thead>
+                <tr>
+                    <th class="corner diagonalFalling">Pattern <br> Date</th>
+                    <th>toString()</th>
+                    <th v-for="(d, k) in dates" :key="k"> {{ k }} </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(p, i) in patterns" :key="i">
+                    <th>{{ p }}</th>
+                    <td v-for="(d, k) in dates" :key="k"> {{ d.format(p) }} </td>
+                </tr>
+            </tbody>
+        </table>
+    </div> -->
 </template>
 
 <style scoped lang="scss">
