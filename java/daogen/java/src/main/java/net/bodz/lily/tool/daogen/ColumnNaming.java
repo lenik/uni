@@ -10,7 +10,7 @@ public class ColumnNaming {
 
     public String fieldName;
     public String propertyName;
-    public String ucfirstPropertyName;
+    public String capPropertyName;
 
     public String constFieldName;
 
@@ -24,10 +24,22 @@ public class ColumnNaming {
         initByPropertyName(fieldName);
     }
 
+    static boolean lowerUpper(String property) {
+        if (property.length() < 2)
+            return false;
+        return Character.isLowerCase(property.charAt(0)) //
+                && Character.isUpperCase(property.charAt(1));
+    }
+
     public void initByPropertyName(String propertyName) {
         this.fieldName = propertyName;
+
         this.propertyName = propertyName;
-        this.ucfirstPropertyName = Strings.ucfirst(propertyName);
+        if (lowerUpper(propertyName))
+            this.capPropertyName = propertyName;
+        else
+            this.capPropertyName = Strings.ucfirst(propertyName);
+
         String under_line = StringId.UL.breakCamel(this.propertyName);
         this.constFieldName = under_line.toUpperCase();
     }
