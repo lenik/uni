@@ -118,7 +118,7 @@ public class FooType0__ts
             }
             out.println("}");
 
-            if (extend.typeVarCount() > 0) {
+            if (extend.typeVarCount() == 0) {
                 out.println();
                 out.printf("static readonly INSTANCE = new %s();\n", //
                         extend.type.name);
