@@ -141,6 +141,9 @@ public class MiscTemplates {
             if (column.isNullable(true))
                 continue;
 
+            if (column.isCompositeProperty())
+                continue;
+
             Class<?> type = column.getJavaClass();
             // System.out.printf("Column type: %s => %s\n", column.getName(), type);
 
@@ -149,7 +152,8 @@ public class MiscTemplates {
                 continue;
 
             String initVal = initValSnippet.make(out);
-            String code = getJavaSetCode(column, true, initVal);
+            boolean directAccess = true;
+            String code = getJavaSetCode(column, directAccess, initVal);
             out.println("this." + code + ";");
         }
         out.leave();
