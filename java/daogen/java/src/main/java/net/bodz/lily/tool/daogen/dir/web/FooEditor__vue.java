@@ -1,6 +1,8 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +22,9 @@ import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.meta.bean.DetailLevel;
+import net.bodz.bas.meta.bean.Internal;
+import net.bodz.bas.meta.cache.Derived;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanTypeProvider;
@@ -30,7 +35,6 @@ import net.bodz.bas.t.order.OrdinalComparator;
 import net.bodz.bas.t.predef.Predef;
 import net.bodz.bas.t.predef.PredefMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
-import net.bodz.lily.concrete.CoEntity;
 import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
@@ -144,7 +148,7 @@ public class FooEditor__vue
 
     @Override
     protected void buildTemplate(TypeScriptWriter out, ITableMetadata table) {
-        TypeExtendInfo info = new TypeAnalyzer(project, out)//
+        TypeExtendInfo extend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, //
                         project.Foo.qName, //
                         project._Foo_stuff.qName);
@@ -159,84 +163,9 @@ public class FooEditor__vue
             rootAttrs.put("v-bind", "$attrs");
             out.println(rootAttrs.toXml("div"));
 
-            out.enter();
-            {
-                if (info.javaClass != null && CoEntity.class.isAssignableFrom(info.javaClass)) {
-                    List<IColumnMetadata> columns = table.getColumns();
-                    Map<String, IColumnMetadata> property2Column = new HashMap<>();
-                    for (IColumnMetadata column : columns) {
-                        ColumnNaming cname = project.config.naming(column);
-                        property2Column.put(cname.propertyName, column);
-                    }
-
-                    Set<String> handled = new HashSet<>();
-
-                    Class<?> bringToTopClass = info.javaBaseClass;
-
-                    for (Class<?> decl : TypeChain.supersFromRoot(info.javaClass)) {
-                        if (! StructRow.class.isAssignableFrom(decl))
-                            continue;
-
-                        IType type = BeanTypeProvider.getInstance().getType(decl);
-
-                        Map<IProperty, IColumnMetadata> selection = new LinkedHashMap<>();
-                        for (IProperty property : type.getProperties()) {
-
-                            if (property.getDeclaringClass() == decl || decl == bringToTopClass) {
-                                if (handled.contains(property.getName()))
-                                    continue;
-
-                                if (bringForwards) {
-                                    String classProp = property.getDeclaringClass().getSimpleName() + "."
-                                            + property.getName();
-
-                                    if (bringForwardProps.contains(classProp) && decl != bringToTopClass)
-                                        continue;
-                                }
-
-                                IColumnMetadata column = property2Column.get(property.getName());
-                                if (column != null)
-                                    selection.put(property, column);
-                            }
-                        }
-
-                        if (selection.isEmpty())
-                            continue;
-
-                        out.printf("<%s :type=\"%s.TYPE\">\n", //
-                                out.name(EsmModules.dba.FieldGroup), //
-                                out.importDefault(decl));
-                        out.enter();
-
-                        Map<IColumnMetadata, IProperty> map1 = new TreeMap<>(OrdinalComparator.INSTANCE);
-                        Map<CrossReference, IProperty> map2 = new TreeMap<>(OrdinalComparator.INSTANCE);
-
-                        for (IProperty property : selection.keySet()) {
-                            IColumnMetadata column = selection.get(property);
-                            if (column.isForeignKey()) {
-                                CrossReference xref = table.getForeignKeyFromColumn(column.getName());
-                                map2.put(xref, property); // can be repeat put.
-                            } else {
-                                map1.put(column, property);
-                            }
-                            handled.add(property.getName());
-                        }
-
-                        for (IColumnMetadata column : map1.keySet()) {
-                            IProperty property = map1.get(column);
-                            fieldRow(out, column, property);
-                        }
-
-                        for (CrossReference xref : map2.keySet()) {
-                            IProperty property = map2.get(xref);
-                            fkRow(out, xref, property);
-                        }
-
-                        out.leave();
-                        out.println("</FieldGroup>");
-                    }
-                }
-
+            if (extend.javaClass != null && StructRow.class.isAssignableFrom(extend.javaClass)) {
+                out.enter();
+                fieldGroups(out, table, extend);
                 out.leave();
             }
             out.println("</div>");
@@ -261,6 +190,125 @@ public class FooEditor__vue
         }
         out.println("}");
         out.println("</style>");
+    }
+
+    void fieldGroups(TypeScriptWriter out, ITableMetadata table, TypeExtendInfo extend) {
+//        List<IColumnMetadata> columns = table.getColumns();
+        Map<String, IColumnMetadata> property2Column = new HashMap<>();
+        for (IColumnMetadata column : table.getColumns()) {
+            ColumnNaming cname = project.config.naming(column);
+            property2Column.put(cname.propertyName, column);
+        }
+
+//        Map<String, CrossReference> fkeys = table.getForeignKeys();
+        Map<String, CrossReference> property2FKey = new HashMap<>();
+        for (CrossReference xref : table.getForeignKeys().values()) {
+            String propertyName = xref.getPropertyName();
+            property2FKey.put(propertyName, xref);
+        }
+
+        Set<String> handled = new HashSet<>();
+
+        Class<?> bringToTopClass = extend.javaBaseClass;
+
+        Map<Class<?>, Map<IProperty, IColumnMetadata>> groups = new LinkedHashMap<>();
+
+        for (Class<?> decl : TypeChain.supersToRoot(extend.javaClass, StructRow.class)) {
+            IType type = BeanTypeProvider.getInstance().getType(decl);
+
+            Map<IProperty, IColumnMetadata> selection = new LinkedHashMap<>();
+//            Map<IProperty, CrossReference> selection2 = new LinkedHashMap<>();
+            for (IProperty property : type.getProperties()) {
+                String propName = property.getName();
+                if (handled.contains(propName))
+                    continue;
+
+                DetailLevel aDetailLevel = property.getAnnotation(DetailLevel.class);
+                if (aDetailLevel != null) {
+                    int detailLevel = aDetailLevel.value();
+                    if (detailLevel == DetailLevel.HIDDEN)
+                        continue;
+                }
+
+                Derived aDerived = property.getAnnotation(Derived.class);
+                if (aDerived != null)
+                    // TODO read-only input?
+                    continue;
+
+                Internal aInternal = property.getAnnotation(Internal.class);
+                if (aInternal != null)
+                    continue;
+
+                Class<?> propDecl = property.getDeclaringClass();
+                if (propDecl != decl) {
+                    if (! bringForwards)
+                        continue;
+                    String classProp = propDecl.getSimpleName() + "." + propName;
+                    if (! bringForwardProps.contains(classProp))
+                        continue;
+                }
+
+                IColumnMetadata column = property2Column.get(propName);
+                if (column == null) {
+                    CrossReference fkey = property2FKey.get(propName);
+                    if (fkey != null) {
+                        IColumnMetadata[] fCols = fkey.getForeignColumns();
+                        column = fCols[0];
+                    }
+                }
+
+                if (column != null) {
+                    selection.put(property, column);
+                    handled.add(propName);
+                    continue;
+                }
+
+                // System.err.println();
+            }
+
+            if (selection.isEmpty())
+                continue;
+
+            groups.put(decl, selection);
+        }
+
+        List<Class<?>> supersFromRoot = new ArrayList<>(groups.keySet());
+        Collections.reverse(supersFromRoot);
+
+        for (Class<?> decl : supersFromRoot) {
+            Map<IProperty, IColumnMetadata> selection = groups.get(decl);
+
+            out.printf("<%s :type=\"%s.TYPE\">\n", //
+                    out.name(EsmModules.dba.FieldGroup), //
+                    out.importDefault(decl));
+            out.enter();
+
+            Map<IColumnMetadata, IProperty> map1 = new TreeMap<>(OrdinalComparator.INSTANCE);
+            Map<CrossReference, IProperty> map2 = new TreeMap<>(OrdinalComparator.INSTANCE);
+
+            for (IProperty property : selection.keySet()) {
+                IColumnMetadata column = selection.get(property);
+                if (column.isForeignKey()) {
+                    CrossReference xref = table.getForeignKeyFromColumn(column.getName());
+                    map2.put(xref, property); // can be repeat put.
+                } else {
+                    map1.put(column, property);
+                }
+            }
+
+            for (IColumnMetadata column : map1.keySet()) {
+                IProperty property = map1.get(column);
+                fieldRow(out, column, property);
+            }
+
+            for (CrossReference xref : map2.keySet()) {
+                IProperty property = map2.get(xref);
+                fkRow(out, xref, property);
+            }
+
+            out.leave();
+            out.println("</FieldGroup>");
+        }
     }
 
     void fieldRow(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
