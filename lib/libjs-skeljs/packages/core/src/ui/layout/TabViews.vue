@@ -47,7 +47,7 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-const view = defineModel('view');
+const view = defineModel<string>('view');
 const props = defineProps<Props>();
 const emit = defineEmits<{
     viewChanged: [newView: string, oldView: string]
@@ -63,7 +63,7 @@ const emit = defineEmits<{
         </div>
     </div>
 </template>
- 
+
 <style lang="scss">
 .view {
     >* {

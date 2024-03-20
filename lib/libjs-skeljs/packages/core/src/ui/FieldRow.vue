@@ -169,7 +169,7 @@ function validate(val: any = model.value, event?: Event): ValidateResult {
                 result = validator(val);
                 if (result == null)
                     result = { error: false };
-            } catch (err) {
+            } catch (err: Error) {
                 result = {
                     error: true,
                     exception: err,

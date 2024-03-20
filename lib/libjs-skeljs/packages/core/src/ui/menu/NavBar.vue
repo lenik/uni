@@ -14,7 +14,9 @@ const viewData = defineModel<any>('data');
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
-    viewChanged: [newView: string, oldView?: string]
+    viewChanged: [newView: string, oldView?: string],
+    // leave: [oldView: string],
+    // enter: [newView: string],
 }>();
 
 var rootElement = ref();

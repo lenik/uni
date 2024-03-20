@@ -108,8 +108,8 @@ export class MomentWrapper {
     get day() { return this.momentConst.day() }
     set day(val: number) { this.momentMutable.day(val) }
 
-    // get days() { return this.moment_read.days() }
-    // set days(val: number) { this.moment_write.days(val) }
+    // get days() { return this.momentConst.days() }
+    // set days(val: number) { this.momentMutable.days(val) }
 
     // @deprecate
     get date() { return this.version * 0 + this.momentConst.date() }
@@ -124,26 +124,26 @@ export class MomentWrapper {
     get hour() { return this.momentConst.hour() }
     set hour(val: number) { this.momentMutable.hour(val) }
 
-    // get hours() { return this.moment_read.hours() }
-    // set hours(val: number) { this.moment_write.hours(val) }
+    // get hours() { return this.momentConst.hours() }
+    // set hours(val: number) { this.momentMutable.hours(val) }
 
     get minute() { return this.momentConst.minute() }
     set minute(val: number) { this.momentMutable.minute(val) }
 
-    // get minutes() { return this.moment_read.minutes() }
-    // set minutes(val: number) { this.moment_write.minutes(val) }
+    // get minutes() { return this.momentConst.minutes() }
+    // set minutes(val: number) { this.momentMutable.minutes(val) }
 
     get second() { return this.momentConst.second() }
     set second(val: number) { this.momentMutable.second(val) }
 
-    // get seconds() { return this.moment_read.seconds() }
-    // set seconds(val: number) { this.moment_write.seconds(val) }
+    // get seconds() { return this.momentConst.seconds() }
+    // set seconds(val: number) { this.momentMutable.seconds(val) }
 
     get millisecond() { return this.momentConst.millisecond() }
     set millisecond(val: number) { this.momentMutable.millisecond(val) }
 
-    // get milliseconds() { return this.moment_read.milliseconds() }
-    // set milliseconds(val: number) { this.moment_write.milliseconds(val) }
+    // get milliseconds() { return this.momentConst.milliseconds() }
+    // set milliseconds(val: number) { this.momentMutable.milliseconds(val) }
 
     get nanosecond() { return this.momentConst.millisecond() * 1000000 }
     set nanosecond(val: number) { this.momentMutable.millisecond(val / 1000000) }

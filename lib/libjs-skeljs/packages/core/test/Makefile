@@ -1,2 +1,2 @@
 router.ts: .
-	make-router *.vue >$@
+	make-router *.vue */*.vue >$@

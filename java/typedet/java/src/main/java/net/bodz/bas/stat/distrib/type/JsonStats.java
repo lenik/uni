@@ -51,7 +51,7 @@ public class JsonStats
             case OBJECT:
                 JsonObject jo = any.getObject();
                 for (String sk : jo.keySet()) {
-                    keyStats.add(sk);
+//                    keyStats.add(sk);
                 }
                 break;
             case SCALAR:

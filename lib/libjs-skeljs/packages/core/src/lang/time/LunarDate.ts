@@ -1,5 +1,5 @@
 import moment from 'moment-timezone';
-import { Moment } from 'moment-timezone';
+import type { Moment } from 'moment-timezone';
 import { Solar, Lunar } from 'lunar-javascript';
 import TypeInfo from '../TypeInfo';
 
@@ -32,7 +32,7 @@ export class LunarDate {
     static readonly TYPE = new LunarDateType();
 
     _lunar: Lunar
-    onchange: (val: LunarDate) => void
+    onchange?: (val: LunarDate) => void
 
     constructor(lunar: Lunar) {
         this._lunar = lunar;
