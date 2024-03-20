@@ -1,6 +1,17 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import java.util.*;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.persistence.GeneratedValue;
 
@@ -28,6 +39,7 @@ import net.bodz.bas.t.predef.Predef;
 import net.bodz.bas.t.predef.PredefMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.StructRow;
+import net.bodz.lily.meta.ReadOnly;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__vue;
@@ -153,7 +165,7 @@ public class FooEditor__vue
             rootAttrs.put("ref", "rootElement");
             rootAttrs.put("v-if", "model != null");
             rootAttrs.put("v-bind", "$attrs");
-            out.println(rootAttrs.toXml("div"));
+            out.println(rootAttrs.toHtml("div"));
 
             if (extend.javaClass != null && StructRow.class.isAssignableFrom(extend.javaClass)) {
                 out.enter();
@@ -184,6 +196,17 @@ public class FooEditor__vue
         out.println("</style>");
     }
 
+    static final List<Class<? extends Annotation>> excludeAnnotations;
+    static final List<Class<? extends Annotation>> readOnlyAnnotations;
+    static {
+        excludeAnnotations = new ArrayList<>();
+        excludeAnnotations.add(Derived.class);
+        excludeAnnotations.add(Internal.class);
+        readOnlyAnnotations = new ArrayList<>();
+        readOnlyAnnotations.add(GeneratedValue.class);
+        readOnlyAnnotations.add(ReadOnly.class);
+    }
+
     void fieldGroups(TypeScriptWriter out, ITableMetadata table, TypeExtendInfo extend) {
 //        List<IColumnMetadata> columns = table.getColumns();
         Map<String, IColumnMetadata> property2Column = new HashMap<>();
@@ -209,11 +232,14 @@ public class FooEditor__vue
             IType type = BeanTypeProvider.getInstance().getType(decl);
 
             Map<IProperty, IColumnMetadata> selection = new LinkedHashMap<>();
-//            Map<IProperty, CrossReference> selection2 = new LinkedHashMap<>();
-            for (IProperty property : type.getProperties()) {
+            L: for (IProperty property : type.getProperties()) {
                 String propName = property.getName();
                 if (handled.contains(propName))
                     continue;
+
+                for (Class<? extends Annotation> a : excludeAnnotations)
+                    if (property.isAnnotationPresent(a))
+                        continue L;
 
                 DetailLevel aDetailLevel = property.getAnnotation(DetailLevel.class);
                 if (aDetailLevel != null) {
@@ -221,15 +247,6 @@ public class FooEditor__vue
                     if (detailLevel == DetailLevel.HIDDEN)
                         continue;
                 }
-
-                Derived aDerived = property.getAnnotation(Derived.class);
-                if (aDerived != null)
-                    // TODO read-only input?
-                    continue;
-
-                Internal aInternal = property.getAnnotation(Internal.class);
-                if (aInternal != null)
-                    continue;
 
                 Class<?> propDecl = property.getDeclaringClass();
                 if (propDecl != decl) {
@@ -313,14 +330,20 @@ public class FooEditor__vue
                 propertyModel);
         {
             out.enter();
-            if (property.isAnnotationPresent(GeneratedValue.class)) {
-                readView(out, column, property);
-            } else {
-                editControl(out, column, property);
-            }
+
+            editControl(out, column, property);
+
             out.leave();
         }
         out.println("</FieldRow>");
+    }
+
+    static boolean isReadOnly(IProperty property) {
+        for (Class<? extends Annotation> a : readOnlyAnnotations)
+            if (property.isAnnotationPresent(a)) {
+                return true;
+            }
+        return false;
     }
 
     void fkRow(TypeScriptWriter out, CrossReference xref, IProperty property) {
@@ -354,9 +377,13 @@ public class FooEditor__vue
         attrs.put("v-model", "model." + propertyName);
         attrs.put("v-model:id", "model." + propertyName + "Id");
 
-        String xml = attrs.toXml(out.im.name(//
+        boolean readOnly = isReadOnly(property);
+        if (readOnly)
+            attrs.put("disabled", Attrs.NO_VALUE);
+
+        String html = attrs.toHtml(out.im.name(//
                 EsmModules.dba.RefEditor), true);
-        out.println(xml);
+        out.println(html);
     }
 
     void readView(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
@@ -429,7 +456,7 @@ public class FooEditor__vue
             default:
                 inputAttrs.put("v-model", propertyModel);
             }
-            String xml = inputAttrs.toXml("input", true);
+            String xml = inputAttrs.toHtml("input", true);
             out.println(xml);
             return;
         }

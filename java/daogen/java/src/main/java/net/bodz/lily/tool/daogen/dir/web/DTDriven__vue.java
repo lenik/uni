@@ -151,7 +151,7 @@ public abstract class DTDriven__vue
         if (description != null)
             a.put("title", description);
 
-        out.print(a.toXml("th"));
+        out.print(a.toHtml("th"));
         out.print(label);
         out.println("</th>");
     }
@@ -196,7 +196,7 @@ public abstract class DTDriven__vue
         if (dtColumn.dataRender != null)
             a.put("data-render", dtColumn.dataRender);
 
-        out.print(a.toXml("th"));
+        out.print(a.toHtml("th"));
         out.print(label);
         out.println("</th>");
     }

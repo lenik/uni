@@ -12,6 +12,8 @@ public class Attrs
 
     private static final long serialVersionUID = 1L;
 
+    public static final Object NO_VALUE = new Object();
+
     public Set<String> newLineKeys = new HashSet<>();
 
     public Attrs() {
@@ -62,11 +64,7 @@ public class Attrs
             out.print(" }");
     }
 
-    public String toXml(String tagName) {
-        return toXml(tagName, false);
-    }
-
-    public String toXml(String tagName, boolean end) {
+    String _toMarkup(boolean xml, String tagName, boolean end) {
         StringBuilder sb = new StringBuilder();
         if (tagName != null) {
             sb.append("<");
@@ -75,12 +73,22 @@ public class Attrs
 
         int i = 0;
         for (String key : keySet()) {
-            Object val = get(key);
             if (i++ != 0 || tagName != null)
                 sb.append(" ");
+            Object val = get(key);
             sb.append(key);
-            sb.append("=");
-            sb.append(StringQuote.qqXmlAttr(val.toString()));
+            if (xml) {
+                sb.append("=");
+                if (val == NO_VALUE)
+                    sb.append(StringQuote.qqXmlAttr(key));
+                else
+                    sb.append(StringQuote.qqXmlAttr(val.toString()));
+            } else {
+                if (val != NO_VALUE) {
+                    sb.append("=");
+                    sb.append(StringQuote.qqXmlAttr(val.toString()));
+                }
+            }
         }
 
         if (tagName != null)
@@ -89,6 +97,22 @@ public class Attrs
             else
                 sb.append(">");
         return sb.toString();
+    }
+
+    public String toXml(String tagName) {
+        return toXml(tagName, false);
+    }
+
+    public String toXml(String tagName, boolean end) {
+        return _toMarkup(true, tagName, end);
+    }
+
+    public String toHtml(String tagName) {
+        return toHtml(tagName, false);
+    }
+
+    public String toHtml(String tagName, boolean end) {
+        return _toMarkup(false, tagName, end);
     }
 
 }
