@@ -43,10 +43,13 @@ public class Foo0__ts
                 extend.angledBaseTypeArgs());
         out.enter();
         {
-            out.println();
-            TsTemplates.lazyProp_INSTANCE(out, "_typeInfo", "TYPE", out.importDefault(typeName));
-            out.println();
 
+            if (extend.typeVarCount() == 0) {
+                out.println();
+                TsTemplates.lazyProp_INSTANCE(out, "_typeInfo", "TYPE", out.importDefault(typeName));
+            }
+
+            int counter = 0;
             for (IColumnMetadata column : table.getColumns()) {
                 if (column.isExcluded())
                     continue;
@@ -59,6 +62,8 @@ public class Foo0__ts
                 if (column.isForeignKey())
                     continue;
 
+                if (counter++ == 0)
+                    out.println();
                 defineProperty(out, column);
             }
 

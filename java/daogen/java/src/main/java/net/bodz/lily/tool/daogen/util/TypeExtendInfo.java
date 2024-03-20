@@ -108,6 +108,7 @@ public class TypeExtendInfo {
                     break;
 
                 case THIS_TYPE:
+                    superArgs.add("selfType");
                     // see: isSelfTypeNeeded()
                     break;
 
@@ -127,10 +128,10 @@ public class TypeExtendInfo {
     }
 
     public boolean isSelfTypeNeeded() {
-        if (this.baseTypeVarTypes != null)
-            for (TypeParamType baseVarType : baseTypeVarTypes)
-                if (baseVarType == TypeParamType.THIS_TYPE)
-                    return true;
+//        if (this.baseTypeVarTypes != null)
+//            for (TypeParamType baseVarType : baseTypeVarTypes)
+//                if (baseVarType == TypeParamType.THIS_TYPE)
+//                    return true;
         return false;
     }
 

@@ -88,8 +88,8 @@ public class FooType0__ts
 
             out.println();
             out.printf("constructor(%s) {\n", extend.getCtorParams(this));
-            out.enter();
             {
+                out.enter();
                 out.printf("super(%s);\n", extend.getSuperCtorArgs(this));
                 if (extend.isSelfTypeNeeded())
                     out.println("this.selfType = this;");

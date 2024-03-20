@@ -25,7 +25,7 @@ public class Foo1__ts
 
     @Override
     protected void buildTsBody(TypeScriptWriter out, ITableMetadata table) {
-        TypeExtendInfo javaExtend = new TypeAnalyzer(project, out)//
+        TypeExtendInfo extend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, //
                         project.Foo.qName, //
                         project._Foo_stuff.qName);
@@ -33,21 +33,24 @@ public class Foo1__ts
         QualifiedName typeName = project.Esm_FooType.qName;
 
         out.printf("export class %s extends %s%s {\n", //
-                javaExtend.type.name, //
-                out.importDefault(javaExtend.baseType), //
-                javaExtend.angledBaseTypeArgs());
+                extend.type.name, //
+                out.importDefault(extend.baseType), //
+                extend.angledBaseTypeArgs());
         out.enter();
         {
-            TsTemplates.lazyProp_INSTANCE(out, "_typeInfo", "TYPE", out.importDefault(typeName));
-            out.println();
 
-            if (javaExtend.javaClass != null) {
-                int i = 0;
-                IType type = BeanTypeProvider.getInstance().getType(javaExtend.javaClass);
+            if (extend.typeVarCount() == 0) {
+                out.println();
+                TsTemplates.lazyProp_INSTANCE(out, "_typeInfo", "TYPE", out.importDefault(typeName));
+            }
+
+            if (extend.javaClass != null) {
+                int count = 0;
+                IType type = BeanTypeProvider.getInstance().getType(extend.javaClass);
                 for (IProperty property : type.getProperties()) {
                     Class<?> declaringClass = property.getDeclaringClass();
-                    if (declaringClass == javaExtend.javaClass) {
-                        if (i++ == 0)
+                    if (declaringClass == extend.javaClass) {
+                        if (count++ == 0)
                             out.println();
                         declProperty(out, property);
                     }
@@ -68,7 +71,7 @@ public class Foo1__ts
         out.println("}");
 
         out.println();
-        out.printf("export default %s;\n", javaExtend.type.name);
+        out.printf("export default %s;\n", extend.type.name);
     }
 
     void declProperty(TypeScriptWriter out, IProperty property) {
