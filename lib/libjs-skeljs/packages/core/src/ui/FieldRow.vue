@@ -1,4 +1,8 @@
 <script lang="ts">
+import { computed, inject, onMounted, ref, watch } from "vue";
+import type { ValidateResult, Validator } from "./types";
+import Icon from "./Icon.vue";
+
 export interface Props {
     tagName?: string
 
@@ -26,30 +30,17 @@ export interface Props {
     showState?: boolean
     watch?: boolean
 }
+
+export const FIELD_ROW_PROPS = Symbol('FieldRowProps');
 </script>
 
 <script setup lang="ts">
-
-import { computed, onMounted, ref, watch } from "vue";
-
-import Icon from "./Icon.vue";
-import type { ValidateResult, Validator } from "./types";
-
 const model = defineModel();
 const expanded = defineModel<boolean>('expanded');
 const valid = defineModel<ValidateResult>('valid');
 
-const props = withDefaults(defineProps<Props>(), {
-    tagName: 'div',
+const _props = withDefaults(defineProps<Props>(), {
     label: 'unnamed',
-    iconWidth: '1rem',
-    after: 'end',
-    expandIcon: 'far-question-circle',
-    collapseIcon: 'fas-question-circle',
-    align: 'middle',
-    alignLabel: 'left',
-    showState: false,
-    watch: true,
 });
 
 const emit = defineEmits<{
@@ -60,8 +51,38 @@ const emit = defineEmits<{
 
 // property shortcuts
 
+const fieldRowProps = inject<Props>(FIELD_ROW_PROPS);
+
+function coalesce<T>(...args: T[]): T | undefined {
+    for (let i = 0; i < args.length; i++)
+        if (args[i] !== undefined)
+            return args[i];
+    return undefined;
+}
+
+const mProps = computed<Props>(() => ({
+    tagName: coalesce(_props.tagName, fieldRowProps?.tagName, 'div'),
+    icon: coalesce(_props.icon, fieldRowProps?.icon),
+    iconWidth: coalesce(_props.iconWidth, fieldRowProps?.iconWidth, '1rem'),
+    labelWidth: coalesce(_props.labelWidth, fieldRowProps?.labelWidth),
+    labelMaxLength: coalesce(_props.labelMaxLength, fieldRowProps?.labelMaxLength),
+    description: coalesce(_props.description, fieldRowProps?.description),
+    after: coalesce(_props.after, fieldRowProps?.after, 'end'),
+    expandIcon: coalesce(_props.expandIcon, fieldRowProps?.expandIcon, 'far-question-circle'),
+    collapseIcon: coalesce(_props.collapseIcon, fieldRowProps?.collapseIcon, 'fas-question-circle'),
+    tooltip: coalesce(_props.tooltip, fieldRowProps?.tooltip),
+    align: coalesce(_props.align, fieldRowProps?.align, 'middle'),
+    alignLabel: coalesce(_props.alignLabel, fieldRowProps?.alignLabel, 'left'),
+    required: coalesce(_props.required, fieldRowProps?.required),
+    showState: coalesce(_props.showState, fieldRowProps?.showState, false),
+    watch: coalesce(_props.watch, fieldRowProps?.watch, true),
+}));
+
+const mIconWidth = computed(() => mProps.value.iconWidth);
+const mAlignLabel = computed(() => mProps.value.alignLabel);
+
 const childTagName = computed(() => {
-    switch (props.tagName) {
+    switch (mProps.value.tagName) {
         case 'div':
             return 'span';
         case 'ul':
@@ -75,26 +96,29 @@ const childTagName = computed(() => {
 });
 
 const _label = computed(() => {
-    if (props.property == null)
-        return props.label;
+    if (_props.property == null)
+        return _props.label;
     else
-        return props.property!.display;
+        return _props.property.display;
 });
 
-const _icon = computed(() => props.property?.icon || props.icon);
-const _description = computed(() => props.property?.description || props.description);
-const _tooltip = computed(() => props.property?.tooltip || props.tooltip);
-const _validator = computed(() => props.property?.validator || props.validator);
-const _required = computed(() => props.property?.required || props.required);
+const _icon = computed(() => _props.property?.icon || mProps.value.icon);
+const _description = computed(() => _props.property?.description || mProps.value.description);
+const hasDescription = computed(() => _description.value != null && _description.value.length);
+
+const _tooltip = computed(() => _props.property?.tooltip || mProps.value.tooltip);
+const _validator = computed(() => _props.property?.validator || _props.validator);
+const _required = computed(() => _props.property?.required || mProps.value.required);
+const hasValidateInfo = computed(() => _props.validator != null || _props.required || valid.value?.error)
 
 const autoLabelWidth = computed(() => {
     const defaultLabelWidth = '10em';
     const labelLengthLimit = 32;
-    if (props.labelWidth != null)
-        return props.labelWidth;
+    if (mProps.value.labelWidth != null)
+        return mProps.value.labelWidth;
 
-    if (props.labelMaxLength != null) {
-        let len = Math.min(props.labelMaxLength, labelLengthLimit);
+    if (mProps.value.labelMaxLength != null) {
+        let len = Math.min(mProps.value.labelMaxLength, labelLengthLimit);
         return len + "em";
     }
 
@@ -102,10 +126,10 @@ const autoLabelWidth = computed(() => {
 });
 
 const labelSize = computed(() => {
-    if (props.labelMaxLength != null)
-        return props.labelMaxLength;
-    else if (props.labelWidth != null)
-        return parseInt(props.labelWidth.replace("rem", "").replace("em", ""));
+    if (mProps.value.labelMaxLength != null)
+        return mProps.value.labelMaxLength;
+    else if (mProps.value.labelWidth != null)
+        return parseInt(mProps.value.labelWidth.replace("rem", "").replace("em", ""));
     else
         return undefined;
 });
@@ -131,7 +155,7 @@ const more2 = computed(() => {
 const optional = computed(() => _required.value == undefined ? undefined : !_required.value);
 
 const alignItems = computed(() => {
-    switch (props.align) {
+    switch (mProps.value.align) {
         case 'top':
             return 'start';
         case 'bottom':
@@ -139,7 +163,7 @@ const alignItems = computed(() => {
         case 'middle':
         case 'center':
         default:
-            return props.align;
+            return mProps.value.align;
     }
 });
 
@@ -169,11 +193,11 @@ function validate(val: any = model.value, event?: Event): ValidateResult {
                 result = validator(val);
                 if (result == null)
                     result = { error: false };
-            } catch (err: Error) {
+            } catch (e) {
                 result = {
                     error: true,
-                    exception: err,
-                    message: err.toString(), // 'Error: message'
+                    exception: e,
+                    message: String(e), // 'Error: message'
                 };
             }
     }
@@ -196,7 +220,7 @@ function formatError(err: string) {
 onMounted(() => {
 });
 
-if (props.watch) {
+if (mProps.value.watch) {
     watch(model, (newVal, oldVal) => {
         validate(newVal);
     }, {
@@ -207,16 +231,15 @@ if (props.watch) {
 </script>
 
 <template>
-    <component :is="tagName" class="component-root field-row" :class="{ required, optional, ok, error }"
-        ref="rootElement">
+    <component :is="mProps.tagName" class="component-root field-row"
+        :class="{ required: _required, optional, ok, error }" ref="rootElement">
         <component :is="childTagName" class="icon-label">
             <Icon :name="_icon" v-if="_icon != null" />
             <span class="label" :class="{ morebit, morehalf, more2 }"> {{ _label }} </span>
-            <Icon v-if="after == 'label'" :name="expanded ? collapseIcon : expandIcon" class="toggler"
-                @click="expanded = !expanded" />
+            <Icon v-if="mProps.after == 'label'" :name="expanded ? mProps.collapseIcon! : mProps.expandIcon!"
+                class="toggler" @click="expanded = !expanded" />
         </component>
-        <component :is="childTagName" class="content"
-            v-if="description == null && _validator == null && _required != true">
+        <component :is="childTagName" class="content" v-if="!hasDescription && !hasValidateInfo && _required != true">
             <div class="content">
                 <slot>
                 </slot>
@@ -226,11 +249,11 @@ if (props.watch) {
             <div class="content">
                 <slot>
                 </slot>
-                <Icon class="validate" name="far-check-circle" @click="validate()" v-if="!watch" />
+                <Icon class="validate" name="far-check-circle" @click="validate()" v-if="!mProps.watch" />
                 <Icon class="validate-state" :name="valid.error ? 'fa-times' : 'fa-check'"
-                    v-if="valid != null && (showState || valid.error)" />
-                <Icon v-if="after == 'end'" :name="expanded ? collapseIcon : expandIcon" class="toggler"
-                    @click="expanded = !expanded" />
+                    v-if="valid != null && (mProps.showState || valid.error)" />
+                <Icon v-if="mProps.after == 'end'" :name="expanded ? mProps.collapseIcon! : mProps.expandIcon!"
+                    class="toggler" @click="expanded = !expanded" />
             </div>
             <div class="error-info" v-if="valid != null && valid.error">
                 <slot name="error" v-bind="valid">
@@ -239,7 +262,7 @@ if (props.watch) {
                     <span class="message" v-if="valid.message != null"> {{ formatError(valid.message) }} </span>
                 </slot>
             </div>
-            <div class="description" v-if="_description != null">
+            <div class="description" v-if="hasDescription">
                 <slot name="description"> {{ _description }} </slot>
             </div>
         </component>
@@ -266,7 +289,7 @@ if (props.watch) {
     margin-right: 1em;
 
     .icon {
-        width: v-bind(iconWidth);
+        width: v-bind(mIconWidth);
         margin-right: .6rem;
         text-align: center;
         font-size: 80%;
@@ -275,7 +298,7 @@ if (props.watch) {
 
 .label {
     width: v-bind(autoLabelWidth);
-    text-align: v-bind(alignLabel);
+    text-align: v-bind(mAlignLabel);
 
     &.morebit {
         // font-size: 80%;

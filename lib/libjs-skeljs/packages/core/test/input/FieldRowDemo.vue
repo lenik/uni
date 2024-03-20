@@ -1,11 +1,23 @@
 <script lang="ts">
-import { computed, ref } from 'vue';
+import { computed, provide, ref } from 'vue';
 
 export const title = 'field row demo';
+
+const fieldRowProps: any = {
+    tagName: 'div',
+    align: 'top',
+    alignLabel: 'left',
+    // labelWidth: '5em',
+    // description: '...',
+    // required: true,
+    // watch: false,
+};
 </script>
 
 <script setup lang="ts">
-import FieldRow from '../../src/ui/FieldRow.vue';
+import FieldRow, { FIELD_ROW_PROPS } from '../../src/ui/FieldRow.vue';
+
+provide(FIELD_ROW_PROPS, fieldRowProps);
 
 const userName = ref<string>('Tom');
 const password = ref<string>('what 8the');
@@ -47,14 +59,6 @@ function validateAge(age: number) {
         throw "you too old, more than 100 years";
 }
 
-const fieldRowProps: any = {
-    tagName: 'li',
-    align: 'top',
-    alignLabel: 'left',
-    description: '...',
-    // required: true,
-    // watch: false,
-};
 const fieldTrProps: any = {
     ...fieldRowProps,
     tagName: 'tr',
@@ -66,7 +70,7 @@ const valids: any = ref({});
 
 <template>
     <h2> FieldRow (div) </h2>
-    <FieldRow v-bind="fieldRowProps" icon="fa-user" label="User Name" v-model="userName" :validator="validateUsername"
+    <FieldRow icon="fa-user" label="User Name" v-model="userName" :validator="validateUsername"
         v-model:valid="valids.user">
         <input type="text" v-model="userName" placeholder="enter text...">
 
@@ -74,7 +78,7 @@ const valids: any = ref({});
             or websites. It is typically chosen by the user during the registration process and is often required along
             with a password to log in to an account. </template>
     </FieldRow>
-    <FieldRow v-bind="fieldRowProps" icon="fa-key" label="Password" v-model="password" :validator="validatePassword"
+    <FieldRow icon="fa-key" label="Password" v-model="password" :validator="validatePassword"
         v-model:valid="valids.password">
         <input type="text" v-model="password" placeholder="enter password...">
 
@@ -83,8 +87,7 @@ const valids: any = ref({});
             ensure that only authorized individuals can access sensitive information or perform certain actions.
         </template>
     </FieldRow>
-    <FieldRow v-bind="fieldRowProps" icon="fa-key" label="Age" v-model="age" :validator="validateAge"
-        v-model:valid="valids.age">
+    <FieldRow icon="fa-key" label="Age" v-model="age" :validator="validateAge" v-model:valid="valids.age">
         <input type="number" v-model="age" placeholder="choose your age">
 
         <template #description> Age is a term that generally refers to the length of time a person has been alive since
@@ -100,15 +103,15 @@ const valids: any = ref({});
                 <th>Content</th>
             </tr>
         </thead>
-        <FieldRow v-bind="fieldRowProps" icon="fa-user" label="User Name" v-model="userName"
-            :validator="validateUsername" v-model:valid="valids.user">
+        <FieldRow icon="fa-user" label="User Name" v-model="userName" :validator="validateUsername"
+            v-model:valid="valids.user">
             <input type="text" v-model="userName" placeholder="enter text...">
 
             <template #description> A username is a unique identifier used by individuals to access various online
                 platforms or websites. It is typically chosen by the user during the registration process and is often
                 required along with a password to log in to an account. </template>
         </FieldRow>
-        <FieldRow v-bind="fieldRowProps" icon="fa-key" label="Password" v-model="password" :validator="validatePassword"
+        <FieldRow icon="fa-key" label="Password" v-model="password" :validator="validatePassword"
             v-model:valid="valids.password">
             <input type="text" v-model="password" placeholder="enter password...">
 
@@ -117,8 +120,7 @@ const valids: any = ref({});
                 security measure to ensure that only authorized individuals can access sensitive information or perform
                 certain actions. </template>
         </FieldRow>
-        <FieldRow v-bind="fieldRowProps" icon="fa-key" label="Age" v-model="age" :validator="validateAge"
-            v-model:valid="valids.age">
+        <FieldRow icon="fa-key" label="Age" v-model="age" :validator="validateAge" v-model:valid="valids.age">
             <input type="number" v-model="age" placeholder="choose your age">
 
             <template #description> Age is a term that generally refers to the length of time a person has been alive
