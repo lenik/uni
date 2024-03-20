@@ -6,6 +6,7 @@ dist_bin_SCRIPTS = \
     java/daogen \
     java/foob \
     java/ls-entity \
+    java/tcoll \
     java/tstool
 
 dist_man_MANS =
@@ -36,6 +37,7 @@ install-debug:
 	sudo ln -snf $$PWD/java/daogen.in /bin/daogen
 	sudo ln -snf $$PWD/java/foob.in /bin/foob
 	sudo ln -snf $$PWD/java/ls-entity.in /bin/ls-entity
+	sudo ln -snf $$PWD/java/tcoll.in /bin/tcoll
 	sudo ln -snf $$PWD/java/tstool.in /bin/tstool
 
 autobuild:

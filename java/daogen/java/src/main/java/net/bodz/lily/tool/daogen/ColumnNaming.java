@@ -31,15 +31,18 @@ public class ColumnNaming {
                 && Character.isUpperCase(property.charAt(1));
     }
 
+    public static String capitalize(String propertyName) {
+        if (lowerUpper(propertyName))
+            return propertyName;
+        else
+            return Strings.ucfirst(propertyName);
+    }
+
     public void initByPropertyName(String propertyName) {
         this.fieldName = propertyName;
 
         this.propertyName = propertyName;
-        if (lowerUpper(propertyName))
-            this.capPropertyName = propertyName;
-        else
-            this.capPropertyName = Strings.ucfirst(propertyName);
-
+        this.capPropertyName = capitalize(propertyName);
         String under_line = StringId.UL.breakCamel(this.propertyName);
         this.constFieldName = under_line.toUpperCase();
     }

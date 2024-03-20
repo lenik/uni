@@ -1,16 +1,8 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
+
+import javax.persistence.GeneratedValue;
 
 import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.c.string.StringId;
@@ -321,7 +313,11 @@ public class FooEditor__vue
                 propertyModel);
         {
             out.enter();
-            editControl(out, column, property);
+            if (property.isAnnotationPresent(GeneratedValue.class)) {
+                readView(out, column, property);
+            } else {
+                editControl(out, column, property);
+            }
             out.leave();
         }
         out.println("</FieldRow>");
@@ -361,6 +357,13 @@ public class FooEditor__vue
         String xml = attrs.toXml(out.im.name(//
                 EsmModules.dba.RefEditor), true);
         out.println(xml);
+    }
+
+    void readView(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
+        ColumnNaming cname = project.naming(column);
+        String propertyName = cname.propertyName;
+        String propertyModel = "model." + propertyName;
+        out.printf("<div class='readonly' v-text=\"%s\"></div>\n", propertyModel);
     }
 
     void editControl(TypeScriptWriter out, IColumnMetadata column, IProperty property) {

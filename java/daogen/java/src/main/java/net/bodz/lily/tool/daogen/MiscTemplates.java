@@ -20,6 +20,9 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
 
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.primitive.Primitives;
@@ -513,6 +516,9 @@ public class MiscTemplates {
         if (parentTable == null) {
             throw new UnexpectedException("parent is not defined: " + parentOid);
         }
+        QualifiedName parentType = parentTable.getJavaType();
+        if (parentType == null)
+            throw new NullPointerException("parentType");
 
         String label = xref.getLabel();
         String description = xref.getDescription();
@@ -535,6 +541,25 @@ public class MiscTemplates {
         out.println(" * @constraint " + xref.getForeignKeySQL());
         out.println(" */");
 
+        String[] fColumns = xref.getForeignKey().getColumnNames();
+        if (fColumns.length > 1) {
+            out.printf("@%s(\n", out.im.name(JoinColumns.class));
+            out.enter();
+        }
+
+        for (String fColumn : fColumns) {
+            out.printf("@%s(name = %s)\n", //
+                    out.im.name(JoinColumn.class), //
+                    StringQuote.qqJavaString(fColumn));
+        }
+
+        if (fColumns.length > 1) {
+            out.leave();
+            out.println(")");
+        }
+
+        out.println("@" + out.im.name(ManyToOne.class));
+
         boolean notNull = false;
         for (IColumnMetadata c : columns)
             if (! c.isNullable(false)) {
@@ -544,12 +569,8 @@ public class MiscTemplates {
         if (notNull)
             out.println("@" + out.im.name(NotNull.class));
 
-        QualifiedName parentType = parentTable.getJavaType();
-        if (parentType == null)
-            throw new NullPointerException("parentType");
-
         String property = xref.getPropertyName();
-        String Property = Strings.ucfirst(property);
+        String Property = ColumnNaming.capitalize(property);
 
         out.printf("public %s get%s()", //
                 out.im.name(parentType), Property);

@@ -89,7 +89,7 @@ public class TypeExtendInfo {
                 switch (varType) {
                 case THIS_REC:
                 case THIS_TYPE:
-                    ctorParams.add("selfType: any");
+                    // ctorParams.add("selfType: any");
                     break;
                 default:
                 }
@@ -104,11 +104,10 @@ public class TypeExtendInfo {
                 TypeParamType baseVarType = this.baseTypeVarTypes[i];
                 switch (baseVarType) {
                 case THIS_REC:
-                    superArgs.add("selfType");
+                    // superArgs.add("selfType");
                     break;
 
                 case THIS_TYPE:
-                    superArgs.add("selfType");
                     // see: isSelfTypeNeeded()
                     break;
 
@@ -128,10 +127,10 @@ public class TypeExtendInfo {
     }
 
     public boolean isSelfTypeNeeded() {
-//        if (this.baseTypeVarTypes != null)
-//            for (TypeParamType baseVarType : baseTypeVarTypes)
-//                if (baseVarType == TypeParamType.THIS_TYPE)
-//                    return true;
+        if (this.baseTypeVarTypes != null)
+            for (TypeParamType baseVarType : baseTypeVarTypes)
+                if (baseVarType == TypeParamType.THIS_TYPE)
+                    return true;
         return false;
     }
 

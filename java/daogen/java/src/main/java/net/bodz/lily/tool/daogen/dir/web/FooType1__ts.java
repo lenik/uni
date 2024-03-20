@@ -4,7 +4,6 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.c.object.Nullables;
-import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.potato.element.IProperty;
@@ -15,6 +14,7 @@ import net.bodz.bas.repr.form.validate.NotNull;
 import net.bodz.bas.repr.form.validate.Precision;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
+import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.util.Attrs;
@@ -62,8 +62,6 @@ public class FooType1__ts
                 out.enter();
                 // extend.baseParams;
                 out.printf("super(%s);\n", extend.getSuperCtorArgs(this));
-                if (extend.isSelfTypeNeeded())
-                    out.println("this.selfType = this;");
                 out.leave();
             }
             out.println("}");
@@ -171,7 +169,7 @@ public class FooType1__ts
             attrs.putQuoted("description", description);
 
         String validatorFn = String.format("this.validators.validate%s", //
-                Strings.ucfirst(property.getName()));
+                ColumnNaming.capitalize(property.getName()));
         attrs.put("validator", validatorFn);
 
         out.print("(");
