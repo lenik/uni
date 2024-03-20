@@ -80,9 +80,9 @@ function formatBigInt(n: BigInteger) {
     let negative = n < 0;
     if (negative) n = -n;
     let v: number[] = [];
-    while (n != 0n) {
-        let rem = n % 1000n;
-        n /= 1000n;
+    while (String(n) != '0') {
+        let rem = n % BigInt(1000);
+        n /= BigInt(1000);
         v.push(Number(rem));
     }
     let s = rjoin(v, ',');
