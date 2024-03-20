@@ -47,7 +47,7 @@ const localDate = ref<LocalDate>(new LocalDate({
 // });
 
 const lunar = computed(() => {
-    let lunarDate = LunarDate.fromMoment(localDate.value.moment_read);
+    let lunarDate = LunarDate.fromMoment(localDate.value.moment);
     lunarDate.onchange = d => localDate.value.moment = d.moment;
     return lunarDate;
 });
