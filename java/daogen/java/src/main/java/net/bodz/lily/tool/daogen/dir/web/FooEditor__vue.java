@@ -73,7 +73,7 @@ public class FooEditor__vue
 
     @Override
     protected void buildScript1(TypeScriptWriter out, ITableMetadata model) {
-        out.name(EsmModules.core.FieldRow);
+        out.name(EsmModules.core.FieldRow.FieldRow);
 
         out.println("export interface Props {");
         out.println("}");
@@ -114,6 +114,9 @@ public class FooEditor__vue
         out.printf("const fieldRowProps = %s({ labelWidth: '%drem' });\n", //
                 out.name(EsmModules.dba.defaults.getDefaultFieldRowProps), //
                 labelWidth);
+        out.printf("%s(%s, fieldRowProps);\n", //
+                out.name(EsmModules.vue.provide), //
+                out.name(EsmModules.core.FieldRow.FIELD_ROW_PROPS));
 
         out.println();
         out.printf("const rootElement = %s<HTMLElement>();\n", //
@@ -325,7 +328,7 @@ public class FooEditor__vue
         String propertyName = cname.propertyName;
         String propertyModel = "model." + propertyName;
 
-        out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"%s\">\n", //
+        out.printf("<FieldRow :property=\"meta.%s\" v-model=\"%s\">\n", //
                 propertyName, //
                 propertyModel);
         {
@@ -348,7 +351,7 @@ public class FooEditor__vue
 
     void fkRow(TypeScriptWriter out, CrossReference xref, IProperty property) {
         String propertyName = xref.getPropertyName();
-        out.printf("<FieldRow v-bind=\"fieldRowProps\" :property=\"meta.%s\" v-model=\"model.%s\">\n", //
+        out.printf("<FieldRow :property=\"meta.%s\" v-model=\"model.%s\">\n", //
                 propertyName, //
                 propertyName);
         {

@@ -11,6 +11,8 @@ public class Esm_vue
     }
 
     public final EsmName computed = main.name("computed");
+    public final EsmName inject = main.name("inject");
+    public final EsmName provide = main.name("provide");
     public final EsmName Ref = main.type("ref");
     public final EsmName ref = main.name("ref");
     public final EsmName onMounted = main.name("onMounted");

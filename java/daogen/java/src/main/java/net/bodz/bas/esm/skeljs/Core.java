@@ -158,6 +158,13 @@ public class Core
 
     }
 
+    @SourcePath("ui/FieldRow.vue")
+    public class FieldRow
+            extends Source {
+        public final EsmName FieldRow = defaultExport("FieldRow");
+        public final EsmName FIELD_ROW_PROPS = name("FIELD_ROW_PROPS");
+    }
+
     @SourcePath("lang/VarMap")
     public class VarMap
             extends Source {
@@ -185,8 +192,8 @@ public class Core
     public final VarMap VarMap = add(new VarMap());
 
     public final EsmName Dialog = vue("ui/Dialog.vue");
-    public final EsmName FieldRow = vue("ui/FieldRow.vue");
     public final EsmName DateTime = vue("ui/input/DateTime.vue");
+    public final FieldRow FieldRow = add(new FieldRow());
     public final EsmName JsonEditor = vue("ui/input/JsonEditor.vue");
 
 }
