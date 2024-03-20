@@ -5,7 +5,7 @@ export const title = 'icon demo';
 </script>
 
 <script setup lang="ts">
-import Icon from '../src/ui/Icon.vue';
+import Icon from '../../src/ui/Icon.vue';
 
 var sets = [
     {

@@ -1,6 +1,6 @@
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { parseJson, toJson } from "../src/lang/json";
+import { parseJson, toJson } from "../../src/lang/json";
 
 export const title = 'JSON with (circular) references: parser and formatter test.';
 
@@ -9,7 +9,7 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import JsonEditor from "../src/ui/input/JsonEditor.vue";
+import JsonEditor from "../../src/ui/input/JsonEditor.vue";
 
 const model = defineModel();
 

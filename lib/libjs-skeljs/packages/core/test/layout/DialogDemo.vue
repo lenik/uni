@@ -5,7 +5,7 @@ export const title = 'dialog demo';
 </script>
 
 <script setup lang="ts">
-import Dialog from '../src/ui/Dialog.vue';
+import Dialog from '../../src/ui/Dialog.vue';
 
 const modal = ref();
 const nonModal = ref();

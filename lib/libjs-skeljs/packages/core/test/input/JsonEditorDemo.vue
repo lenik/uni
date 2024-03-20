@@ -8,7 +8,7 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import JsonEditor from '../src/ui/input/JsonEditor.vue';
+import JsonEditor from '../../src/ui/input/JsonEditor.vue';
 
 const model = defineModel();
 

@@ -5,9 +5,9 @@ export const title = 'recursive node tree demo';
 </script>
 
 <script setup lang="ts">
-import { UiNode } from '../src/ui/ui-node';
+import { UiNode } from '../../src/ui/ui-node';
 
-import NodeTree from '../src/ui/tree/NodeTree.vue';
+import NodeTree from '../../src/ui/tree/NodeTree.vue';
 
 const root: UiNode<any> = ['root', {
     c1: ['child 1'],

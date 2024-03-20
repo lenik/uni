@@ -1,6 +1,6 @@
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { Instant, LocalDate, LocalDateTime, LocalTime, OffsetDateTime, OffsetTime, ZonedDateTime } from '../src/lang/time';
+import { Instant, LocalDate, LocalDateTime, LocalTime, OffsetDateTime, OffsetTime, ZonedDateTime } from '../../src/lang/time';
 
 export const title = "DateTime for various timezone";
 
@@ -9,8 +9,8 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import DateTime from '../src/ui/input/DateTime.vue';
-import FieldRow from '../src/ui/FieldRow.vue';
+import DateTime from '../../src/ui/input/DateTime.vue';
+import FieldRow from '../../src/ui/FieldRow.vue';
 
 const model = defineModel();
 

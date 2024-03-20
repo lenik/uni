@@ -7,7 +7,7 @@ export const title = 'jquery-ui dialog demo';
 </script>
 
 <script setup lang="ts">
-import UiDialog from '../src/ui/UiDialog.vue';
+import UiDialog from '../../src/ui/UiDialog.vue';
 
 const modal = ref();
 const nonModal = ref();

@@ -5,7 +5,7 @@ export const title = 'field row demo';
 </script>
 
 <script setup lang="ts">
-import FieldRow from '../src/ui/FieldRow.vue';
+import FieldRow from '../../src/ui/FieldRow.vue';
 
 const userName = ref<string>('Tom');
 const password = ref<string>('what 8the');

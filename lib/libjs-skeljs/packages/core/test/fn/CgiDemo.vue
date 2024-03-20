@@ -1,6 +1,6 @@
 <script lang="ts">
 import { computed, ref } from 'vue';
-import { VarMap } from '../src/lang/VarMap';
+import { VarMap } from '../../src/lang/VarMap';
 
 export const title = 'CGI utils';
 </script>

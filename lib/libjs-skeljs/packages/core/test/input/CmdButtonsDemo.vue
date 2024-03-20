@@ -1,13 +1,13 @@
 <script lang="ts">
 import 'jquery-ui-themes/themes/le-frog/jquery-ui.css';
 import { computed, ref } from 'vue';
-import { Command } from '../src/ui/types';
+import { Command } from '../../src/ui/types';
 
 export const title = 'grouped cmd buttons demo';
 </script>
 
 <script setup lang="ts">
-import CmdButtons from '../src/ui/CmdButtons.vue';
+import CmdButtons from '../../src/ui/CmdButtons.vue';
 
 const cmds = ref<Command[]>([
     {
