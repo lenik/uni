@@ -10,6 +10,7 @@ import OffsetDateTime from "../../lang/time/OffsetDateTime";
 import OffsetTime from "../../lang/time/OffsetTime";
 import ZonedDateTime from "../../lang/time/ZonedDateTime";
 import { toASCII } from "punycode";
+import { SQLDate, SQLTime, Timestamp } from "@skeljs/core/src/lang/time";
 
 export interface Props {
     type?: 'date' | 'string' | 'temporal' | 'auto'
@@ -21,7 +22,7 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-const model = defineModel<Date | MomentWrapper | string | undefined | null>();
+const model = defineModel<Date | SQLDate | SQLTime | Timestamp | MomentWrapper | string | undefined | null>();
 
 const props = withDefaults(defineProps<Props>(), {
     type: 'auto',
