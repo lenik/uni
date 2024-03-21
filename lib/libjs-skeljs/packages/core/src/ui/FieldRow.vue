@@ -51,7 +51,7 @@ const emit = defineEmits<{
 
 // property shortcuts
 
-const fieldRowProps = inject<Props>(FIELD_ROW_PROPS);
+const fieldRowProps = inject<Props>(FIELD_ROW_PROPS, {});
 
 function coalesce<T>(...args: T[]): T | undefined {
     for (let i = 0; i < args.length; i++)
@@ -279,6 +279,10 @@ if (mProps.value.watch) {
     flex-direction: row;
     align-items: v-bind(alignItems);
     break-inside: avoid;
+
+    >.content {
+        flex: 1;
+    }
 }
 
 .icon-label {
@@ -288,30 +292,31 @@ if (mProps.value.watch) {
 
     margin-right: 1em;
 
-    .icon {
+    >.icon {
         width: v-bind(mIconWidth);
         margin-right: .6rem;
         text-align: center;
         font-size: 80%;
     }
+
+    >.label {
+        width: v-bind(autoLabelWidth);
+        text-align: v-bind(mAlignLabel);
+
+        &.morebit {
+            // font-size: 80%;
+        }
+
+        &.morehalf {
+            // font-size: 80%;
+        }
+
+        &.more2 {
+            font-size: 80%;
+        }
+    }
 }
 
-.label {
-    width: v-bind(autoLabelWidth);
-    text-align: v-bind(mAlignLabel);
-
-    &.morebit {
-        // font-size: 80%;
-    }
-
-    &.morehalf {
-        // font-size: 80%;
-    }
-
-    &.more2 {
-        font-size: 80%;
-    }
-}
 
 .with-description {
     flex: 1;
