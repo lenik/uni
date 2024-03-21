@@ -101,6 +101,22 @@ function formatBigDecimal(n: BigDecimal) {
     return s;
 }
 
+export class UndefinedType extends TypeInfo<undefined> {
+
+    override get icon() { return "far-question"; }
+
+    override get name() { return "undefined"; }
+
+    override parse(s: string): undefined {
+        return undefined;
+    }
+
+    override format(val: undefined): string {
+        return "undefined";
+    }
+
+}
+
 export abstract class NumberType<T> extends TypeInfo<T> {
 
     override get icon() { return "far-hashtag"; }
@@ -586,6 +602,7 @@ export class InetAddressType extends TypeInfo<InetAddress> {
 
 }
 
+export const UNDEFINED = new UndefinedType();
 export const BYTE = new ByteType();
 export const SHORT = new ShortType();
 export const INT = new IntType();
@@ -621,6 +638,7 @@ export function MAP<K, V>(keyType: TypeInfo<K>, valueType: TypeInfo<V>): MapType
 export const INET_ADDRESS = new InetAddressType();
 
 export const typeMap = {
+    'UNDEFINED': UNDEFINED,
     'BYTE': BYTE,
     'SHORT': SHORT,
     'INT': INT,
