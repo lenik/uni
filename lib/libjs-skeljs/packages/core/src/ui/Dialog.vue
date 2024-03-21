@@ -171,7 +171,6 @@ async function select(event: Event) {
         if (frame.selectCallback != null) {
             // slowly((end) => {
             let success = frame.selectCallback(model.value, event);
-            console.log(success);
             if (typeof success == 'object')
                 if (typeof success.then == 'function') {
                     success = await success;

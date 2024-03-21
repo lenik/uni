@@ -163,8 +163,17 @@ async function saveNew() {
 
     let newRow = api.row.add(row) as any;
     newRow.draw();
-    newRow.nodes().to$().addClass('new');
-
+    try {
+        newRow.nodes().to$().addClass('new');
+    } catch (err) {
+        console.error('error get newRow.nodes()', err);
+        (api.ajax as any).reloadSmooth(false, () => {
+            let info = (api as any).rowNumInfo()!;
+            let pos = 0;
+            // pos = Math.min(pos, info.nodes.length - 1);
+            // api.row(info.nodes[pos]).select();
+        });
+    }
     return true;
 }
 
