@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 export const links = {
-    "App": 'Core Test Site',
     "": 'List of Test Samples',
+    "Project": "component Project",
     "IconDemo": 'icon demo',
     "MenuDemo": 'menu demo',
     "NodeTreeDemo": 'recursive node tree demo',
@@ -22,8 +22,8 @@ export const links = {
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
-        { path: '/App', component: () => import('./App.vue') },
         { path: '/', component: () => import('./Index.vue') },
+        { path: '/Project', component: () => import('../src/ui/demo/Project.vue') },
         { path: '/IconDemo', component: () => import('./common/IconDemo.vue') },
         { path: '/MenuDemo', component: () => import('./composite/MenuDemo.vue') },
         { path: '/NodeTreeDemo', component: () => import('./composite/NodeTreeDemo.vue') },

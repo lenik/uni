@@ -1,2 +1,5 @@
 router.ts: .
-	make-router *.vue */*.vue >$@
+	make-router \
+		Index.vue \
+		../src/ui/demo/Project.vue \
+		*/*.vue >$@
