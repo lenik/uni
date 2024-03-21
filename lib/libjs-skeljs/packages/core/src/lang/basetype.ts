@@ -32,14 +32,14 @@ export interface IExample {
 
 }
 
-export class Example implements IExample {
+export abstract class Example implements IExample {
 
-    get name(): string;
-    get ordinal(): int;
-    get icon(): string | undefined;
-    get label(): string | undefined;
-    get display(): string;
-    get description(): string | undefined;
+    abstract get name(): string;
+    abstract get ordinal(): int;
+    abstract get icon(): string | undefined;
+    abstract get label(): string | undefined;
+    abstract get display(): string;
+    abstract get description(): string | undefined;
 
 }
 
