@@ -1,9 +1,7 @@
 package net.bodz.lily.tool.daogen.dir.dao;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.potato.PotatoTypes;
@@ -11,13 +9,11 @@ import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
-import net.bodz.lily.concrete.*;
-import net.bodz.lily.meta.CriteriaClass;
-import net.bodz.lily.schema.account.dao.CoPrincipalCriteriaBuilder;
+import net.bodz.lily.concrete.CoObjectCriteriaBuilder;
+import net.bodz.lily.concrete.StructRowCriteriaBuilder;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
-import net.bodz.lily.tool.daogen.util.CanonicalClass;
 
 public class FooCriteriaBuilder_stuff__java
         extends JavaGen__java {
@@ -26,15 +22,18 @@ public class FooCriteriaBuilder_stuff__java
         super(project, project._FooCriteriaBuilder_stuff);
     }
 
-    static Map<Class<?>, Class<?>> defaultBases = new LinkedHashMap<>();
-    static {
-        defaultBases.put(CoMessage.class, CoMessageCriteriaBuilder.class);
-        defaultBases.put(CoEvent.class, CoEventCriteriaBuilder.class);
-        defaultBases.put(CoCategory.class, CoCategoryCriteriaBuilder.class);
-        defaultBases.put(CoCode.class, CoCodeCriteriaBuilder.class);
-        defaultBases.put(CoNode.class, CoNodeCriteriaBuilder.class);
-        defaultBases.put(CoPrincipal.class, CoPrincipalCriteriaBuilder.class);
-    };
+    Class<?> findMaskClass(Class<?> clazz) {
+        Class<?> ancestor = clazz;
+        while (ancestor != null) {
+            QualifiedName javaType = QualifiedName.of(ancestor);
+            QualifiedName maskType = javaType.append("CriteriaBuilder");
+            Class<?> maskClass = maskType.getJavaClass();
+            if (maskClass != null)
+                return maskClass;
+            ancestor = ancestor.getSuperclass();
+        }
+        return null;
+    }
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
@@ -42,26 +41,9 @@ public class FooCriteriaBuilder_stuff__java
         Class<?> parentClass = null;
 
         if (javaType != null) {
-            try {
-                Class<?> entityClass = CanonicalClass.forName(javaType.getFullName());
-
-                for (Class<?> base : defaultBases.keySet()) {
-                    if (base.isAssignableFrom(entityClass)) {
-                        parentClass = defaultBases.get(base);
-                        break;
-                    }
-                }
-                CriteriaClass aCriteriaClass = entityClass.getAnnotation(CriteriaClass.class);
-                if (aCriteriaClass != null) {
-                    Class<?> criteriaClass = aCriteriaClass.value();
-                    if (parentClass == null)
-                        parentClass = criteriaClass;
-                    else if (parentClass.isAssignableFrom(criteriaClass))
-                        parentClass = criteriaClass;
-                }
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
+            Class<?> entityClass = javaType.getJavaClass();
+            if (entityClass != null)
+                parentClass = findMaskClass(entityClass);
         }
 
         if (parentClass == null) {

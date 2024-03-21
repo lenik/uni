@@ -1,17 +1,7 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.persistence.GeneratedValue;
 
@@ -39,6 +29,7 @@ import net.bodz.bas.t.predef.Predef;
 import net.bodz.bas.t.predef.PredefMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.StructRow;
+import net.bodz.lily.meta.FieldGroupVue;
 import net.bodz.lily.meta.ReadOnly;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
@@ -227,7 +218,7 @@ public class FooEditor__vue
 
         Set<String> handled = new HashSet<>();
 
-        Class<?> bringToTopClass = extend.javaBaseClass;
+//        Class<?> bringToTopClass = extend.javaBaseClass;
 
         Map<Class<?>, Map<IProperty, IColumnMetadata>> groups = new LinkedHashMap<>();
 
@@ -288,39 +279,49 @@ public class FooEditor__vue
         Collections.reverse(supersFromRoot);
 
         for (Class<?> decl : supersFromRoot) {
-            Map<IProperty, IColumnMetadata> selection = groups.get(decl);
-
-            out.printf("<%s :type=\"%s.TYPE\">\n", //
-                    out.name(EsmModules.dba.FieldGroup), //
-                    out.importDefault(decl));
-            out.enter();
-
-            Map<IColumnMetadata, IProperty> map1 = new TreeMap<>(OrdinalComparator.INSTANCE);
-            Map<CrossReference, IProperty> map2 = new TreeMap<>(OrdinalComparator.INSTANCE);
-
-            for (IProperty property : selection.keySet()) {
-                IColumnMetadata column = selection.get(property);
-                if (column.isForeignKey()) {
-                    CrossReference xref = table.getForeignKeyFromColumn(column.getName());
-                    map2.put(xref, property); // can be repeat put.
-                } else {
-                    map1.put(column, property);
-                }
+            if (decl.isAnnotationPresent(FieldGroupVue.class)) {
+                QualifiedName fieldGroupVue = QualifiedName.of(decl).append("FieldGroup");
+                out.printf("<%s :meta=\"meta\" v-model=\"model\" />\n", //
+                        out.importVue(fieldGroupVue));
+            } else {
+                fieldGroup(out, table, decl, groups.get(decl));
             }
-
-            for (IColumnMetadata column : map1.keySet()) {
-                IProperty property = map1.get(column);
-                fieldRow(out, column, property);
-            }
-
-            for (CrossReference xref : map2.keySet()) {
-                IProperty property = map2.get(xref);
-                fkRow(out, xref, property);
-            }
-
-            out.leave();
-            out.println("</FieldGroup>");
         }
+    }
+
+    void fieldGroup(TypeScriptWriter out, ITableMetadata table, Class<?> decl,
+            Map<IProperty, IColumnMetadata> selection) {
+
+        out.printf("<%s :type=\"%s.TYPE\">\n", //
+                out.name(EsmModules.dba.FieldGroup), //
+                out.importDefault(decl));
+        out.enter();
+
+        Map<IColumnMetadata, IProperty> map1 = new TreeMap<>(OrdinalComparator.INSTANCE);
+        Map<CrossReference, IProperty> map2 = new TreeMap<>(OrdinalComparator.INSTANCE);
+
+        for (IProperty property : selection.keySet()) {
+            IColumnMetadata column = selection.get(property);
+            if (column.isForeignKey()) {
+                CrossReference xref = table.getForeignKeyFromColumn(column.getName());
+                map2.put(xref, property); // can be repeat put.
+            } else {
+                map1.put(column, property);
+            }
+        }
+
+        for (IColumnMetadata column : map1.keySet()) {
+            IProperty property = map1.get(column);
+            fieldRow(out, column, property);
+        }
+
+        for (CrossReference xref : map2.keySet()) {
+            IProperty property = map2.get(xref);
+            fkRow(out, xref, property);
+        }
+
+        out.leave();
+        out.println("</FieldGroup>");
     }
 
     void fieldRow(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
@@ -342,10 +343,11 @@ public class FooEditor__vue
     }
 
     static boolean isReadOnly(IProperty property) {
+        if (! property.isWritable())
+            return true;
         for (Class<? extends Annotation> a : readOnlyAnnotations)
-            if (property.isAnnotationPresent(a)) {
+            if (property.isAnnotationPresent(a))
                 return true;
-            }
         return false;
     }
 
@@ -389,12 +391,12 @@ public class FooEditor__vue
         out.println(html);
     }
 
-    void readView(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
-        ColumnNaming cname = project.naming(column);
-        String propertyName = cname.propertyName;
-        String propertyModel = "model." + propertyName;
-        out.printf("<div class='readonly' v-text=\"%s\"></div>\n", propertyModel);
-    }
+//    void readView(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
+//        ColumnNaming cname = project.naming(column);
+//        String propertyName = cname.propertyName;
+//        String propertyModel = "model." + propertyName;
+//        out.printf("<div class='readonly' v-text=\"%s\"></div>\n", propertyModel);
+//    }
 
     void editControl(TypeScriptWriter out, IColumnMetadata column, IProperty property) {
         ColumnNaming cname = project.naming(column);
@@ -406,7 +408,9 @@ public class FooEditor__vue
                 .property(property.getName())//
                 .resolveClass(type);
 
-        Attrs inputAttrs = new Attrs();
+        final String defaultTagName = "input";
+        String tagName = defaultTagName;
+        Attrs tagAttrs = new Attrs();
         switch (tsType) {
         case "number":
         case "byte":
@@ -415,20 +419,20 @@ public class FooEditor__vue
         case "long":
         case "float":
         case "double":
-            inputAttrs.put("type", "number");
+            tagAttrs.put("type", "number");
             break;
 
         case "BigDecimal":
         case "BigInteger":
-            inputAttrs.put("type", "number");
+            tagAttrs.put("type", "number");
             break;
 
         case "boolean":
-            inputAttrs.put("type", "checkbox");
+            tagAttrs.put("type", "checkbox");
             break;
         case "string":
         case "InetAddress":
-            inputAttrs.put("type", "text");
+            tagAttrs.put("type", "text");
             break;
 
         case "JavaDate":
@@ -442,25 +446,24 @@ public class FooEditor__vue
         case "LocalDateTime":
         case "ZonedDateTime":
         case "OffsetDateTime":
-            out.printf("<%s v-model=\"%s\" />\n", //
-                    out.importName(EsmModules.core.DateTime), //
-                    propertyModel);
-            return;
+            tagName = out.importName(EsmModules.core.DateTime);
+            break;
 
         case "JsonVariant":
-            out.printf("<%s v-model=\"%s\" />\n", //
-                    out.importName(EsmModules.core.JsonEditor), //
-                    propertyModel);
-            return;
+            tagName = out.importName(EsmModules.core.JsonEditor);
+            break;
         }
 
-        if (! inputAttrs.isEmpty()) {
+        if (! tagAttrs.isEmpty() || ! tagName.equals(defaultTagName)) {
             switch (tsType) {
             default:
-                inputAttrs.put("v-model", propertyModel);
+                tagAttrs.put("v-model", propertyModel);
             }
-            String xml = inputAttrs.toHtml("input", true);
-            out.println(xml);
+            if (isReadOnly(property))
+                tagAttrs.put("disabled", Attrs.NO_VALUE);
+
+            String html = tagAttrs.toHtml(tagName, true);
+            out.println(html);
             return;
         }
 
