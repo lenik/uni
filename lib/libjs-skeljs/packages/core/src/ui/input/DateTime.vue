@@ -9,8 +9,9 @@ import LocalTime from "../../lang/time/LocalTime";
 import OffsetDateTime from "../../lang/time/OffsetDateTime";
 import OffsetTime from "../../lang/time/OffsetTime";
 import ZonedDateTime from "../../lang/time/ZonedDateTime";
-import { toASCII } from "punycode";
-import { SQLDate, SQLTime, Timestamp } from "@skeljs/core/src/lang/time";
+import { SQLDate, SQLTime, Timestamp } from "../../lang/time";
+import formats from "../../lang/time/formats";
+import { bool } from "../types";
 
 export interface Props {
     type?: 'date' | 'string' | 'temporal' | 'auto'
@@ -18,6 +19,7 @@ export interface Props {
     date?: boolean // have date fields?  
     time?: boolean // have time fields?  
     zone?: boolean // have time zone fields?
+    disabled?: boolean | string
 }
 </script>
 
@@ -161,6 +163,8 @@ const showZone = computed(() => {
     return hasZoneField.value;
 });
 
+const bDisabled = computed(() => bool(props.disabled));
+
 function parseDate(s: string | undefined | null): MomentWrapper | undefined | null {
     if (s === undefined) return undefined;
     if (s === null) return null;
@@ -243,7 +247,6 @@ const temporalAccess = computed({
                 model.value = val?.toDate();
                 break;
             case 'string':
-                console.log('set string: ' + val?.formatted);
                 model.value = val?.formatted;
                 break;
             case 'temporal':
@@ -258,7 +261,7 @@ const localDateStr = computed({
         let temporal = temporalAccess.value;
         if (temporal === undefined) return undefined;
         if (temporal === null) return null;
-        let localDate = temporal.format(LocalDate.ISO_LOCAL_DATE);
+        let localDate = temporal.format(formats.UI_DATE);
         return localDate;
     },
     set(localDateStr: string | null | undefined) {
@@ -283,7 +286,7 @@ const localTimeStr = computed({
         let temporal = temporalAccess.value;
         if (temporal === undefined) return undefined;
         if (temporal === null) return null;
-        let localTime = temporal.format(LocalTime.ISO_LOCAL_TIME);
+        let localTime = temporal.format(formats.UI_TIME);
         return localTime;
     },
     set(localTimeStr: string | null | undefined) {
@@ -342,9 +345,9 @@ onMounted(() => {
         <li> hasZoneField: {{ hasZoneField }} </li>
     </ul>
     <div class="DateTime" ref="rootElement">
-        <input class="date" type="date" v-model="localDateStr" v-if="showDate">
-        <input class="time" type="time" v-model="localTimeStr" v-if="showTime">
-        <input class="zone" type="text" v-model="timeZoneStr" v-if="showZone">
+        <input class="date" type="date" :disabled="bDisabled" v-model="localDateStr" v-if="showDate">
+        <input class="time" type="time" :disabled="bDisabled" v-model="localTimeStr" v-if="showTime">
+        <input class="zone" type="text" :disabled="bDisabled" v-model="timeZoneStr" v-if="showZone">
         <slot></slot>
     </div>
 </template>
