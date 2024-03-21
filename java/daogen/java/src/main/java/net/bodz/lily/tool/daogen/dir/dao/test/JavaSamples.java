@@ -98,19 +98,32 @@ public class JavaSamples
         String formatName;
         switch (TypeKind.getTypeId(type)) {
         case TypeId.INSTANT:
-        case TypeId.ZONED_DATE_TIME:
-        case TypeId.OFFSET_DATE_TIME:
+            formatter = DateTimes.ISO_INSTANT;
+            formatName = "ISO_INSTANT";
+            break;
         case TypeId.LOCAL_DATE_TIME:
-            formatter = DateTimes.ISO8601;
-            formatName = "ISO8601";
+            formatter = DateTimes.ISO_LOCAL_DATE_TIME;
+            formatName = "ISO_LOCAL_DATE_TIME";
             break;
         case TypeId.LOCAL_DATE:
             formatter = DateTimes.ISO_LOCAL_DATE;
-            formatName = "YYYY_MM_DD";
+            formatName = "ISO_LOCAL_DATE";
             break;
         case TypeId.LOCAL_TIME:
             formatter = DateTimes.ISO_LOCAL_TIME;
-            formatName = "HH_MM_SS";
+            formatName = "ISO_LOCAL_TIME";
+            break;
+        case TypeId.OFFSET_DATE_TIME:
+            formatter = DateTimes.ISO_OFFSET_DATE_TIME;
+            formatName = "ISO_OFFSET_DATE_TIME";
+            break;
+        case TypeId.OFFSET_TIME:
+            formatter = DateTimes.ISO_OFFSET_TIME;
+            formatName = "ISO_OFFSET_TIME";
+            break;
+        case TypeId.ZONED_DATE_TIME:
+            formatter = DateTimes.ISO_ZONED_DATE_TIME;
+            formatName = "ISO_ZONED_DATE_TIME";
             break;
         default:
             throw new UnexpectedException();
@@ -121,11 +134,12 @@ public class JavaSamples
 
         switch (TypeKind.getTypeId(type)) {
         case TypeId.INSTANT:
-        case TypeId.ZONED_DATE_TIME:
-        case TypeId.OFFSET_DATE_TIME:
         case TypeId.LOCAL_DATE_TIME:
         case TypeId.LOCAL_DATE:
         case TypeId.LOCAL_TIME:
+        case TypeId.OFFSET_DATE_TIME:
+        case TypeId.OFFSET_TIME:
+        case TypeId.ZONED_DATE_TIME:
             String parseExpr = String.format("%s.parse(%s, %s.%s)", //
                     naming.importName(type), //
                     literalQuoted, //
