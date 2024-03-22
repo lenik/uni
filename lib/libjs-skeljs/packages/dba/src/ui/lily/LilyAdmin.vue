@@ -11,7 +11,7 @@ import { SERVER_URL } from './context';
 import { Command, Status } from '@skeljs/core/src/ui/types';
 import { showError, _throw } from '@skeljs/core/src/logging/api';
 import { VarMap } from '@skeljs/core/src/lang/VarMap';
-import { wireUp } from '@skeljs/core/src/lang/json';
+import { wireUp, flatten } from '@skeljs/core/src/lang/json';
 
 export interface Props {
     type: EntityType
@@ -134,7 +134,8 @@ function openNew() {
     $.ajax(newUrl)
         .done((data) => {
             let wired = wireUp(data.data);
-            model.value = data.data;
+            model.value = props.type.fromJson(wired);
+            console.log(model.value);
             editorDialog.value?.open(saveNew);
         });
 }
@@ -148,8 +149,7 @@ function openSelected() {
 
     $.ajax(fetchUrl).done((data) => {
         let wired = wireUp(data.data);
-        console.log(wired);
-        model.value = data.data;
+        model.value = props.type.fromJson(wired);
         editorDialog.value?.open(saveSelected);
     });
 }
@@ -201,7 +201,15 @@ async function saveSelected(obj: any) {
 }
 
 async function _save(url: string, obj: any) {
-    let payload = JSON.stringify(model.value);
+    let jv = props.type.toJson(obj);
+    let payload;
+    try {
+        payload = JSON.stringify(obj);
+    } catch (e) {
+        // Uncaught TypeError: Converting circular structure to JSON
+        let flat = flatten(jv);
+        payload = JSON.stringify(flat);
+    }
     await $.ajax({
         url: url,
         contentType: "application/json; charset=utf-8",
