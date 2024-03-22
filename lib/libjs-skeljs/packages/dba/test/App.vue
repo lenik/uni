@@ -37,18 +37,18 @@ const stat = {
 
 <template>
     <ModelC>
+
         <template #site-bar>
             <SiteBar title="DBA Examples" />
         </template>
+
         <template #project-info>
-            <ProjectInfo :stat="stat" label="DBA Test Apps" description="Test applications of skeljs::dba package. ">
+            <ProjectInfo :stat="stat" label="DBA Test Apps">
+                <p> Test applications of skeljs::dba package. </p>
             </ProjectInfo>
         </template>
-        <template #main>
-            <div class="main">
-                <router-view></router-view>
-            </div>
-        </template>
+        <router-view></router-view>
+
         <template #footer>
             <Copyright />
         </template>

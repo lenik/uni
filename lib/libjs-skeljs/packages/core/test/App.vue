@@ -29,7 +29,7 @@ const stat = {
     <ModelC>
 
         <template #site-bar>
-            <SiteBar :items="siteMenu" :title="'Title1'" />
+            <SiteBar :items="siteMenu" title="Title1" />
         </template>
 
         <template #project-info>
