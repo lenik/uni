@@ -166,6 +166,13 @@ public abstract class DTDriven__vue
             label = labelFromProperty(propertyName);
 
         IProperty property = xref.getProperty();
+        if (property == null)
+            throw new IllegalUsageException(//
+                    String.format("foreign key (%s) on table %s: property %s isn't defined.", //
+                            xref.getConstraintName(), //
+                            xref.getParentTable().getId(), //
+                            xref.getPropertyName()));
+
         DTColumn _aColumn = property.getAnnotation(DTColumn.class);
         DTColumnConfig dtColumn = new DTColumnConfig().parse(_aColumn);
 
