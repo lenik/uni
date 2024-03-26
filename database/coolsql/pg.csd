@@ -77,14 +77,15 @@ function _pg_exec() {
                     cmdv[cmdn++]="-U$db_user"
                 fi;;
             k)
-                if [ -n "$db_pass" ]; then
-                    export PGPASSWORD="$db_pass"
-                fi
-                if [ ! -f "$HOME/.pgpass" ]; then
-                    _warn "The provided password in $conn_rc is ignored."
-                    _warn "You need to maintain your postgresql passwords in $HOME/.pgpass file"
-                    _warn "Each line should be in the format: "
-                    _warn "    hostname:port:database:username:password"
+                if [ -f "$HOME/.pgpass" ]; then
+                    _log2 "The provided password in $conn_rc is ignored."
+                    _log2 "You need to maintain your postgresql passwords in $HOME/.pgpass file"
+                    _log2 "Each line should be in the format: "
+                    _log2 "    hostname:port:database:username:password"
+                else
+                    if [ -n "$db_pass" ]; then
+                        export PGPASSWORD="$db_pass"
+                    fi
                 fi
                 ;;
             d|D)

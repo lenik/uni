@@ -118,18 +118,29 @@ function main() {
             fi
             ;;
         *://*)
-            db_type="${opt_conn%%://*}"
+            local head="${opt_conn%%://*}"
+            if [ "$head" != "$opt_conn" ]; then
+                db_type=$head
                 s="${opt_conn#*://}"
-            db_name="${s#*/}"
+            else
+                s="$opt_conn"
+            fi
+
+            local tail="${s#*/}"
+            if [ "$tail" != "$s" ]; then
+                db_name="$tail"
                 s="${s%%/*}"
-            userpass="${s%@*}"
-                s="${s##*@}"
+            fi
+
+            local userpass="${s%@*}"
             if [ "$userpass" != "$s" ]; then
+                s="${s##*@}"
                 db_user="${userpass%%:*}"
                 if [ "$db_user" != "$userpass" ]; then
                     db_pass="${userpass#*:}"
                 fi
             fi
+
             db_host="${s%:*}"
             if [ "$db_host" != "$s" ]; then
                 db_port="${s##*:}"
@@ -162,6 +173,8 @@ function main() {
         _log2 "Load coolsql driver: $driver"
         source "$driver"
     fi
+
+    _log1 "db_type=$db_type db_host=$db_host db_port=$db_port db_user=$db_user db_pass=$db_pass db_name=$db_name"
 
     fn="_${db_type}_$opt_mode"
     if ! type -t "$fn" >/dev/null; then

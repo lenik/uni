@@ -37,6 +37,13 @@ dist_setup_SCRIPTS = \
 CLEANFILES = ${dist_setup_SCRIPTS}
 
 install-debug:
-	sudo ln -snf "$$PWD"/catrst.mf "$(DESTDIR)$(incdir)"
-	sudo ln -snf "$$PWD"/catsql.mf "$(DESTDIR)$(incdir)"
+	sudo ln -snf "$$PWD"/catrst.mf          "$(DESTDIR)$(incdir)"
+	sudo ln -snf "$$PWD"/catsql.mf          "$(DESTDIR)$(incdir)"
+	sudo ln -snf "$$PWD"/ksql.in            "$(DESTDIR)$(bindir)/ksql"
+	sudo ln -snf "$$PWD"/ksql-backup.in     "$(DESTDIR)$(bindir)/ksql-backup"
+	sudo ln -snf "$$PWD"/ksql-restore.in    "$(DESTDIR)$(bindir)/ksql-restore"
+	sudo ln -snf "$$PWD"/ksql-csv.in        "$(DESTDIR)$(bindir)/ksql-csv"
+	sudo ln -snf "$$PWD"/pg_dump-insert.in  "$(DESTDIR)$(bindir)/pg_dump-insert"
+	sudo ln -snf "$$PWD"/pg_dump-sort.in    "$(DESTDIR)$(bindir)/pg_dump-sort"
+	sudo ln -snf "$$PWD"/pg_dump-split.in   "$(DESTDIR)$(bindir)/pg_dump-split"
 
