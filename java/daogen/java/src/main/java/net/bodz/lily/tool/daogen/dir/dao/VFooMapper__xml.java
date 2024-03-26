@@ -271,31 +271,19 @@ public class VFooMapper__xml
             out.enter();
             {
                 out.printf("<if test=\"_parameter != null\">");
-                IColumnMetadata[] kv = table.getPrimaryKeyColumns();
-                if (kv.length == 0) {
-                    kv = getIdColumnsFromUsageInfo(table);
-                    if (kv == null) {
+                IColumnMetadata[] keyCols = table.getPrimaryKeyColumns();
+                if (keyCols.length == 0) {
+                    keyCols = getIdColumnsFromUsageInfo(table);
+                    if (keyCols == null) {
                         IColumnMetadata idColumn = getDefaultSingleIdColumn(table);
                         if (idColumn != null)
-                            kv = new IColumnMetadata[] { idColumn };
+                            keyCols = new IColumnMetadata[] { idColumn };
                         else
-                            kv = new IColumnMetadata[0]; // { table.getColumn(0) };
+                            keyCols = new IColumnMetadata[0]; // { table.getColumn(0) };
                     }
                 }
-                if (kv.length == 1) {
-                    IColumnMetadata keyColumn = kv[0];
-                    if (keyColumn == null)
-                        throw new NullPointerException("keyColumn");
-                    out.printf("a.%s = #{id}", //
-                            DialectFn.quoteName(keyColumn.getName()));
-                } else {
-                    for (int i = 0; i < kv.length; i++) {
-                        IColumnMetadata keyColumn = kv[i];
-                        out.printf("a.%s = #{id.%s}", //
-                                DialectFn.quoteName(keyColumn.getName()), //
-                                keyColumn.getJavaName());
-                    }
-                }
+
+                templates.sqlMatchPrimaryKey(out, "id", keyCols, "a");
                 out.printf("</if>\n");
                 out.leave();
             }

@@ -744,22 +744,30 @@ public class MiscTemplates {
         }
     }
 
-    public void sqlMatchPrimaryKey(ITreeOut out, IColumnMetadata[] keyColumns) {
+    public void sqlMatchPrimaryKey(ITreeOut out, String idObject, IColumnMetadata[] keyColumns, String fromAlias) {
         if (keyColumns.length == 0)
             throw new IllegalUsageException("Can't update table without primary key.");
 
-        if (keyColumns.length == 1) {
-            IColumnMetadata column = keyColumns[0];
-            ColumnNaming cname = project.naming(column);
-            out.println(cname.columnQuoted + " = #{id}");
-        } else {
-            for (int i = 0; i < keyColumns.length; i++) {
-                IColumnMetadata column = keyColumns[i];
-                ColumnNaming cname = project.naming(column);
-                if (i != 0)
-                    out.print("and ");
-                out.println(cname.columnQuoted + " = " + toSqlVar(column));
+        for (int i = 0; i < keyColumns.length; i++) {
+            IColumnMetadata column = keyColumns[i];
+            String qName = project.naming(column).columnQuoted;
+            if (fromAlias != null)
+                qName = fromAlias + "." + qName;
+
+            if (i != 0) {
+                out.println();
+                out.print("    and ");
             }
+
+            String param;
+            if (keyColumns.length == 1) {
+                if (idObject != null)
+                    param = "#{" + idObject + "}";
+                else
+                    param = toSqlVar(null, column);
+            } else
+                param = toSqlVar(idObject, column);
+            out.print(qName + " = " + param);
         }
     }
 
@@ -776,17 +784,28 @@ public class MiscTemplates {
         }
     }
 
-    public String toSqlVar(IColumnMetadata column) {
+    public String toSqlVar(String objectVar, IColumnMetadata column) {
         ColumnNaming cname = project.naming(column);
 //        Class<?> type = column.getType();
+        StringBuilder sb = new StringBuilder();
+        sb.append("#{");
+        if (objectVar != null) {
+            sb.append(objectVar);
+            sb.append(".");
+        }
+
 //        if (JsonMap.class.isAssignableFrom(type)) {
         switch (column.getSqlTypeName()) {
 //        case "json":
 //        case "jsonb":
-//            return String.format("#{%s.jsonStr}::jsonb", cname.propertyName);
+//            sb.append(cname.propertyName);
+//            sb.append(".jsonStr}::jsonb");
+//            break;
         default:
-            return String.format("#{%s}", cname.propertyName);
+            sb.append(cname.propertyName);
         }
+        sb.append("}");
+        return sb.toString();
     }
 
     public static String getContextPrefix(String path) {

@@ -108,7 +108,7 @@ public class FooMapper__xml
                     if (! first)
                         out.print(",\n");
 
-                    out.print(templates.toSqlVar(column));
+                    out.print(templates.toSqlVar(null, column));
 
                     first = false;
                 }
@@ -138,14 +138,15 @@ public class FooMapper__xml
                     if (column.isPrimaryKey())
                         continue;
                     ColumnNaming cname = project.naming(column);
-                    out.printf("%s = %s", cname.columnQuoted, templates.toSqlVar(column));
+                    out.printf("%s = %s", cname.columnQuoted, templates.toSqlVar(null, column));
                     out.println(",");
                 }
             }
             out.leaveln("</set>");
 
             out.enterln("<where>");
-            templates.sqlMatchPrimaryKey(out, table.getPrimaryKeyColumns());
+            templates.sqlMatchPrimaryKey(out, null, table.getPrimaryKeyColumns(), null);
+            out.println();
             out.leaveln("</where>");
         }
         out.leaveln("</update>");
@@ -158,7 +159,8 @@ public class FooMapper__xml
             out.println("delete from " + qTableName);
 
             out.enterln("<where>");
-            templates.sqlMatchPrimaryKey(out, table.getPrimaryKeyColumns());
+            templates.sqlMatchPrimaryKey(out, "id", table.getPrimaryKeyColumns(), null);
+            out.println();
             out.leaveln("</where>");
 
         }
