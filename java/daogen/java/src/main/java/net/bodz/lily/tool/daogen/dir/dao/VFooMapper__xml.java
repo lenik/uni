@@ -284,6 +284,8 @@ public class VFooMapper__xml
                 }
                 if (kv.length == 1) {
                     IColumnMetadata keyColumn = kv[0];
+                    if (keyColumn == null)
+                        throw new NullPointerException("keyColumn");
                     out.printf("a.%s = #{id}", //
                             DialectFn.quoteName(keyColumn.getName()));
                 } else {
@@ -306,26 +308,29 @@ public class VFooMapper__xml
     IColumnMetadata[] getIdColumnsFromUsageInfo(ITableMetadata _view) {
         IViewMetadata view = (IViewMetadata) _view;
         L: for (ITableUsage tableUsage : view.getTableUsages()) {
-            Set<String> columnUsage = new HashSet<>(tableUsage.getColumns());
+            Set<String> columnUsage = new HashSet<>(tableUsage.getFromColumns());
 
-            ITableMetadata parent = _view.getCatalog().getTable(tableUsage.getTableId());
+            ITableMetadata parent = _view.getCatalog().getTable(tableUsage.getFromTableId());
             if (parent == null) {
-                logger.warn("referenced table isn't loaded: " + tableUsage.getTableId());
+                logger.warn("referenced table isn't loaded: " + tableUsage.getFromTableId());
                 continue;
             }
 
-            IColumnMetadata[] parentKV = parent.getPrimaryKeyColumns();
-            for (IColumnMetadata c : parentKV)
-                if (! columnUsage.contains(c.getName()))
+            IColumnMetadata[] parentKeyCols = parent.getPrimaryKeyColumns();
+            for (IColumnMetadata parentKeyCol : parentKeyCols) {
+                String parentColName = parentKeyCol.getName();
+                if (! columnUsage.contains(parentColName))
                     continue L;
+            }
 
             // all primary key columns are included in the view.
-            IColumnMetadata[] kv = new IColumnMetadata[parentKV.length];
-            for (int i = 0; i < kv.length; i++) {
-                String name = kv[i].getName();
-                kv[i] = _view.getColumn(name);
+            IColumnMetadata[] viewKeyCols = new IColumnMetadata[parentKeyCols.length];
+            for (int i = 0; i < viewKeyCols.length; i++) {
+                String name = parentKeyCols[i].getName();
+                IColumnMetadata viewCol = _view.getColumn(name);
+                viewKeyCols[i] = viewCol;
             }
-            return kv;
+            return viewKeyCols;
         }
         return null;
     }
