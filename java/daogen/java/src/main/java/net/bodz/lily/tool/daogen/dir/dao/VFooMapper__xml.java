@@ -57,8 +57,9 @@ public class VFooMapper__xml
             select_all(out, table, SQLID_OBJLIST);
             out.println();
             select_filter(out, table, SQLID_OBJLIST);
-            out.println();
+
             select(out, table, SQLID_OBJEDIT);
+
             out.println();
             select_count(out, table);
             out.println();
@@ -262,7 +263,22 @@ public class VFooMapper__xml
         out.println("</select>");
     }
 
-    void select(XmlSourceBuffer out, ITableMetadata table, String sqlId) {
+    boolean select(XmlSourceBuffer out, ITableMetadata table, String sqlId) {
+        IColumnMetadata[] keyCols = table.getPrimaryKeyColumns();
+        if (keyCols.length == 0) {
+            keyCols = getIdColumnsFromUsageInfo(table);
+            if (keyCols == null) {
+                IColumnMetadata idColumn = getDefaultSingleIdColumn(table);
+                if (idColumn != null)
+                    keyCols = new IColumnMetadata[] { idColumn };
+                else
+                    keyCols = new IColumnMetadata[0]; // { table.getColumn(0) };
+            }
+        }
+        if (keyCols.length == 0)
+            return false;
+
+        out.println();
         out.println("<select id=\"select\" resultMap=\"objlist_map\">");
         out.enter();
         {
@@ -271,18 +287,6 @@ public class VFooMapper__xml
             out.enter();
             {
                 out.printf("<if test=\"_parameter != null\">");
-                IColumnMetadata[] keyCols = table.getPrimaryKeyColumns();
-                if (keyCols.length == 0) {
-                    keyCols = getIdColumnsFromUsageInfo(table);
-                    if (keyCols == null) {
-                        IColumnMetadata idColumn = getDefaultSingleIdColumn(table);
-                        if (idColumn != null)
-                            keyCols = new IColumnMetadata[] { idColumn };
-                        else
-                            keyCols = new IColumnMetadata[0]; // { table.getColumn(0) };
-                    }
-                }
-
                 templates.sqlMatchPrimaryKey(out, "id", keyCols, "a");
                 out.printf("</if>\n");
                 out.leave();
@@ -291,6 +295,7 @@ public class VFooMapper__xml
             out.leave();
         }
         out.println("</select>");
+        return true;
     }
 
     IColumnMetadata[] getIdColumnsFromUsageInfo(ITableMetadata _view) {

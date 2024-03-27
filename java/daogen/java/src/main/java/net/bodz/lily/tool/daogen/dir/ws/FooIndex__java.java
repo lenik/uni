@@ -17,8 +17,8 @@ public class FooIndex__java
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
         out.println("/**");
-        out.println("* @label " + project.Foo.name);
-        out.println("*/");
+        out.println(" * @label " + project.Foo.name);
+        out.println(" */");
         out.printf("@%s(%s.class)\n", //
                 out.im.name(ObjectType.class), //
                 out.im.name(project.Foo.name));

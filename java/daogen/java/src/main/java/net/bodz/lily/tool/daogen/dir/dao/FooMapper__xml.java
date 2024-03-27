@@ -46,8 +46,9 @@ public class FooMapper__xml
             select_all(out, table, SQLID_OBJLIST);
             out.println();
             select_filter(out, table, SQLID_OBJLIST);
-            out.println();
+
             select(out, table, SQLID_OBJEDIT);
+
             out.println();
             insert(out, table);
             out.println();
