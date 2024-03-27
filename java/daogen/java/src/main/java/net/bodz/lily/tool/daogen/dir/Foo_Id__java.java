@@ -9,7 +9,7 @@ import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.entity.Identifier;
+import net.bodz.lily.entity.IIdentity;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
@@ -36,7 +36,7 @@ public class Foo_Id__java
             if (primaryKeyCol.isExcluded())
                 throw new IllegalUsageException("Can't exclude primary key column");
 
-        out.println("@" + out.im.name(Identifier.class));
+        out.println("@" + out.im.name(IIdentity.class));
         out.printf("public class %s\n", project.Foo_Id.name);
         out.printf("        implements %s {\n", //
                 out.im.name(Serializable.class));

@@ -2,9 +2,13 @@ package net.bodz.lily.tool.daogen.dir;
 
 import javax.persistence.Table;
 
+import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.codegen.JavaSourceWriter;
+import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.catalog.TableOid;
+import net.bodz.lily.entity.PrimaryKeyColumns;
+import net.bodz.lily.entity.PrimaryKeyProperties;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
@@ -17,6 +21,24 @@ public class Foo__java_tv
         super(project, project.Foo);
     }
 
+    static void annotateStrings(JavaSourceWriter out, Class<?> aClass, String... values) {
+        out.print("@" + out.im.name(aClass) + "(");
+        if (values.length == 1) {
+            out.print(StringQuote.qqJavaString(values[0]));
+        } else {
+            out.println();
+            out.enter();
+            for (int i = 0; i < values.length; i++) {
+                if (i != 0)
+                    out.print(",");
+                out.print(StringQuote.qqJavaString(values[i]));
+                out.println();
+            }
+            out.leave();
+        }
+        out.println(")");
+    }
+
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
         TableOid oid = table.getId();
@@ -25,6 +47,25 @@ public class Foo__java_tv
                 .getExtendInfo(table, project.Foo.qName, project._Foo_stuff.qName);
 
         String simpleName = extend.type.name;
+
+        IColumnMetadata[] keyCols = table.getPrimaryKeyColumns();
+        if (keyCols != null && keyCols.length != 0 && extend.javaBaseClass != null) {
+            PrimaryKeyColumns aColumns = extend.javaBaseClass.getAnnotation(PrimaryKeyColumns.class);
+            if (aColumns == null) {
+                String[] colNames = new String[keyCols.length];
+                for (int i = 0; i < keyCols.length; i++)
+                    colNames[i] = keyCols[i].getName();
+                annotateStrings(out, PrimaryKeyColumns.class, colNames);
+            }
+
+            PrimaryKeyProperties aProperties = extend.javaBaseClass.getAnnotation(PrimaryKeyProperties.class);
+            if (aProperties == null) {
+                String[] colProps = new String[keyCols.length];
+                for (int i = 0; i < keyCols.length; i++)
+                    colProps[i] = keyCols[i].getProperty().getName();
+                annotateStrings(out, PrimaryKeyProperties.class, colProps);
+            }
+        }
 
         out.print("@" + out.im.name(Table.class) + "(");
         {
