@@ -17,8 +17,8 @@ public class ColumnUtils {
         if (column.isPrimaryKey()) {
             String defaultValue = column.getDefaultValue();
             if (defaultValue != null) {
-                if (defaultValue.contains("nextval"))
-                    return true;
+                // if (defaultValue.contains("nextval"))
+                return true;
             }
         }
         return false;
