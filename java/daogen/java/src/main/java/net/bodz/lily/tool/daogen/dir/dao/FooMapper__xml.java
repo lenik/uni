@@ -1,8 +1,10 @@
 package net.bodz.lily.tool.daogen.dir.dao;
 
 import java.sql.DatabaseMetaData;
+import java.util.ArrayList;
 import java.util.List;
 
+import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.codegen.XmlSourceBuffer;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.ICatalogMetadata;
@@ -75,7 +77,22 @@ public class FooMapper__xml
         String qTableName = DialectFn.quoteQName(table.getCompactName());
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
 
-        out.printf("<insert id=\"insert\" useGeneratedKeys=\"true\" keyProperty=\"id\"><![CDATA[\n");
+        IColumnMetadata[] primaryKeyColumns = table.getPrimaryKeyColumns();
+        boolean useGeneratedKeys = false;
+        List<String> keyColumns = new ArrayList<>();
+        List<String> keyProperties = new ArrayList<>();
+        for (IColumnMetadata column : primaryKeyColumns) {
+            if (column.isAutoIncrement() || column.hasDefaultValue())
+                useGeneratedKeys = true;
+            ColumnNaming cname = project.naming(column);
+            keyColumns.add(cname.columnQuoted);
+            keyProperties.add(cname.propertyName);
+        }
+
+        out.printf("<insert id=\"insert\" useGeneratedKeys=\"%s\" keyProperty=\"%s\" keyColumn=\"%s\"><![CDATA[\n", //
+                useGeneratedKeys, //
+                StringArray.join(", ", keyProperties), //
+                StringArray.join(", ", keyColumns));
         out.enter();
         {
             out.printf("insert into %s(\n", qTableName);

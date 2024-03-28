@@ -12,7 +12,7 @@ public class ColumnUtils {
     static final Logger logger = LoggerFactory.getLogger(ColumnUtils.class);
 
     public static boolean isPreferredToGenerate(IColumnMetadata column) {
-        if (column.isAutoIncrement(false))
+        if (column.isAutoIncrement())
             return true;
         if (column.isPrimaryKey()) {
             String defaultValue = column.getDefaultValue();
