@@ -12,6 +12,7 @@ import { Command, Status } from '@skeljs/core/src/ui/types';
 import { showError, _throw } from '@skeljs/core/src/logging/api';
 import { VarMap } from '@skeljs/core/src/lang/VarMap';
 import { wireUp, flatten } from '@skeljs/core/src/lang/json';
+import { QueryString } from '@skeljs/core/src/cgi/QueryString';
 
 export interface Props {
     type: EntityType
@@ -155,8 +156,8 @@ function openSelected() {
 }
 
 async function saveNew() {
-    let saveUrl = _url.value + "/save";
-    await _save(saveUrl, model.value);
+    let saveUrl = _url.value + "/saveNew";
+    await _save(saveUrl, model.value, true);
 
     let api = dataTableApi.value!;
     let row = obj2Row(model.value, columns.value!);
@@ -183,9 +184,9 @@ async function saveSelected(obj: any) {
         return true;
 
     let idPath = getIdPath(obj);
-    let updateUrl = _url.value + "/" + idPath + "/save";
+    let updateUrl = _url.value + "/" + idPath + "/update";
 
-    await _save(updateUrl, model.value);
+    await _save(updateUrl, model.value, false);
 
     let dtIndex = selection.value?.firstDtIndex;
     if (dtIndex != null) {
@@ -200,7 +201,21 @@ async function saveSelected(obj: any) {
     return true;
 }
 
-async function _save(url: string, obj: any) {
+function addParamToUrl(url: string, name: string, value: string) {
+    let ques = url.lastIndexOf('?');
+    if (ques != -1) {
+        // TODO remove same named param.
+        url += '&';
+    } else {
+        url += '?';
+    }
+    url += 'name=' + value;
+    return url;
+}
+
+async function _save(url: string, obj: any, createNew: boolean) {
+    // if (createNew)
+    //     url = addParamToUrl(url, 'saveNew', 'true');
     let jv = props.type.toJson(obj);
     let payload;
     try {
