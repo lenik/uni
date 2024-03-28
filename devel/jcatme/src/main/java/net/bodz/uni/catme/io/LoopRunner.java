@@ -6,12 +6,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
 import net.bodz.bas.c.java.io.capture.Processes;
-import net.bodz.bas.c.java.util.Dates;
+import net.bodz.bas.c.java.util.DateTimes;
 import net.bodz.bas.c.string.StringPred;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.log.Logger;
@@ -62,8 +65,8 @@ public class LoopRunner
         watcher.run();
     }
 
-    long lastDuration;
-    long startTime;
+    Duration lastDuration;
+    ZonedDateTime startTime;
 
     @Override
     public void onEvent(WatcherWait watcher, Path dir, WatchEvent<?> event) {
@@ -76,11 +79,11 @@ public class LoopRunner
 
         printSep();
 
-        this.startTime = System.currentTimeMillis();
+        this.startTime = ZonedDateTime.now();
         {
             runnable.run();
         }
-        long duration = System.currentTimeMillis() - startTime;
+        Duration duration = Duration.between(startTime, ZonedDateTime.now());
         this.lastDuration = duration;
 
         watcher.ignoreForAwhile();
@@ -88,8 +91,9 @@ public class LoopRunner
 
     void printSep() {
         int cols = getColumns();
-        String time = Dates.ISO_LOCAL_DATE_TIME.format(System.currentTimeMillis());
-        String lastDuration = Dates.HH_MM_SS_MS.format(this.lastDuration);
+        String time = DateTimes.ISO_LOCAL_DATE_TIME.format(ZonedDateTime.now());
+        Instant durationTime = Instant.ofEpochSecond(lastDuration.getSeconds());
+        String lastDuration = DateTimes.ISO_LOCAL_TIME.format(durationTime);
         String label = String.format("_%d_ %s ^ %s", ++iteration, time, lastDuration);
         int n = label.length();
 

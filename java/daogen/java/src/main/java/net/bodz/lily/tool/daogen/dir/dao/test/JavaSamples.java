@@ -7,7 +7,6 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 
 import net.bodz.bas.c.java.util.DateTimes;
-import net.bodz.bas.c.java.util.Dates;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
@@ -62,12 +61,12 @@ public class JavaSamples
     }
 
     public String date(Date value, Class<?> type) {
-        String iso = Dates.ISO8601Z.format(value);
+        String iso = DateTimes.ISO8601.format(DateTimes.convert(value));
         String isoQuoted = StringQuote.qqJavaString(iso);
 
         String dateExpr = String.format("%s.%s.parse(%s)", //
-                naming.importName(Dates.class), //
-                "ISO8601Z", // Dates.ISO8601Z
+                naming.importName(DateTimes.class), //
+                "ISO8601", // DateTimes.ISO8601
                 isoQuoted);
 
         String timeExpr = dateExpr + ".getTime()";

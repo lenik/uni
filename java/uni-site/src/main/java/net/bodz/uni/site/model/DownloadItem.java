@@ -1,5 +1,6 @@
 package net.bodz.uni.site.model;
 
+import java.time.ZonedDateTime;
 
 public class DownloadItem {
 
@@ -7,6 +8,6 @@ public class DownloadItem {
     public String filename;
     public String href;
     public long fileSize;
-    public long lastModified;
+    public ZonedDateTime lastModified;
 
 }

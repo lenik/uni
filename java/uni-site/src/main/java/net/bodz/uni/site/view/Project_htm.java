@@ -2,7 +2,7 @@ package net.bodz.uni.site.view;
 
 import java.io.IOException;
 
-import net.bodz.bas.c.java.util.Dates;
+import net.bodz.bas.c.java.util.DateTimes;
 import net.bodz.bas.html.dom.IHtmlHeadData;
 import net.bodz.bas.html.io.IHtmlOut;
 import net.bodz.bas.html.io.tag.HtmlLi;
@@ -70,7 +70,7 @@ public class Project_htm
         for (DownloadItem item : project.getDownloadItems()) {
             HtmlLi li = panel.li();
             li.a().href(item.href).text(item.filename);
-            li.text(" (" + item.fileSize + " bytes, " + Dates.ISO_LOCAL_DATE.format(item.lastModified) + ")");
+            li.text(" (" + item.fileSize + " bytes, " + DateTimes.ISO_LOCAL_DATE.format(item.lastModified) + ")");
         }
 
         out.h2().text("Comments");

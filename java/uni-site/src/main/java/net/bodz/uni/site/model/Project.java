@@ -2,6 +2,9 @@ package net.bodz.uni.site.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -47,9 +50,9 @@ public class Project
         this.directory = directory;
 
         docFile = new File(directory, name + ".itm");
-        if (!docFile.exists()) {
+        if (! docFile.exists()) {
             docFile = new File(directory, "." + name + ".itm");
-            if (!docFile.exists())
+            if (! docFile.exists())
                 if (docFile == null)
                     throw new NullPointerException("docFile");
         }
@@ -78,7 +81,8 @@ public class Project
                 item.section = branch.getName();
                 item.filename = baseName;
                 item.href = "http://deb.bodz.net/" + branch.getName() + "/" + baseName;
-                item.lastModified = file.lastModified();
+                item.lastModified = ZonedDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()),
+                        ZoneId.systemDefault());
                 item.fileSize = file.length();
                 downloadItems.add(item);
             }
@@ -90,7 +94,7 @@ public class Project
         if (docFile == null)
             throw new NullPointerException("docFile");
         IStreamInputSource docRes;
-        if (!docFile.exists()) {
+        if (! docFile.exists()) {
             logger.warn("No doc file: " + docFile);
             docRes = new StringSource("");
         } else {
