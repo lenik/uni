@@ -39,6 +39,7 @@ public class CriteriaBuilderFieldInfo {
         declare(BigInteger.class, "BigIntegerField", "bigInteger");
         declare(BigDecimal.class, "BigDecimalField", "bigDecimal");
         declare(Boolean.class, "BooleanField", "bool");
+        declare(Character.class, "CharField", "_char");
         declare(String.class, "StringField", "string");
 
         // discrete types but in text form.
