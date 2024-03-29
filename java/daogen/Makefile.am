@@ -1,15 +1,23 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    java/2print \
-    java/criterion \
-    java/daogen \
-    java/foob \
-    java/ls-entity \
-    java/tcoll \
-    java/tstool
+    shell/cmd-runner \
+    shell/2print \
+    shell/criterion \
+    shell/daogen \
+    shell/foob \
+    shell/ls-entity \
+    shell/tcoll \
+    shell/tstool
 
-dist_man_MANS =
+#dist_man_MANS = \
+#    shell/2print.1 \
+#    shell/criterion.1 \
+#    shell/daogen.1 \
+#    shell/foob.1 \
+#    shell/ls-entity.1 \
+#    shell/tcoll.1 \
+#    shell/tstool.1
 
 dist_setup_SCRIPTS = \
     postinst \
@@ -32,13 +40,14 @@ install-data-hook:
 	cp -RL java/lib $(DESTDIR)$(pkgdatadir)
 
 install-debug:
-	sudo ln -snf $$PWD/java/2print.in /bin/2print
-	sudo ln -snf $$PWD/java/criterion.in /bin/criterion
-	sudo ln -snf $$PWD/java/daogen.in /bin/daogen
-	sudo ln -snf $$PWD/java/foob.in /bin/foob
-	sudo ln -snf $$PWD/java/ls-entity.in /bin/ls-entity
-	sudo ln -snf $$PWD/java/tcoll.in /bin/tcoll
-	sudo ln -snf $$PWD/java/tstool.in /bin/tstool
+	sudo ln -snf $$PWD/shell/cmd-runner.in  /bin/cmd-runner
+	sudo ln -snf $$PWD/shell/2print         /bin/2print
+	sudo ln -snf $$PWD/shell/criterion      /bin/criterion
+	sudo ln -snf $$PWD/shell/daogen         /bin/daogen
+	sudo ln -snf $$PWD/shell/foob           /bin/foob
+	sudo ln -snf $$PWD/shell/ls-entity      /bin/ls-entity
+	sudo ln -snf $$PWD/shell/tcoll          /bin/tcoll
+	sudo ln -snf $$PWD/shell/tstool         /bin/tstool
 
 autobuild:
 	@echo "autobuild isn't supported, yet."

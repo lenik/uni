@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ "${0%/*}" = "$0" ]; then
+    source ./cmd-runner
+else
+    source "${0%/*}"/cmd-runner
+fi
+
+run tstool "$@"
+
