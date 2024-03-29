@@ -2,6 +2,7 @@ package net.bodz.lily.tool.daogen.dir.dao.test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.DateTimeException;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
@@ -11,6 +12,7 @@ import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.type.TypeId;
 import net.bodz.bas.c.type.TypeKind;
 import net.bodz.bas.codegen.IJavaImporter;
+import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.t.predef.Predef;
 
@@ -61,14 +63,42 @@ public class JavaSamples
     }
 
     public String date(Date value, Class<?> type) {
-        String iso = DateTimes.ISO8601.format(DateTimes.convert(value));
-        String isoQuoted = StringQuote.qqJavaString(iso);
+        DateTimeFormatter formatter;
+        String formatName;
+        switch (TypeKind.getTypeId(type)) {
+        case TypeId.SQL_DATE:
+            formatter = DateTimes.ISO_LOCAL_DATE;
+            formatName = "ISO_LOCAL_DATE";
+            break;
+        case TypeId.SQL_TIME:
+            formatter = DateTimes.ISO_LOCAL_TIME;
+            formatName = "ISO_LOCAL_TIME";
+            break;
+        case TypeId.TIMESTAMP:
+            formatter = DateTimes.ISO_LOCAL_DATE_TIME;
+            formatName = "ISO_LOCAL_DATE_TIME";
+            break;
+        case TypeId.DATE:
+        default:
+            formatter = DateTimes.ISO8601;
+            formatName = "ISO8601";
+        }
+        TemporalAccessor temporal = DateTimes._convert(value);
+        String literal;
+        try {
+            literal = formatter.format(temporal);
+        } catch (DateTimeException e) {
+            throw new IllegalUsageException(String.format(//
+                    "error format %s \"%s\" in %s.", //
+                    temporal.getClass().getSimpleName(), temporal, //
+                    formatName));
+        }
+        String literalQuoted = StringQuote.qqJavaString(literal);
 
         String dateExpr = String.format("%s.%s.parse(%s)", //
                 naming.importName(DateTimes.class), //
-                "ISO8601", // DateTimes.ISO8601
-                isoQuoted);
-
+                formatName, //
+                literalQuoted);
         String timeExpr = dateExpr + ".getTime()";
 
         if (type == null)
