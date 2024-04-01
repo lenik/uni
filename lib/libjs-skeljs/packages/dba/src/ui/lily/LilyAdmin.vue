@@ -135,8 +135,8 @@ function openNew() {
     $.ajax(newUrl)
         .done((data) => {
             let wired = wireUp(data.data);
-            model.value = props.type.fromJson(wired);
-            console.log(model.value);
+            let parsed = props.type.fromJson(wired);
+            model.value = parsed;
             editorDialog.value?.open(saveNew);
         });
 }
@@ -150,7 +150,9 @@ function openSelected() {
 
     $.ajax(fetchUrl).done((data) => {
         let wired = wireUp(data.data);
-        model.value = props.type.fromJson(wired);
+        let parsed = props.type.fromJson(wired);
+        console.log(parsed);
+        model.value = parsed;
         editorDialog.value?.open(saveSelected);
     });
 }
