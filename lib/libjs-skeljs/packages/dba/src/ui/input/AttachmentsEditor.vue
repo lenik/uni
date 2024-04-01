@@ -71,7 +71,7 @@ const fileClass = computed(() => {
 
 const serviceUploadUrl = computed(() => {
     let url = realServiceUrl.value;
-    url += "?class=" + fileClass.value + "/tmp";
+    url += "?class=" + fileClass.value;
     if (props.maxSpeed != null)
         url += "&maxSpeed=" + props.maxSpeed;
     return url;
