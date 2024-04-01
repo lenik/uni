@@ -58,11 +58,11 @@ public class Foo1__ts
             }
 
             out.println();
-            out.println("constructor(o: any) {");
+            out.println("constructor(o?: any) {");
             out.enter();
             {
                 out.println("super(o);");
-                out.println("if (o != null) Object.assign(this, o);");
+                // out.println("if (o != null) Object.assign(this, o);");
                 out.leave();
             }
             out.println("}");
