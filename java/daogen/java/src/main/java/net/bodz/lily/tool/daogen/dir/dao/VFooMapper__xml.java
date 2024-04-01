@@ -80,7 +80,7 @@ public class VFooMapper__xml
         return ! column.isReadOnly();
     }
 
-    List<IColumnMetadata> getIncludedColumns(Iterable<IColumnMetadata> columns) {
+    List<IColumnMetadata> getIncludedColumns(Iterable<? extends IColumnMetadata> columns) {
         List<IColumnMetadata> list = new ArrayList<>();
         for (IColumnMetadata column : columns)
             if (isIncluded(column))

@@ -29,7 +29,7 @@ public interface IColumnOrder
         return -1;
     }
 
-    default List<IColumnMetadata> reorder(List<IColumnMetadata> columns, int maxPass) {
+    default List<IColumnMetadata> reorder(List<? extends IColumnMetadata> columns, int maxPass) {
         List<IColumnMetadata> selection = new ArrayList<>();
         for (IColumnMetadata column : columns) {
             SeqByPass s = getOrder(column);
