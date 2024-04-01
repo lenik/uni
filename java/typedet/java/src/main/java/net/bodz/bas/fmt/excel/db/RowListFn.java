@@ -66,7 +66,7 @@ public class RowListFn {
                 // Object value = cell.getValue();
                 return text;
             });
-            rowList.getList().add(row);
+            rowList.addRow(row);
         }
     }
 
