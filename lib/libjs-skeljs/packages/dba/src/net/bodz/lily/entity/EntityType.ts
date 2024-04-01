@@ -3,6 +3,7 @@ import IEntityType from "./IEntityType";
 import IEntityProperty from "./IEntityProperty";
 import EntityProperty from "./EntityProperty";
 import EntityPropertyMap from "./EntityPropertyMap";
+import ITypeInfo from "@skeljs/core/src/lang/ITypeInfo";
 
 export abstract class EntityType extends TypeInfo<any> implements IEntityType {
 
@@ -93,15 +94,35 @@ export abstract class EntityType extends TypeInfo<any> implements IEntityType {
 
     override fromJson(jv: any): any {
         let o = this.create();
-        console.log('fromJson', o);
         for (let property of this.properties) {
-            let name = property.name;
+            let name = property.name!;
+            if (o.__lookupGetter__(name) != null)
+                continue;
+            let propJv = jv[name];
+            if (propJv != null) {
+                let propType: ITypeInfo<any> = property.type;
+                let propVal = propType.fromJson(propJv);
+                o[name] = propVal;
+            }
         }
-        return jv;
+        return o;
     }
 
-    override toJson(val: any): any {
-        return val;
+    override toJson(o: any): any {
+        let jv: any = {};
+        for (let property of this.properties) {
+            let name = property.name!;
+            if (o.__lookupGetter__(name) != null)
+                continue;
+            let propVal = o[name];
+            if (propVal != null) {
+                let propType: ITypeInfo<any> = property.type;
+                let propJv = propType.toJson(propVal);
+                jv[name] = propJv;
+            }
+        }
+
+        return jv;
     }
 
 }

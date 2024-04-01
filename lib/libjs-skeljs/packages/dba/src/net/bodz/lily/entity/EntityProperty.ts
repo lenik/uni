@@ -5,7 +5,11 @@ import ITypeInfo from "@skeljs/core/src/lang/ITypeInfo"
 
 export class EntityProperty implements IEntityProperty {
 
+    /**
+     * name is optional. Default to the key name if the property is declared in a object-map.
+     */
     name?: string
+
     position?: int
     type: ITypeInfo<any>
     primaryKey?: boolean

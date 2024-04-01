@@ -154,9 +154,10 @@ onMounted(() => {
                     sha1: file.sha1,
                     href: file.url
                 });
-                if (model.value == null)
-                    model.value = [];
-                model.value.push(attachment);
+                let list = model.value;
+                if (list == null)
+                    list = model.value = [];
+                list.push(attachment);
             });
         }
     });

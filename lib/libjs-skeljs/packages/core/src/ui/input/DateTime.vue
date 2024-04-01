@@ -24,7 +24,9 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-const model = defineModel<Date | SQLDate | SQLTime | Timestamp | MomentWrapper | string | undefined | null>();
+const model = defineModel<Date | SQLDate | SQLTime | Timestamp
+    | MomentWrapper | LocalDate | LocalTime | LocalDateTime | OffsetTime | OffsetDateTime | ZonedDateTime
+    | string | undefined | null>();
 
 const props = withDefaults(defineProps<Props>(), {
     type: 'auto',

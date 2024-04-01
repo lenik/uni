@@ -151,7 +151,7 @@ function openSelected() {
     $.ajax(fetchUrl).done((data) => {
         let wired = wireUp(data.data);
         let parsed = props.type.fromJson(wired);
-        console.log(parsed);
+        console.log('openSelected', parsed);
         model.value = parsed;
         editorDialog.value?.open(saveSelected);
     });
@@ -219,9 +219,11 @@ async function _save(url: string, obj: any, createNew: boolean) {
     // if (createNew)
     //     url = addParamToUrl(url, 'saveNew', 'true');
     let jv = props.type.toJson(obj);
+    console.log('toJson/save', jv);
+
     let payload;
     try {
-        payload = JSON.stringify(obj);
+        payload = JSON.stringify(jv);
     } catch (e) {
         // Uncaught TypeError: Converting circular structure to JSON
         let flat = flatten(jv);
