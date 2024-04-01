@@ -5,11 +5,15 @@ export class JsonVariantType extends TypeInfo<any> {
     get name() { return "Object"; }
     get icon() { return "far-js"; }
 
-    format(val: any): string {
+    override create() {
+        return {} as any;
+    }
+
+    override format(val: any): string {
         return JSON.stringify(val);
     }
 
-    parse(s: string): any {
+    override parse(s: string): any {
         return JSON.parse(s);
     }
 

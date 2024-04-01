@@ -1,5 +1,6 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
@@ -74,6 +75,18 @@ public class FooType1__ts
                 out.printf("get label() { return \"%s\"; }\n", entityLabel);
             if (entityDescription != null)
                 out.printf("get description() { return \"%s\"; }\n", entityDescription);
+
+            if (! Modifier.isAbstract(extend.javaClass.getModifiers())) {
+                out.println();
+                out.println("override create() {");
+                {
+                    out.enter();
+                    out.printf("return new %s();\n", //
+                            out.importDefault(extend.javaClass));
+                    out.leave();
+                }
+                out.println("}");
+            }
 
             out.println();
             out.println("override preamble() {");

@@ -43,6 +43,7 @@ function rjoin(array: number[], delim: string, padSize = 3) {
 }
 
 function formatInteger(n: number) {
+    if (n == 0) return '0';
     let negative = n < 0;
     if (negative) n = -n;
     let v: number[] = [];
@@ -57,7 +58,7 @@ function formatInteger(n: number) {
     return s;
 }
 
-function formatDecimal(n: number) {
+function formatDecimal(n: number, scale: int = 3) {
     let negative = n < 0;
     if (negative) n = -n;
     let s = negative ? '-' : '';
@@ -65,15 +66,44 @@ function formatDecimal(n: number) {
     let integer = Math.floor(n);
     s += formatInteger(integer);
 
+    let base = 10 ** scale;
     let decimal = n - integer;
+    decimal = Math.round(decimal * base) / base;
     if (decimal != 0) {
         let d = String(decimal);
-        if (!d.startsWith('0.'))
+        if (d.startsWith('0.'))
+            d = d.substring(2);
+        else if (d.includes('e-'))
+            return _formatExpDecimal(d, scale);
+        else
             throw new Error("unexpected: " + d);
-        d = d.substring(2);
         s += '.' + d;
     }
     return s;
+}
+
+function _formatExpDecimal(d: string, scale: int = 3) {
+    let lastE = d.lastIndexOf('e');
+    let exp = parseInt(d.substring(lastE + 1));
+    let dot = d.indexOf('.');
+    let head = d.substring(0, dot);
+    let tail = d.substring(dot + 1, lastE);
+    let dec = head + tail;
+    dot += exp;
+    if (dot <= 0) {
+        let t = ('0'.repeat(-dot) + dec);
+        if (scale != null)
+            t = t.substring(0, scale);
+        return '0.' + t;
+    }
+
+    if (dot >= dec.length)
+        return dec + '0'.repeat(dot - dec.length);
+
+    let t = dec.substring(dot);
+    if (scale != null)
+        t = t.substring(0, scale);
+    return dec.substring(0, dot) + '.' + t;
 }
 
 function formatBigInt(n: BigInteger) {
@@ -107,6 +137,10 @@ export class UndefinedType extends TypeInfo<undefined> {
 
     override get name() { return "undefined"; }
 
+    override create() {
+        return undefined;
+    }
+
     override parse(s: string): undefined {
         return undefined;
     }
@@ -120,6 +154,10 @@ export class UndefinedType extends TypeInfo<undefined> {
 export abstract class NumberType<T> extends TypeInfo<T> {
 
     override get icon() { return "far-hashtag"; }
+
+    override create() {
+        return 0 as T;
+    }
 
 }
 
@@ -222,6 +260,10 @@ export class BigIntegerType extends NumberType<BigInteger> {
 
     override get name() { return "BigInteger"; }
 
+    override create() {
+        return BigInt(0);
+    }
+    
     override parse(s: string): BigInteger {
         let b = parseBigInt(s);
         return b;
@@ -246,6 +288,10 @@ export class BigDecimalType extends NumberType<BigDecimal> {
 
     override get name() { return "BigDecimal"; }
 
+    override create() {
+        return Big(0);
+    }
+    
     override parse(s: string): BigDecimal {
         let norm = normalizeNumber(s);
         let b = Big(norm);
@@ -271,6 +317,10 @@ export class BooleanType extends TypeInfo<boolean> {
 
     override get name() { return "boolean"; }
 
+    override create() {
+        return false;
+    }
+    
     override parse(s: string): boolean {
         switch (s) {
             case "true":
@@ -293,6 +343,10 @@ export class CharType extends TypeInfo<char> {
     override get name() { return "char"; }
     override get icon() { return "fa-font"; }
 
+    override create() {
+        return '\0';
+    }
+    
     override parse(s: string) {
         if (s.length)
             return s.charAt(0);
@@ -307,6 +361,10 @@ export class StringType extends TypeInfo<string> {
     override get name() { return "string"; }
     override get icon() { return "fa-font"; }
 
+    override create() {
+        return '';
+    }
+    
     override format(val: string): string {
         return val;
     }
@@ -322,6 +380,10 @@ export class EnumType extends TypeInfo<string> {
     override get name() { return "enum"; }
     override get icon() { return "fas-list-ol"; }
 
+    override create() {
+        return 'XXX';
+    }
+    
     override format(val: string): string {
         return val;
     }
@@ -337,6 +399,10 @@ export class DateType extends TypeInfo<Date> {
     override get name() { return "Date"; }
     override get icon() { return "fa-clock"; }
 
+    override create() {
+        return new Date();
+    }
+    
     override format(val: Date): string {
         return val.toISOString();
     }
@@ -367,7 +433,7 @@ export abstract class CollectionType<E = any, C = E[]> extends TypeInfo<C> {
     override get name() { return "Collection"; }
     override get icon() { return "far-cube"; }
 
-    abstract create(): C;
+    abstract override create(): C;
     abstract add(collection: C, item: E): boolean;
     abstract remove(collection: C, item: E): boolean;
     abstract toArray(collection: C): E[];
@@ -520,7 +586,7 @@ export class MapType<K, V> extends TypeInfo<Map<K, V>> {
     override get name() { return "Map"; }
     override get icon() { return "far-cube"; }
 
-    create() {
+    override create() {
         let map = new Map<K, V>();
         return map;
     }
@@ -583,6 +649,10 @@ export class InetAddressType extends TypeInfo<InetAddress> {
     override get name() { return "InetAddress"; }
     override get icon() { return "far-globe"; }
 
+    create(): string {
+        return '0.0.0.0';
+    }
+    
     override format(val: InetAddress): string {
         return val;
     }

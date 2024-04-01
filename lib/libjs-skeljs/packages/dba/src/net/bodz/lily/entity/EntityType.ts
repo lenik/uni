@@ -81,14 +81,27 @@ export abstract class EntityType extends TypeInfo<any> implements IEntityType {
         return v;
     }
 
-    format(val: any): string {
+    override format(val: any): string {
         let json = JSON.stringify(val);
         return json;
     }
 
-    parse(s: string) {
+    override parse(s: string) {
         let obj = JSON.parse(s);
         return obj;
+    }
+
+    override fromJson(jv: any): any {
+        let o = this.create();
+        console.log('fromJson', o);
+        for (let property of this.properties) {
+            let name = property.name;
+        }
+        return jv;
+    }
+
+    override toJson(val: any): any {
+        return val;
     }
 
 }

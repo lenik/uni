@@ -22,6 +22,8 @@ export abstract class TypeInfo<T> implements ITypeInfo<T> {
         return "fas-question";
     }
 
+    abstract create(): T;
+    
     abstract parse(s: string): T
 
     format(val: T): string {
