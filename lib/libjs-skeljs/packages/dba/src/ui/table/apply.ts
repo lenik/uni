@@ -1,12 +1,12 @@
 import $ from 'jquery';
 
-import 'datatables.net-dt/css/jquery.dataTables.css';
+import 'datatables.net-dt/css/dataTables.dataTables.css';
 // import 'datatables.net-bs/css/dataTables.bootstrap.css';
 import 'datatables.net-select-dt/css/select.dataTables.css';
 
 // import 'datatables.net-responsive';
 
-import 'datatables.net';
+import DataTable from 'datatables.net';
 import 'datatables.net-select';
 // import 'datatables.net-bs5';
 // import 'datatables.net-buttons-bs5';
@@ -113,7 +113,7 @@ export function _useDataTable(table: any,
     let setup = setupData(config, columns);
 
     // console.log(config);
-    let dataTableApi = $table.DataTable(config);
+    let dataTableApi = new DataTable($table, config);
     // let dt = new DataTables($table, config);
 
     // dataTableApi.selectSingle();
@@ -192,11 +192,11 @@ function _reloadSmooth(resetPaging: boolean = false, onReloaded?: any) {
     }, resetPaging);
 }
 
-$.fn.DataTable.Api.register("ajax.reloadSmooth()", function (this: Api<any>) {
+DataTable.Api.register("ajax.reloadSmooth()", function (this: Api<any>) {
     return _reloadSmooth.call(this, ...arguments);
 });
 
-$.fn.DataTable.Api.register("clearCache()", function () {
+DataTable.Api.register("clearCache()", function () {
     return this.iterator('table', function (settings) {
         settings.clearCache = true;
     });
@@ -215,6 +215,6 @@ function _rowNumInfo() {
     }
 }
 
-$.fn.DataTable.Api.register("rowNumInfo()", function (this: Api<any>) {
+DataTable.Api.register("rowNumInfo()", function (this: Api<any>) {
     return _rowNumInfo.call(this, ...arguments);
 });

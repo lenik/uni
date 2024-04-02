@@ -1,7 +1,7 @@
 import $ from 'jquery';
 // (window as any).jQuery = $;
 
-import DataTables from 'datatables.net';
+import DataTable from 'datatables.net';
 import type { Api } from 'datatables.net';
 
 import { replaceLiteralOrRegex } from '@skeljs/core/src/lang/string.js';
@@ -9,20 +9,6 @@ import type { ColumnType, CreateOptions, SymbolCompileFunc } from './types';
 import { compileOnCreate, compileRender, parseOrder, parseSpecParams } from './types';
 import format from './formats';
 import ITypeInfo from '@skeljs/core/src/lang/ITypeInfo';
-
-// if ($.fn.DataTable == null) {
-//     let dtn = DataTables;
-//     console.error('$.fn.DataTable is null. autofixed.');
-//     let fn = $.fn as any;
-//     fn.dataTable = DataTables;
-//     fn.dataTableSettings = (DataTables as any).settings;
-//     fn.dataTableExt = DataTables.ext;
-//     (DataTables as any).$ = $;
-//     fn.DataTable = function (opts) {
-//         return $(this).dataTable(opts).api();
-//     };
-//     fn.DataTable.Api = DataTables.Api;
-// }
 
 export function getColumns(table: any, options: CreateOptions): ColumnType[] {
     let $table = $(table);
@@ -221,7 +207,7 @@ function _selectSingle(callback?: any) {
     });
 }
 
-$.fn.DataTable.Api.register("selectSingle()", function (this: Api<any>) {
+DataTable.Api.register("selectSingle()", function (this: Api<any>) {
     return _selectSingle.call(this, ...arguments);
 });
 
@@ -310,7 +296,7 @@ function _autoPageSize(minPageSize: number = 1) {
     }
 }
 
-$.fn.DataTable.Api.register("autoPageSize()", function (this: Api<any>) {
+DataTable.Api.register("autoPageSize()", function (this: Api<any>) {
     return _autoPageSize.call(this, ...arguments);
 });
 

@@ -3,7 +3,7 @@
 import { onMounted } from 'vue';
 
 import DataTable from "datatables.net";
-import 'datatables.net-dt/css/jquery.dataTables.css';
+import 'datatables.net-dt/css/dataTables.dataTables.css';
 
 onMounted(() => {
     new DataTable('#test', {

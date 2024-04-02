@@ -29,6 +29,8 @@ export class DefaultFormats {
         }
     };
 
+    integer = (n: number) => toFixed(n, 0);
+    
     decimal1 = (n: number) => toFixed(n, 1);
 
     decimal2 = (n: number) => toFixed(n, 2);

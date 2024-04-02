@@ -1,7 +1,7 @@
 <script lang="ts">
 
 import $ from 'jquery';
-import { ref, onMounted, computed, getCurrentInstance } from "vue";
+import { ref, onMounted, computed, inject } from "vue";
 import { Api } from "datatables.net";
 
 import { typeMap as baseTypeMap } from '@skeljs/core/src/lang/baseinfo';
@@ -133,7 +133,8 @@ const selectedRowIndexes = computed(() => {
 
 defineExpose({
     api, columns,//
-    deleteSelection, reconfigure, reset
+    deleteSelection, reconfigure, reset,
+    loadDebugger,
 });
 
 function reset() {
@@ -232,8 +233,28 @@ function deleteSelection() {
     dt!.rows({ selected: true }).remove().draw(false);
 }
 
+function loadDebugger() {
+    var url = 'https://debug.datatables.net/bookmarklet/DT_Debug.js';
+    const DT_Debug = (window as any).DT_Debug;
+    if (typeof DT_Debug != 'undefined') {
+        if (DT_Debug.instance !== null) {
+            DT_Debug.close();
+        } else {
+            new DT_Debug();
+        }
+    } else {
+        var n = document.createElement('script');
+        n.setAttribute('language', 'JavaScript');
+        n.setAttribute('src', url + '?rand=' + new Date().getTime());
+        document.body.appendChild(n);
+    }
+}
+
 onMounted(() => {
     initDataTable();
+    let dbg = inject('DT_Debug', false);
+    if (dbg)
+        loadDebugger();
 });
 
 </script>
