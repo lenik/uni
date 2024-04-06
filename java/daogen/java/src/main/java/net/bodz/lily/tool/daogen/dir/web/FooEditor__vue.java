@@ -1,7 +1,17 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.persistence.GeneratedValue;
 
@@ -292,9 +302,11 @@ public class FooEditor__vue
     void fieldGroup(TypeScriptWriter out, ITableMetadata table, Class<?> decl,
             Map<IProperty, IColumnMetadata> selection) {
 
-        out.printf("<%s :type=\"%s.TYPE\">\n", //
+        String tsTypeInfo = typeInfoResolver().resolveClass(decl);
+
+        out.printf("<%s :type=\"%s\">\n", //
                 out.name(EsmModules.dba.FieldGroup), //
-                out.importDefault(decl));
+                tsTypeInfo);
         out.enter();
 
         Map<IColumnMetadata, IProperty> map1 = new TreeMap<>(OrdinalComparator.INSTANCE);

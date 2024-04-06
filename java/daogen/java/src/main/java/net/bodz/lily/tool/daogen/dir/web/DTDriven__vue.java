@@ -53,6 +53,8 @@ public abstract class DTDriven__vue
         String name = typeInfoVal;
         if (name.endsWith(".TYPE"))
             name = name.substring(0, name.length() - 5);
+        else if (name.endsWith("_TYPE"))
+            name = name.substring(0, name.length() - 5);
 
         if (conflictTypeInfo(name, typeInfoVal)) {
             int suffix = 1, nTry = 10;

@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 
 import net.bodz.bas.c.type.TypeParam;
 import net.bodz.bas.esm.EsmName;
+import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.esm.skeljs.TsTypeInfos;
 import net.bodz.bas.esm.skeljs.TsTypes;
@@ -15,7 +16,7 @@ import net.bodz.bas.t.tuple.QualifiedName;
 public class TsTypeInfoResolver
         extends AbstractTsResolver<TsTypeInfoResolver> {
 
-    boolean dotType = true;
+    boolean dotType = false;
 
     public TsTypeInfoResolver(ITsImporter imports) {
         super(imports);
@@ -68,6 +69,7 @@ public class TsTypeInfoResolver
             return resolveClass(keyType);
         }
 
+        // EsmName tsTypeInfo = TsTypeInfos.INSTANCE.forClass(javaClass);
         EsmName tsType = TsTypes.INSTANCE.forClass(javaClass);
         if (tsType != null)
             return imports.importName(tsType) + ".TYPE";
@@ -86,15 +88,21 @@ public class TsTypeInfoResolver
         if (qName == null)
             throw new NullPointerException("qName");
 
-        QualifiedName typeInfoName = qName.append("TypeInfo");
+        QualifiedName typeInfoName;
+        if (qName.name.endsWith("_stuff"))
+            typeInfoName = qName.append("_TypeInfo");
+        else
+            typeInfoName = qName.append("TypeInfo");
 
         if (thisType != null && thisType.equals(typeInfoName))
             return "this";
 
         if (dotType)
             return imports.importDefault(qName) + ".TYPE";
-        else
-            return imports.importDefault(typeInfoName) + ".INSTANCE";
+
+        EsmSource source = imports.findSource(typeInfoName);
+        EsmName Foo_TYPE = source.name(qName.name + "_TYPE");
+        return imports.importName(Foo_TYPE);
     }
 
 }

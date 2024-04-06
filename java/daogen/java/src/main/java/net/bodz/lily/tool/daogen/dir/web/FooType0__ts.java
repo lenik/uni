@@ -135,6 +135,11 @@ public class FooType0__ts
 
         out.println();
         out.printf("export default %s;\n", extend.type.name);
+
+        out.println();
+        out.printf("export const %s = %s.INSTANCE;\n", //
+                project._Foo_stuff.name + "_TYPE", //
+                extend.type.name);
     }
 
     void declareProps(TypeScriptWriter out, ITableMetadata table) {

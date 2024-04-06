@@ -118,6 +118,11 @@ public class FooType1__ts
 
         out.println();
         out.printf("export default %s;\n", tsName);
+
+        out.println();
+        out.printf("export const %s = %s.INSTANCE;\n", //
+                extend.type.name + "_TYPE", //
+                tsName);
     }
 
     void declareProps(TypeScriptWriter out, Class<?> clazz) {
