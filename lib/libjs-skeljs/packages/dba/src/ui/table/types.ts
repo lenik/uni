@@ -177,6 +177,6 @@ export class Selection {
             return {};
         if (columns == null)
             columns = this.columns;
-        return row2Obj(row, columns);
+        return row2Obj(row, columns.map((c) => c.field));
     }
 }

@@ -1,6 +1,6 @@
 
 export function breakStr(s: string, re: RegExp, min: number = 1) {
-    var v = [];
+    var v: string[] = [];
     while (s.length >= min) {
         var lead = s.substring(0, min);
         s = s.substring(min);

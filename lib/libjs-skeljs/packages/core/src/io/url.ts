@@ -36,7 +36,7 @@ export function toAbsoluteUrl(href: string): string {
 }
 
 export function alterHref(href: string): string {
-    return alterHrefBase(href, window.hrefOverride);
+    return alterHrefBase(href, (window as any).hrefOverride);
 }
 
 /**
@@ -46,49 +46,52 @@ export function alterHref(href: string): string {
  * @param newBase should be absolute url, like `http://...`
  */
 export function alterHrefBase(href: string, newBase: string): string {
+    let __FILE__ = (window as any).__FILE__;
+
     if (newBase == null || newBase == '') // disabled.
         return href;
     if (href.indexOf(":") != -1) // ignore absolute href.
         return href;
 
     var debug = false;
-        if (location.protocol == 'file:') debug = true;
-        switch (location.hostname) {
-            case "localhost":
-            case "172.22.8.1":
-                debug = true;
-        }
-    if (! debug)
+    if (location.protocol == 'file:') debug = true;
+    switch (location.hostname) {
+        case "localhost":
+        case "172.22.8.1":
+            debug = true;
+    }
+    if (!debug)
         return href;
 
     if (href.charAt(0) != "/") {
         // href is relative-path.
         var url = toAbsoluteUrl(href);
-        
+
         var expected = "/libjs/lenik/dev-local.js";
-        if (! __FILE__.endsWith(expected)) {
+        if (!__FILE__.endsWith(expected)) {
             throw "invalid dev-local.js location: " + __FILE__;
         }
         var localRoot = __FILE__.substr(0, __FILE__.length - expected.length);
         var nprefix = localRoot.length;
         if (url.substring(0, nprefix) != localRoot)
             throw "unexpected";
-        
+
         href = url.substring(nprefix);
     }
-    
+
     var ss = newBase.indexOf("://"); // assert true
     var slash = newBase.indexOf("/", ss + 3);
     if (slash != -1) // Trim to "http://....com:123".
         newBase = newBase.substring(0, slash);
 
-    if (newBase.substring(newBase.length -1) == "/")
+    if (newBase.substring(newBase.length - 1) == "/")
         newBase = newBase.substring(0, newBase.length - 1);
     return newBase + href;
 }
 
 if (document.currentScript != null) {
     let scriptSrc = document.currentScript.getAttribute("src");
-    
-    window.__FILE__ = toAbsoluteUrl(scriptSrc);
+    if (scriptSrc != null) {
+        (window as any).__FILE__ = toAbsoluteUrl(scriptSrc);
+    }
 }
