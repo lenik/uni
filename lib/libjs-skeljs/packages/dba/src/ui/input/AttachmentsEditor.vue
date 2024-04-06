@@ -35,12 +35,6 @@ const emit = defineEmits<{
 
 // property shortcuts
 
-const rootElement = ref<HTMLElement>();
-const fileInput = ref<HTMLInputElement>();
-const progressDiv = ref<HTMLElement>();
-const completionDiv = ref<HTMLElement>();
-const previewsDiv = ref<HTMLElement>();
-
 const serverUrl = inject<string>(SERVER_URL)!;
 const realServiceUrl = computed(() => {
     let url: string;
@@ -80,6 +74,14 @@ const serviceUploadUrl = computed(() => {
 const indexUrl = computed(() => {
     return serverUrl + "/" + simpleName.value;
 });
+
+// DOM references
+
+const rootElement = ref<HTMLElement>();
+const fileInput = ref<HTMLInputElement>();
+const progressDiv = ref<HTMLElement>();
+const completionDiv = ref<HTMLElement>();
+const previewsDiv = ref<HTMLElement>();
 
 // methods
 

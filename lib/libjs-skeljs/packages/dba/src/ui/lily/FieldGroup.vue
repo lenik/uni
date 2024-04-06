@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, toRaw, unref } from "vue";
 import { } from "../../../../core/src/ui/types";
 import IEntityType from "../../net/bodz/lily/entity/IEntityType";
 
@@ -23,6 +23,18 @@ const emit = defineEmits<{
 // property shortcuts
 
 const rootElement = ref<HTMLElement>();
+const hasLabel = computed(() => {
+    let type = props.type;
+    let clazz = Object.getPrototypeOf(type);
+    return clazz.hasOwnProperty('label');
+});
+const simpleName = computed(() => {
+    let type = props.type;
+    let fqcn = type.name;
+    let lastDot = fqcn.lastIndexOf('.');
+    let name = lastDot == -1 ? fqcn : fqcn.substring(lastDot + 1);
+    return name;
+});
 
 // methods
 
@@ -36,11 +48,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="field-group">
+    <div class="field-group" :data-fqcn="type.name">
         <div class="header">
             <Icon :name="type.icon" v-if="type.icon != null" />
-            <span class="label" v-if="type.label != null">{{ type.label }}</span>
-            <span class="fqcn" v-else>{{ type.name }}</span>
+            <span class="label" v-if="hasLabel">{{ props.type.label }}</span>
+            <span class="name" v-else> &lt;&lt; {{ simpleName }} &gt;&gt; </span>
         </div>
         <div class="body">
             <slot></slot>
@@ -68,6 +80,11 @@ onMounted(() => {
 
     .icon {
         margin-right: .5em;
+    }
+
+    .name {
+        font-style: italic;
+        color: hsl(120, 50%, 90%);
     }
 }
 
