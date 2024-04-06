@@ -77,6 +77,10 @@ export abstract class EntityType extends TypeInfo<any> implements IEntityType {
     }
 
     get properties(): EntityProperty[] {
+        if (!this.applied) {
+            this.preamble();
+            this.applied = true;
+        }
         let v = Object.values(this.allProps);
         v.sort((a, b) => a.position! - b.position!);
         return v;
