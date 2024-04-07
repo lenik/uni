@@ -52,7 +52,7 @@ public class RowListFn {
                     return;
             }
 
-            IMutableRow row = rowList.newRow();
+            IMutableRow row = rowList.addNewRow();
             MutableRowFn.readObject(row, parser, (IColumnMetadata column) -> {
                 Integer columnIndex = map.apply(column);
                 if (columnIndex == null)
