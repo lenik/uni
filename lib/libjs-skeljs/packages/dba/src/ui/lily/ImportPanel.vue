@@ -6,8 +6,8 @@ import { showError } from '@skeljs/core/src/logging/api';
 
 import EntityType from '../../net/bodz/lily/entity/EntityType';
 import { SERVER_URL } from './context';
-import "blueimp-file-upload/css/jquery.fileupload.css";
-import "../../../vendor/blueimp-file-upload";
+import "blueimp-file-upload-esm/css/jquery.fileupload.css";
+import "blueimp-file-upload-esm";
 
 import $ from 'jquery';
 
@@ -23,7 +23,6 @@ export interface Props {
 
 <script setup lang="ts">
 import FieldRow, { FIELD_ROW_PROPS } from '@skeljs/core/src/ui/FieldRow.vue';
-import FieldSet from './FieldSet.vue';
 
 provide(FIELD_ROW_PROPS, {
     labelWidth: '8em',
