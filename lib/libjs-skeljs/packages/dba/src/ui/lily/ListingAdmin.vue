@@ -20,14 +20,26 @@ export interface Props {
     pageSize?: number
     page?: number // 1-based
     order?: string
+    search?: any
+    importOptions?: any
 }
+
+export interface IDataView {
+    range: any[]
+    totalRows: long
+    offset: long
+    pageSize: long
+    pageCount: long
+    page: long
+}
+
 </script>
 
 <script setup lang="ts">
 import Dialog from '@skeljs/core/src/ui/Dialog.vue';
 import ImportPanel from './ImportPanel.vue';
 
-const model = defineModel<any>();
+const model = defineModel<IDataView>();
 
 const props = withDefaults(defineProps<Props>(), {
     page: 0,
@@ -60,13 +72,13 @@ const stateText = ref('Ready');
 const loading = ref<boolean>();
 const dataColumns = ref<string[]>([]);
 const dataObjects = ref<any[]>([]);
-const totalCount = ref<long>(0);
-const realPageSize = computed<int>(() => props.pageSize || totalCount.value);
+const totalRows = ref<long>(0);
+const realPageSize = computed<int>(() => props.pageSize || totalRows.value);
 const pageCount = computed<long>(() => {
     if (realPageSize.value == 0)
         return 1;
     else
-        return Math.ceil(totalCount.value / realPageSize.value);
+        return Math.ceil(totalRows.value / realPageSize.value);
 });
 const currentPage = ref<long>(1);
 
@@ -132,12 +144,16 @@ function reload(page?: int) {
     if (props.order != null)
         query["order"] = props.order;
 
+    let page_z = (page || currentPage.value) - 1;
+    if (page_z < 0) page_z = 0;
+
     if (props.pageSize != null) {
-        let page_z = (page || currentPage.value) - 1;
-        if (page_z < 0) page_z = 0;
         query["page.offset"] = props.pageSize * page_z;
         query["page.limit"] = props.pageSize;
     }
+
+    if (props.search != null)
+        Object.assign(query, props.search);
 
     loading.value = true;
 
@@ -152,7 +168,7 @@ function reload(page?: int) {
         }
 
         data = wireUp(data);
-        totalCount.value = data.totalCount;
+        totalRows.value = data.totalCount;
         dataColumns.value = data.columns;
 
         let anyList: any[] = data.rows!;
@@ -176,6 +192,15 @@ function reload(page?: int) {
         if (page != null)
             currentPage.value = page;
         loading.value = false;
+
+        model.value = {
+            range: objs,
+            totalRows: totalRows.value,
+            offset: realPageSize.value * page_z,
+            pageSize: realPageSize.value,
+            pageCount: pageCount.value,
+            page: page_z + 1
+        };
     }).fail(function (xhr: any, status: any, err) {
         showError("Failed to query index data: " + err);
     });
@@ -220,7 +245,11 @@ onMounted(() => {
         </ul>
         <Dialog ref="importDialog" class="import-dialog" :name="dialogName" v-model="importData" modal
             title="Import from Excel/CSV..." height="25em" :cmds="{ close: true }">
-            <ImportPanel ref="importPanel" :type="props.type" @done="onImported">
+            <ImportPanel ref="importPanel" :type="props.type" :options="importOptions" @done="onImported">
+
+                <template #options>
+                    <slot name="import-options"></slot>
+                </template>
 
                 <template #item="{ o }">
                     <slot name="import-item" v-bind="{ o, ...o }"></slot>

@@ -1,4 +1,5 @@
 <script lang="ts">
+import $ from 'jquery';
 import { computed, inject, onMounted, provide, ref } from 'vue';
 
 import type { int } from '@skeljs/core/src/lang/basetype';
@@ -6,10 +7,9 @@ import { showError } from '@skeljs/core/src/logging/api';
 
 import EntityType from '../../net/bodz/lily/entity/EntityType';
 import { SERVER_URL } from './context';
-import "blueimp-file-upload-esm/css/jquery.fileupload.css";
-import "blueimp-file-upload-esm";
-
-import $ from 'jquery';
+import "blueimp-file-upload/css/jquery.fileupload.css";
+// import "blueimp-file-upload-esm";
+import "../../../vendor/blueimp-file-upload-esm/js/jquery.fileupload";
 
 export interface Props {
     serviceUrl?: string // injectable
@@ -18,6 +18,7 @@ export interface Props {
     subDir?: string
     maxSpeed?: int
     maxChunkSize?: int
+    options?: any
 }
 </script>
 
@@ -69,6 +70,10 @@ const fullServiceUrl = computed(() => {
         encoding: encoding.value,
         maxSpeed: props.maxSpeed,
     };
+    if (props.options != null) {
+        Object.assign(params, props.options);
+    }
+
     let i = 0;
     for (let k in params) {
         if (i++ == 0)
@@ -84,6 +89,7 @@ const fullServiceUrl = computed(() => {
 
 // app state
 
+const uploading = ref<boolean>();
 const csvDelimitor = ref<string>(',');
 const encoding = ref<string>('utf-8');
 
@@ -98,7 +104,7 @@ const completionDiv = ref<HTMLElement>();
 
 // methods
 
-defineExpose({ reset });
+defineExpose({ reset, update });
 
 function reset() {
     result.value = null;
@@ -110,19 +116,28 @@ function setPercent(percent: number) {
     $comp.css("width", percent + "%");
 }
 
+function update() {
+}
+
 onMounted(() => {
     let $input = $(fileInput.value!) as any;
     let fileupload = $input.fileupload({
         dataType: 'json',
         maxChunkSize: props.maxChunkSize,
+        add: function (e: JQuery.Event, data: any) {
+            data.url = fullServiceUrl.value;
+            data.submit();
+        },
         submit: function () {
             setPercent(0);
+            uploading.value = true;
             $(progressDiv.value!).show();
             // beginWait();
         },
         always: function () {
             // endWait();
             $(progressDiv.value!).hide();
+            uploading.value = false;
         },
         progressall: function (e: JQuery.Event, data: any) {
             let percent = Math.floor(data.loaded / data.total * 1000) / 10;
@@ -137,17 +152,18 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="import-panel" ref="rootElement" :class="{ uploaded: result != null }">
+    <div class="import-panel" ref="rootElement" :class="{ uploaded: result != null, uploading }">
         <div class="upload">
             <div> Select file to import:</div>
             <div class="control">
-                <input type="file" ref="fileInput" class="upload" :data-url="fullServiceUrl">
+                <input type="file" ref="fileInput" class="upload">
                 <div class="filler"></div>
                 <div class="progress" ref="progressDiv">
                     <div class="completion" ref="completionDiv">0%</div>
                 </div>
             </div>
-            <div class="options" v-if="result == null">
+            <div class="uploading" v-if="uploading"> Uploading... </div>
+            <div class="options" v-else>
                 <div class="header">Options:</div>
                 <FieldRow label="Encoding" v-model="encoding">
                     <select v-model="encoding">
@@ -159,6 +175,7 @@ onMounted(() => {
                 <FieldRow label="CSV Delimitor" v-model="csvDelimitor">
                     <input type="text" maxlength="1" size="2" v-model="csvDelimitor">
                 </FieldRow>
+                <slot name="options"></slot>
             </div>
         </div>
     </div>
@@ -172,19 +189,19 @@ onMounted(() => {
         </div>
         <ul class="result-data" v-if="result.data != null">
             <li class="inserts" v-if="result.data.inserts.length"> {{ result.data.inserts.length }} inserted: <ol>
-                    <li v-for="(obj, i) in result.data.inserts">
+                    <li v-for="(obj, i) in result.data.inserts" :key="i">
                         <slot name="item" v-bind="{ o: obj, ...obj }">{{ obj }}</slot>
                     </li>
                 </ol>
             </li>
             <li class="updates" v-if="result.data.updates.length"> {{ result.data.updates.length }} updated: <ol>
-                    <li v-for="(obj, i) in result.data.updates">
+                    <li v-for="(obj, i) in result.data.updates" :key="i">
                         <slot name="item" v-bind="{ o: obj, ...obj }">{{ obj }}</slot>
                     </li>
                 </ol>
             </li>
             <li class="errors" v-if="result.data.errors.length"> {{ result.data.errors.length }} errors: <ol>
-                    <li v-for="(err, i) in result.data.errors">
+                    <li v-for="(err, i) in result.data.errors" :key="i">
                         <slot name="error" v-bind="{ e: err }">{{ err }}</slot>
                     </li>
                 </ol>
