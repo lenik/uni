@@ -25,6 +25,7 @@ const emit = defineEmits<{
 const viewVersion = ref(0);
 
 const initialFontSize = ref<string>('');
+const initialLines = ref<number>(1);
 
 const lineHeight = computed(() => {
     viewVersion.value;
@@ -76,12 +77,14 @@ function update() {
     if (props.preserveLineWrapping)
         wrappedLines.value = reWrap(textDiv);
 
-    let initialLines = getLineCount(textDiv);
+    let currentLines = getLineCount(textDiv);
+    let targetLines = initialLines.value;
 
-    scaleToMoreWrap.value = findScaleForMoreWrap(textDiv, initialLines);
-    scaleToLessWrap.value = findScaleForLessWrap(textDiv, initialLines);
+    scaleToMoreWrap.value = findScaleForMoreWrap(textDiv, targetLines);
+    scaleToLessWrap.value = findScaleForLessWrap(textDiv, targetLines);
 
-    let fitScale = findScaleToFit(textDiv, scaleToLessWrap.value, scaleToMoreWrap.value, initialLines);
+    let fitScale = findScaleToFit(textDiv, scaleToLessWrap.value, scaleToMoreWrap.value, //
+        targetLines);
 
     let fontSizeStr = initialFontSize.value;
     if (fontSizeStr.length == 0)
@@ -94,19 +97,19 @@ function update() {
     textDiv.style.fontSize = fitFontSize.toString();
 }
 
-function findScaleForMoreWrap(el: HTMLElement, initialLines?: number) {
-    return findScaleForWrapChange(el, 'more', initialLines);
+function findScaleForMoreWrap(el: HTMLElement, targetLines?: number) {
+    return findScaleForWrapChange(el, 'more', targetLines);
 }
 
-function findScaleForLessWrap(el: HTMLElement, initialLines?: number) {
-    return findScaleForWrapChange(el, 'less', initialLines);
+function findScaleForLessWrap(el: HTMLElement, targetLines?: number) {
+    return findScaleForWrapChange(el, 'less', targetLines);
 }
 
-function findScaleForWrapChange(el: HTMLElement, dir: 'more' | 'less', initialLines?: number) {
+function findScaleForWrapChange(el: HTMLElement, dir: 'more' | 'less', targetLines?: number) {
     // let origFontSize = el.style.fontSize;
-    if (initialLines == null) {
+    if (targetLines == null) {
         el.style.fontSize = initialFontSize.value;
-        initialLines ||= getLineCount(el);
+        targetLines ||= getLineCount(el);
     }
 
     let origFontSize = el.style.fontSize;
@@ -139,7 +142,7 @@ function findScaleForWrapChange(el: HTMLElement, dir: 'more' | 'less', initialLi
             let scaledSize = baseFontSize.mul(scale);
             el.style.fontSize = scaledSize.toString();
             let lines = getLineCount(el);
-            if (lines != initialLines)
+            if (lines != targetLines)
                 return scale;
         }
         return undefined;
@@ -149,29 +152,41 @@ function findScaleForWrapChange(el: HTMLElement, dir: 'more' | 'less', initialLi
     }
 }
 
-function findScaleToFit(el: HTMLElement, scaleMin?: number, scaleMax?: number, initialLines?: number) {
-    let origOverflow = rootElement.value!.style.overflow;
-    rootElement.value!.style.overflow = 'scroll';
+function findScaleToFit(el: HTMLElement, scaleMin?: number, scaleMax?: number, targetLines?: number) {
+    if (targetLines == null) {
+        el.style.fontSize = initialFontSize.value;
+        targetLines ||= getLineCount(el);
+    }
 
     let origFontSize = el.style.fontSize;
+    let parent = el.parentElement!;
+    let origOverflow = parent.style.overflow;
+    parent.style.overflow = 'scroll';
+
+    let baseFontSizeStr = initialFontSize.value;
+    if (baseFontSizeStr == '')
+        baseFontSizeStr = '100%';
+    let baseFontSize = CssUnitValue.parse(baseFontSizeStr);
+
     try {
-        let min = scaleMin || 1;
-        let max = scaleMax || 1;
+        let min = scaleMin || 0.1;
+        let max = scaleMax || 10;
         while (min < max && max - min > .001) {
             let ptr = (min + max) / 2;
-            // fontScale.value = ptr;
-            el.style.fontSize = ptr * 100 + "%";
+
+            let scaledSize = baseFontSize.mul(ptr);
+            el.style.fontSize = scaledSize.toString();
+
             let lines = getLineCount(el);
-            if (lines == initialLines)
+            if (lines <= targetLines)
                 min = ptr;
-            else {
+            else
                 max = ptr;
-            }
         }
         return (min + max) / 2;
     } finally {
         el.style.fontSize = origFontSize;
-        rootElement.value!.style.overflow = origOverflow;
+        parent.style.overflow = origOverflow;
     }
 }
 
@@ -180,6 +195,7 @@ onMounted(() => {
     let textEl = textElement.value!;
 
     initialFontSize.value = textEl.style.fontSize;
+    initialLines.value = getLineCount(textEl);
 
     let observer = new ResizeObserver((mutations) => { update(); });
     observer.observe(parentEl);
@@ -189,7 +205,7 @@ onMounted(() => {
 
 <template>
     <div class="textbox" ref="rootElement" contenteditable="true">
-        <div class="text" :class="{ scaled }" ref="textElement" v-bind="$attrs">
+        <div class="text" ref="textElement" v-bind="$attrs">
             <slot></slot>
         </div>
     </div>
@@ -197,6 +213,7 @@ onMounted(() => {
         <div class="props">
             <span> lineHeight: {{ lineHeight }} </span>
             <span> lineCount: {{ lineCount }} </span>
+            <span> initialLines: {{ initialLines }} </span>
             <span> clientHeight: {{ clientHeight }} </span>
             <span> scrollHeight: {{ scrollHeight }} </span>
             <span> scaleToLessWrap: {{ scaleToLessWrap }} </span>

@@ -47,10 +47,11 @@ onMounted(() => {
     padding: 0;
 
     ::v-deep(>.textbox) {
-        width: 400px;
+        width: 300px;
         height: 100px;
         resize: both;
         border: solid 1px red;
+        font-size: 24px;
     }
 }
 </style> }
