@@ -11,6 +11,7 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.CoObjectCriteriaBuilder;
 import net.bodz.lily.concrete.StructRowCriteriaBuilder;
+import net.bodz.lily.entity.manager.ForEntityType;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__java;
@@ -70,6 +71,10 @@ public class FooCriteriaBuilder_stuff__java
         }
 
         String className = project._FooCriteriaBuilder_stuff.name;
+
+        out.printf("@%s(%s.class)\n", //
+                out.importName(ForEntityType.class), //
+                out.importName(javaType));
         out.printf("public class %s<self_t extends %s<self_t>>\n", className, className);
         out.printf("        extends %s<self_t> {\n", parentSimpleName);
         out.enter();
