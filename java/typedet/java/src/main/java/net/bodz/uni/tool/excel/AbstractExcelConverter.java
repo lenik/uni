@@ -8,15 +8,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import net.bodz.bas.c.java.io.FilePath;
-import net.bodz.bas.fmt.excel.ExcelParseOptions;
-import net.bodz.bas.fmt.excel.XWorkbook;
-import net.bodz.bas.fmt.excel.XWorksheet;
+import net.bodz.bas.filetype.excel.ExcelParseOptions;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.io.Stdio;
 import net.bodz.bas.io.adapter.WriterPrintOut;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.program.skel.BasicCLI;
+import net.bodz.bas.t.catalog.poi.SheetBook;
+import net.bodz.bas.t.catalog.poi.SheetTable;
 
 public abstract class AbstractExcelConverter
         extends BasicCLI {
@@ -79,18 +79,18 @@ public abstract class AbstractExcelConverter
             entireWorkbook = false;
         if (entireWorkbook)
             splitSheets = false;
-        if (!(splitSheets || entireWorkbook))
+        if (! (splitSheets || entireWorkbook))
             splitSheets = true;
 
         for (String name : args) {
             File file = new File(name);
-            if (!file.canRead()) {
+            if (! file.canRead()) {
                 logger.error("Can't read from " + file);
                 continue;
             }
 
             Workbook src = WorkbookFactory.create(file);
-            XWorkbook workbook = new XWorkbook();
+            SheetBook workbook = new SheetBook();
             ExcelParseOptions options = new ExcelParseOptions();
             workbook.readObject(src, options);
 
@@ -102,12 +102,12 @@ public abstract class AbstractExcelConverter
         }
     }
 
-    protected void convertWorkbook(XWorkbook workbook, File file)
+    protected void convertWorkbook(SheetBook workbook, File file)
             throws Exception {
 
         IPrintOut out = stdout ? Stdio.cout : null;
 
-        for (XWorksheet sheet : workbook.getSheets()) {
+        for (SheetTable sheet : workbook.getSheets()) {
             String sheetName = sheet.getName();
 
             if (splitSheets) {
@@ -135,7 +135,7 @@ public abstract class AbstractExcelConverter
         }
     }
 
-    protected void convertSheet(XWorksheet sheet, File file)
+    protected void convertSheet(SheetTable sheet, File file)
             throws Exception {
         String sheetName = sheet.getName();
 
@@ -157,7 +157,7 @@ public abstract class AbstractExcelConverter
         }
     }
 
-    protected abstract void convertSheet(XWorksheet sheet, IPrintOut out)
+    protected abstract void convertSheet(SheetTable sheet, IPrintOut out)
             throws Exception;
 
 }

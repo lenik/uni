@@ -107,11 +107,6 @@ public class LRUHistoMap<K extends Comparable<K>>
         return getWrapped().equals(obj);
     }
 
-    @Override
-    public String toString() {
-        return getWrapped().toString();
-    }
-
     public void dump() {
         dump(Stdio.cout);
     }

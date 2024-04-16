@@ -2,11 +2,11 @@ package net.bodz.uni.tool.excel;
 
 import java.util.List;
 
-import net.bodz.bas.fmt.excel.XCell;
-import net.bodz.bas.fmt.excel.XRow;
-import net.bodz.bas.fmt.excel.XWorksheet;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.ProgramName;
+import net.bodz.bas.t.catalog.poi.SheetCell;
+import net.bodz.bas.t.catalog.poi.SheetRow;
+import net.bodz.bas.t.catalog.poi.SheetTable;
 
 /**
  * Convert Excel sheet to CSV.
@@ -48,16 +48,16 @@ public class Excel2CSV
     }
 
     @Override
-    protected void convertSheet(XWorksheet sheet, IPrintOut out)
+    protected void convertSheet(SheetTable sheet, IPrintOut out)
             throws Exception {
-        int maxColumnCount = sheet.getTable().computeColumnCount();
-        List<XRow> rows = sheet.getTable().getRows();
-        for (XRow row : rows) {
+        int maxColumnCount = sheet.computeColumnCount();
+        List<? extends SheetRow> rows = sheet.getRows();
+        for (SheetRow row : rows) {
             int cellCount = row.getCellCount();
             for (int col = 0; col < cellCount; col++) {
                 if (col != 0)
                     out.print(delim);
-                XCell cell = row.get(col);
+                SheetCell cell = row.getCell(col);
                 format(out, cell);
             }
             for (int col = cellCount; col < maxColumnCount; col++) {
@@ -68,7 +68,7 @@ public class Excel2CSV
         }
     }
 
-    void format(IPrintOut out, XCell cell) {
+    void format(IPrintOut out, SheetCell cell) {
         String text = cell.getText();
         if (text == null) {
             out.print(nullText);
