@@ -17,6 +17,9 @@
     option -f --script-file "Eval script file named by code"
     option -D --list-db     "List databases"
     option -l --list-table  "List tables"
+    option -o --opt =OPTS "options passed to underlying driver"
+    option -A --no-align    "(psql) unaligned table output mode"
+    option -t --tuples-only "(psql) print rows only"
     # option -T --tree        "Dump object tree"
     option -q --quiet
     option -v --verbose
@@ -27,6 +30,9 @@
     opt_each_db=
     opt_mode=
 
+    extraopts=()
+    extraopts2=()
+
 function setopt() {
     case "$1" in
         -c|--conn)
@@ -36,17 +42,23 @@ function setopt() {
         -i|--interactive)
             opt_mode=console;;
         -e|--eval)
-            opt_mode=eval;;
+            extraopts2+=(-c);;
         -x|--exec)
             opt_mode=exec;;
         -f|--script-file)
-            opt_mode=file;;
+            extraopts2+=(-f);;
         -D|--list-db)
             opt_mode=list_db;;
         -l|--list-table)
             opt_mode=list_table;;
         -T|--tree)
             opt_mode=dump_tree;;
+        -o|--opt)
+            extraopts+=($2);;
+        -A|--no-align)
+            extraopts+=(--no-align);;
+        -t|--tuples-only)
+            extraopts+=(--tuples-only);;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -155,7 +167,8 @@ function main() {
         if [ -z "$1" ]; then
             opt_mode=console
         else
-            opt_mode=eval
+            opt_mode=psql
+            extraopts2+=(-c)
         fi
     fi
 
@@ -186,10 +199,11 @@ function main() {
         for db in "${databases[@]}"; do
             db_name="$db"
             _log1 "-- for database $db:"
-            "$fn" "$@"
+            "$fn" "${extraopts[@]}" "${extraopts2[@]}" "$@"
         done
     else
-        "$fn" "$@"
+        _log1 "fn=$fn, extra=${extraopts[*]}, cmdv=$@"
+        "$fn" "${extraopts[@]}" "${extraopts2[@]}" "$@"
     fi
 }
 

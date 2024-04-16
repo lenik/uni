@@ -113,7 +113,7 @@ function _pg_psql() {
 }
 
 function _pg_console() {
-    _pg_psql
+    _pg_psql "$@"
 }
 
 function _pg_list_db() {
