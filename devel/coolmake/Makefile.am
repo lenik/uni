@@ -39,3 +39,12 @@ CLEANFILES = \
 install-data-hook:
 	mkdir -p ${DESTDIR}${incdir}
 	cp -a inc/ ${DESTDIR}${incdir}/coolmake
+	mkdir -p ${DESTDIR}${pkgdatadir}
+	cp -a template/ ${DESTDIR}${pkgdatadir}
+
+install-debug:
+	sudo mkdir -p ${DESTDIR}${incdir}/coolmake/
+	sudo ln -snf $$PWD/inc/* ${DESTDIR}${incdir}/coolmake/
+	sudo mkdir -p ${DESTDIR}${pkgdatadir}
+	sudo ln -snf $$PWD/template/ ${DESTDIR}${pkgdatadir}
+

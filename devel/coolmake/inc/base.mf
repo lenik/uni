@@ -15,11 +15,9 @@ svnworkcopy = svnworkcopy
 
 bin_files = \
     bin/ \
-    lib/ \
-    target/
+    lib/
 
-src_excludes = \
-    target
+src_excludes =
 
 rsync_excludes =
 
@@ -92,22 +90,38 @@ deploy: ${deploy_archives}
                 rm $$ar; \
             done'
 
+rsyncopts = \
+    --checksum \
+    --recursive \
+    --perms \
+    --xattrs \
+    --crtimes \
+    --hard-links \
+    --copy-links \
+    --delete
+
+rsync_cmd = rsync $(rsyncopts) \
+	    $(addprefix --exclude=, $(rsync_excludes)) \
+
 rsync-dist: ${deploy_archives}
 	tmpdir=`mktemp -d`; \
 	tar -xz -C $$tmpdir -f ${deploy_archives}; \
-	rsync -camv -L --delete \
-	    $(addprefix --exclude=, $(rsync_excludes)) \
-            $$tmpdir/* ${remotehostdir}
+	$(rsync_cmd) $$tmpdir/* ${remotehostdir}
 
 rsync:
-	rsync -camv -L --delete \
-	    $(addprefix --exclude=, $(rsync_excludes)) \
-            . ${remotehostdir}
+	$(rsync_cmd) . ${remotehostdir}
 
-lib-updater:
-	main lib-updater -dlib -saj    -o classpath.release.lst
-	main lib-updater -dlib -sam -k -o classpath.debug.lst
-
-lib-updater-O:
-	mjava -O lib-updater
+rsync-dottarget: .target
+	@read target < $<; \
+	opts=(--exclude=/.ssh); \
+    identity_file=; \
+        shopt -s nullglob; \
+        for id in ./.ssh/id_* ../.ssh/id_*; do \
+            identity_file="$$id"; \
+            break; \
+        done; \
+        if [ -n "$$identity_file" ]; then \
+            opts+=(-e "ssh -i $$identity_file"); \
+        fi; \
+        $(rsync_cmd) "$${opts[@]}" . $$target
 
