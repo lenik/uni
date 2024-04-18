@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.bodz.bas.c.java.util.DateTimes;
+import net.bodz.bas.c.java.time.DateTimes;
 import net.bodz.bas.stat.distrib.SmallDatasetStats;
 
 public class LocalDateTimeType
