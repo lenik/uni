@@ -1,0 +1,192 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Show or change attributes of files on ntfs partition}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -r --remove-readonly             "set(+r) or remove(-r) the readonly attribute bit"
+    option -h --remove-hidden               "set(+h) or remove(-h) the hidden attribute bit"
+    option -s --remove-system               "set(+s) or remove(-s) the system attribute bit"
+    option -a --remove-archive              "set(+a) or remove(-a) the archive attribute bit"
+    option -t --remove-temporary            "set(+t) or remove(-t) the temporary attribute bit"
+    option -c --remove-compressed           "set(+c) or remove(-c) the compressed attribute bit"
+    option -o --remove-offline              "set(+o) or remove(-o) the offline attribute bit"
+    option -n --remove-not-content-indexed  "set(+n) or remove(-n) the indexed attribute bit"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    ATTR_READONLY=0x1
+    ATTR_HIDDEN=0x2
+    ATTR_SYSTEM=0x4
+    ATTR_ARCHIVE=0x20
+    ATTR_TEMPORARY=0x100
+    ATTR_COMPRESSED=0x800
+    ATTR_OFFLINE=0x1000
+    ATTR_NOT_CONTENT_INDEXED=0x2000
+    ZEROS=000000000000000000
+    
+    setbits=0
+    clearbits=0
+    
+function setopt() {
+    case "$1" in
+        +r|--set-readonly)
+            setbits=$(( setbits | ATTR_READONLY ));;
+        +h|--set-hidden)
+            setbits=$(( setbits | ATTR_HIDDEN ));;
+        +s|--set-system)
+            setbits=$(( setbits | ATTR_SYSTEM ));;
+        +a|--set-archive)
+            setbits=$(( setbits | ATTR_ARCHIVE ));;
+        +t|--set-temporary)
+            setbits=$(( setbits | ATTR_TEMPORARY ));;
+        +c|--set-compressed)
+            setbits=$(( setbits | ATTR_COMPRESSED ));;
+        +o|--set-offline)
+            setbits=$(( setbits | ATTR_OFFLINE ));;
+        +n|--set-not-content-indexed)
+            setbits=$(( setbits | ATTR_NOT_CONTENT_INDEXED ));;
+        -r|--remove-readonly)
+            clearbits=$(( clearbits | ATTR_READONLY ));;
+        -h|--remove-hidden)
+            clearbits=$(( clearbits | ATTR_HIDDEN ));;
+        -s|--remove-system)
+            clearbits=$(( clearbits | ATTR_SYSTEM ));;
+        -a|--remove-archive)
+            clearbits=$(( clearbits | ATTR_ARCHIVE ));;
+        -t|--remove-temporary)
+            clearbits=$(( clearbits | ATTR_TEMPORARY ));;
+        -c|--remove-compressed)
+            clearbits=$(( clearbits | ATTR_COMPRESSED ));;
+        -o|--remove-offline)
+            clearbits=$(( clearbits | ATTR_OFFLINE ));;
+        -n|--remove-not-content-indexed)
+            clearbits=$(( clearbits | ATTR_NOT_CONTENT_INDEXED ));;
+        --help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for arg in "$@"; do
+        case "$arg" in
+        +r) setbits=$(( setbits | ATTR_READONLY ));;
+        +h) setbits=$(( setbits | ATTR_HIDDEN ));;
+        +s) setbits=$(( setbits | ATTR_SYSTEM ));;
+        +a) setbits=$(( setbits | ATTR_ARCHIVE ));;
+        +t) setbits=$(( setbits | ATTR_TEMPORARY ));;
+        +c) setbits=$(( setbits | ATTR_COMPRESSED ));;
+        +o) setbits=$(( setbits | ATTR_OFFLINE ));;
+        +n) setbits=$(( setbits | ATTR_NOT_CONTENT_INDEXED ));;
+        -r) clearbits=$(( clearbits | ATTR_READONLY ));;
+        -h) clearbits=$(( clearbits | ATTR_HIDDEN ));;
+        -s) clearbits=$(( clearbits | ATTR_SYSTEM ));;
+        -a) clearbits=$(( clearbits | ATTR_ARCHIVE ));;
+        -t) clearbits=$(( clearbits | ATTR_TEMPORARY ));;
+        -c) clearbits=$(( clearbits | ATTR_COMPRESSED ));;
+        -o) clearbits=$(( clearbits | ATTR_OFFLINE ));;
+        -n) clearbits=$(( clearbits | ATTR_NOT_CONTENT_INDEXED ));;
+        *)
+            break;;
+        esac
+        shift
+    done
+    
+    for file in "$@"; do
+        local val=$( getattr "$file" )
+        if [ -z "$val" ]; then
+            quit "error get ntfs attribute from $file"
+        fi
+        _log2f "$file attrib before modify: %x\n" "$val"
+        
+        if [ $setbits == 0 ] && [ $clearbits == 0 ]; then
+            local bits=$( decodebits $val )
+            printf "%-8s %s\n" "$bits" "$file"
+            continue
+        fi
+        
+        local mod=$(( (val & ~clearbits) | setbits ))
+        # printf "$file attrib to be set: %x\n" "$mod"
+
+        local hex=$( printf '%x' $mod )
+        local nhex=${#hex}
+        if [ $nhex -lt 8 ]; then
+            local zpadding=${ZEROS:0:8 - nhex}
+            hex=$zpadding$hex
+        fi
+        
+        if ! setfattr -h -n system.ntfs_attrib_be -v "0x$hex" "$file"; then
+            _error "Error set ntfs attribute for file $file: error status $?"
+        fi
+
+        val=$( getattr "$file" )
+        _log2f "$file attrib after modify: %x\n" "$val"
+    done
+}
+
+function _log2f() {
+    local fmt="$1"
+    shift
+    local msg=$( printf "$fmt" "$@" )
+    _log2 "$msg"
+}
+    ATTR_READONLY=0x1
+    ATTR_HIDDEN=0x2
+    ATTR_SYSTEM=0x4
+    ATTR_ARCHIVE=0x20
+    ATTR_TEMPORARY=0x100
+    ATTR_COMPRESSED=0x800
+    ATTR_OFFLINE=0x1000
+    ATTR_NOT_CONTENT_INDEXED=0x2000
+
+function decodebits() {
+    local bits=$(( $1 ))
+    local str=
+    local pat=Ioc..t..a..shr
+    while [ -n "$pat" ]; do
+        local ch=${pat: -1}
+        pat=${pat:0:-1}
+
+        local lsb=$(( bits & 1 ))
+        bits=$(( bits >> 1 ))
+        [ $ch == '.' ] && continue
+
+        if [ $lsb == 1 ]; then
+            str="$ch$str"
+        else
+            str="-$str"
+        fi
+    done
+    echo $str
+}
+
+function getattr() {
+    local file="$1"
+    local k v
+    local opts=(-h -e hex -n system.ntfs_attrib_be)
+    if [ "${file:0:1}" = '/' ]; then
+        opts+=(--absolute-names)
+    fi
+    while IFS== read k v; do
+        case "$k" in
+            system.ntfs_attrib_be)
+                echo "$v"
+                return 0
+                ;;
+        esac
+    done < <(getfattr "${opts[@]}" "$file")
+    return 1
+}
+
+boot "$@"
