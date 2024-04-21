@@ -1,0 +1,110 @@
+import path
+
+function parse_url() {
+    local prefix="$1"
+    local url="$2"
+    local str="$url"
+    
+    local -n    proto=${prefix}_proto
+    local -n hostport=${prefix}_hostport
+    local -n     host=${prefix}_host
+    local -n     port=${prefix}_port
+    local -n     path=${prefix}_path
+    local -n    query=${prefix}_query
+    local -n     hash=${prefix}_hash
+
+    proto="${str%%://*}"
+    hostport=
+    host=
+    port=
+    
+    str="${str#*://}"
+    if [ "$proto" = "$str" ]; then
+        proto=
+        if [ "${str:0:1}" = : ]; then
+            port="${str%%/*}"
+            str="${str#*/}"
+            if [ "$port" = "$str" ]; then
+                port=
+            else
+                port=${port#:}
+                str="/$str"
+            fi
+        fi
+    else
+        hostport="${str%%/*}"
+        str="${str#*/}"
+        if [ "$hostport" = "$str" ]; then
+            str=
+        else
+            str="/$str"
+        fi
+        
+        # IPv6: [1fff:0:a88:85a3::ac1f]:8001
+        if [ "${hostport:0:1}" = '[' ]; then
+            host=${hostport%]:*}]
+            port=${hostport##*]:}
+        else
+            host=${hostport%:*}
+            port=${hostport##*:}
+        fi
+        if [ "$host" = "$hostport" ]; then
+            port=
+        fi
+    fi
+
+    query="${str#*\?}"
+    str="${str%%\?*}"
+    if [ "$query" = "$str" ]; then
+        query=
+        hash=
+    else
+        hash="${query#*#}"
+        query="${query%%#*}"
+        if [ "$hash" = "$query" ]; then
+            hash=
+        fi
+    fi
+
+    path="$str"
+
+    # echo "proto $proto, host $host, port $port, path $path, query $query, hash $hash"
+}
+
+function url_join() {
+    local context="$1"
+    local arg="$2"
+    parse_url ctx "$context"
+    parse_url arg "$arg"
+    
+    if [ -n "$arg_proto" ]; then # assert -n hostname
+        echo "$arg"
+        return 0
+    fi
+    arg_proto=$ctx_proto
+    
+    [ -z "$arg_host" ] && arg_host="$ctx_host"
+    [ -z "$arg_port" ] && arg_port=$ctx_port
+    arg_hostport="$arg_host"
+    if [ -n "$arg_port" ]; then
+        arg_hostport="$arg_host:$arg_port"
+    fi
+
+    if [ -n "$arg_path" ]; then
+        if [ "${arg_path:0:1}" != / ]; then
+            arg_path=$( path_join "$ctx_path" "$arg_path" )
+        fi
+    else
+        arg_path="$ctx_path"
+    fi
+    
+    local sb="$arg_proto://$arg_hostport$arg_path"
+    if [ -n "$arg_query" ]; then
+        sb="$sb?$arg_query"
+        if [ -n "$arg_hash" ]; then
+            sb="$sb#$arg_hash"
+        fi
+    fi
+    echo "$sb"
+}
+

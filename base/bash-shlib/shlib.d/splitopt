@@ -1,0 +1,45 @@
+function splitopt() {
+    local -n optarray="$1"
+    local -n argarray="$2"
+    shift 2
+    local shortopts="$1"
+    local longopts="$2"
+    shift 2
+    
+    local arg k chk
+    
+    local tmp=$( getopt -o "$shortopts" -l "$longopts" -- "$@" )
+    longopts=",$longopts,"
+    eval set -- "$tmp"
+    while [ $# != 0 ]; do
+        case "$1" in
+            --)
+                shift
+                break;;
+            --*)
+                k=${1:2}
+                chk="${longopts#*,$k:}"
+                if [ "$chk" != "$longopts" ]; then
+                    chk=:
+                fi
+                ;;
+            -*)
+                k=${1:1}
+                chk="${shortopts#*$k}"
+                chk=${chk:0:1}
+                ;;
+            *)
+                echo unexpected: $1 [$*]
+                break;;
+        esac
+        if [ "$chk" = ':' ]; then
+            optarray+=("$1" "$2")
+            shift 2
+        else
+            optarray+=("$1")
+            shift
+        fi
+    done
+    argarray+=("$@")
+}
+

@@ -117,3 +117,28 @@ function editpath() {
     esac
     eval "$1=\"$var\""
 }
+
+function path_join() {
+    local ctx="$1"
+    local arg="$2"
+    if [ -z "$ctx" ]; then
+        path_join / "$arg"
+        return
+    fi
+    case "$arg" in
+        /*)
+            echo "$arg";;
+        ./*)
+            path_join "$ctx" "${arg:2}";;
+        ../*)
+            local parent=${ctx%/*}
+            if [ "$parent" = "$ctx" ]; then # ! ctx.contains(/)
+                ctx=..
+            fi
+            path_join "$parent" "${arg:3}"
+            ;;
+        *)
+            echo "${ctx%/}/$arg";;
+    esac
+}
+

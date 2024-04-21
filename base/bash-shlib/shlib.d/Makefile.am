@@ -24,9 +24,11 @@ dist_shlib_DATA = \
     rcs \
     regex \
     relpath \
+    splitopt \
     splitopts \
     string \
     tableparser \
     term \
     time \
-    trash
+    trash \
+    url

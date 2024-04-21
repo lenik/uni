@@ -28,3 +28,6 @@ CLEANFILES = \
     ${dist_man_MANS} \
     ${dist_setup_SCRIPTS}
 
+install-debug:
+	sudo ln -snf $$PWD/shlib.d/* $(DESTDIR)${shlibdir}
+
