@@ -134,7 +134,7 @@ function openNew() {
 
     $.ajax(newUrl)
         .done((data) => {
-            let wired = wireUp(data.data);
+            let wired = wireUp(data);
             let parsed = props.type.fromJson(wired);
             model.value = parsed;
             editorDialog.value?.open(saveNew);
@@ -149,7 +149,7 @@ function openSelected() {
     let fetchUrl = _url.value + "/" + idPath + "?" + params.queryString;
 
     $.ajax(fetchUrl).done((data) => {
-        let wired = wireUp(data.data);
+        let wired = wireUp(data);
         let parsed = props.type.fromJson(wired);
         console.log('openSelected', parsed);
         model.value = parsed;

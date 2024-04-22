@@ -66,12 +66,12 @@ export class EntityController {
             method: "GET"
         });
 
-        if (typeof (data.data) != "object") {
+        if (typeof (data) != "object") {
             showError("Invalid response: " + data);
             return;
         }
 
-        let jo = wireUp(data.data);
+        let jo = wireUp(data);
         let obj = this.type.fromJson(jo);
         return obj;
     }
