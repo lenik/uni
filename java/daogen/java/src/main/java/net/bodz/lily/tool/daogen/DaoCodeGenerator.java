@@ -27,7 +27,17 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.program.skel.BasicCLI;
-import net.bodz.bas.t.catalog.*;
+import net.bodz.bas.t.catalog.CatalogSubset;
+import net.bodz.bas.t.catalog.ContainingType;
+import net.bodz.bas.t.catalog.DefaultCatalogMetadata;
+import net.bodz.bas.t.catalog.ICatalogVisitor;
+import net.bodz.bas.t.catalog.IJDBCLoadSelector;
+import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.catalog.IViewMetadata;
+import net.bodz.bas.t.catalog.SchemaOid;
+import net.bodz.bas.t.catalog.SelectMode;
+import net.bodz.bas.t.catalog.TableOid;
+import net.bodz.bas.t.catalog.TableType;
 import net.bodz.lily.tool.daogen.config.CatalogConfig;
 import net.bodz.lily.tool.daogen.config.CatalogConfigApplier;
 import net.bodz.lily.tool.daogen.config.FinishProcessor;
@@ -36,12 +46,27 @@ import net.bodz.lily.tool.daogen.dir.Foo_Id__java;
 import net.bodz.lily.tool.daogen.dir.Foo__java;
 import net.bodz.lily.tool.daogen.dir.Foo__java_tv;
 import net.bodz.lily.tool.daogen.dir.Foo_stuff__java;
-import net.bodz.lily.tool.daogen.dir.dao.*;
+import net.bodz.lily.tool.daogen.dir.dao.FooCriteriaBuilder__java;
+import net.bodz.lily.tool.daogen.dir.dao.FooCriteriaBuilder_stuff__java;
+import net.bodz.lily.tool.daogen.dir.dao.FooExporter__java;
+import net.bodz.lily.tool.daogen.dir.dao.FooManager__java;
+import net.bodz.lily.tool.daogen.dir.dao.FooMapper__java;
+import net.bodz.lily.tool.daogen.dir.dao.FooMapper__java_tv;
+import net.bodz.lily.tool.daogen.dir.dao.FooMapper__xml;
+import net.bodz.lily.tool.daogen.dir.dao.VFooMapper__xml;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooManagerTest__java;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooMapperTest__java;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooMapperTest__java_v;
 import net.bodz.lily.tool.daogen.dir.dao.test.FooSamples__java;
-import net.bodz.lily.tool.daogen.dir.web.*;
+import net.bodz.lily.tool.daogen.dir.web.Foo0__ts;
+import net.bodz.lily.tool.daogen.dir.web.Foo1__ts;
+import net.bodz.lily.tool.daogen.dir.web.FooAdmin__vue;
+import net.bodz.lily.tool.daogen.dir.web.FooChooseDialog__vue;
+import net.bodz.lily.tool.daogen.dir.web.FooEditor__vue;
+import net.bodz.lily.tool.daogen.dir.web.FooType0__ts;
+import net.bodz.lily.tool.daogen.dir.web.FooType1__ts;
+import net.bodz.lily.tool.daogen.dir.web.FooValidators0__ts;
+import net.bodz.lily.tool.daogen.dir.web.FooValidators1__ts;
 import net.bodz.lily.tool.daogen.dir.ws.FooIndex__java;
 import net.bodz.lily.tool.daogen.util.MavenDirs;
 
@@ -247,7 +272,11 @@ public class DaoCodeGenerator
             return true;
 
         case VIEW:
-            logger.info("make view " + table.getId());
+        case MATERIALIZED_VIEW:
+            if (table.getTableType() == TableType.MATERIALIZED_VIEW)
+                logger.info("make materialized view " + table.getId());
+            else
+                logger.info("make view " + table.getId());
             try {
                 makeView((IViewMetadata) table);
             } catch (Exception e) {
@@ -429,7 +458,7 @@ public class DaoCodeGenerator
             }
 
             connection = dataContext.getConnection();
-            catalog.loadFromJDBC(connection, "TABLE", "VIEW");
+            catalog.loadFromJDBC(connection, "TABLE", "VIEW", "MATERIALIZED VIEW");
 
             config.defaultPackageName = parentPackage;
             catalog.accept(new CatalogConfigApplier(config));
