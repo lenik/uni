@@ -91,11 +91,11 @@ deploy: ${deploy_archives}
             done'
 
 rsyncopts = \
+    --verbose \
     --checksum \
     --recursive \
     --perms \
     --xattrs \
-    --crtimes \
     --hard-links \
     --copy-links \
     --delete
