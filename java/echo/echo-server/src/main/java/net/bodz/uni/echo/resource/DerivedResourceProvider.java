@@ -2,6 +2,8 @@ package net.bodz.uni.echo.resource;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -106,7 +108,13 @@ public class DerivedResourceProvider
         String srcName = FilePath.getBaseName(srcUrl);
         String derivedName = srcName.substring(0, srcName.length() - srcExtension.length()) + extension;
 
-        URL derivedResource = new URL(srcResource, derivedName);
+        URI context;
+        try {
+            context = srcResource.toURI();
+        } catch (URISyntaxException e) {
+            throw new UnexpectedException(e.getMessage(), e);
+        }
+        URL derivedResource = context.resolve(derivedName).toURL();
         return derivedResource;
     }
 
@@ -133,7 +141,7 @@ public class DerivedResourceProvider
             String derivedUrl = srcUrl.substring(0, srcUrl.length() - srcExtension.length()) + extension;
             URL derivedResource;
             try {
-                derivedResource = new URL(derivedUrl);
+                derivedResource = URI.create(derivedUrl).toURL();
             } catch (MalformedURLException e) {
                 throw new UnexpectedException("URL subst should work for: " + derivedUrl, e);
             }
