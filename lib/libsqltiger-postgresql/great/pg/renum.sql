@@ -1,29 +1,31 @@
---drop function renum(schema text, table_name text);
+--drop function update_table_restart(schema_name text, table_name text);
 
-create or replace function renum(schema text, table_name text)
+create or replace function update_table_restart(schema_name text, table_name text = null)
     returns table(last_value bigint) as $$
 declare
-    qtabname text;
-    qidcol text;
-    qseqname text;
-    idfrom bigint;
+    q_table text = quote_ident(schema_name) || '.' || quote_ident(table_name);
+    q_seq text = quote_ident(schema_name) || '.' || quote_ident(table_name || '_seq');
+    row record;
 begin
-    qtabname := '"' || schema || '"."' || table_name || '"';
-    qseqname := '"' || schema || '"."' || table_name || '_seq"';
-    
-    select tab_column, start_value into qidcol, idfrom
-        from sequsage()
-        where tab_schema = schema and tab_name = table_name;
-    
-    qidcol = '"' || qidcol || '"';
-    
-    execute 'alter sequence ' || qseqname || ' restart';
-    execute 'update ' || qtabname || ' set ' || qidcol || ' = default'
-        || ' where ' || qidcol || ' >= ' || idfrom;
+    for row in
+        select tab_name, tab_column, start_value
+            from sequsage()
+            where tab_schema = schema_name
+                and (table_name is null or tab_name = table_name);
+    loop
+        raise notice 'Re-numbering table %(%) from %...', 
+            row.tab_name, row.tab_column, row.start_value;
+        
+        execute 'alter sequence ' || q_seq || ' restart';
+        
+        execute 'update ' || q_table 
+            || ' set ' || quote_ident(row.tab_column) || ' = default'
+            || ' where ' || quote_ident(row.tab_column) || ' >= ' || seq_start;
 
-    return query execute 'select last_value from ' || qseqname;
+        return query execute 'select last_value from ' || q_seq;
+
+    end loop;
 end $$ language plpgsql;
 
 -- Example:
--- select * from renum('public', 'user');
-
+-- select * from update_table_restart('lily', 'user');

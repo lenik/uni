@@ -23,7 +23,7 @@ declare
     pos int;
     s1 text;
     s2 text;
-    val bigint;
+    startValue bigint;
 begin
     for v in select * from information_schema.columns
             where column_default like 'nextval(''%''::regclass)'
@@ -39,7 +39,7 @@ begin
             s2 := substr(s, pos + 1);
         end if;
         
-        select s.start_value into val from information_schema.sequences s
+        select s.start_value into startValue from information_schema.sequences s
             where sequence_schema = s1 and sequence_name = s2;
             
         return query select
@@ -49,7 +49,7 @@ begin
             v.is_nullable = 'YES',
             s1::text,
             s2::text,
-            val;
+            startValue;
     end loop;
 end $$ language plpgsql;
 
