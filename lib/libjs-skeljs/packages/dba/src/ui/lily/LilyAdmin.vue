@@ -197,7 +197,10 @@ async function saveSelected(obj: any) {
 
         let updateRow = api.row(dtIndex).data(row) as any;
         updateRow.draw();
-        updateRow.nodes().to$().addClass('dirty');
+        if (updateRow.nodes != null)
+            updateRow.nodes().to$().addClass('dirty');
+        else if (updateRow.node != null)
+            $(updateRow.node()).addClass('dirty');
     }
 
     return true;
@@ -234,7 +237,7 @@ async function _save(url: string, obj: any, createNew: boolean) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         data: payload,
-        type: "POST"
+        type: createNew ? "POST" : "POST"
     }).done(function (data, status) {
         focus();
     }).fail((xhr, status, error) => {
@@ -255,7 +258,8 @@ function deleteSelection() {
     let pos = info?.pos || 0;
 
     $.ajax({
-        url: deleteUrl
+        url: deleteUrl,
+        method: 'DELETE'
     }).done(function (e) {
         reload(() => {
             info = api.rowNumInfo()!;

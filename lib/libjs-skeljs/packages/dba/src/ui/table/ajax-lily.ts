@@ -198,7 +198,7 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
         await $.ajax({
             url: dataUrl,
             data: query,
-            method: "POST"
+            method: "GET"
         }).done(function (data: any) {
             if (typeof (data) != "object" || !Array.isArray(data.rows)) {
                 showError("Invalid response: " + data);

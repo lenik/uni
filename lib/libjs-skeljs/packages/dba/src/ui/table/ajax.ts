@@ -15,10 +15,6 @@ export class AjaxProtocol {
         return this._url;
     }
 
-    get method() {
-        return 'POST';
-    }
-
     getParameters(fields: ColumnType[]) {
         return {};
     }

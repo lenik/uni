@@ -160,7 +160,7 @@ function reload(page?: int) {
     $.ajax({
         url: listUrl.value,
         data: query,
-        method: "POST"
+        method: "GET"
     }).done(function (data: any) {
         if (typeof (data) != "object" || !Array.isArray(data.rows)) {
             showError("Invalid response: " + data);
