@@ -13,15 +13,17 @@ declare
     sql varchar;
     len int;
 begin
-    qtab := '"' || schema || '"."' || tab || '"';
-    qview := '"' || schema || '"."av' || prefix || tab || '"';
+    qtab := quote_ident(schema) || '.' || quote_ident(tab);
+    qview := quote_ident(schema || '.' | quote_ident(
+        'v_' || tab || || '_as_' + qcol);
+    
     sql := 'create view ' || qview || ' as select';
     
     for v in select * from information_schema.columns
             where table_schema = schema and table_name = tab
     loop
-        qcol := '"' || v.column_name || '"';
-        qacol := '"' || prefix || v.column_name || '"';
+        qcol := quote_ident(v.column_name);
+        qacol := quote_ident(prefix || v.column_name);
         
         sql := sql || ' ' || qcol || ' as ' || qacol;
         sql := sql || ', ';
@@ -39,6 +41,5 @@ end
 $$ language plpgsql;
 
 -- Examples:
--- select * from mkaview('public', 'person', 'p_');
--- select * from avp_person;
-
+-- select * from mkaview('lily.person', 'p_', 'public');
+-- select * from v_person_as_p

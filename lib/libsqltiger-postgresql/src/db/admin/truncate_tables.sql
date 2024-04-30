@@ -1,14 +1,14 @@
---drop function truncate_tables("user" in varchar, "schema" in varchar);
+--drop function truncate_tables(p_user in varchar, p_schema_name in varchar);
 
 create or replace function truncate_tables(
-        "user" in varchar default null,
-        "schema" in varchar default 'public'
+        p_user in varchar default null,
+        p_schema_name in varchar default 'public'
     ) returns table(schemaname text, tableowner text, tablename text) as $$
 declare
     statements cursor for
         select * from pg_tables a
-        where ("user" is null or a.tableowner = "user")
-          and a.schemaname = "schema";
+        where (p_user is null or a.tableowner = p_user)
+          and a.schemaname = p_schema_name;
 begin
     for stmt in statements loop
         execute 'truncate table ' || quote_ident(stmt.tablename) || ' cascade; ';
