@@ -186,7 +186,7 @@ async function saveSelected(obj: any) {
         return true;
 
     let idPath = getIdPath(obj);
-    let updateUrl = _url.value + "/" + idPath + "/update";
+    let updateUrl = _url.value + "/" + idPath;
 
     await _save(updateUrl, model.value, false);
 
@@ -237,7 +237,7 @@ async function _save(url: string, obj: any, createNew: boolean) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         data: payload,
-        type: createNew ? "POST" : "POST"
+        type: createNew ? "POST" : "PATCH"
     }).done(function (data, status) {
         focus();
     }).fail((xhr, status, error) => {
