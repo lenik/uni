@@ -1,6 +1,6 @@
 <script lang="ts">
 import $ from 'jquery';
-import { computed, inject, onMounted, provide, ref } from 'vue';
+import { computed, inject, onBeforeUnmount, onMounted, provide, ref } from 'vue';
 
 import type { int } from '@skeljs/core/src/lang/basetype';
 import { showError } from '@skeljs/core/src/logging/api';
@@ -149,6 +149,12 @@ onMounted(() => {
         }
     });
 });
+
+onBeforeUnmount(() => {
+    let $input = $(fileInput.value!) as any;
+    $input.fileupload('destroy');
+});
+
 </script>
 
 <template>
