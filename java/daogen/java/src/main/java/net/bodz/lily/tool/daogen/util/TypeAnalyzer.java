@@ -7,9 +7,11 @@ import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.codegen.IJavaImporter;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.ITsImporter;
+import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.CoEntity;
+import net.bodz.lily.concrete.IdEntity;
 import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.meta.TypeParamType;
 import net.bodz.lily.meta.TypeParameters;
@@ -62,6 +64,7 @@ public class TypeAnalyzer
 
         MiscTemplates templates = new MiscTemplates(project);
         info.idType = templates.getIdType(table);
+        IColumnMetadata[] idCols = table.getPrimaryKeyColumns();
 
         if (baseType == null) {
             if (table.getBaseTypeName() != null)
@@ -70,6 +73,8 @@ public class TypeAnalyzer
                 Class<?> baseClass;
                 if (info.idType != null) {
                     baseClass = CoEntity.class;
+                    if (idCols.length == 1 && idCols[0].getName().equals("id"))
+                        baseClass = IdEntity.class;
                     if (typeScript) {
                         String tsIdType = typeResolver().property("<id>")//
                                 .importAsType().resolve(info.idType);
