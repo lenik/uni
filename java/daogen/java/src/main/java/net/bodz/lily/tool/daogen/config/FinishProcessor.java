@@ -28,6 +28,7 @@ import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.concrete.CoEntity;
+import net.bodz.lily.concrete.IdEntity;
 import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.TableName;
@@ -58,8 +59,13 @@ public class FinishProcessor
         Class<?> superclass;
         if (tableView.getPrimaryKey() == null)
             superclass = StructRow.class;
-        else
-            superclass = CoEntity.class;
+        else {
+            IColumnMetadata[] pkCols = tableView.getPrimaryKeyColumns();
+            if (pkCols.length == 1 && pkCols[0].getName().equals("id"))
+                superclass = IdEntity.class;
+            else
+                superclass = CoEntity.class;
+        }
 
         String parentType = tableView.getBaseTypeName();
         if (parentType != null) {
