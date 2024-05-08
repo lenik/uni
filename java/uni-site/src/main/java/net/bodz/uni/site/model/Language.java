@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import net.bodz.bas.c.java.lang.StringTypers;
-import net.bodz.bas.typer.std.IAttributes;
+import net.bodz.bas.rtx.IAttributes;
 import net.bodz.bas.typer.std.ITyperFamily;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;

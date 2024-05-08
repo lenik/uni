@@ -19,6 +19,7 @@ public class Hashes {
 
         private static final long serialVersionUID = -1577821675944126223L;
 
+        @SuppressWarnings("deprecation")
         public HashProvider() {
             super("Lapiota Hashes", 0.1, "For crypt.Hashes");
         }
