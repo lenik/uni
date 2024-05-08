@@ -1,11 +1,10 @@
 package net.bodz.uni.site.model;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import net.bodz.bas.c.java.lang.StringTypers;
 import net.bodz.bas.rtx.IAttributes;
-import net.bodz.bas.typer.std.ITyperFamily;
 import net.bodz.mda.xjdoc.model.IElementDoc;
 import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
 
@@ -13,7 +12,9 @@ import net.bodz.mda.xjdoc.model.javadoc.IXjdocAware;
  * See: <a href="http://en.wikipedia.org/wiki/ISO_639-1">ISO 639-1 language code</a>.
  */
 public enum Language
-        implements IXjdocAware, IAttributes {
+        implements
+            IXjdocAware,
+            IAttributes {
 
     /**
      * English
@@ -70,9 +71,16 @@ public enum Language
         this.xjdoc = xjdoc;
     }
 
+    static Set<String> attrNames = new LinkedHashSet<String>(Arrays.asList("code"));
+
     @Override
-    public Collection<String> getAttributeNames() {
-        return Arrays.asList("code");
+    public Set<String> getAttributeNames() {
+        return attrNames;
+    }
+
+    @Override
+    public boolean isAttributePresent(String name) {
+        return attrNames.contains(name);
     }
 
     @SuppressWarnings("unchecked")
@@ -90,11 +98,6 @@ public enum Language
     public <T> T getAttribute(String name, T defaultValue) {
         T value = getAttribute(name);
         return value != null ? value : defaultValue;
-    }
-
-    @Override
-    public ITyperFamily<?> getAttributeTypers(String attributeName) {
-        return StringTypers.INSTANCE;
     }
 
     static {
