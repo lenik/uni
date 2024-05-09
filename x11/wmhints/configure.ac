@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.65])
-AC_INIT([wmhints], [0.1.1], [xjl-bug@99jsj.com])
+AC_PREREQ([2.71])
+AC_INIT([wmhints],[0.1.1],[xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
 LT_INIT([disable-static])
 #AC_CONFIG_MACRO_DIR([m4])
@@ -23,7 +23,6 @@ LT_INIT([disable-static])
     AC_SUBST([X11_LIBS])
 
 # Checks for header files.
-    AC_HEADER_STDC
     AC_CHECK_HEADERS([stdlib.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -34,5 +33,5 @@ LT_INIT([disable-static])
     AC_FUNC_ERROR_AT_LINE
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 AC_OUTPUT

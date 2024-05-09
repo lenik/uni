@@ -5,6 +5,7 @@ Maintainer: Lenik (谢继雷) <lenik@bodz.net>
 Build-Depends: 
     gcc,
     pkg-config,
+    libx11-dev,
     debhelper-compat (= 13)
 Standards-Version: 4.1.3
 Homepage: http://uni.bodz.net/x11/wmhints

@@ -7,7 +7,11 @@ AM_CPPFLAGS = $(GLIB_CFLAGS) -DLOG_LEVEL=4
 #SUBDIRS = po test
 
 bin_PROGRAMS = \
+    window-decorations \
     wmhints
+
+window_decorations_SOURCES = window-decorations.c
+window_decorations_LDADD = ${X11_LIBS}
 
 wmhints_SOURCES = wmhints.c wmhints.h
 wmhints_LDADD = ${GLIB_LIBS} ${X11_LIBS} ${LIBINTL} -lbas
