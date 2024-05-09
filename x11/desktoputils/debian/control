@@ -11,5 +11,7 @@ Vcs-Browser: http://git.bodz.net/uni/x11/desktoputils
 Package: desktoputils
 Architecture: all
 Depends:
+    bash-shlib,
+    wmhints,
     ${misc:Depends}
 Description: Lenik's desktop utilities

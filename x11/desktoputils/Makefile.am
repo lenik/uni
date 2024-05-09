@@ -7,6 +7,7 @@ x11confdir = ${sysconfdir}/X11
 dist_bin_SCRIPTS = \
     alt-exec \
     next-profile \
+    noborder \
     open-url \
     run-sized \
     wsswitch
@@ -16,6 +17,7 @@ dist_x11conf_DATA = \
 
 dist_man_MANS = \
     alt-exec.1 \
+    noborder.1 \
     open-url.1 \
     run-sized.1 \
     wsswitch.1
