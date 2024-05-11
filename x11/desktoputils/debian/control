@@ -13,5 +13,6 @@ Architecture: all
 Depends:
     bash-shlib,
     wmhints,
+    x11-xserver-utils,
     ${misc:Depends}
 Description: Lenik's desktop utilities

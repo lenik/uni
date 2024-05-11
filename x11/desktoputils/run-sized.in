@@ -63,7 +63,7 @@ function main() {
     run-bg "$@"
     local lastpid=$!
     
-    if ! win_id=$( xdo_whosepid $lastpid); then
+    if ! win_id=$( xdo_waitpid $lastpid); then
         _error "can't find window for PID $lastpid."
         exit 1
     fi
@@ -71,11 +71,11 @@ function main() {
     _log1 "found the window $win_id(0x$win_id_hex) for PID $lastpid."
     
     local -A geom
-    if ! wmctrl_whosepid geom $lastpid; then
+    if ! wmctrl_querypid geom $lastpid; then
         _error "failed to find the window with wmctrl."
         exit 1
     fi
-
+    
     local id_hex=${geom[id_hex]}
     local id=$(( $id_hex ))
     local left=${geom[left]}
@@ -83,9 +83,54 @@ function main() {
     local width=${geom[width]}
     local height=${geom[height]}
     _log1 "left $left, top $top, width $width, height $height."
+
+    xdotool_query geom $id
+    left=${geom[left]}
+    top=${geom[top]}
+    width=${geom[width]}
+    height=${geom[height]}
+    _log1 "left $left, top $top, width $width, height $height. (from xdotool)"
     
-    local disp_w disp_h
-    read disp_w disp_h _ < <(xdotool getdisplaygeometry)
+    right=$(( left + width ))
+    bottom=$(( top + height ))
+
+    disp_found=0
+    disp_left=
+    disp_top=
+    disp_w=
+    disp_h=
+
+    while read display _connected arg1 arg2 _; do
+        # _log2 "> $display '$_connected' $arg1, $arg2, $_"
+        #eDP-1 connected primary 2160x1350+0+0 (normal left inverted right x axis y axis) 280mm x 175mm
+        #DP-2 connected 3840x2400+2160+0 (normal left inverted right x axis y axis) 708mm x 399mm
+        gstr=
+        if [ "$arg1" = 'primary' ]; then
+            gstr="$arg2"
+        else
+            gstr="$arg1"
+        fi
+
+        IFS=x+ read disp_w disp_h disp_left disp_top _ < <(echo "$gstr")
+        _log2 "display $display $disp_w x $disp_h at $disp_left, $disp_top"
+
+        disp_right=$(( disp_left + disp_w ))
+        disp_bottom=$(( disp_top + disp_h ))
+
+        if [ $left -ge $disp_left ] && [ $top -ge $disp_top ] && 
+            [ $right -le $disp_right ] && [ $bottom -le $disp_bottom ]; then
+            disp_found=1
+            break
+        fi
+    done < <(xrandr -q | grep '\bconnected')
+
+    if [ $disp_found == 0 ]; then
+        quit "can't find the dispaly."
+    fi
+    _log1 "found the containing display $display at $disp_left, $disp_top of size $disp_w x $disp_h"
+
+    #local disp_w disp_h
+    #read disp_w disp_h _ < <(xdotool getdisplaygeometry)
     local def_w=$(( disp_w * 80 / 100 ))
     local def_h=$(( disp_h * 80 / 100 ))
     
@@ -118,6 +163,9 @@ function main() {
         mod=1
     fi
     
+    (( left += disp_left ))
+    (( top += disp_top ))
+
     [ -n "$opt_left" ]   &&   left=$opt_left    && mod=1
     [ -n "$opt_top" ]    &&    top=$opt_top     && mod=1
     [ -n "$opt_width" ]  &&  width=$opt_width   && mod=1
@@ -132,13 +180,13 @@ function main() {
     run wmctrl -i -r $id_hex -e 0,$left,$top,$width,$height
 }
 
-function xdo_whosepid() {
+function xdo_waitpid() {
     local pid=$1
     local timeout=${2:-1}
     local interval=0.01
     local i n_max=$( div $timeout $interval )
     
-    _log2 "Use xdotool to search the window for PID $pid, try $n_max max times."
+    _log2 "Use xdotool to search and wait for the window for PID $pid, try $n_max max times."
     for ((i = 0; i < n_max; i++)); do
         if run xdotool search --pid $pid 2>/dev/null; then
             _log2 "    succeeded within $((i + 1)) tries."
@@ -149,7 +197,7 @@ function xdo_whosepid() {
     return 1
 }
 
-function wmctrl_whosepid() {
+function wmctrl_querypid() {
     local -n map=$1
     shift
     local pid=$1
@@ -161,7 +209,12 @@ function wmctrl_whosepid() {
     local id id_hex desk _pid x y w h client title
     for ((i = 0; i < n_max; i++)); do
         while read id_hex desk _pid x y w h client title; do
+            if [ $i == 0 ]; then
+                _log3 "[$i]> $id_hex $desk $_pid $x $y $w $h $client $title"
+            fi
+
             [ $_pid = $pid ] || continue
+                _log3 "[$i]> $id_hex $desk $_pid $x $y $w $h $client $title"
             id=$(( id_hex ))
             map[id]=$id
             map[id_hex]=$id_hex
@@ -182,6 +235,27 @@ function wmctrl_whosepid() {
         fsleep $interval
     done
     return 1
+}
+
+function xdotool_query() {
+    local -n map=$1
+    shift
+    local hwnd=$1
+    
+    _log2 "Use xdotool to get the window geometry for window $hwnd"
+    local name val extra
+    while read name val extra; do
+        case "$name" in
+            Position:)
+                map[left]=${val%,*}
+                map[top]=${val##*,}
+                ;;
+            Geometry:)
+                map[width]=${val%x*}
+                map[height]=${val##*x}
+                ;;
+        esac
+    done < <(xdotool getwindowgeometry $hwnd)
 }
 
 function run() {
