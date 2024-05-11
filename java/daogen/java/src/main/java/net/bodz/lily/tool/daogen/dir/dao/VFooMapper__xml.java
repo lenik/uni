@@ -361,7 +361,7 @@ public class VFooMapper__xml
             out.println("</where>");
             out.leave();
 
-            out.println("<if test=\"opt.limit != 0\">limit #{opt.limit}</if>");
+            out.println("<include refid=\"co.countOpts\" />");
         }
         out.println("</select>");
     }
