@@ -110,7 +110,8 @@ public class DaoCodeGenerator
     /**
      * Where to save header files include entity, mask, samples types.
      *
-     * By default, search sibling -api or -model projects and put header files in src/main/java. fallback to out-dir.
+     * By default, search sibling -api or -model projects and put header files in src/main/java.
+     * fallback to out-dir.
      *
      * @option -H =PATH
      */
@@ -119,7 +120,8 @@ public class DaoCodeGenerator
     /**
      * Where to save -mapper files, exporters.
      *
-     * By default, search sibling -impl or -dao projects and put class files in src/main/java. fallback to out-dir.
+     * By default, search sibling -impl or -dao projects and put class files in src/main/java.
+     * fallback to out-dir.
      *
      * @option =PATH
      */
@@ -128,8 +130,8 @@ public class DaoCodeGenerator
     /**
      * Where to save web-service related files include -Index.
      *
-     * By default, search sibling -webapp, -web, -ws, -server projects and put class files in src/main/java. fallback to
-     * out-dir.
+     * By default, search sibling -webapp, -web, -ws, -server projects and put class files in
+     * src/main/java. fallback to out-dir.
      *
      * @option -W =PATH
      */
@@ -194,11 +196,11 @@ public class DaoCodeGenerator
     boolean seedRandom;
 
     /**
-     * Use diff-merge.
+     * Use diff-patch.
      *
      * @option -d
      */
-    boolean diffMerge;
+    boolean diffPatch;
 
     /**
      * Overwrite all existing files.
@@ -315,12 +317,12 @@ public class DaoCodeGenerator
 
         project.extraDDLs = extraDDLs;
 
-        UpdateMethod updateMethod;
+        UpdateMethod defaultUpdateMethod;
         if (forceMode)
-            updateMethod = diffMerge ? UpdateMethod.DIFF_MERGE : UpdateMethod.OVERWRITE;
+            defaultUpdateMethod = diffPatch ? UpdateMethod.DIFF_PATCH : UpdateMethod.OVERWRITE;
         else
-            updateMethod = diffMerge ? UpdateMethod.DIFF_MERGE : UpdateMethod.NO_UPDATE;
-        project.setPreferredUpdateMethod(updateMethod);
+            defaultUpdateMethod = diffPatch ? UpdateMethod.DIFF_PATCH : UpdateMethod.NO_UPDATE;
+        project.setPreferredUpdateMethod(defaultUpdateMethod);
 
         return project;
     }
@@ -350,16 +352,15 @@ public class DaoCodeGenerator
         new FooIndex__java(project).buildFile(table);
         // new FooIndexTest__java(project).buildFile(table);
 
-        UpdateMethod esmUpdate = UpdateMethod.OVERWRITE;
-        new FooType0__ts(project).buildFile(table, esmUpdate);
-        new FooType1__ts(project).buildFile(table, esmUpdate);
-        new Foo0__ts(project).buildFile(table, esmUpdate);
-        new Foo1__ts(project).buildFile(table, esmUpdate);
-        new FooValidators0__ts(project).buildFile(table, esmUpdate);
-        new FooValidators1__ts(project).buildFile(table, esmUpdate);
-        new FooAdmin__vue(project).buildFile(table, esmUpdate);
-        new FooChooseDialog__vue(project).buildFile(table, esmUpdate);
-        new FooEditor__vue(project).buildFile(table, esmUpdate);
+        new FooType0__ts(project).buildFile(table, UpdateMethod.OVERWRITE);
+        new FooType1__ts(project).buildFile(table);
+        new Foo0__ts(project).buildFile(table, UpdateMethod.OVERWRITE);
+        new Foo1__ts(project).buildFile(table);
+        new FooValidators0__ts(project).buildFile(table, UpdateMethod.OVERWRITE);
+        new FooValidators1__ts(project).buildFile(table);
+        new FooAdmin__vue(project).buildFile(table);
+        new FooChooseDialog__vue(project).buildFile(table);
+        new FooEditor__vue(project).buildFile(table);
     }
 
     public void makeView(IViewMetadata view)
@@ -378,13 +379,12 @@ public class DaoCodeGenerator
         new FooMapper__java_tv(project).buildFile(view);
         new FooMapperTest__java_v(project).buildFile(view);
 
-        UpdateMethod esmUpdate = UpdateMethod.OVERWRITE;
-        new FooType0__ts(project).buildFile(view, esmUpdate);
-        new FooType1__ts(project).buildFile(view, esmUpdate);
-        new Foo0__ts(project).buildFile(view, esmUpdate);
-        new Foo1__ts(project).buildFile(view, esmUpdate);
-        new FooValidators0__ts(project).buildFile(view, esmUpdate);
-        new FooValidators1__ts(project).buildFile(view, esmUpdate);
+        new FooType0__ts(project).buildFile(view, UpdateMethod.OVERWRITE);
+        new FooType1__ts(project).buildFile(view);
+        new Foo0__ts(project).buildFile(view, UpdateMethod.OVERWRITE);
+        new Foo1__ts(project).buildFile(view);
+        new FooValidators0__ts(project).buildFile(view, UpdateMethod.OVERWRITE);
+        new FooValidators1__ts(project).buildFile(view);
         new FooChooseDialog__vue(project).buildFile(view);
     }
 

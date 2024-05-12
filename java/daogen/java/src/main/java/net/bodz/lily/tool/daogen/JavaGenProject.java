@@ -17,7 +17,7 @@ public class JavaGenProject {
     File baseDir;
     String daoPackage = "dao";
     String wsPackage = "ws";
-    UpdateMethod updateMethod;
+    UpdateMethod defaultUpdateMethod = UpdateMethod.DIFF_PATCH;
 
     public ICatalogMetadata catalog;
     public CatalogConfig config;
@@ -121,13 +121,13 @@ public class JavaGenProject {
     }
 
     public UpdateMethod getPreferredUpdateMethod() {
-        return updateMethod;
+        return defaultUpdateMethod;
     }
 
     public void setPreferredUpdateMethod(UpdateMethod updateMethod) {
         if (updateMethod == null)
             throw new NullPointerException("updateMethod");
-        this.updateMethod = updateMethod;
+        this.defaultUpdateMethod = updateMethod;
     }
 
     public ColumnNaming naming(IColumnMetadata column) {
