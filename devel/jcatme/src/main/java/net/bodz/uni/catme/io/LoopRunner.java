@@ -13,10 +13,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
-import net.bodz.bas.c.java.io.capture.Processes;
 import net.bodz.bas.c.java.time.DateTimes;
 import net.bodz.bas.c.string.StringPred;
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.io.process.MyProcessBuilder;
+import net.bodz.bas.io.process.ProcessWrapper;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 
@@ -107,8 +108,8 @@ public class LoopRunner
 
     public static int getColumns() {
         try {
-            Process process = Processes.exec("tput", "cols");
-            String result = Processes.iocap(process, "utf-8");
+            ProcessWrapper process = new MyProcessBuilder().command("tput", "cols").start();
+            String result = process.waitForRunData().getOutputText();
 
             if (StringPred.isDecimal(result)) {
                 int columns = Integer.valueOf(result);

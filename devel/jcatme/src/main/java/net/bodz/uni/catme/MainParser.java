@@ -8,11 +8,12 @@ import java.util.Map;
 
 import org.graalvm.polyglot.Value;
 
-import net.bodz.bas.c.java.io.capture.Processes;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.ParseException;
 import net.bodz.bas.io.ICharIn;
 import net.bodz.bas.io.StringCharIn;
+import net.bodz.bas.io.process.MyProcessBuilder;
+import net.bodz.bas.io.process.ProcessWrapper;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.script.IScriptContext;
@@ -68,7 +69,7 @@ public class MainParser {
     }
 
     public IScriptContext getScriptContext() {
-        if (!initScriptContext()) {
+        if (! initScriptContext()) {
             throw new IllegalStateException("Can't initialize JavaScript engine.");
         }
         return scriptContext;
@@ -76,8 +77,8 @@ public class MainParser {
 
     public void shell(String[] cmdarray)
             throws IOException, InterruptedException {
-        Process process = Processes.shellExec(cmdarray);
-        String result = Processes.iocap(process, "utf-8");
+        ProcessWrapper process = new MyProcessBuilder().command(cmdarray).start();
+        String result = process.waitForRunData().getOutputText();
         out.append(result);
     }
 
@@ -136,7 +137,7 @@ public class MainParser {
                         subTrie.parse();
                         if (textEnd <= 0)
                             textEnd = buf.length();
-                        parseComments(frame, buf, textStart, textEnd, !singleLineComment);
+                        parseComments(frame, buf, textStart, textEnd, ! singleLineComment);
 
                         inComments = false;
                         singleLineComment = false;
@@ -161,7 +162,7 @@ public class MainParser {
                         parseText(frame, cbuf);
                     }
                 } // if token.isSymbol()
-                return !stopParseFrameSource;
+                return ! stopParseFrameSource;
             }
         }
 
@@ -219,7 +220,7 @@ public class MainParser {
                 continue;
             }
             String name = nonspace.lex(in);
-            if (!name.startsWith(escape))
+            if (! name.startsWith(escape))
                 throw new IllegalArgumentException( //
                         "Expected escape-seq(" + escape + ") before " + name);
             name = name.substring(1);
@@ -227,7 +228,7 @@ public class MainParser {
             String parenthesizedStr = "";
             int pos = name.indexOf('(');
             if (pos != -1) {
-                if (!name.endsWith(")"))
+                if (! name.endsWith(")"))
                     throw new IllegalArgumentException("Unmatched parenthesis: " + name);
                 parenthesizedStr = name.substring(pos + 1, name.length() - 1);
                 name = name.substring(0, pos);
