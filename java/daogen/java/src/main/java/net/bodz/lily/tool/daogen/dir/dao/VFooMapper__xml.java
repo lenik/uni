@@ -228,7 +228,7 @@ public class VFooMapper__xml
         out.println("<sql id=\"filtconds\">");
         out.enter();
         {
-            out.println("${c.sqlCondition}");
+            out.println("${c.andSqlCondition}");
             out.leave();
         }
         out.println("</sql>");
@@ -359,9 +359,8 @@ public class VFooMapper__xml
                 out.leave();
             }
             out.println("</where>");
-            out.leave();
-
             out.println("<include refid=\"co.countOpts\" />");
+            out.leave();
         }
         out.println("</select>");
     }

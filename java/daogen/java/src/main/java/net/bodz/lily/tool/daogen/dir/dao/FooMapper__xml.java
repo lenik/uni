@@ -92,7 +92,7 @@ public class FooMapper__xml
         out.printf("<insert id=\"insert\" useGeneratedKeys=\"%s\" keyProperty=\"%s\" keyColumn=\"%s\"><![CDATA[\n", //
                 useGeneratedKeys, //
                 StringArray.join(", ", keyProperties), //
-                StringArray.join(", ", keyColumns));
+                StringArray.join(", ", keyColumns).replace("\"", "&quot;"));
         out.enter();
         {
             out.printf("insert into %s(\n", qTableName);
