@@ -4,7 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -91,7 +97,7 @@ public class J4conv
         IFile in = handler.getInputFile();
         IFile out = handler.getOutputFile();
 
-        if (!".java".equals(FilePath.getExtension(in.getName(), true)))
+        if (! ".java".equals(FilePath.getExtension(in.getName(), true)))
             return;
 
         String src = in.to(StreamReading.class).readString();
@@ -219,7 +225,8 @@ public class J4conv
             }
             Object imported = resolveImport2(fqn);
             if (imported == null) {
-                Package _package = Package.getPackage(fqn);
+                ClassLoader loader = getClass().getClassLoader();
+                Package _package = loader.getDefinedPackage(fqn);
                 if (_package == null)
                     throw new RuntimeException("can't import " + fqn);
                 importPackages.add(fqn);
@@ -232,7 +239,7 @@ public class J4conv
 
         public Object resolveImport2(String name) {
             Object imported = JavaUtil.resolveImport(name);
-            if (imported == null && !name.contains(".")) {
+            if (imported == null && ! name.contains(".")) {
                 for (String p : importPackages)
                     if ((imported = JavaUtil.resolveType(p + "." + name, false)) != null)
                         break;
@@ -262,7 +269,7 @@ public class J4conv
             typens.enterNew();
             // funns.enterNew();
             varns.enterNew();
-            if (!logger.isDebugEnabled())
+            if (! logger.isDebugEnabled())
                 indent += tabsize;
         }
 
@@ -276,7 +283,7 @@ public class J4conv
             typens.leave();
             // funns.leave();
             varns.leave();
-            if (!logger.isDebugEnabled())
+            if (! logger.isDebugEnabled())
                 indent -= tabsize;
         }
 
@@ -289,7 +296,7 @@ public class J4conv
         }
 
         Type expandMajor(SimpleType type) {
-            if (!(type.getName() instanceof SimpleName))
+            if (! (type.getName() instanceof SimpleName))
                 return type;
             SimpleName name = (SimpleName) type.getName();
             Type expanded = expandMajor(name);
@@ -318,7 +325,7 @@ public class J4conv
 
         @Override
         public void preVisit(ASTNode node) {
-            if (!logger.isDebugEnabled())
+            if (! logger.isDebugEnabled())
                 return;
             String type = node.getClass().getSimpleName();
             logger.debug(Strings.repeat(indent, ' '));
@@ -334,7 +341,7 @@ public class J4conv
 
         @Override
         public void postVisit(ASTNode node) {
-            if (!logger.isDebugEnabled())
+            if (! logger.isDebugEnabled())
                 return;
             indent -= tabsize;
             super.postVisit(node);
@@ -752,7 +759,7 @@ public class J4conv
         @Override
         public boolean visit(AssertStatement node) {
             Expression exp = astUtils.moveRef(node.getExpression());
-            if (!(exp instanceof ParenthesizedExpression)) {
+            if (! (exp instanceof ParenthesizedExpression)) {
                 ParenthesizedExpression _exp = ast.newParenthesizedExpression();
                 _exp.setExpression(exp);
                 exp = _exp;

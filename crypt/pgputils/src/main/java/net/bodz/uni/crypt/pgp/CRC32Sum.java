@@ -118,13 +118,13 @@ public class CRC32Sum
 
     Checksum create()
             throws ReflectiveOperationException {
-        Checksum inst = _class.newInstance();
+        Checksum inst = _class.getConstructor().newInstance();
         if (key != 0)
             if (inst instanceof IIntKey)
                 ((IIntKey) inst).setKey((int) key);
             else
-                throw new UnsupportedOperationException(nls.tr("algorithm ") + _class.getName()
-                        + nls.tr(" doesn\'t support key"));
+                throw new UnsupportedOperationException(
+                        nls.tr("algorithm ") + _class.getName() + nls.tr(" doesn\'t support key"));
         return inst;
     }
 
