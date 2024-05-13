@@ -17,7 +17,7 @@ public class JavaGenProject {
     File baseDir;
     String daoPackage = "dao";
     String wsPackage = "ws";
-    UpdateMethod defaultUpdateMethod = UpdateMethod.DIFF_PATCH;
+    UpdateMethod defaultUpdateMethod = UpdateMethod.DIFF_PATCH_UPGRADE;
 
     public ICatalogMetadata catalog;
     public CatalogConfig config;

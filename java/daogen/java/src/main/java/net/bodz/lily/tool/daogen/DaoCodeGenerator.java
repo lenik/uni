@@ -177,7 +177,7 @@ public class DaoCodeGenerator
     /**
      * Generate extra DDLs.
      *
-     * @option -D --extra-ddls
+     * @option --extra-ddls
      */
     boolean extraDDLs = false;
 
@@ -195,19 +195,37 @@ public class DaoCodeGenerator
      */
     boolean seedRandom;
 
+    UpdateMethod defaultUpdateMethod = UpdateMethod.DIFF_PATCH_UPGRADE;
+
     /**
-     * Use diff-patch.
+     * Use .patch file to merge changes. Create new patches by compare the current file against the
+     * generated file if no patch exist.
      *
-     * @option -d
+     * @option -D
+     * @see UpdateMethod#DIFF_PATCH_CREATE
      */
-    boolean diffPatch;
+    public void createPatch() {
+        defaultUpdateMethod = UpdateMethod.DIFF_PATCH_CREATE;
+    }
+
+    /**
+     * Use .patch file to merge changes. Overwrite any existing content if no patch exist.
+     *
+     * @option -U
+     * @see UpdateMethod#DIFF_PATCH_UPGRADE
+     */
+    public void upgrade() {
+        defaultUpdateMethod = UpdateMethod.DIFF_PATCH_UPGRADE;
+    }
 
     /**
      * Overwrite all existing files.
      *
      * @option -f
      */
-    boolean forceMode;
+    public void force() {
+        defaultUpdateMethod = UpdateMethod.OVERWRITE;
+    }
 
     CatalogConfig config = new CatalogConfig();
 
@@ -314,14 +332,7 @@ public class DaoCodeGenerator
         JavaGenProject project = new JavaGenProject(outDir, dirConfig, seed);
         project.catalog = table.getCatalog();
         project.config = config;
-
         project.extraDDLs = extraDDLs;
-
-        UpdateMethod defaultUpdateMethod;
-        if (forceMode)
-            defaultUpdateMethod = diffPatch ? UpdateMethod.DIFF_PATCH : UpdateMethod.OVERWRITE;
-        else
-            defaultUpdateMethod = diffPatch ? UpdateMethod.DIFF_PATCH : UpdateMethod.NO_UPDATE;
         project.setPreferredUpdateMethod(defaultUpdateMethod);
 
         return project;
