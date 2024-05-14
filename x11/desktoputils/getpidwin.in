@@ -1,0 +1,75 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Get window ID of specific process}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] PID}
+
+    . shlib-import cliboot
+    
+    option -p --pid =PID            "which process to find a window belongs to"
+    option -t --timeout =SECS       "seconds to wait for the window of child process, default 5"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+    
+    opt_pid=
+    opt_ntry=50
+
+function setopt() {
+    case "$1" in
+        -p|--pid)
+            opt_pid=$2;;
+        -t|--timeout)
+            opt_ntry=$(( $2 * 10 ));;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local pid=$opt_pid
+    
+    if [ -z "$pid" ]; then
+        pid=$1
+        if [ -z "$pid" ]; then
+            _error "PID is not specified."
+            return 1
+        fi
+    fi
+    
+    local win_id=
+    
+    _log2 "wait for the window for PID $pid..."
+
+    local itry=0
+    while [ $itry -lt $opt_ntry ]; do
+        while read id desktop _pid host title; do
+            # desktop=-1 for sticky window
+            if [ $pid = $_pid ]; then
+                win_id=$id
+                break
+            fi
+        done < <( wmctrl -lp )
+        [ -n "$win_id" ] && break
+        (( itry++ ))
+        sleepenh 0.1 >/dev/null
+    done
+    
+    if [ -z "$win_id" ]; then
+        _error "can't find window for the child process $pid."
+        return 1
+    fi
+    
+    echo $win_id
+}
+
+boot "$@"

@@ -1,20 +1,29 @@
 #!/bin/bash
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PACKAGE:=@PACKAGE@}
-    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_TITLE:=Remove window decoration (border and titlebar)}
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] CMDLINE...}
 
-    . shlib-import cliboot
+    . shlib
+    import cliboot
+    import winfn
+
+    option -e --echo                "echo the window id."
+    option -i --win-id =ID          "specify the window to move/resize."
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
-    option -t --timeout =SECS       "seconds to wait for the window of child process, default 5"
     
-    opt_ntry=50
+    opt_echo=0
+    opt_id=
 
 function setopt() {
     case "$1" in
+        -e|--echo)
+            opt_echo=1;;
+        -i|--win-id)
+            opt_id="$2";;
         -t|--timeout)
             opt_ntry=$(( $2 * 10 ));;
         -h|--help)
@@ -31,42 +40,13 @@ function setopt() {
 }
 
 function main() {
-    if [ $# = 0 ]; then
-        _error "cmdline is not specified."
-        exit 1
-    fi
-    
-    "$@" &
-    
-    local child_pid=$!
-    local child_hwnd=
-    
-    _log2 "wait for the window for PID $child_pid..."
-    local itry=0
-    while [ $itry -lt $opt_ntry ]; do
-        while read hwnd desktop pid host title; do
-            # desktop=-1 for sticky window
-            if [ $pid = $child_pid ]; then
-                child_hwnd=$hwnd
-                break
-            fi
-        done < <( wmctrl -lp )
-        [ -n "$child_hwnd" ] && break
-        (( itry++ ))
-        sleepenh 0.1 >/dev/null
-    done
-    
-    if [ -z "$child_hwnd" ]; then
-        _error "can't find window for the child process $pid."
-        return 2
-    fi
-    
-    _log1 "find window: $child_hwnd"
+    init_id "$opt_id" "$@"
+    _log1 "window id $id (hex $id_hex)"
     
     while true; do
-        d=$( window-decorations $child_hwnd )
+        d=$( window-decorations $id )
         if [ "$d" != 0 ]; then
-            window-decorations -r $child_hwnd
+            window-decorations -r $id
         else
             break
         fi

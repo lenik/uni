@@ -1,0 +1,55 @@
+
+import log
+
+function validate_pid() {
+    local pid=$1
+    if [ -d /proc/$pid ]; then
+        return 0
+    else
+        _error "error exec."
+        return 1
+    fi
+}
+
+function exec-getwin() {
+    "$@" &
+    validate_pid $! && getpidwin $!
+}
+
+function exec-getwin-quiet() {
+    "$@" >/dev/null 2>/dev/null &
+    validate_pid $! && getpidwin $!
+}
+
+function is_chainable() {
+    case "$1" in
+        noborder)
+        movewindow)
+            return 0;;
+        *)
+            return 1;;
+    esac
+}
+
+function init_id() {
+    local opt_id="$1"
+    shift
+
+    if [ -n "$opt_id" ]; then
+        id=$opt_id
+    else
+        if [ $# == 0 ]; then
+            _error "window id isn't specified."
+            exit 1
+        else
+            local cmd="$1"
+            shift
+            if is_chainable "$cmd"; then
+                id=$( "$cmd" --echo "$@" )
+            else
+                id=$( exec-getwin "$cmd" "$@" )
+            fi
+        fi
+    fi
+    id_hex=0x$( printf "%x\n" "$id" )
+}
