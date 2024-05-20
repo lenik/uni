@@ -108,7 +108,7 @@ public class VFooMapper__xml
                 CrossReference ref = j.aliasMap.get(alias);
                 ITableMetadata parent = ref.getParentTable();
 
-                String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaType().getFullName());
+                String mapperNs = RuntimeSupport.guessMapperNs(parent.getJavaTypeName());
                 boolean defaultNs = mapperNs.equals(project.FooMapper.qName.getFullName());
                 String nsPrefix = defaultNs ? "" : (mapperNs + ".");
 

@@ -41,7 +41,7 @@ public class ColumnUtils {
 
         ITableMetadata table = (ITableMetadata) rowSet;
         ColumnMember m = new ColumnMember();
-        m.declaringClassName = table.getJavaType().getFullName();
+        m.declaringClassName = table.getJavaTypeName();
         try {
             m.declaringClass = CanonicalClass.forName(m.declaringClassName);
             m.bestKnownClass = m.declaringClass;

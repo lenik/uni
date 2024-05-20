@@ -1,17 +1,7 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.persistence.GeneratedValue;
 
@@ -378,7 +368,7 @@ public class FooEditor__vue
 
     void refEditor(TypeScriptWriter out, CrossReference xref, IProperty property) {
         String propertyName = xref.getPropertyName();
-        String className = xref.getParentTable().getJavaType().getFullName();
+        String className = xref.getParentTable().getJavaTypeName();
 
         QualifiedName qType = QualifiedName.parse(className);
         QualifiedName qDialogType = qType.nameAdd("ChooseDialog");

@@ -129,7 +129,7 @@ public class CatalogConfig
         }
         n.simpleClassName = simple;
 
-        n.packageName = table.getJavaPackage();
+        n.packageName = table.getJavaPackageName();
         if (n.packageName == null)
             n.packageName = table.getId().getPreferredPackageName(defaultPackageName);
 

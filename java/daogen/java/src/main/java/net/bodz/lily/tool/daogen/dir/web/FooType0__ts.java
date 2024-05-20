@@ -276,7 +276,7 @@ public class FooType0__ts
         if (description == null) {
             description = parentTable.getDescription();
             if (description != null)
-                inheritDocFrom = parentTable.getJavaType().getFullName();
+                inheritDocFrom = parentTable.getJavaTypeName();
         }
 
         boolean anyNotNull = false;
