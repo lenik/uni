@@ -188,8 +188,8 @@ export function configAjaxData(config: Config, dataUrl: string, fetchSize: numbe
 
         query['search-text'] = mode.search;
         query.order = mode.order.join(',');
-        query['page.offset'] = start;
-        query['page.limit'] = batch;
+        query['pageIndex'] = start;
+        query['pageSize'] = batch;
         query.seq = viewData.draw;
 
         // console.log("cache miss: load -> offset " + start + " limit " + batch);

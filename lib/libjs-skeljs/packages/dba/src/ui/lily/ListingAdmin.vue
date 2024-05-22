@@ -148,8 +148,8 @@ function reload(page?: int) {
     if (page_z < 0) page_z = 0;
 
     if (props.pageSize != null) {
-        query["page.offset"] = props.pageSize * page_z;
-        query["page.limit"] = props.pageSize;
+        query["pageIndex"] = props.pageSize * page_z;
+        query["pageSize"] = props.pageSize;
     }
 
     if (props.search != null)
