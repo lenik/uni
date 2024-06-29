@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import net.bodz.bas.c.javax.servlet.http.RequestLogger;
+import net.bodz.bas.c.jakarta.servlet.http.RequestLogger;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.codegen.IndexedTypeLoader;

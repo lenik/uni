@@ -1,6 +1,14 @@
 package net.bodz.uni.echo._default;
 
-import net.bodz.bas.c.javax.servlet.http.*;
+import net.bodz.bas.c.jakarta.servlet.http.IHttpFilter;
+import net.bodz.bas.c.jakarta.servlet.http.IHttpSessionActivationListener;
+import net.bodz.bas.c.jakarta.servlet.http.IHttpSessionAttributeListener;
+import net.bodz.bas.c.jakarta.servlet.http.IHttpSessionBindingListener;
+import net.bodz.bas.c.jakarta.servlet.http.IHttpSessionListener;
+import net.bodz.bas.c.jakarta.servlet.http.IServletContextAttributeListener;
+import net.bodz.bas.c.jakarta.servlet.http.IServletContextListener;
+import net.bodz.bas.c.jakarta.servlet.http.IServletRequestAttributeListener;
+import net.bodz.bas.c.jakarta.servlet.http.IServletRequestListener;
 import net.bodz.bas.c.type.IndexedTypes;
 import net.bodz.bas.meta.codegen.IndexedTypeLoader;
 import net.bodz.bas.servlet.config.ServletContextConfig;
