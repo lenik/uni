@@ -1,7 +1,17 @@
 package net.bodz.lily.tool.daogen.dir.web;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.persistence.GeneratedValue;
 
@@ -432,9 +442,12 @@ public class FooEditor__vue
         case "boolean":
             tagAttrs.put("type", "checkbox");
             break;
+        case "char":
         case "string":
         case "InetAddress":
             tagAttrs.put("type", "text");
+            if (tsType.equals("char"))
+                tagAttrs.put("maxlength", 1);
             break;
 
         case "JavaDate":
