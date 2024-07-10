@@ -49,6 +49,11 @@ export interface UiComponent extends UiGroupItem {
     description?: string
     tooltip?: string
 
+    color?: string // icon and label color
+
+    image?: string // url, svg
+    helpDoc?: string // HTML
+
     className?: string
 
 }

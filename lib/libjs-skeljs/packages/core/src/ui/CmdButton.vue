@@ -1,7 +1,5 @@
 <script setup lang="ts">
 
-import $ from 'jquery';
-
 import { computed, onMounted, ref } from "vue";
 import type { Command } from './types';
 import { bool } from './types';
