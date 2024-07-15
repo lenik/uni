@@ -361,14 +361,14 @@ table.dataTable {
             padding: .2em 0;
             border: none;
             border-radius: 3px;
+            
+            --bar-width: 3px;
+            --bar-padding: 5px;
+            --bar-color: hsl(220, 30%, 60%);
 
             &:not(:last-child) {
                 margin: 0 calc(-1* var(--bar-width));
             }
-
-            --bar-width: 3px;
-            --bar-padding: 5px;
-            --bar-color: hsl(220, 30%, 60%);
 
             &::before {
                 content: ' ';
