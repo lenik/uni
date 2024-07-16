@@ -217,7 +217,7 @@ export type Href = string;
 
 export interface Command extends UiComponent {
 
-    type?: undefined | 'button' | 'toggle'
+    type?: undefined | 'button' | 'toggle' | 'group'
     checked?: boolean | Ref<boolean>
     enabled?: boolean | Ref<boolean>
 
@@ -225,6 +225,7 @@ export interface Command extends UiComponent {
     routeTo?: string // router-link to
     action?: DialogAction
     run?: EventHandler
+    items?: Command[]
 
     sync?: boolean
 
