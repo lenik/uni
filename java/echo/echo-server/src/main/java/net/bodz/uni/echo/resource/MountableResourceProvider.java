@@ -42,7 +42,7 @@ public class MountableResourceProvider
     }
 
     public synchronized void mount(String path, IResourceProvider resourceProvider) {
-        MountPoint mountPoint = root.resolve(path);
+        MountPoint mountPoint = root.findOrCreatePath(path);
         assert mountPoint != null;
 
         IResourceProvider existing = mountPoint.getResourceProvider();

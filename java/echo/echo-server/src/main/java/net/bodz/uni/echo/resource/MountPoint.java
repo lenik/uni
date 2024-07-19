@@ -1,6 +1,5 @@
 package net.bodz.uni.echo.resource;
 
-import net.bodz.bas.err.CreateException;
 import net.bodz.bas.t.tree.AbstractMapTreeNode;
 
 public final class MountPoint
@@ -10,13 +9,11 @@ public final class MountPoint
 
     private IResourceProvider resourceProvider;
 
-    public MountPoint(MountPoint parent) {
-        super(parent);
+    public MountPoint() {
         this.resourceProvider = null;
     }
 
-    public MountPoint(MountPoint parent, IResourceProvider resourceProvider) {
-        super(parent);
+    public MountPoint(IResourceProvider resourceProvider) {
         this.resourceProvider = resourceProvider;
     }
 
@@ -33,9 +30,8 @@ public final class MountPoint
     }
 
     @Override
-    protected MountPoint newChild()
-            throws CreateException {
-        return new MountPoint(this);
+    public MountPoint addNewChild(String key) {
+        return new MountPoint().attach(this, key);
     }
 
 }
