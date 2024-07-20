@@ -1,4 +1,4 @@
-import type { Ref } from "vue";
+import type { ComputedRef, Ref } from "vue";
 
 export type boolTrue = true | 1 | 'true' | '1' | '';
 export type boolFalse = false | 0 | 'false' | '0' | null | undefined;
@@ -42,7 +42,8 @@ export interface UiComponent extends UiGroupItem {
     vPos?: 'top' | 'bottom'
     dir?: 'h' | 'v'
 
-    name: string // unique name
+    id?: string // global unique
+    name: string // local unique name
 
     icon?: string
     label?: string
@@ -218,8 +219,10 @@ export type Href = string;
 export interface Command extends UiComponent {
 
     type?: undefined | 'button' | 'toggle' | 'group'
-    checked?: boolean | Ref<boolean>
-    enabled?: boolean | Ref<boolean>
+    checked?: boolean | Ref<boolean> | ComputedRef<boolean>
+    enabled?: boolean | Ref<boolean> | ComputedRef<boolean>
+
+    keyb?: string
 
     href?: string
     routeTo?: string // router-link to
