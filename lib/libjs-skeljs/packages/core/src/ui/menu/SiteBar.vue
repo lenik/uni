@@ -122,10 +122,10 @@ function login() {
             <ul class="menu right">
                 <li><a><i class="fa fa-user" @click="login()"></i></a>
                 </li>
-                <li><a><i class="fa fa-share-alt" @mouseenter="(e: Event) => showContextMenu(e)"
-                            @mouseleave="(e: Event) => hideContextMenu(e)"></i> </a>
-                    <ShareMenu @mouseenter="(e: Event) => showContextMenu(e)"
-                        @mouseleave="(e: Event) => hideContextMenu(e)" />
+                <li><a><i class="fa fa-share-alt" @mouseenter="(e) => showContextMenu(e)"
+                            @mouseleave="(e) => hideContextMenu(e)"></i> </a>
+                    <ShareMenu @mouseenter="(e) => showContextMenu(e)"
+                        @mouseleave="(e) => hideContextMenu(e)" />
                 </li>
             </ul>
         </div>

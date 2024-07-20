@@ -26,7 +26,7 @@ const mainOverflowType = computed(() => props.scrollable ? 'auto' : 'hidden');
 </script>
 
 <template>
-    <div class="model-c">
+    <div class="model-q">
         <div class="header clear-each">
             <slot name="header">
                 <slot name="site-bar"></slot>
@@ -45,6 +45,9 @@ const mainOverflowType = computed(() => props.scrollable ? 'auto' : 'hidden');
                     </slot>
                 </div>
             </slot>
+            <div class="navright">
+                <slot name="navright"></slot>
+            </div>
         </div>
         <slot name="footer">
         </slot>
@@ -58,7 +61,7 @@ const mainOverflowType = computed(() => props.scrollable ? 'auto' : 'hidden');
 </style>
 
 <style scoped lang="scss">
-.model-c {
+.model-q {
     display: flex;
     flex-direction: column;
 
