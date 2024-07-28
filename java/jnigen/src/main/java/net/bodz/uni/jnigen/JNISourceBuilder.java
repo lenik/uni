@@ -32,12 +32,15 @@ public abstract class JNISourceBuilder
     protected final String namespace;
 
     protected SourceFormat format = new SourceFormat();
-    protected ClassMap classMap;
+    protected ClassSet classMap;
     protected ClassMembers members;
     protected SourceFilesForSingleClass sourceFiles;
 
     public JNISourceBuilder(Class<?> clazz) {
+        if (clazz == null)
+            throw new NullPointerException("clazz");
         this.clazz = clazz;
+
         String classBasename = clazz.getSimpleName() + ".class";
         URL classResource = clazz.getResource(classBasename);
         if (classResource != null) {
@@ -66,7 +69,7 @@ public abstract class JNISourceBuilder
     }
 
     public boolean containsSuperclass() {
-        return classMap.containsSuperclass(clazz);
+        return classMap.contains(clazz.getSuperclass());
     }
 
     public Class<?> getInheritParent() {

@@ -3,13 +3,12 @@ package net.bodz.uni.jnigen;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import net.bodz.bas.c.loader.scan.ClassScanner;
-import net.bodz.bas.c.loader.scan.TypeCollector;
+import net.bodz.bas.c.loader.scan.ClassCollector;
+import net.bodz.bas.c.loader.scan.ClassFinder;
+import net.bodz.bas.c.loader.scan.ClassForrest;
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.c.system.SystemProperties;
 import net.bodz.bas.io.ITreeOut;
@@ -33,8 +32,8 @@ public class JNIWrapperCodeGen
     static final Logger logger = LoggerFactory.getLogger(JNIWrapperCodeGen.class);
 
     ClassLoader loader;
-    ClassScanner scanner;
-    TypeCollector collector;
+//    ClassScanner scanner;
+    ClassCollector collector;
 
     /**
      * Scan classes within this package. (and all subpackages)
@@ -75,7 +74,8 @@ public class JNIWrapperCodeGen
     boolean stdout;
 
     /**
-     * Use flatten file names. By default, files are organized by directories according to package names.
+     * Use flatten file names. By default, files are organized by directories according to package
+     * names.
      *
      * @option -l
      */
@@ -146,12 +146,11 @@ public class JNIWrapperCodeGen
      */
     String sourceExtension = ".cxx";
 
-    ClassMap classMap;
+    ClassSet classSet;
     SourceFormat format = new SourceFormat();
 
     public JNIWrapperCodeGen() {
         loader = getClass().getClassLoader();
-        scanner = new ClassScanner(loader);
     }
 
     @Override
@@ -171,7 +170,7 @@ public class JNIWrapperCodeGen
             return;
         }
 
-        classMap = figureOutClasses();
+        classSet = figureOutClasses();
 
         if (sortMembers)
             format.memberOrder = SortOrder.SORTED;
@@ -179,7 +178,7 @@ public class JNIWrapperCodeGen
         includePackagePrivateMembers |= includePrivateMembers;
         includeProtectedMembers |= includePackagePrivateMembers;
 
-        for (Class<?> clazz : classMap.keySet()) {
+        for (Class<?> clazz : classSet) {
             logger.info("Generate " + clazz);
 
             SourceFilesForSingleClass files = new SourceFilesForSingleClass();
@@ -196,7 +195,7 @@ public class JNIWrapperCodeGen
             files.jniSourceFile = file(jniBaseName + sourceExtension, clazz);
 
             TypeInfoOptions options = format.toTypeInfoOptions();
-            options.declaredOnly = classMap.containsSuperclass(clazz);
+            options.declaredOnly = classSet.contains(clazz.getSuperclass());
             options._protected = includeProtectedMembers;
             options.packagePrivate = includePackagePrivateMembers;
             options._private = includePrivateMembers;
@@ -211,26 +210,30 @@ public class JNIWrapperCodeGen
             run(files, members, new JNITypeInfo_cxx(clazz));
 
             if (nativeTemplate)
-                if (!members.getNativeMethodNames().isEmpty()) {
-                    if (forceOverwrite || !files.jniHeaderFile.exists())
+                if (! members.getNativeMethodNames().isEmpty()) {
+                    if (forceOverwrite || ! files.jniHeaderFile.exists())
                         run(files, members, new JNINative_h(clazz));
-                    if (forceOverwrite || !files.jniSourceFile.exists())
+                    if (forceOverwrite || ! files.jniSourceFile.exists())
                         run(files, members, new JNINative_cxx(clazz));
                 }
         }
     }
 
-    ClassMap figureOutClasses()
+    ClassSet figureOutClasses()
             throws IOException, ClassNotFoundException {
-        ClassMap classes = new ClassMap();
-        Set<Class<?>> doneSet = new HashSet<>();
-        doneSet.add(Object.class);
-        doneSet.add(String.class);
+        ClassSet classes = new ClassSet();
+        ClassSet term = new ClassSet();
+        term.add(Object.class);
+        term.add(String.class);
 
         LinkedList<Class<?>> queue = new LinkedList<>();
 
-        if (scanPackage != null)
-            queue.addAll(scanner.scanPackage(scanPackage));
+        if (scanPackage != null) {
+            ClassFinder scanner = new ClassFinder();
+            ClassForrest forrest = scanner.addPackage(loader, scanPackage);
+            queue.addAll(forrest.getParseList());
+        }
+
         if (scanClassNames != null)
             for (String name : scanClassNames) {
                 Class<?> clazz = Class.forName(name, false, loader);
@@ -246,9 +249,9 @@ public class JNIWrapperCodeGen
             Class<?> superclass = clazz.getSuperclass();
             if (superclass != null)
                 if (recursive) {
-                    String superpkg = superclass.getPackage().getName();
-                    if (TypeNames.packageContains(scanPackage, superpkg)) {
-                        if (!doneSet.add(superclass))
+                    String superPackageName = superclass.getPackage().getName();
+                    if (TypeNames.packageContains(scanPackage, superPackageName)) {
+                        if (! term.add(superclass))
                             queue.addFirst(superclass);
                     }
                 }
@@ -259,7 +262,7 @@ public class JNIWrapperCodeGen
     void run(SourceFilesForSingleClass sourceFiles, ClassMembers members, JNISourceBuilder builder)
             throws IOException {
         builder.setSourceFiles(sourceFiles);
-        builder.classMap = classMap;
+        builder.classMap = classSet;
         builder.setMembers(members);
         builder.setFormat(format);
 
