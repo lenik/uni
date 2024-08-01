@@ -1,10 +1,9 @@
 package net.bodz.lily.tool.daogen.util;
 
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Set;
 
 import net.bodz.bas.c.string.StringQuote;
+import net.bodz.bas.esm.util.TsCodeStyle;
 import net.bodz.bas.io.ITreeOut;
 
 public class Attrs
@@ -14,14 +13,14 @@ public class Attrs
 
     public static final Object NO_VALUE = new Object();
 
-    public Set<String> newLineKeys = new HashSet<>();
+    public TsCodeStyle codeStyle;
 
     public Attrs() {
-        newLineKeys = new HashSet<>();
+        this(TsCodeStyle.DEFAULT);
     }
 
-    public Attrs(Set<String> newLineKeys) {
-        this.newLineKeys = newLineKeys;
+    public Attrs(TsCodeStyle codeStyle) {
+        this.codeStyle = codeStyle;
     }
 
     public void putQuoted(String key, Object value) {
@@ -44,7 +43,7 @@ public class Attrs
         int i = 0;
         boolean lastNewLine = false;
         for (String key : keySet()) {
-            boolean newLine = alwaysNewLine || newLineKeys.contains(key);
+            boolean newLine = alwaysNewLine || codeStyle.isNewLineProp(key);
             Object val = get(key);
             if (i++ != 0)
                 out.print(", ");

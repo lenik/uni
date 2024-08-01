@@ -6,12 +6,12 @@ import net.bodz.bas.esm.EsmImports;
 import net.bodz.bas.esm.EsmPackageMap;
 import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.util.ITsImporterAware;
+import net.bodz.bas.esm.util.TsConfig;
+import net.bodz.bas.esm.util.TsTypeInfoResolver;
+import net.bodz.bas.esm.util.TsTypeResolver;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.dir.web.TsConfig;
-import net.bodz.lily.tool.daogen.dir.web.TsTypeInfoResolver;
-import net.bodz.lily.tool.daogen.dir.web.TsTypeResolver;
-import net.bodz.lily.tool.daogen.util.ITsImporterAware;
 
 public abstract class JavaGen__vue
         extends JavaGenFileType

@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.util.TsTemplates;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanTypeProvider;
@@ -12,7 +13,6 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
-import net.bodz.lily.tool.daogen.util.TsTemplates;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 

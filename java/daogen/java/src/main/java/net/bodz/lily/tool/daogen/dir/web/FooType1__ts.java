@@ -5,8 +5,9 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.c.object.Nullables;
-import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.util.TsCodeStyle;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanTypeProvider;
@@ -24,6 +25,8 @@ import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class FooType1__ts
         extends JavaGen__ts {
+
+    TsCodeStyle codeStyle = TsCodeStyle.LOOSE;
 
     public FooType1__ts(JavaGenProject project) {
         super(project, project.Esm_FooType);
@@ -153,9 +156,9 @@ public class FooType1__ts
 
         out.print(property.getName());
         out.print(": ");
-        out.print(out.name(EsmModules.dba.entity.property));
+        out.print(out.name(SkeljsModules.dba.entity.property));
 
-        Attrs attrs = new Attrs(TsCodeStyle.newLineProps);
+        Attrs attrs = new Attrs(codeStyle);
         attrs.put("type", tsTypeInfo);
         if (notNull)
             attrs.put("nullable", false);

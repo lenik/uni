@@ -7,6 +7,7 @@ import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.codegen.IJavaImporter;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.ITsImporter;
+import net.bodz.bas.esm.util.ITsImporterAware;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;

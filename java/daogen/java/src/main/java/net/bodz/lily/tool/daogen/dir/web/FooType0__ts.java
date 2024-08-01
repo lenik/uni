@@ -5,8 +5,9 @@ import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
-import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.util.TsCodeStyle;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
@@ -30,6 +31,8 @@ public class FooType0__ts
         extends JavaGen__ts {
 
     static final Logger logger = LoggerFactory.getLogger(FooType0__ts.class);
+
+    TsCodeStyle tsCodeStyle = TsCodeStyle.LOOSE;
 
     public FooType0__ts(JavaGenProject project) {
         super(project, project.Esm_Foo_stuff_Type);
@@ -223,11 +226,11 @@ public class FooType0__ts
         out.print(cname.propertyName);
         out.print(": ");
         if (primaryKey)
-            out.print(out.name(EsmModules.dba.entity.primaryKey));
+            out.print(out.name(SkeljsModules.dba.entity.primaryKey));
         else
-            out.print(out.name(EsmModules.dba.entity.property));
+            out.print(out.name(SkeljsModules.dba.entity.property));
 
-        Attrs attrs = new Attrs(TsCodeStyle.newLineProps);
+        Attrs attrs = new Attrs(tsCodeStyle);
         attrs.put("type", tsTypeInfo);
         if (notNull)
             attrs.put("nullable", false);
@@ -301,9 +304,9 @@ public class FooType0__ts
 
         out.print(property);
         out.print(": ");
-        out.print(out.name(EsmModules.dba.entity.property));
+        out.print(out.name(SkeljsModules.dba.entity.property));
 
-        Attrs attrs = new Attrs(TsCodeStyle.newLineProps);
+        Attrs attrs = new Attrs(tsCodeStyle);
         attrs.put("type", parentTsTypeInfo);
         if (anyNotNull)
             attrs.put("nullable", false);

@@ -4,8 +4,8 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.skeljs.SkeljsModules;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanTypeProvider;
@@ -28,7 +28,7 @@ public class FooValidators1__ts
         TypeExtendInfo extend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, project.Foo.qName);
 
-        out.name(EsmModules.core.uiTypes.ValidateResult);
+        out.name(SkeljsModules.core.uiTypes.ValidateResult);
 
         QualifiedName className = project.Esm_FooValidators.qName;
         QualifiedName superType = project.Esm_Foo_stuff_Validators.qName;

@@ -2,8 +2,9 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
-import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.extern.ExternModules;
+import net.bodz.bas.esm.skeljs.SkeljsModules;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 
@@ -60,13 +61,13 @@ public class FooChooseDialog__vue
 
         out.println();
         out.printf("const entityChooseDialog = %s<undefined | InstanceType<typeof %s>>();", //
-                out.name(EsmModules.vue.ref), //
-                out.name(EsmModules.dba.EntityChooseDialog));
+                out.name(ExternModules.vue.ref), //
+                out.name(SkeljsModules.dba.EntityChooseDialog));
         out.println();
         out.println("defineExpose({ open });");
         out.println();
         out.printf("function open(callback?: %s) {\n", //
-                out.name(EsmModules.core.uiTypes.DialogSelectCallback));
+                out.name(SkeljsModules.core.uiTypes.DialogSelectCallback));
         out.enter();
         {
             out.println("entityChooseDialog.value?.open(callback);");
@@ -76,7 +77,7 @@ public class FooChooseDialog__vue
 
         out.println();
         out.printf("%s(() => {\n", //
-                out.name(EsmModules.vue.onMounted));
+                out.name(ExternModules.vue.onMounted));
         out.println("});");
     }
 

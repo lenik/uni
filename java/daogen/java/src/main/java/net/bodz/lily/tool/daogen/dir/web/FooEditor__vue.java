@@ -19,10 +19,11 @@ import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.c.type.TypeChain;
-import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.extern.ExternModules;
+import net.bodz.bas.esm.skeljs.SkeljsModules;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.bean.DetailLevel;
@@ -74,7 +75,7 @@ public class FooEditor__vue
 
     @Override
     protected void buildScript1(TypeScriptWriter out, ITableMetadata model) {
-        out.name(EsmModules.core.FieldRow.FieldRow);
+        out.name(SkeljsModules.core.FieldRow.FieldRow);
 
         out.println("export interface Props {");
         out.println("}");
@@ -113,15 +114,15 @@ public class FooEditor__vue
 
         int labelWidth = 7;
         out.printf("const fieldRowProps = %s({ labelWidth: '%drem' });\n", //
-                out.name(EsmModules.dba.defaults.getDefaultFieldRowProps), //
+                out.name(SkeljsModules.dba.defaults.getDefaultFieldRowProps), //
                 labelWidth);
         out.printf("%s(%s, fieldRowProps);\n", //
-                out.name(EsmModules.vue.provide), //
-                out.name(EsmModules.core.FieldRow.FIELD_ROW_PROPS));
+                out.name(ExternModules.vue.provide), //
+                out.name(SkeljsModules.core.FieldRow.FIELD_ROW_PROPS));
 
         out.println();
         out.printf("const rootElement = %s<HTMLElement>();\n", //
-                out.name(EsmModules.vue.ref));
+                out.name(ExternModules.vue.ref));
 
         for (String dialogVar : dialogs.keySet()) {
             EsmName dialogTag = dialogs.get(dialogVar);
@@ -139,7 +140,7 @@ public class FooEditor__vue
         out.println("}");
         out.println();
         out.printf("%s(() => {\n", //
-                out.name(EsmModules.vue.onMounted));
+                out.name(ExternModules.vue.onMounted));
         out.println("});");
     }
 
@@ -305,7 +306,7 @@ public class FooEditor__vue
         String tsTypeInfo = typeInfoResolver().resolveClass(decl);
 
         out.printf("<%s :type=\"%s\">\n", //
-                out.name(EsmModules.dba.FieldGroup), //
+                out.name(SkeljsModules.dba.FieldGroup), //
                 tsTypeInfo);
         out.enter();
 
@@ -399,7 +400,7 @@ public class FooEditor__vue
             attrs.put("disabled", Attrs.NO_VALUE);
 
         String html = attrs.toHtml(out.im.name(//
-                EsmModules.dba.RefEditor), true);
+                SkeljsModules.dba.RefEditor), true);
         out.println(html);
     }
 
@@ -461,11 +462,11 @@ public class FooEditor__vue
         case "LocalDateTime":
         case "ZonedDateTime":
         case "OffsetDateTime":
-            tagName = out.importName(EsmModules.core.DateTime);
+            tagName = out.importName(SkeljsModules.core.DateTime);
             break;
 
         case "JsonVariant":
-            tagName = out.importName(EsmModules.core.JsonEditor);
+            tagName = out.importName(SkeljsModules.core.JsonEditor);
             break;
         }
 

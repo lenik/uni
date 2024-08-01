@@ -8,8 +8,10 @@ import java.util.List;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.type.IndexedTypes;
 import net.bodz.bas.err.IllegalUsageException;
-import net.bodz.bas.esm.EsmModules;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.util.TsTemplates;
+import net.bodz.bas.esm.util.TsTypeResolver;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.io.res.ResFn;
@@ -20,8 +22,6 @@ import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.predef.Predef;
 import net.bodz.bas.t.predef.PredefMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
-import net.bodz.lily.tool.daogen.dir.web.TsTypeResolver;
-import net.bodz.lily.tool.daogen.util.TsTemplates;
 
 /**
  * TypeScript Predef-consts generator
@@ -112,7 +112,7 @@ public class TsPredefs
 
         out.printf("export class %s extends %s<%s> {\n", //
                 itemType.name, //
-                out.importName(EsmModules.core.Predef), //
+                out.importName(SkeljsModules.core.Predef), //
                 tsKeyType);
         {
             out.enter();
@@ -164,7 +164,7 @@ public class TsPredefs
 
         out.printf("export class %s extends %s<%s, %s> {", //
                 typeInfoType.name, //
-                out.importName(EsmModules.core.PredefType), //
+                out.importName(SkeljsModules.core.PredefType), //
                 itemType.name, //
                 tsKeyType);
         {

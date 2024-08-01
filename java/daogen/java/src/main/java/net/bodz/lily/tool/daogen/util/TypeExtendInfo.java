@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.codegen.IJavaImporter;
+import net.bodz.bas.esm.util.ITsImporterAware;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.meta.TypeParamType;
 

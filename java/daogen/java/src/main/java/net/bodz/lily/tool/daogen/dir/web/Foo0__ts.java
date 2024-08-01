@@ -2,6 +2,7 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.TypeScriptWriter;
+import net.bodz.bas.esm.util.TsTemplates;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
@@ -15,7 +16,6 @@ import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
-import net.bodz.lily.tool.daogen.util.TsTemplates;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
