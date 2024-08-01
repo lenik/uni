@@ -7,9 +7,9 @@ import net.bodz.bas.fn.IRewriter;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.model.IAppLifecycleListener;
 import net.bodz.bas.program.skel.BatchEditCLI;
 import net.bodz.bas.program.skel.CLIAccessor;
-import net.bodz.bas.program.skel.CLISyntaxException;
 import net.bodz.bas.program.skel.FileHandler;
 
 /**
@@ -19,7 +19,9 @@ import net.bodz.bas.program.skel.FileHandler;
 @ProgramName("jrepl")
 @RcsKeywords(id = "$Id$")
 public class FileReplace
-        extends BatchEditCLI {
+        extends BatchEditCLI
+        implements
+            IAppLifecycleListener<FileReplace> {
 
     /**
      * replace by regexp
@@ -50,10 +52,10 @@ public class FileReplace
     protected IRewriter<String> rewriter;
 
     @Override
-    protected void reconfigure()
-            throws Exception {
+    public void initDefaults(FileReplace app) {
         if ((pattern == null) == (textPattern == null))
-            throw new CLISyntaxException(nls.tr("one and only one of --regexp and --text option must be specified"));
+            throw new IllegalArgumentException(
+                    nls.tr("one and only one of --regexp and --text option must be specified"));
 
         if (CLIAccessor.isIgnoreCase(FileReplace.this)) {
             if (pattern != null)

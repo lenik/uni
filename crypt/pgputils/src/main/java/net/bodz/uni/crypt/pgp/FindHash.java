@@ -15,6 +15,7 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.model.IAppLifecycleListener;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.range.IntegerRange;
 import net.bodz.bas.vfs.IFile;
@@ -27,7 +28,9 @@ import net.bodz.uni.crypt.pgp.Hashes.PeekDigest;
 @ProgramName("findhash")
 @RcsKeywords(id = "$Id$")
 public class FindHash
-        extends BasicCLI {
+        extends BasicCLI
+        implements
+            IAppLifecycleListener<FindHash> {
 
     static final Logger logger = LoggerFactory.getLogger(FindHash.class);
 
@@ -53,13 +56,16 @@ public class FindHash
     IntegerRange[] ranges;
 
     @Override
-    protected void reconfigure()
-            throws Exception {
+    public void initDefaults(FindHash app) {
         if (digest == null)
-            digest = MessageDigest.getInstance("CRC32");
-        if (!(digest instanceof Cloneable))
-            throw new UnsupportedOperationException(nls.tr("The algorithm isn\'t clonable: ") + digest + ", class of "
-                    + digest.getClass().getName());
+            try {
+                digest = MessageDigest.getInstance("CRC32");
+            } catch (NoSuchAlgorithmException e) {
+                throw new IllegalStateException("CRC32 isn't supported", e);
+            }
+        if (! (digest instanceof Cloneable))
+            throw new UnsupportedOperationException(
+                    nls.tr("The algorithm isn\'t clonable: ") + digest + ", class of " + digest.getClass().getName());
         if (hashes == null || hashes.length == 0)
             throw new IllegalUsageException(nls.tr("no hash specified"));
     }

@@ -25,6 +25,7 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.model.IAppLifecycleListener;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.order.TableOrderComparator;
 
@@ -35,7 +36,9 @@ import net.bodz.bas.t.order.TableOrderComparator;
 @ProgramName("xmlflat")
 @RcsKeywords(id = "$Id$")
 public class XMLFlat
-        extends BasicCLI {
+        extends BasicCLI
+        implements
+            IAppLifecycleListener<XMLFlat> {
 
     static final Logger logger = LoggerFactory.getLogger(XMLFlat.class);
 
@@ -125,7 +128,7 @@ public class XMLFlat
      * @option -x
      */
     protected void switchEscaping() {
-        escaping = !escaping;
+        escaping = ! escaping;
     }
 
     protected IPrintOut out;
@@ -135,8 +138,7 @@ public class XMLFlat
     protected XPath[] fields;
 
     @Override
-    protected void reconfigure()
-            throws Exception {
+    public void initDefaults(XMLFlat app) {
         if (delimiters == null)
             delimiters = ",".toCharArray();
         if (widths != null)
@@ -182,7 +184,7 @@ public class XMLFlat
                     validCells++;
                 }
             }
-            if (validCells == 0 && !includeEmpties)
+            if (validCells == 0 && ! includeEmpties)
                 continue;
             table.add(vals);
         }

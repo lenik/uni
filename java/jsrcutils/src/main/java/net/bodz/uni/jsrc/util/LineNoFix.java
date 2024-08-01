@@ -10,6 +10,7 @@ import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.model.IAppLifecycleListener;
 import net.bodz.bas.program.skel.BatchEditCLI;
 import net.bodz.bas.program.skel.CLIAccessor;
 import net.bodz.bas.program.skel.FileHandler;
@@ -22,7 +23,9 @@ import net.bodz.bas.vfs.FileMaskedModifiers;
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 0 })
 public class LineNoFix
-        extends BatchEditCLI {
+        extends BatchEditCLI
+        implements
+            IAppLifecycleListener<LineNoFix> {
 
     /**
      * @Option(alias = "l", vnam = "REGEX", doc = "line-no pattern")
@@ -55,13 +58,6 @@ public class LineNoFix
         CLIAccessor.setIncludeMask(this, new FileMaskedModifiers("fT/fHT"));
     }
 
-    @Override
-    protected void reconfigure()
-            throws Exception {
-        if (linePattern == null)
-            linePattern = Pattern.compile("^\\s*/\\*\\s*(\\d+)\\s*\\*/");
-    }
-
     static class Line {
         public int n;
         public String s;
@@ -72,7 +68,7 @@ public class LineNoFix
         }
 
         void chopm() {
-            while (!s.isEmpty()) {
+            while (! s.isEmpty()) {
                 switch (s.charAt(s.length() - 1)) {
                 case '\n':
                 case '\r':
@@ -85,7 +81,7 @@ public class LineNoFix
 
         void compactLeft() {
             int n = 0;
-            while (!s.isEmpty()) {
+            while (! s.isEmpty()) {
                 switch (s.charAt(0)) {
                 case ' ':
                 case '\t':
@@ -168,6 +164,12 @@ public class LineNoFix
             out.print(lines.get(i).s);
 
         handler.save();
+    }
+
+    @Override
+    public void initDefaults(LineNoFix app) {
+        if (linePattern == null)
+            linePattern = Pattern.compile("^\\s*/\\*\\s*(\\d+)\\s*\\*/");
     }
 
     public static void main(String[] args)

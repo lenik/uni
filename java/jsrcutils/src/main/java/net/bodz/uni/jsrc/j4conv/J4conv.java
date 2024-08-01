@@ -35,6 +35,7 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.model.IAppLifecycleListener;
 import net.bodz.bas.program.skel.CLIAccessor;
 import net.bodz.bas.program.skel.FileHandler;
 import net.bodz.bas.t.scope.CMap;
@@ -50,7 +51,9 @@ import net.bodz.uni.c.jdt.JdtBatchCLI;
 @RcsKeywords(id = "$Id$")
 @MainVersion({ 0, 1 })
 public class J4conv
-        extends JdtBatchCLI {
+        extends JdtBatchCLI
+        implements
+            IAppLifecycleListener<J4conv> {
 
     static final Logger logger = LoggerFactory.getLogger(J4conv.class);
 
@@ -80,8 +83,7 @@ public class J4conv
     }
 
     @Override
-    protected void reconfigure()
-            throws Exception {
+    public void initDefaults(J4conv app) {
         inputEncoding = CLIAccessor.getInputEncoding(this);
         outputEncoding = CLIAccessor.getOutputEncoding(this);
     }

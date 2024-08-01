@@ -18,6 +18,7 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.MainVersion;
 import net.bodz.bas.meta.build.ProgramName;
 import net.bodz.bas.meta.build.RcsKeywords;
+import net.bodz.bas.program.model.IAppLifecycleListener;
 import net.bodz.bas.program.skel.BatchCLI;
 import net.bodz.bas.program.skel.FileHandler;
 import net.bodz.bas.vfs.IFile;
@@ -31,7 +32,9 @@ import net.bodz.uni.crypt.pgp.Hashes.CRC32_LE;
 @ProgramName("crc32sum")
 @RcsKeywords(id = "$Id$")
 public class CRC32Sum
-        extends BatchCLI {
+        extends BatchCLI
+        implements
+            IAppLifecycleListener<CRC32Sum> {
 
     static final Logger logger = LoggerFactory.getLogger(CRC32Sum.class);
 
@@ -129,8 +132,7 @@ public class CRC32Sum
     }
 
     @Override
-    protected void reconfigure()
-            throws Exception {
+    public void initDefaults(CRC32Sum app) {
         if (mode == CHECK)
             throw new NotImplementedException("Check is not implemented");
     }
