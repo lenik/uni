@@ -19,6 +19,7 @@ import net.bodz.bas.c.string.StringEscape;
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.c.type.TypeChain;
+import net.bodz.bas.code.util.Attrs;
 import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
@@ -45,7 +46,6 @@ import net.bodz.lily.meta.ReadOnly;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__vue;
-import net.bodz.lily.tool.daogen.util.Attrs;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 

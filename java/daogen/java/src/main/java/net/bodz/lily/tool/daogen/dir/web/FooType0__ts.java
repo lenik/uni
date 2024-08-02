@@ -3,6 +3,7 @@ package net.bodz.lily.tool.daogen.dir.web;
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.code.util.Attrs;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.TypeScriptWriter;
@@ -23,7 +24,6 @@ import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
 import net.bodz.lily.tool.daogen.OutFormat;
-import net.bodz.lily.tool.daogen.util.Attrs;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 

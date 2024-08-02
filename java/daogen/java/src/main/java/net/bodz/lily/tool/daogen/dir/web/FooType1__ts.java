@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.c.object.Nullables;
+import net.bodz.bas.code.util.Attrs;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.skeljs.SkeljsModules;
 import net.bodz.bas.esm.util.TsCodeStyle;
@@ -19,7 +20,6 @@ import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__ts;
-import net.bodz.lily.tool.daogen.util.Attrs;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
