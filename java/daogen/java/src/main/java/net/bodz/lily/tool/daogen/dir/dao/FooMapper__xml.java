@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.codegen.XmlSourceBuffer;
+import net.bodz.bas.db.sql.dialect.DialectFn;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.ICatalogMetadata;
 import net.bodz.bas.t.catalog.IColumnMetadata;
@@ -13,7 +14,6 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.ColumnUtils;
 import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.util.DialectFn;
 
 public class FooMapper__xml
         extends VFooMapper__xml {

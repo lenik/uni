@@ -7,6 +7,7 @@ import java.util.Set;
 
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.codegen.XmlSourceBuffer;
+import net.bodz.bas.db.sql.dialect.DialectFn;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.t.catalog.CrossReference;
@@ -21,7 +22,6 @@ import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.JavaGen__xml;
 import net.bodz.lily.tool.daogen.JoinColumns;
 import net.bodz.lily.tool.daogen.RuntimeSupport;
-import net.bodz.lily.tool.daogen.util.DialectFn;
 
 public class VFooMapper__xml
         extends JavaGen__xml {

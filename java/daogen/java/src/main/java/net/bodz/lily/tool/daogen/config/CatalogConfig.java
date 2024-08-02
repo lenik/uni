@@ -9,6 +9,7 @@ import java.util.Map;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
+import net.bodz.bas.db.sql.dialect.DialectFn;
 import net.bodz.bas.err.DuplicatedKeyException;
 import net.bodz.bas.err.FormatException;
 import net.bodz.bas.err.IllegalUsageException;
@@ -30,7 +31,6 @@ import net.bodz.bas.t.map.ListMap;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.TableName;
-import net.bodz.lily.tool.daogen.util.DialectFn;
 import net.bodz.lily.tool.daogen.util.JavaLang;
 
 public class CatalogConfig
