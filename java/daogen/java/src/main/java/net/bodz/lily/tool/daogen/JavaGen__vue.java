@@ -2,8 +2,8 @@ package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.codegen.ClassPathInfo;
+import net.bodz.bas.esm.EsmDomainMap;
 import net.bodz.bas.esm.EsmImports;
-import net.bodz.bas.esm.EsmPackageMap;
 import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.util.ITsImporterAware;
@@ -50,10 +50,10 @@ public abstract class JavaGen__vue
     }
 
     protected final void buildVue(ITreeOut out, ITableMetadata model) {
-        EsmPackageMap packageMap = TsConfig.getPackageMap(project.web.baseDir);
+        EsmDomainMap domainMap = TsConfig.buildDomainMap(project.web.baseDir);
         EsmImports imports = new EsmImports(null);
         tsOut = new TypeScriptWriter(pathInfo.getQName(), out.indented(), //
-                imports, packageMap);
+                imports, domainMap);
 
         TypeScriptWriter buf;
 

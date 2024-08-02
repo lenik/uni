@@ -9,13 +9,13 @@ public class LilyViolet
         super("@lily/violet", "src", priority);
     }
 
-    static final String[] packageNames = { //
+    static final String[] domainPatterns = { //
             "net.bodz.violet.schema", //
     };
 
     @Override
-    public String[] getExclusivePackageNames() {
-        return packageNames;
+    public String[] getExclusiveDomains() {
+        return domainPatterns;
     }
 
 }

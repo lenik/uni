@@ -383,7 +383,7 @@ public class FooEditor__vue
 
         QualifiedName qType = QualifiedName.parse(className);
         QualifiedName qDialogType = qType.nameAdd("ChooseDialog");
-        EsmSource dialogSource = out.packageMap.findSource(qDialogType, "vue", project.Esm_FooEditor.qName);
+        EsmSource dialogSource = out.domainMap.findSource(qDialogType, "vue", project.Esm_FooEditor.qName);
         if (dialogSource == null)
             throw new NullPointerException("can't find source for dialog type " + qDialogType + ", qType=" + qType);
 

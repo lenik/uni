@@ -9,14 +9,14 @@ public class LilyFab
         super("@lily/fab", "src", priority);
     }
 
-    static final String[] packageNames = { //
+    static final String[] domainPatterns = { //
             "net.bodz.violet.schema.fab", //
             "net.bodz.violet.schema.art.ArtifactModel", //
     };
 
     @Override
-    public String[] getExclusivePackageNames() {
-        return packageNames;
+    public String[] getExclusiveDomains() {
+        return domainPatterns;
     }
 
 }

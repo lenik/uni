@@ -1,8 +1,8 @@
 package net.bodz.lily.tool.daogen;
 
 import net.bodz.bas.codegen.ClassPathInfo;
+import net.bodz.bas.esm.EsmDomainMap;
 import net.bodz.bas.esm.EsmImports;
-import net.bodz.bas.esm.EsmPackageMap;
 import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.util.ITsImporterAware;
@@ -49,8 +49,8 @@ public abstract class JavaGen__ts
         QualifiedName qName = pathInfo.getQName();
         EsmImports imports = EsmImports.forLocal(qName);
 
-        EsmPackageMap packageMap = TsConfig.getPackageMap(project.web.baseDir);
-        tsOut = new TypeScriptWriter(qName, buf.indented(), imports, packageMap);
+        EsmDomainMap domainMap = TsConfig.buildDomainMap(project.web.baseDir);
+        tsOut = new TypeScriptWriter(qName, buf.indented(), imports, domainMap);
 
         buildTsBody(tsOut, model);
 
