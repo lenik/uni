@@ -1,3 +1,4 @@
+# vim: set ft=sh :
 
 import log
 
@@ -23,8 +24,7 @@ function exec-getwin-quiet() {
 
 function is_chainable() {
     case "$1" in
-        noborder)
-        movewindow)
+        noborder|movewindow)
             return 0;;
         *)
             return 1;;

@@ -14,6 +14,7 @@
     option -h --height =NUM         "specify the exact window height"
     option -c --center              "center the window"
     option -z --null-out            "redirect the cmd output to /dev/null"
+    option -e --echo                "echo window id"
     option -q --quiet
     option -v --verbose
     option    --help
@@ -26,6 +27,7 @@
     opt_height=
     opt_center=
     opt_null_out=
+    opt_echo=
     
 function setopt() {
     case "$1" in
@@ -43,6 +45,8 @@ function setopt() {
             opt_center=1;;
         -z|--null-out)
             opt_null_out=1;;
+        -e|--echo)
+            opt_echo=1;;
         --help)
             help $1; exit;;
         -q|--quiet)
@@ -78,6 +82,10 @@ function main() {
     
     local id_hex=${geom[id_hex]}
     local id=$(( $id_hex ))
+    if [ "$opt_echo" = 1 ]; then
+        echo $id_hex
+    fi
+
     local left=${geom[left]}
     local top=${geom[top]}
     local width=${geom[width]}
