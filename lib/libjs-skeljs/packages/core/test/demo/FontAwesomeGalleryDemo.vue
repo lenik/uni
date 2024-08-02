@@ -8,8 +8,8 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import Icon from "skeljs/core/src/ui/Icon";
-import FontAwesomeGallery from "./FontAwesomeGallery";
+import Icon from "../../src/ui/Icon.vue";
+import FontAwesomeGallery from "../../src/ui/demo/fa-gallery/FontAwesomeGallery.vue";
 
 const model = defineModel();
 

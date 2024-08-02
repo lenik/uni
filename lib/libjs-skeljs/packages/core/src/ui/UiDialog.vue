@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import $ from 'jquery';
-import "jquery-ui-esm/widgets/dialog";
+import "@eirslett/jquery-ui-esm/esm/widgets/dialog";
 import 'jquery-ui/themes/base/base.css';
 
 import { onMounted, ref } from "vue";
