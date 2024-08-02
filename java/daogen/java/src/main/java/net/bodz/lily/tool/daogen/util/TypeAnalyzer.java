@@ -1,50 +1,39 @@
 package net.bodz.lily.tool.daogen.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.bodz.bas.c.string.StringArray;
+import net.bodz.bas.code.util.BaseTypeAnalyzer;
+import net.bodz.bas.code.util.BaseTypeExtendInfo;
+import net.bodz.bas.code.util.TypeArg;
 import net.bodz.bas.codegen.IJavaImporter;
-import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.ITsImporter;
-import net.bodz.bas.esm.util.ITsImporterAware;
+import net.bodz.bas.meta.decl.TypeParamType;
+import net.bodz.bas.meta.decl.TypeParameters;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.CoEntity;
 import net.bodz.lily.concrete.IdEntity;
 import net.bodz.lily.concrete.StructRow;
-import net.bodz.lily.meta.TypeParamType;
-import net.bodz.lily.meta.TypeParameters;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 import net.bodz.lily.tool.daogen.MiscTemplates;
 
 public class TypeAnalyzer
-        implements
-            ITsImporterAware {
+        extends BaseTypeAnalyzer {
 
     final JavaGenProject project;
-    final IJavaImporter javaImporter;
-    final ITsImporter tsImporter;
-    final boolean typeScript;
 
     public TypeAnalyzer(JavaGenProject project, IJavaImporter javaImporter) {
+        super(javaImporter);
         this.project = project;
-        this.javaImporter = javaImporter;
-        this.tsImporter = null;
-        this.typeScript = false;
     }
 
     public TypeAnalyzer(JavaGenProject project, ITsImporter tsImporter) {
+        super(tsImporter);
         this.project = project;
-        this.javaImporter = null;
-        this.tsImporter = tsImporter;
-        this.typeScript = true;
     }
 
     @Override
-    public ITsImporter getTsImporter() {
-        return tsImporter;
+    protected TypeExtendInfo newInfo() {
+        return new TypeExtendInfo();
     }
 
     public final TypeExtendInfo getExtendInfo(ITableMetadata table, QualifiedName qName) {
@@ -55,7 +44,7 @@ public class TypeAnalyzer
             QualifiedName type, //
             QualifiedName baseType) {
 
-        TypeExtendInfo info = new TypeExtendInfo();
+        TypeExtendInfo info = newInfo();
         info.type = type;
 
         try {
@@ -99,62 +88,22 @@ public class TypeAnalyzer
         return info;
     }
 
-    void parseGenerics(TypeExtendInfo info, TypeParamType[] baseTypeVarTypes) {
-        List<String> typeVars = new ArrayList<>();
-        List<String> baseTypeArgs = new ArrayList<>();
-        List<QualifiedName> baseTypeBounds = new ArrayList<>();
-        List<String> recursiveArgs = new ArrayList<>();
-        List<TypeParamType> typeVarTypes = new ArrayList<>();
-        for (int i = 0; i < baseTypeVarTypes.length; i++) {
-            TypeParamType baseParamType = baseTypeVarTypes[i];
-            switch (baseParamType) {
-            case ID_TYPE:
-                if (typeScript) {
-                    String tsIdType = typeResolver().property("<ID>")//
-                            .importAsType().resolve(info.idType);
-                    baseTypeArgs.add(tsIdType);
-                } else {
-                    baseTypeArgs.add(javaImporter.importName(info.idType));
-                }
-                baseTypeBounds.add(info.idType);
-                break;
-
-            case THIS_TYPE:
-                baseTypeArgs.add(info.type.name);
-                baseTypeBounds.add(info.type);
-                break;
-
-            case THIS_REC:
-                if (typeScript)
-                    typeVars.add("this_t");
-                else
-                    typeVars.add("this_t extends " + info.type.name + "<%R>");
-
-                recursiveArgs.add("this_t");
-                typeVarTypes.add(TypeParamType.THIS_TYPE);
-
-                baseTypeArgs.add("this_t");
-                baseTypeBounds.add(ThisType.QNAME);
-                break;
-            default:
-                throw new UnexpectedException();
+    @Override
+    protected TypeArg getArg(BaseTypeExtendInfo info, TypeParamType baseParamType) {
+        if (baseParamType == TypeParamType.ID_TYPE) {
+            TypeExtendInfo info2 = (TypeExtendInfo) info;
+            TypeArg arg = new TypeArg();
+            if (typeScript) {
+                String tsIdType = typeResolver().property("<ID>")//
+                        .importAsType().resolve(info2.idType);
+                arg.name = tsIdType;
+            } else {
+                arg.name = javaImporter.importName(info2.idType);
             }
+            arg.bounds = info2.idType;
+            return arg;
         }
-
-        String[] _typeVars = typeVars.toArray(new String[0]);
-        String rec = StringArray.join(", ", recursiveArgs);
-        for (int i = 0; i < _typeVars.length; i++)
-            _typeVars[i] = _typeVars[i].replace("%R", rec);
-        info.typeVars = _typeVars;
-        info.typeVarTypes = typeVarTypes.toArray(new TypeParamType[0]);
-
-        info.baseTypeArgs = baseTypeArgs.toArray(new String[0]);
-        info.baseTypeBounds = baseTypeBounds.toArray(new QualifiedName[0]);
-        info.baseTypeVarTypes = baseTypeVarTypes;
-    }
-
-    static String[] array(String... args) {
-        return args;
+        return super.getArg(info, baseParamType);
     }
 
 }

@@ -7,8 +7,6 @@ import net.bodz.bas.esm.ITsImporter;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.util.ITsImporterAware;
 import net.bodz.bas.esm.util.TsConfig;
-import net.bodz.bas.esm.util.TsTypeInfoResolver;
-import net.bodz.bas.esm.util.TsTypeResolver;
 import net.bodz.bas.io.BCharOut;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
@@ -41,17 +39,8 @@ public abstract class JavaGen__ts
     }
 
     @Override
-    public TsTypeResolver typeResolver() {
-        TsTypeResolver resolver = ITsImporterAware.super.typeResolver();
-        resolver.thisType(pathInfo.getQName());
-        return resolver;
-    }
-
-    @Override
-    public TsTypeInfoResolver typeInfoResolver() {
-        TsTypeInfoResolver resolver = ITsImporterAware.super.typeInfoResolver();
-        resolver.thisType(pathInfo.getQName());
-        return resolver;
+    public QualifiedName getThisType() {
+        return pathInfo.getQName();
     }
 
     protected final void buildTs(ITreeOut out, ITableMetadata model) {
