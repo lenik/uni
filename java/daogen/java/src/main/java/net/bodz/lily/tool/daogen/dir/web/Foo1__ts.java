@@ -5,10 +5,10 @@ import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.util.TsTemplates;
+import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanTypeProvider;
-import net.bodz.bas.repr.form.validate.NotNull;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.JavaGenProject;
