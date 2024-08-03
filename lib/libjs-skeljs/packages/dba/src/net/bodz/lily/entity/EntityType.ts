@@ -1,9 +1,9 @@
 import TypeInfo from "@skeljs/core/src/lang/TypeInfo";
-import IEntityType from "./IEntityType";
-import IEntityProperty from "./IEntityProperty";
+import type { IEntityType } from "./IEntityType";
+import type { IEntityProperty } from "./IEntityProperty";
 import EntityProperty from "./EntityProperty";
-import EntityPropertyMap from "./EntityPropertyMap";
-import ITypeInfo from "@skeljs/core/src/lang/ITypeInfo";
+import type { EntityPropertyMap } from "./EntityPropertyMap";
+import type { ITypeInfo } from "@skeljs/core/src/lang/ITypeInfo";
 
 export abstract class EntityType extends TypeInfo<any> implements IEntityType {
 
@@ -105,7 +105,14 @@ export abstract class EntityType extends TypeInfo<any> implements IEntityType {
             let propJv = jv[name];
             if (propJv != null) {
                 let propType: ITypeInfo<any> = property.type;
-                let propVal = propType.fromJson(propJv);
+                let propVal;
+                if (propType.fromJson != undefined) {
+                    propVal = propType.fromJson(propJv);
+                } else {
+                    console.warn("fromJson() isn't defined on "
+                        + propType.name + " property " + property.name);
+                    propVal = propJv;
+                }
                 o[name] = propVal;
             }
         }

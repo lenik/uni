@@ -19,6 +19,8 @@ export type List<E> = E[];
 // export type _Set<E> = Set<E>;
 // export type _Map<K, V> = Map<K, V>;
 
+export type Enum = string;
+
 export type InetAddress = string;
 
 export interface IExample {

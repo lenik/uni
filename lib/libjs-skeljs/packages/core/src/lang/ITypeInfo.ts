@@ -1,4 +1,4 @@
-import IJsonConverter from './IJsonConverter';
+import type { IJsonConverter } from './IJsonConverter';
 
 export interface ITypeInfo<T> extends IJsonConverter<T> {
 
@@ -17,4 +17,4 @@ export interface ITypeInfo<T> extends IJsonConverter<T> {
     renderHtml(val: any, context: any): HTMLElement | string | undefined
 }
 
-export default ITypeInfo;
+// export default ITypeInfo;

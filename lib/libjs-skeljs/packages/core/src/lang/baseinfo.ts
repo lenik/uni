@@ -1,5 +1,5 @@
 import Big from "big.js";
-import {
+import type {
     BigDecimal, BigInteger,
     InetAddress,
     byte, char, double, float, int, long, short,
@@ -263,7 +263,7 @@ export class BigIntegerType extends NumberType<BigInteger> {
     override create() {
         return BigInt(0);
     }
-    
+
     override parse(s: string): BigInteger {
         let b = parseBigInt(s);
         return b;
@@ -291,7 +291,7 @@ export class BigDecimalType extends NumberType<BigDecimal> {
     override create() {
         return Big(0);
     }
-    
+
     override parse(s: string): BigDecimal {
         let norm = normalizeNumber(s);
         let b = Big(norm);
@@ -320,7 +320,7 @@ export class BooleanType extends TypeInfo<boolean> {
     override create() {
         return false;
     }
-    
+
     override parse(s: string): boolean {
         switch (s) {
             case "true":
@@ -346,7 +346,7 @@ export class CharType extends TypeInfo<char> {
     override create() {
         return '\0';
     }
-    
+
     override parse(s: string) {
         if (s.length)
             return s.charAt(0);
@@ -364,7 +364,7 @@ export class StringType extends TypeInfo<string> {
     override create() {
         return '';
     }
-    
+
     override format(val: string): string {
         return val;
     }
@@ -383,7 +383,7 @@ export class EnumType extends TypeInfo<string> {
     override create() {
         return 'XXX';
     }
-    
+
     override format(val: string): string {
         return val;
     }
@@ -402,7 +402,7 @@ export class DateType extends TypeInfo<Date> {
     override create() {
         return new Date();
     }
-    
+
     override format(val: Date): string {
         return val.toISOString();
     }
@@ -579,6 +579,8 @@ export class MapType<K, V> extends TypeInfo<Map<K, V>> {
 
     constructor(keyType: TypeInfo<K>, valueType: TypeInfo<V>) {
         super();
+        if (keyType == null) throw new Error("null keyType");
+        if (valueType == null) throw new Error("null valueType");
         this.keyType = keyType;
         this.valueType = valueType;
     }
@@ -652,7 +654,7 @@ export class InetAddressType extends TypeInfo<InetAddress> {
     create(): string {
         return '0.0.0.0';
     }
-    
+
     override format(val: InetAddress): string {
         return val;
     }
