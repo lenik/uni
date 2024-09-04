@@ -23,7 +23,7 @@ import net.bodz.bas.site.org.ICrawlable;
 import net.bodz.bas.site.org.ICrawler;
 import net.bodz.bas.std.rfc.http.ICacheControl;
 import net.bodz.bas.t.variant.IVariantMap;
-import net.bodz.mda.xjdoc.model.IElementDoc;
+import net.bodz.mda.xjdoc.model.IMutableElementDoc;
 import net.bodz.uni.site.UniSite;
 import net.bodz.uni.site.util.DebControl;
 import net.bodz.uni.site.util.DebControlParser;
@@ -109,11 +109,11 @@ public class Section
     }
 
     @Override
-    protected IElementDoc loadXjdoc()
+    protected IMutableElementDoc loadXjdoc()
             throws ParseException, IOException {
         if (!docFile.exists())
             throw new IOException("No doc file: " + docFile);
-        IElementDoc doc = I18nTextMapDocLoader.load(new FileResource(docFile));
+        IMutableElementDoc doc = I18nTextMapDocLoader.load(new FileResource(docFile));
         return doc;
     }
 

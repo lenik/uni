@@ -152,7 +152,7 @@ public class FooType1__ts
 
         String label = property.getLabel().toString();
         String description = property.getDescription().toString();
-        String icon = property.getXjdoc().getTextTag("icon").toString();
+        String icon = property.getXjdoc().getText("icon").toString();
 
         out.print(property.getName());
         out.print(": ");
