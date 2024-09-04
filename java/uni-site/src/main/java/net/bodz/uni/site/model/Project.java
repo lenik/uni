@@ -25,7 +25,7 @@ import net.bodz.bas.std.rfc.http.ICacheControl;
 import net.bodz.bas.vcs.IVcsLogEntry;
 import net.bodz.bas.vcs.IVcsWorkingCopy;
 import net.bodz.bas.vcs.VcsLogOptions;
-import net.bodz.mda.xjdoc.model.IElementDoc;
+import net.bodz.mda.xjdoc.model.IMutableElementDoc;
 
 public class Project
         extends AbstractXjdocContent {
@@ -89,7 +89,7 @@ public class Project
     }
 
     @Override
-    protected IElementDoc loadXjdoc()
+    protected IMutableElementDoc loadXjdoc()
             throws ParseException, IOException {
         if (docFile == null)
             throw new NullPointerException("docFile");
@@ -100,7 +100,7 @@ public class Project
         } else {
             docRes = new FileResource(docFile);
         }
-        IElementDoc doc = I18nTextMapDocLoader.load(docRes);
+        IMutableElementDoc doc = I18nTextMapDocLoader.load(docRes);
         return doc;
     }
 
