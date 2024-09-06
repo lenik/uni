@@ -2,6 +2,7 @@ package net.bodz.uni.echo.server;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,16 +11,25 @@ import java.util.Map.Entry;
 
 import javax.management.MBeanServer;
 
+import jakarta.servlet.ServletContext;
+
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.LifeCycle;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+import net.bodz.bas.c.loader.ClassResource;
+import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.bas.servlet.config.FilterDescriptor;
 import net.bodz.bas.servlet.config.ServletContextConfig;
 import net.bodz.bas.servlet.config.ServletContextConfigAdapter;
@@ -29,8 +39,6 @@ import net.bodz.uni.echo.resource.IResourceProvider;
 import net.bodz.uni.echo.resource.MountableResourceProvider;
 import net.bodz.uni.echo.resource.ResourceProviders;
 import net.bodz.uni.echo.resource.UnionResourceProvider;
-
-import jakarta.servlet.ServletContext;
 
 public class EchoServer
         extends Server {
@@ -49,10 +57,9 @@ public class EchoServer
         MBeanContainer mBeanContainer = new MBeanContainer(mBeanServer);
         addBean(mBeanContainer);
 
-        List<ServerConnector> connectors = buildConnectors(config);
-        setConnectors(connectors.toArray(new ServerConnector[0]));
-
         this.config = config;
+        List<ServerConnector> connectors = buildConnectors();
+        setConnectors(connectors.toArray(new ServerConnector[0]));
 
         try {
             buildResourceProvider();
@@ -77,22 +84,55 @@ public class EchoServer
         addEventListener(new LifeCycleListener());
     }
 
-    List<ServerConnector> buildConnectors(ServletContextConfig config) {
+    List<ServerConnector> buildConnectors() {
         List<ServerConnector> connectors = new ArrayList<>();
         for (Integer port : config.getPorts()) {
+            ServerConnector httpConnector = buildHttpConnector(port);
+            connectors.add(httpConnector);
 
-            ServerConnector connector = new ServerConnector(this);
-            String hostName = config.getHostName();
-
-            if (hostName == null) {
-                // Enable both IPv4 & IPv6 on localhost.
-            } else {
-                connector.setHost(hostName);
+            if (port % 2 == 0) {
+                URLResource keyStore = ClassResource.getData(getClass(), "jks");
+                ServerConnector httpsConnector = buildHttpsConnector(port + 1, //
+                        keyStore.getURL(), "echoecho");
+                connectors.add(httpsConnector);
             }
-            connector.setPort(port);
-            connectors.add(connector);
         }
         return connectors;
+    }
+
+    ServerConnector buildHttpConnector(int port) {
+        ServerConnector connector = new ServerConnector(this);
+        String hostName = config.getHostName();
+
+        if (hostName == null) {
+            // Enable both IPv4 & IPv6 on localhost.
+        } else {
+            connector.setHost(hostName);
+        }
+        connector.setPort(port);
+        return connector;
+    }
+
+    ServerConnector buildHttpsConnector(int port, URL keyStore, String password) {
+        HttpConfiguration https = new HttpConfiguration();
+        SecureRequestCustomizer customizer = new SecureRequestCustomizer();
+        // customizer.setSniRequired(false);
+        customizer.setSniHostCheck(false);
+        // customizer.setStsMaxAge(-1);
+        // customizer.setStsIncludeSubDomains(true);
+        https.addCustomizer(customizer);
+
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setKeyStorePath(keyStore.toString());
+        sslContextFactory.setKeyStorePassword(password);
+        // sslContextFactory.setKeyManagerPassword(password);
+        sslContextFactory.setNeedClientAuth(false);
+
+        ServerConnector sslConnector = new ServerConnector(this,
+                new SslConnectionFactory(sslContextFactory, "http/1.1"), //
+                new HttpConnectionFactory(https));
+        sslConnector.setPort(port);
+        return sslConnector;
     }
 
     private void buildResourceProvider()
