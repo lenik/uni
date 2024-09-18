@@ -94,7 +94,7 @@ function main() {
 
     if [ ! -f Makefile ] && [ -x ./configure ]; then
         _log1 "Generate Makefile by autotools..."
-        if ./configure; then
+        if ./configure --prefix="$prefix"; then
             if [ -f Makefile ]; then
                 _log1 "Done."
             else
