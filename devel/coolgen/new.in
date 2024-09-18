@@ -15,7 +15,12 @@
     option    --version
 
     newtmpldir=@newtmpldir@
-    [ -d "$newtmpldir" ] || newtmpldir=newtmpl.d
+    if [ ! -d "$newtmpldir" ]; then
+        exe=$(readlink -f "$0")
+        exedir=${exe%/*}
+        newtmpldir=${exedir}/newtmpl.d
+        echo "d=$newtmpldir"
+    fi
 
     template=
     outfile=/dev/stdout
@@ -210,7 +215,7 @@ function generate() {
         outfile=/dev/stdout
     fi
 
-    cfgfile=`tempfile`
+    cfgfile=`mktemp`
     _log2 "Config Variables:"
     for k in "${!cfg[@]}"; do
         v="${cfg[$k]}"
@@ -218,7 +223,7 @@ function generate() {
         _log2 "  $k = $v."
     done
 
-    tlinked=`tempfile`
+    tlinked=`mktemp`
     header >$tlinked
     cat "$template" >>$tlinked
 

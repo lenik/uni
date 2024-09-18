@@ -22,3 +22,15 @@ install-data-hook:
 			base="$${base%.*}"; \
 			ln -snf new new-$$base; \
 		done
+
+install-debug:
+	ln -snf $$PWD/${srcdir}/new.in ${DESTDIR}${bindir}/new
+	mkdir -p ${DESTDIR}${newtmpldir}
+	rm -dr ${DESTDIR}${newtmpldir}/cocos
+	ln -snf $$PWD/${srcdir}/newtmpl.d/* ${DESTDIR}${newtmpldir}
+	cd $(DESTDIR)${bindir}; \
+		for tmpl in $(DESTDIR)${newtmpldir}/*; do \
+			base="$${tmpl##*/}"; \
+			base="$${base%.*}"; \
+			ln -snf new new-$$base; \
+		done
