@@ -43,7 +43,7 @@ onMounted(() => {
                 </Card>
             </li>
             <li>
-                <Card label="@skel01/core" icon="fab-node-js"
+                <Card label="skel01-core" icon="fab-node-js"
                     href="https://github.com/lenik/uni/tree/master/lib/libjs-skel01" version="62b6e37a6">
                     <p>Originally called the skel project, which is a quickstart web template.</p>
                     <p>It's entirely refactored as ES modules in TypeScript language. </p>

@@ -3,8 +3,8 @@ import $ from 'jquery';
 import { computed, inject, onMounted, ref } from "vue";
 import { int } from "../../../../core/src/lang/basetype";
 import { SERVER_URL } from "../lily/context";
-import Attachment from "@skel01/core/src/net/bodz/lily/entity/Attachment";
-import { beginWait, endWait } from "@skel01/core/src/skel/waitbox";
+import Attachment from "skel01-core/src/net/bodz/lily/entity/Attachment";
+import { beginWait, endWait } from "skel01-core/src/skel/waitbox";
 import "blueimp-file-upload/css/jquery.fileupload.css";
 import "blueimp-file-upload";
 
@@ -20,7 +20,7 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import Icon from "@skel01/core/src/ui/Icon.vue";
+import Icon from "skel01-core/src/ui/Icon.vue";
 
 const model = defineModel<Attachment[]>();
 

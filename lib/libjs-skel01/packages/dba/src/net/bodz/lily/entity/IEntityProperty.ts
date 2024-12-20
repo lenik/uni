@@ -1,6 +1,6 @@
-import { int } from "@skel01/core/src/lang/basetype"
-import { Validator } from "@skel01/core/src/ui/types"
-import ITypeInfo from "@skel01/core/src/lang/ITypeInfo"
+import { int } from "skel01-core/src/lang/basetype"
+import { Validator } from "skel01-core/src/ui/types"
+import ITypeInfo from "skel01-core/src/lang/ITypeInfo"
 
 export interface IEntityProperty {
 

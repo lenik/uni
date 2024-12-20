@@ -4,11 +4,11 @@ import $ from 'jquery';
 import DataTable from 'datatables.net';
 import type { Api } from 'datatables.net';
 
-import { replaceLiteralOrRegex } from '@skel01/core/src/lang/string.js';
+import { replaceLiteralOrRegex } from 'skel01-core/src/lang/string.js';
 import type { ColumnType, CreateOptions, SymbolCompileFunc } from './types';
 import { compileOnCreate, compileRender, parseOrder, parseSpecParams } from './types';
 import format from './formats';
-import ITypeInfo from '@skel01/core/src/lang/ITypeInfo';
+import ITypeInfo from 'skel01-core/src/lang/ITypeInfo';
 
 export function getColumns(table: any, options: CreateOptions): ColumnType[] {
     let $table = $(table);

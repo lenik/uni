@@ -2,10 +2,10 @@
 
 import { provide, ref } from 'vue';
 
-import ModelC from '@skel01/core/src/ui/layout/ModelC.vue';
-import SiteBar from '@skel01/core/src/ui/menu/SiteBar.vue';
-import ProjectInfo from '@skel01/core/src/ui/demo/ProjectInfo.vue';
-import Copyright from '@skel01/core/src/ui/demo/Copyright.vue';
+import ModelC from 'skel01-core/src/ui/layout/ModelC.vue';
+import SiteBar from 'skel01-core/src/ui/menu/SiteBar.vue';
+import ProjectInfo from 'skel01-core/src/ui/demo/ProjectInfo.vue';
+import Copyright from 'skel01-core/src/ui/demo/Copyright.vue';
 import { SERVER_URL } from '../src/ui/lily/context';
 import { serverUrl } from './server.config';
 

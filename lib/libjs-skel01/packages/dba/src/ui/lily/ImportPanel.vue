@@ -2,8 +2,8 @@
 import $ from 'jquery';
 import { computed, inject, onBeforeUnmount, onMounted, provide, ref } from 'vue';
 
-import type { int } from '@skel01/core/src/lang/basetype';
-import { showError } from '@skel01/core/src/logging/api';
+import type { int } from 'skel01-core/src/lang/basetype';
+import { showError } from 'skel01-core/src/logging/api';
 
 import EntityType from '../../net/bodz/lily/entity/EntityType';
 import { SERVER_URL } from './context';
@@ -23,7 +23,7 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import FieldRow, { FIELD_ROW_PROPS } from '@skel01/core/src/ui/FieldRow.vue';
+import FieldRow, { FIELD_ROW_PROPS } from 'skel01-core/src/ui/FieldRow.vue';
 
 provide(FIELD_ROW_PROPS, {
     labelWidth: '8em',

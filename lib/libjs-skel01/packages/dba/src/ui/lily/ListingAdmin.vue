@@ -2,9 +2,9 @@
 import $ from 'jquery';
 import { computed, inject, onMounted, ref } from 'vue';
 
-import type { int, long } from '@skel01/core/src/lang/basetype';
-import { wireUp } from '@skel01/core/src/lang/json';
-import { showError } from '@skel01/core/src/logging/api';
+import type { int, long } from 'skel01-core/src/lang/basetype';
+import { wireUp } from 'skel01-core/src/lang/json';
+import { showError } from 'skel01-core/src/logging/api';
 
 import EntityType from '../../net/bodz/lily/entity/EntityType';
 import { SERVER_URL } from './context';
@@ -36,7 +36,7 @@ export interface IDataView {
 </script>
 
 <script setup lang="ts">
-import Dialog from '@skel01/core/src/ui/Dialog.vue';
+import Dialog from 'skel01-core/src/ui/Dialog.vue';
 import ImportPanel from './ImportPanel.vue';
 
 const model = defineModel<IDataView>();

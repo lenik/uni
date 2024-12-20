@@ -1,6 +1,6 @@
 {
-    "name": "@skel01/core",
-    "version": "0.0.1",
+    "name": "skel01-core",
+    "version": "0.0.2",
     "type": "module",
     "main": "test/index.html",
     "scripts": {

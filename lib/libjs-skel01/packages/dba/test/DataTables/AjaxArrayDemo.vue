@@ -1,5 +1,5 @@
 <script lang="ts">
-import { INT, STRING } from '@skel01/core/src/lang/baseinfo';
+import { INT, STRING } from 'skel01-core/src/lang/baseinfo';
 
 export const title = 'Ajax with row=array';
 </script>

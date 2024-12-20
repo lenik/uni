@@ -4,9 +4,9 @@ import type { Config } from "datatables.net";
 
 import { isEqual } from 'lodash-es';
 
-import { baseName } from "@skel01/core/src/io/url";
-import { _throw, showError } from "@skel01/core/src/logging/api";
-import { derefByPath, wireUp } from "@skel01/core/src/lang/json";
+import { baseName } from "skel01-core/src/io/url";
+import { _throw, showError } from "skel01-core/src/logging/api";
+import { derefByPath, wireUp } from "skel01-core/src/lang/json";
 
 import { AjaxProtocol } from "./ajax";
 import { convertToDataRows } from './objconv';

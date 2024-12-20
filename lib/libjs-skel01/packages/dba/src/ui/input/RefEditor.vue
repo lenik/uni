@@ -3,8 +3,8 @@
 import { computed, onMounted, ref } from "vue";
 import { IdEntity } from "../../net/bodz/lily/concrete/IdEntity";
 
-import Icon from "@skel01/core/src/ui/Icon.vue";
-// import Dialog from "@skel01/core/src/ui/Dialog.vue";
+import Icon from "skel01-core/src/ui/Icon.vue";
+// import Dialog from "skel01-core/src/ui/Dialog.vue";
 
 const model = defineModel<IdEntity<any>>();
 const id = defineModel("id");

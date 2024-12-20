@@ -4,13 +4,13 @@ import $ from 'jquery';
 import { ref, onMounted, computed, inject } from "vue";
 import { Api } from "datatables.net";
 
-import { typeMap as baseTypeMap } from '@skel01/core/src/lang/baseinfo';
-import { typeMap as timeTypeMap } from '@skel01/core/src/lang/time';
-import { typeMap as basTypeMap } from '@skel01/core/src/lang/bas-info';
+import { typeMap as baseTypeMap } from 'skel01-core/src/lang/baseinfo';
+import { typeMap as timeTypeMap } from 'skel01-core/src/lang/time';
+import { typeMap as basTypeMap } from 'skel01-core/src/lang/bas-info';
 
-import { bool } from "@skel01/core/src/ui/types";
-import { baseName } from "@skel01/core/src/io/url";
-import { _throw, showError } from "@skel01/core/src/logging/api";
+import { bool } from "skel01-core/src/ui/types";
+import { baseName } from "skel01-core/src/io/url";
+import { _throw, showError } from "skel01-core/src/logging/api";
 
 import { ColumnType, DataTab, IDataTypeMap, Selection, SymbolCompileFunc } from "./types";
 import { DataTableInstance, useAjaxDataTable, useDataTable } from "./apply";

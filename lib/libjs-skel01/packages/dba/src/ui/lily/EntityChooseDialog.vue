@@ -1,8 +1,8 @@
 <script lang="ts">
 import $ from 'jquery';
 import { computed, inject, onMounted, ref } from "vue";
-import { simpleName, _throw } from "@skel01/core/src/logging/api";
-import { DialogSelectCallback } from '@skel01/core/src/ui/types';
+import { simpleName, _throw } from "skel01-core/src/logging/api";
+import { DialogSelectCallback } from 'skel01-core/src/ui/types';
 import { Selection } from '../table/types';
 import { EntityType } from '../../net/bodz/lily/entity/EntityType';
 import { SERVER_URL } from './context';
@@ -16,7 +16,7 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import Dialog from '@skel01/core/src/ui/Dialog.vue';
+import Dialog from 'skel01-core/src/ui/Dialog.vue';
 import DataTable from '../table/DataTable.vue';
 
 const model = defineModel();

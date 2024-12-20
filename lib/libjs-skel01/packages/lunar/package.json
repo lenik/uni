@@ -1,6 +1,6 @@
 {
-    "name": "@skel01/lunar",
-    "version": "1.0.0",
+    "name": "skel01-lunar",
+    "version": "0.0.2",
     "scripts": {
         "dev": " vite -c ../../vite.config.ts --host 0.0.0.0",
         "build": "run-p type-check \"build-only {@}\" --",

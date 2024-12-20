@@ -2,8 +2,8 @@
 import { computed, onMounted, ref } from "vue";
 import moment from "moment-timezone";
 
-import { Command, Status } from "@skel01/core/src/ui/types";
-import { LogEntry, logsExample, parseException } from "@skel01/core/src/logging/api";
+import { Command, Status } from "skel01-core/src/ui/types";
+import { LogEntry, logsExample, parseException } from "skel01-core/src/logging/api";
 
 import EntityType from "../../net/bodz/lily/entity/EntityType";
 import { } from "./types";
@@ -20,11 +20,11 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import CmdButtons from '@skel01/core/src/ui/CmdButtons.vue';
-import Dialog from '@skel01/core/src/ui/Dialog.vue';
-import Detachable from '@skel01/core/src/ui/layout/Detachable.vue';
-import StatusPanels from '@skel01/core/src/ui/StatusPanels.vue';
-import LogMonitor from '@skel01/core/src/ui/LogMonitor.vue';
+import CmdButtons from 'skel01-core/src/ui/CmdButtons.vue';
+import Dialog from 'skel01-core/src/ui/Dialog.vue';
+import Detachable from 'skel01-core/src/ui/layout/Detachable.vue';
+import StatusPanels from 'skel01-core/src/ui/StatusPanels.vue';
+import LogMonitor from 'skel01-core/src/ui/LogMonitor.vue';
 import DataTable from './DataTable.vue';
 
 defineOptions({

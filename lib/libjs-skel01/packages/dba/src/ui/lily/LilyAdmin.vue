@@ -8,11 +8,11 @@ import EntityType from '../../net/bodz/lily/entity/EntityType';
 import { Selection, ColumnType } from '../table/types';
 import { SERVER_URL } from './context';
 
-import { Command, Status } from '@skel01/core/src/ui/types';
-import { showError, _throw } from '@skel01/core/src/logging/api';
-import { VarMap } from '@skel01/core/src/lang/VarMap';
-import { wireUp, flatten } from '@skel01/core/src/lang/json';
-import { QueryString } from '@skel01/core/src/cgi/QueryString';
+import { Command, Status } from 'skel01-core/src/ui/types';
+import { showError, _throw } from 'skel01-core/src/logging/api';
+import { VarMap } from 'skel01-core/src/lang/VarMap';
+import { wireUp, flatten } from 'skel01-core/src/lang/json';
+import { QueryString } from 'skel01-core/src/cgi/QueryString';
 
 export interface Props {
     type: EntityType

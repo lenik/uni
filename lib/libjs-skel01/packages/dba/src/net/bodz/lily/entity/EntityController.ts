@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import { inject } from 'vue';
 
-import { wireUp } from '@skel01/core/src/lang/json';
-import { showError } from '@skel01/core/src/logging/api';
+import { wireUp } from 'skel01-core/src/lang/json';
+import { showError } from 'skel01-core/src/logging/api';
 
 import EntityType from './EntityType';
 import { SERVER_URL } from '../../../../ui/lily/context';

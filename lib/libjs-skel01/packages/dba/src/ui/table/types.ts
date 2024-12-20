@@ -1,6 +1,6 @@
 import type { Api, Config } from "datatables.net";
-import ITypeInfo from '@skel01/core/src/lang/TypeInfo';
-//import TypeInfo from '@skel01/core/src/lang/TypeInfo';
+import ITypeInfo from 'skel01-core/src/lang/TypeInfo';
+//import TypeInfo from 'skel01-core/src/lang/TypeInfo';
 
 import { row2Obj } from './objconv';
 

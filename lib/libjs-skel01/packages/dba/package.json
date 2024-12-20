@@ -1,6 +1,6 @@
 {
-    "name": "@skel01/dba",
-    "version": "1.0.0",
+    "name": "skel01-dba",
+    "version": "0.0.2",
     "main": "js/skel/main.js",
     "scripts": {
         "dev": " vite -c ../../vite.config.ts --host 0.0.0.0",
@@ -12,7 +12,7 @@
         "clean": " vite -c ../../vite.config.ts clean"
     },
     "dependencies": {
-        "@skel01/core": "workspace:^",
+        "skel01-core": "workspace:^",
         "blueimp-file-upload": "^10.32.0",
         "blueimp-file-upload-esm": "^10.32.0",
         "bootstrap": "^4.6.2",

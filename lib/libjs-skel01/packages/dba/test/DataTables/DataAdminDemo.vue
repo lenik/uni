@@ -2,10 +2,10 @@
 import { ref } from 'vue';
 import { convertToDataRows, objv2Tab } from '../../src/ui/table/objconv';
 import DataAdmin from '../../src/ui/table/DataAdmin.vue';
-import Dialog from '@skel01/core/src/ui/Dialog.vue';
+import Dialog from 'skel01-core/src/ui/Dialog.vue';
 
 import people from '../people-objv.js';
-import { Command } from '@skel01/core/src/ui/types';
+import { Command } from 'skel01-core/src/ui/types';
 
 export const title = 'Data Admin demo';
 </script>

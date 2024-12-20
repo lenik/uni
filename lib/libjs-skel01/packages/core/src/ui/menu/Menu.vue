@@ -8,7 +8,7 @@ export interface Props {
 </script>
 
 <script setup lang="ts">
-import Icon from "@skel01/core/src/ui/Icon.vue";
+import Icon from "skel01-core/src/ui/Icon.vue";
 
 const model = defineModel();
 

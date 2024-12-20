@@ -1,5 +1,5 @@
 
-import { baseName } from "@skel01/core/src/io/url";
+import { baseName } from "skel01-core/src/io/url";
 
 import type { ColumnType } from "./types";
 

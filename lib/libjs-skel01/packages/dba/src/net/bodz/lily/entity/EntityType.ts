@@ -1,9 +1,9 @@
-import TypeInfo from "@skel01/core/src/lang/TypeInfo";
+import TypeInfo from "skel01-core/src/lang/TypeInfo";
 import type { IEntityType } from "./IEntityType";
 import type { IEntityProperty } from "./IEntityProperty";
 import EntityProperty from "./EntityProperty";
 import type { EntityPropertyMap } from "./EntityPropertyMap";
-import type { ITypeInfo } from "@skel01/core/src/lang/ITypeInfo";
+import type { ITypeInfo } from "skel01-core/src/lang/ITypeInfo";
 
 export abstract class EntityType extends TypeInfo<any> implements IEntityType {
 

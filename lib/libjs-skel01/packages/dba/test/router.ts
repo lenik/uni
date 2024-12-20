@@ -15,7 +15,7 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [
         { path: '/', component: () => import('./Index.vue') },
-        { path: '/Project', component: () => import('@skel01/core/src/ui/demo/Project.vue') },
+        { path: '/Project', component: () => import('skel01-core/src/ui/demo/Project.vue') },
         { path: '/AjaxArrayDemo', component: () => import('./DataTables/AjaxArrayDemo.vue') },
         { path: '/AjaxObjectDemo', component: () => import('./DataTables/AjaxObjectDemo.vue') },
         { path: '/DataAdminDemo', component: () => import('./DataTables/DataAdminDemo.vue') },

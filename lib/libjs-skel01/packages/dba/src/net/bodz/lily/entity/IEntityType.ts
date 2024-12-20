@@ -1,4 +1,4 @@
-import ITypeInfo from "@skel01/core/src/lang/ITypeInfo";
+import ITypeInfo from "skel01-core/src/lang/ITypeInfo";
 import EntityProperty from "./EntityProperty";
 import EntityPropertyMap from "./EntityPropertyMap";
 

@@ -21,7 +21,7 @@ import { getColumns, getColumnsConfig, getExtrasConfig } from "./utils";
 
 import { configAjaxData } from './ajax-lily';
 import { convertToDataRows } from './objconv';
-import { _throw, showError } from '@skel01/core/src/logging/api';
+import { _throw, showError } from 'skel01-core/src/logging/api';
 
 export interface DataTableInstance {
     api: Api<any>,

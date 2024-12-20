@@ -1,9 +1,9 @@
 <script lang="ts">
 import { ref } from 'vue';
 
-import type { ViewHandles } from '@skel01/core/src/ui/layout/TabViews.vue';
-import TabViews, { getSelectedViewName } from '@skel01/core/src/ui/layout/TabViews.vue';
-import View from '@skel01/core/src/ui/layout/View.vue';
+import type { ViewHandles } from 'skel01-core/src/ui/layout/TabViews.vue';
+import TabViews, { getSelectedViewName } from 'skel01-core/src/ui/layout/TabViews.vue';
+import View from 'skel01-core/src/ui/layout/View.vue';
 
 import { links } from './router';
 

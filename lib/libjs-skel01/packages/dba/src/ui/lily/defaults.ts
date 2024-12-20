@@ -1,7 +1,7 @@
-import type { Command, Status } from '@skel01/core/src/ui/types';
-import { getDialogCmds } from '@skel01/core/src/ui/types';
+import type { Command, Status } from 'skel01-core/src/ui/types';
+import { getDialogCmds } from 'skel01-core/src/ui/types';
 
-import type { Props as FieldRowProps } from '@skel01/core/src/ui/FieldRow.vue';
+import type { Props as FieldRowProps } from 'skel01-core/src/ui/FieldRow.vue';
 
 export function getDefaultCommands(provides: any) {
     let cmds: Command[] = [];

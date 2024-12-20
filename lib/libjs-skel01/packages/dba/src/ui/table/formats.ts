@@ -1,4 +1,4 @@
-import { _throw } from "@skel01/core/src/logging/api";
+import { _throw } from "skel01-core/src/logging/api";
 
 export type FormatFunc = (data: any) => string;
 
