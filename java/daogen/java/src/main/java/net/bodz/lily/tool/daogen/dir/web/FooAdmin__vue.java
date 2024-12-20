@@ -4,7 +4,7 @@ import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.extern.ExternModules;
-import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.skel01.SkeljsModules;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 

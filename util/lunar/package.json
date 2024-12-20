@@ -14,7 +14,7 @@
     "dependencies": {
         "@eirslett/jquery-ui-esm": "1.12.1-alpha",
         "@fontsource/noto-sans-sc": "^5.0.17",
-        "@skeljs/core": "link:/home/lenik/pro/uni/lib/libjs-skeljs/packages/core",
+        "@skel01/core": "link:/home/lenik/pro/uni/lib/libjs-skel01/packages/core",
         "bootstrap": "^4.6.2",
         "clipboard": "^2.0.11",
         "datatables-tabletools": "^2.2.2",

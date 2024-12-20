@@ -2,11 +2,11 @@
 
 import { ref } from 'vue';
 
-import ModelC from '@skeljs/core/src/ui/layout/ModelC.vue';
-import SiteBar from '@skeljs/core/src/ui/menu/SiteBar.vue';
-import ProjectInfo from '@skeljs/core/src/ui/demo/ProjectInfo.vue';
-import Copyright from '@skeljs/core/src/ui/demo/Copyright.vue';
-import ImageGrid from '@skeljs/core/src/ui/demo/ImageGrid.vue';
+import ModelC from '@skel01/core/src/ui/layout/ModelC.vue';
+import SiteBar from '@skel01/core/src/ui/menu/SiteBar.vue';
+import ProjectInfo from '@skel01/core/src/ui/demo/ProjectInfo.vue';
+import Copyright from '@skel01/core/src/ui/demo/Copyright.vue';
+import ImageGrid from '@skel01/core/src/ui/demo/ImageGrid.vue';
 import Main from './Main.vue';
 
 const stat = {

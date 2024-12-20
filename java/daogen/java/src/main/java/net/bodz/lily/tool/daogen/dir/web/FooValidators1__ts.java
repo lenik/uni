@@ -5,7 +5,7 @@ import java.lang.reflect.TypeVariable;
 
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.skel01.SkeljsModules;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanTypeProvider;

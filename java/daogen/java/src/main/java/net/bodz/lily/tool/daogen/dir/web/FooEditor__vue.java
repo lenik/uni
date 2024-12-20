@@ -24,7 +24,7 @@ import net.bodz.bas.esm.EsmName;
 import net.bodz.bas.esm.EsmSource;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.extern.ExternModules;
-import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.skel01.SkeljsModules;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.bean.DetailLevel;

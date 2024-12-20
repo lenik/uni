@@ -1,11 +1,11 @@
 <script lang="ts">
 import { computed, onMounted, ref } from "vue";
 import moment from 'moment-timezone';
-import LocalDate from "@skeljs/core/src/lang/time/LocalDate";
-import LunarDate from "@skeljs/core/src/lang/time/LunarDate";
+import LocalDate from "@skel01/core/src/lang/time/LocalDate";
+import LunarDate from "@skel01/core/src/lang/time/LunarDate";
 
-import FieldRow from "@skeljs/core/src/ui/FieldRow.vue";
-import CmdButton from "@skeljs/core/src/ui/CmdButton.vue";
+import FieldRow from "@skel01/core/src/ui/FieldRow.vue";
+import CmdButton from "@skel01/core/src/ui/CmdButton.vue";
 
 export interface Props {
 }

@@ -7,7 +7,7 @@ import net.bodz.bas.code.util.Attrs;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.skel01.SkeljsModules;
 import net.bodz.bas.esm.util.TsCodeStyle;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;

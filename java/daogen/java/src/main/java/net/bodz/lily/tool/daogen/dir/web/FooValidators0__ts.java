@@ -2,7 +2,7 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.skel01.SkeljsModules;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;

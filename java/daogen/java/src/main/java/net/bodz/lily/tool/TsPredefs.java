@@ -9,7 +9,7 @@ import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.type.IndexedTypes;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.esm.skeljs.SkeljsModules;
+import net.bodz.bas.esm.skel01.SkeljsModules;
 import net.bodz.bas.esm.util.TsTemplates;
 import net.bodz.bas.esm.util.TsTypeResolver;
 import net.bodz.bas.io.BCharOut;
