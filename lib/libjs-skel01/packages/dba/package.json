@@ -1,6 +1,6 @@
 {
     "name": "skel01-dba",
-    "version": "0.0.2",
+    "version": "0.0.4",
     "main": "js/skel/main.js",
     "scripts": {
         "dev": " vite -c ../../vite.config.ts --host 0.0.0.0",
