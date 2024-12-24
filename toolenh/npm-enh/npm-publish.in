@@ -1,0 +1,288 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=npm publish with version management}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib
+    import cliboot
+    import strfn
+    
+    option -n --no-publish      "don't publish to npm repository"
+    option -c --commit          "commit version changes in package.json"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_publish=1
+    opt_commit=0
+    
+    declare -A vermap
+
+function setopt() {
+    case "$1" in
+        -n|--no-publish)
+            opt_publish=0;;
+        -c|--commit)
+            opt_commit=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ "$opt_commit" = 1 ]; then
+        git diff --quiet ||
+            quit "working copy isn't clean, please commit before running this tool."
+    fi
+    
+    local dirs=(.)
+    local dir
+
+    if [ $# != 0 ]; then
+        dirs=("$@")
+    fi
+    
+    for dir in "${dirs[@]}"; do
+        local full="$(readlink -f "$dir")"
+        _log1 "publish $full"
+        publish "$full"
+    done
+    
+    for dir in "${dirs[@]}"; do
+        _log1 "update version field in $dir/package.json"
+        update_version_field "$dir/package.json"
+    done
+}
+
+function publish() {
+    local dir="$1"
+    
+    for_parents "$dir" load_ver
+    dump_vers
+    
+    _log1 "replace workspace:^ to actual version numbers"
+    json_subst vermap "$dir/package.json" "$dir/package.json.bak"
+    
+    state=
+    if [ "$opt_publish" = 1 ]; then
+        cur=$( nrm current )
+        cur=${cur#You are using }
+        cur=${cur% registry.}
+        _log2 "current registry $cur, switch to npm."
+        nrm use npm
+        _log1 "npm publish..."
+        ( cd "$dir"; npm publish )
+        state=$?
+        _log2 "restore to registry $cur."
+        nrm use $cur
+    fi
+    
+    _log1 "restore to workspace:^"
+    #git checkout .
+    mv "$dir/package.json.bak" "$dir/package.json"
+    
+    if [ "$state" != 0 ]; then
+        quit "error publish. aborted"
+    fi
+}
+
+function update_version_field() {
+    local json="$1"
+    
+    #increase version numbers
+    ver=$( jq -r .version "$json" )
+    suffix=${ver##*.}
+    (( suffix++ ))
+    new_ver=${ver%.*}.$suffix
+    
+    _log1 "increase version to $new_ver"
+    declare -A edits
+    edits[version]=$new_ver
+    json_subst edits "$json"
+    
+    if [ "$opt_commit" = 1 ]; then
+        name=${PWD##*/}
+        git add "$json"
+        git commit -m "$name: version $ver has been published to npm repository."
+    fi
+}
+
+function load_ver() {
+    local dir="$1"
+    local json="$dir/package.json"
+    local line
+    local name ver ws
+    if [ -f "$json" ]; then
+        _log2 "Load $json"
+        
+        n=0
+        while read line; do
+            (( n++ ))
+            case "$n" in
+                1)
+                    name=$line
+                    local last=${vermap[$name]}
+                    if [ -n "$last" ]; then
+                        _log2 "    already loaded $json"
+                        return 0
+                    fi
+                    ;;
+                2)
+                    ver=$line
+                    vermap[$name]="^$ver"
+                    _log2 "ver $name=$ver"
+                    ;;
+                *)
+                    ws="$line"
+                    _log2 "ws $ws"
+                    if [ "$ws" != "${ws%/\*}" ]; then
+                        local par="${ws%/\*}"
+                        for sub in "$dir/$par"/*; do
+                            load_ver $sub
+                        done
+                    else
+                        load_ver $dir/$ws
+                    fi
+                    ;;
+            esac
+        done < <( jq -r .name,.version,.workspaces[]? "$json" )
+    fi
+}
+
+function dump_vers() {
+    local k v
+    for k in "${!vermap[@]}"; do
+        v=${vermap[$k]}
+        echo "$k => $v"
+    done
+}
+
+function for_parents() {
+    local dir="$1"
+    #local check_root="$2"
+    #shift
+    shift
+    
+    if [ "${dir:0:1}" != '/' ]; then
+        quit "dir isn't absolute: $dir"
+    fi
+    
+    #if [ -n "$check_root" ] && ! $check_root "$dir"; then
+        local parent="${dir%/*}"
+        if [ -n "$parent" ]; then
+            for_parents "$parent" "$@"
+        fi
+    #fi
+    
+    local cmd="$1"
+    shift
+    "$cmd" "$dir" "$@"
+}
+
+function json_subst_files() {
+    local map_ref="$1"
+    shift
+    local file
+    for file in "$@"; do
+        json_subst "$map_ref" "$file" "$file.bak"
+    done
+}
+
+function json_subst() {
+    declare -n map="$1"
+    local file="$2"
+    local file_bak="$3"
+    
+    local k v
+    local newfile=$(mktemp)
+    while IFS='%' read -r line; do
+        
+        k=${line%%\":*}
+        #k=${k%%\" :*}
+
+        #declare -a words="($line)"
+        ## for w in "${words[@]}"; do; echo -E "  - $w"; done; echo
+        #k=${words[0]}
+        #k=${k%:}
+        if [ "${k/:/}" != "$k" ]; then
+            echo "$line"
+            continue
+        fi
+        
+        IFS=':' read -r k v < <(echo "$line")
+        
+        k_r=
+        k_l=
+        if [ "$k" != "${k/\"/}" ]; then
+            k_r="\"${k##*\"}"
+            k="${k%\"*}"
+            k_l="${k%%\"*}\""
+            k="${k#*\"}"
+        fi
+
+        if [ "$v" != "${v/\"/}" ]; then
+            v_r="\"${v##*\"}"
+            v="${v%\"*}"
+            v_l="${v%%\"*}\""
+            v="${v#*\"}"
+        else
+            v_r=
+            v_l=
+            while [ -n "$v" ]; do
+                if [ "$v" != "${v%,}" ]; then
+                    v_r=",$v_r"
+                    v="${v%,}"
+                    continue
+                fi
+                if [ "$v" != "${v% }" ]; then
+                    v_r=" $v_r"
+                    v="${v% }"
+                    continue
+                fi
+                if [ "$v" != "${v# }" ]; then
+                    v_l="$v_l "
+                    v="${v# }"
+                    continue
+                fi
+                break
+            done
+        fi
+        
+        if [ -n "$v" ]; then
+            subst=${map[$k]}
+            if [ -n "$subst" ]; then
+                v="$subst"
+            fi
+            
+            echo "$k_l$k$k_r:$v_l$v$v_r"
+        else
+            echo "$k_l$k$k_r"
+        fi
+    done <"$file" >$newfile
+    
+    if [ -n "$file_bak" ]; then
+        mv "$file" "$file_bak" || quit "can't rename $file to $file_bak."
+    fi
+    
+    mv $newfile "$file"
+}
+
+function jq() {
+    if [ -z "$JQ" ]; then
+        JQ=$( which jq )
+    fi
+    
+    $JQ --indent 4 "$@"
+}
+
+boot "$@"
