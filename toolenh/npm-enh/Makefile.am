@@ -15,3 +15,7 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
+
+install-debug:
+	sudo ln -snf $$PWD/npm-publish.in $(DESTDIR)${bindir}/npm-publish
+
