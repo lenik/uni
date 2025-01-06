@@ -1,4 +1,6 @@
 <script lang="ts">
+import { computed, onMounted, ref } from "vue";
+
 import type { CounterTypes, CounterValues } from '../misc/Counters';
 import Counters from '../misc/Counters.vue';
 
@@ -34,18 +36,23 @@ const defaultCounterTypes: CounterTypes = {
         }
     }
 };
+
+const defaultCounters: CounterValues = {
+    views: 0,
+    stars: 0,
+}
 </script>
 
 <script setup lang="ts">
 const props = withDefaults(defineProps<Props>(), {
     label: 'Project',
     description: 'A small description of the project.',
-    counterTypes: defaultCounterTypes,
-    counters: {
-        views: 0,
-        stars: 0,
-    }
+    // counterTypes: defaultCounterTypes,
+    // counters: defaultCounters,
 });
+
+const _counterTypes = computed(() => props.counterTypes || defaultCounterTypes);
+const _counters = computed(() => props.counters || defaultCounters);
 
 </script>
 
@@ -58,7 +65,7 @@ const props = withDefaults(defineProps<Props>(), {
             </slot>
         </div>
         <div k="stats">
-            <Counters :types="counterTypes" :values="counters"></Counters>
+            <Counters :types="_counterTypes" :values="_counters"></Counters>
         </div>
         <slot></slot>
     </div>

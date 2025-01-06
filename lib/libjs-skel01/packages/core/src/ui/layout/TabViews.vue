@@ -50,14 +50,14 @@ export interface Props {
 const view = defineModel<string>('view');
 const props = defineProps<Props>();
 const emit = defineEmits<{
-    viewChanged: [newView: string, oldView: string]
+    viewChanged: [newView: string, oldView?: string]
 }>();
 
 </script>
 
 <template>
     <div class="tab-view-container flex-column full-size">
-        <NavBar :items="views" v-model="view" @view-changed="(n, o) => $emit('viewChanged', n, o)" />
+        <NavBar :items="views" v-model="view" @view-changed="(n: string, o?: string) => $emit('viewChanged', n, o)" />
         <div class="stack flex-1">
             <slot></slot>
         </div>

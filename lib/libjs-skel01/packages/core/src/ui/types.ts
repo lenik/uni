@@ -239,7 +239,7 @@ export type DialogSelectCallback =
 export type AsyncDialogSelectCallback =
     (value: any, event: Event) => Promise<boolean>;
 
-const defaultDialogCmds = {
+const defaultDialogCmds: any = {
     ok: {
         pos: 'right', name: 'select',
         icon: 'fa-check', label: 'OK',
@@ -274,7 +274,7 @@ export interface CommandBehaviorMap {
 export function getDialogCmds(map: CommandBehaviorMap): Command[] {
     let cmds: Command[] = [];
     for (let name in map) {
-        let def = defaultDialogCmds[name];
+        let def = (defaultDialogCmds as any)[name];
         if (def == null)
             throw "invalid dialog command name: " + name;
         let cmd = { ...def }; // copy

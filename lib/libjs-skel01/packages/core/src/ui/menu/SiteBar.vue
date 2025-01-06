@@ -46,7 +46,7 @@ const model = defineModel<string>();
 const props = withDefaults(defineProps<Props>(), {
     title: 'Example App',
     icon: 'far-gift',
-    menu: defaultMenu,
+    // menu: defaultMenu,
     showAbout: false,
     showProject: true,
 });
@@ -55,15 +55,16 @@ const emit = defineEmits<{
     error: [message: string]
 }>();
 
-var menu2 = computed(() => {
-    let sel = {
+const menu2 = computed(() => {
+    let menu = props.menu || defaultMenu;
+    let sel: any = {
         about: props.showAbout,
         project: props.showProject,
     };
-    return props.menu.filter(a => sel[a.name] == true);
+    return menu.filter((a: Command) => sel[a.name] == true);
 });
 
-var rootElement = ref();
+const rootElement = ref();
 
 onMounted(() => {
 });
@@ -112,7 +113,7 @@ function login() {
                 <Link :href="home">{{ title }}</Link>
             </li>
             <li v-for="(item, i) in menu2" :key="i" :title="item.tooltip">
-                <Link target="blank" :href="item.href" @click="(e) => clickCommand(item, e)">
+                <Link target="blank" :href="item.href" @click="(e: Event) => clickCommand(item, e)">
                 <Icon :name="item.icon" v-if="item.icon != null" />
                 <span class="label"> {{ item.label || ucfirst(item.name) }} </span>
                 </Link>
@@ -122,10 +123,10 @@ function login() {
             <ul class="menu right">
                 <li><a><i class="fa fa-user" @click="login()"></i></a>
                 </li>
-                <li><a><i class="fa fa-share-alt" @mouseenter="(e) => showContextMenu(e)"
-                            @mouseleave="(e) => hideContextMenu(e)"></i> </a>
-                    <ShareMenu @mouseenter="(e) => showContextMenu(e)"
-                        @mouseleave="(e) => hideContextMenu(e)" />
+                <li><a><i class="fa fa-share-alt" @mouseenter="(e: Event) => showContextMenu(e)"
+                            @mouseleave="(e: Event) => hideContextMenu(e)"></i> </a>
+                    <ShareMenu @mouseenter="(e: Event) => showContextMenu(e)"
+                        @mouseleave="(e: Event) => hideContextMenu(e)" />
                 </li>
             </ul>
         </div>
@@ -134,6 +135,7 @@ function login() {
 </template>
 
 <style></style>
+
 <style lang="scss" scoped>
 .sitebar {
     display: flex;

@@ -22,7 +22,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    cmd: { name: 'unspecified' },
+    // cmd: { name: 'unspecified' } as Command,
     tagName: 'div',
     showIcon: true,
     showLabel: true,
@@ -33,13 +33,15 @@ const withIcon = computed(() => bool(props.showIcon));
 const withLabel = computed(() => bool(props.showLabel));
 const withBorder = computed(() => bool(props.showBorder));
 
-const button = computed(() => props.cmd.type == null || props.cmd.type == 'button');
-const enabled = computed(() => props.cmd.enabled != false);
-const disabled = computed(() => props.cmd.enabled == false);
+const _cmd = computed(() => props.cmd || { name: 'unspecified' });
 
-const toggler = computed(() => props.cmd.type == 'toggle');
-const checked = computed(() => (props.cmd.type == 'toggle' && props.cmd.checked));
-const unchecked = computed(() => (props.cmd.type == 'toggle' && !props.cmd.checked));
+const button = computed(() => _cmd.value.type == null || _cmd.value.type == 'button');
+const enabled = computed(() => _cmd.value.enabled != false);
+const disabled = computed(() => _cmd.value.enabled == false);
+
+const toggler = computed(() => _cmd.value.type == 'toggle');
+const checked = computed(() => (_cmd.value.type == 'toggle' && _cmd.value.checked));
+const unchecked = computed(() => (_cmd.value.type == 'toggle' && !_cmd.value.checked));
 
 interface Emits {
     (e: 'created', event: Event): void
@@ -55,11 +57,11 @@ onMounted(() => {
 });
 
 function onclick(event: Event) {
-    let cmd = props.cmd;
+    let cmd = _cmd.value;
     switch (cmd.type) {
         case 'toggle':
-            props.cmd.checked = !props.cmd.checked;
-            if (props.cmd.checked)
+            cmd.checked = !cmd.checked;
+            if (cmd.checked)
                 emit('checked', event);
             else
                 emit('unchecked', event);
@@ -83,17 +85,17 @@ defineExpose({
 <template>
     <component :is="tagName" ref="rootElement" class="cmd-button">
         <div class="btn-with-extras">
-            <component :is="cmd.href != null ? 'a' : 'div'"
+            <component :is="_cmd.href != null ? 'a' : 'div'"
                 :class="{ withIcon, withLabel, withBorder, button, toggler, enabled, disabled, checked, unchecked }"
-                :name="cmd.name" :href="cmd.href" :title="cmd.tooltip" @click="(e) => onclick(e)">
+                :name="_cmd.name" :href="_cmd.href" :title="_cmd.tooltip" @click="(e: any) => onclick(e)">
                 <div class="hover"></div>
-                <Icon :name="icon || cmd.icon" v-if="withIcon && (icon != null || cmd.icon != null)" />
+                <Icon :name="(icon || _cmd.icon)!" v-if="withIcon && (icon != null || _cmd.icon != null)" />
                 <span class="sep" v-if="withIcon && withLabel"></span>
-                <span class="label" v-if="withLabel">{{ label || cmd.label || cmd.name }}</span>
+                <span class="label" v-if="withLabel">{{ label || _cmd.label || _cmd.name }}</span>
             </component>
-            <Icon name="fa-ques" v-if="cmd.description != null" />
+            <Icon name="fa-ques" v-if="_cmd.description != null" />
         </div>
-        <div class="description" v-if="cmd.description != null"> {{ cmd.description }} </div>
+        <div class="description" v-if="_cmd.description != null"> {{ _cmd.description }} </div>
     </component>
 </template>
 

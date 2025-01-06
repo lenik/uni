@@ -7,11 +7,11 @@ export interface CounterType {
     cformat?: (vals: CounterValues) => string | undefined
 }
 
-export interface CounterTypes {
+export type CounterTypes = {
     [key: string]: CounterType
 }
 
-export interface CounterValues {
+export type CounterValues = {
     [key: string]: number
 }
 
