@@ -1,10 +1,11 @@
+import type { Moment } from "moment-timezone";
+import moment from "moment-timezone";
 import MomentWrapper, { ZoneId, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
 import { ISO_ZONED_DATE_TIME, UI_DATE_TIME } from "./formats";
-import moment from "moment-timezone";
 
-export class ZonedDateTimeType extends MomentWrapperType<ZonedDateTime>{
+export class ZonedDateTimeType extends MomentWrapperType<ZonedDateTime> {
 
     get name() { return "ZonedDateTime"; }
     get icon() { return "far-clock"; }
@@ -28,6 +29,10 @@ export class ZonedDateTime extends MomentWrapper {
                 this.utcOffset = tz;
             else
                 this.tz = tz;
+    }
+
+    clone(m?: Moment) {
+        return new ZonedDateTime(this.tz, m == null ? this.momentConst : m, this.defaultFormat);
     }
 
     format(fmt?: string | undefined): string {
@@ -76,7 +81,7 @@ export class ZonedDateTime extends MomentWrapper {
         return new ZonedDateTime(tz);
     }
 
-    static of(year: number, month: number, dayOfMonth: number, hour: number, minute: number, second, nanoSecond, tz: ZoneId) {
+    static of(year: number, month: number, dayOfMonth: number, hour: number, minute: number, second: number, nanoSecond: number, tz: ZoneId) {
         let o = new ZonedDateTime(tz, 0);
         o.year = year;
         o.month = month;

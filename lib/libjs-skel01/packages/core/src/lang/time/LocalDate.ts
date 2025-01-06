@@ -1,9 +1,10 @@
+import type { Moment } from "moment-timezone";
 import MomentWrapper from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
 import { ISO_LOCAL_DATE, UI_DATE, YYMMDD, YYYYMMDD, YY_MM_DD } from "./formats";
 
-export class LocalDateType extends MomentWrapperType<LocalDate>{
+export class LocalDateType extends MomentWrapperType<LocalDate> {
 
     get name() { return "LocalDate"; }
     get icon() { return "far-clock"; }
@@ -22,6 +23,10 @@ export class LocalDate extends MomentWrapper {
 
     constructor(inp?: moment.MomentInput, format?: string) {
         super(format || LocalDate.DEFAULT_FORMAT, inp);
+    }
+
+    clone(m?: Moment) {
+        return new LocalDate(m == null ? this.momentConst : m, this.defaultFormat);
     }
 
     static parse(s: string, fmt = LocalDate.DEFAULT_FORMAT) {

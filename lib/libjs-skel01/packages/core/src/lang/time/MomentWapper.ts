@@ -11,14 +11,23 @@ export class MomentWrapper {
 
     constructor(defaultFormat: string, inp?: moment.MomentInput) {
         this.defaultFormat = defaultFormat;
-        if (inp instanceof moment) {
-            this._moment = inp as Moment;
-        } else if (typeof inp == 'string') {
-            // this._moment = moment(inp, defaultFormat);
-            this.parse(inp as string);
+        if (inp != null) {
+            if (inp instanceof moment) {
+                this._moment = inp as Moment;
+            } else if (typeof inp == 'string') {
+                this._moment = moment(); // uninit warning
+                // this._moment = moment(inp, defaultFormat);
+                this.parse(inp as string);
+            } else {
+                this._moment = moment(inp, defaultFormat);
+            }
         } else {
             this._moment = moment(inp);
         }
+    }
+
+    clone(m?: Moment) {
+        return new MomentWrapper(this.defaultFormat, m == null ? this._moment : m);
     }
 
     get moment(): Moment {
@@ -199,19 +208,22 @@ export class MomentWrapper {
     get isLeapYear() { return this.momentConst.isLeapYear() }
     get isLeapMonth() { return this.momentConst.isLeapYear() && this.month1 == 2 }
 
+    altTz(timezone: string, keepLocalTime?: boolean) {
+        return this.clone(this.momentMutable.tz(timezone, keepLocalTime));
+    }
+
     get tz() { return this.momentConst.tz() }
     set tz(val: ZoneRegion | undefined) { if (val != null) this.momentMutable.tz(val) }
-
     get tzKeepLocal() { return this.momentConst.tz() }
     set tzKeepLocal(val: ZoneRegion | undefined) { if (val != null) this.momentMutable.tz(val, true) }
 
     get utcOffset() { return this.momentConst.utcOffset() }
     set utcOffset(val: ZoneOffset) { this.momentMutable.utcOffset(val); }
-    parseUtcOffset(val: ZoneOffset | string) { this.momentMutable.utcOffset(val); }
+    parseUtcOffset(val: ZoneOffset | string) { return this.momentMutable.utcOffset(val); }
 
     get utcOffsetKeepLocal() { return this.momentConst.utcOffset() }
     set utcOffsetKeepLocal(val: ZoneOffset) { this.momentMutable.utcOffset(val, true); }
-    parseUtcOffsetKeepLocal(val: ZoneOffset | string) { this.momentMutable.utcOffset(val, true); }
+    parseUtcOffsetKeepLocal(val: ZoneOffset | string) { return this.momentMutable.utcOffset(val, true); }
 
     get isUtcOffset() { return this.momentConst.isUtcOffset() }
     get isDST() { return this.momentConst.isDST() }

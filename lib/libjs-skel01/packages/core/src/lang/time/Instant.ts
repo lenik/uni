@@ -1,7 +1,8 @@
+import type { Moment } from "moment-timezone";
 import MomentWrapper from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 
-export class InstantType extends MomentWrapperType<Instant>{
+export class InstantType extends MomentWrapperType<Instant> {
 
     get name() { return "Instant"; }
     get icon() { return "far-clock"; }
@@ -23,6 +24,10 @@ export class Instant extends MomentWrapper {
 
     constructor(format: string, inp?: moment.MomentInput) {
         super(format, inp);
+    }
+
+    clone(m?: Moment) {
+        return new Instant(this.defaultFormat, m == null ? this.momentConst : m);
     }
 
     static now() {

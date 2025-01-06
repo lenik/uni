@@ -1,9 +1,10 @@
+import type { Moment } from "moment-timezone";
 import MomentWrapper, { ZoneOffset, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
 import { ISO_OFFSET_DATE_TIME, UI_OFFSET_DATE_TIME } from "./formats";
 
-export class OffsetDateTimeType extends MomentWrapperType<OffsetDateTime>{
+export class OffsetDateTimeType extends MomentWrapperType<OffsetDateTime> {
 
     get name() { return "OffsetDateTime"; }
     get icon() { return "far-clock"; }
@@ -24,6 +25,10 @@ export class OffsetDateTime extends MomentWrapper {
         super(format || OffsetDateTime.DEFAULT_FORMAT, inp);
         if (offset != null)
             this.utcOffset = offset;
+    }
+
+    clone(m?: Moment) {
+        return new OffsetDateTime(this.utcOffset, m == null ? this.momentConst : m, this.defaultFormat);
     }
 
     static parse(s: string, offset?: ZoneOffset, format = OffsetDateTime.DEFAULT_FORMAT) {

@@ -1,3 +1,4 @@
+import type { Moment } from "moment-timezone";
 import MomentWrapper from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
@@ -22,6 +23,10 @@ export class LocalTime extends MomentWrapper {
 
     constructor(inp?: moment.MomentInput, format?: string) {
         super(format || LocalTime.DEFAULT_FORMAT, inp);
+    }
+
+    clone(m?: Moment) {
+        return new LocalTime(m == null ? this.momentConst : m, this.defaultFormat);
     }
 
     static parse(s: string, format = LocalTime.DEFAULT_FORMAT) {

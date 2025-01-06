@@ -1,3 +1,4 @@
+import type { Moment } from "moment-timezone";
 import MomentWrapper, { ZoneOffset, defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
@@ -24,6 +25,10 @@ export class OffsetTime extends MomentWrapper {
         super(format || OffsetTime.DEFAULT_FORMAT, inp);
         if (offset != null)
             this.utcOffset = offset;
+    }
+
+    clone(m?: Moment) {
+        return new OffsetTime(this.utcOffset, m == null ? this.momentConst : m, this.defaultFormat);
     }
 
     static parse(s: string, offset: ZoneOffset, format = OffsetTime.DEFAULT_FORMAT) {
