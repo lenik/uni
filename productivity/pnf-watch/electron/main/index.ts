@@ -1,122 +1,227 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
-import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
-import os from 'node:os'
+import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-const require = createRequire(import.meta.url)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+import { setupDefaultWindow } from './defaults';
 
-// The built directory structure
-//
-// ├─┬ dist-electron
-// │ ├─┬ main
-// │ │ └── index.js    > Electron-Main
-// │ └─┬ preload
-// │   └── index.mjs   > Preload-Scripts
-// ├─┬ dist
-// │ └── index.html    > Electron-Renderer
-//
-process.env.APP_ROOT = path.join(__dirname, '../..')
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
-export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
-export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
+process.env.APP_ROOT = path.join(__dirname, '../..');
+
+export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron');
+export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist');
+export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
-  ? path.join(process.env.APP_ROOT, 'public')
-  : RENDERER_DIST
+    ? path.join(process.env.APP_ROOT, 'public')
+    : RENDERER_DIST;
 
-// Disable GPU Acceleration for Windows 7
-if (os.release().startsWith('6.1')) app.disableHardwareAcceleration()
+const preload = path.join(__dirname, '../preload/index.mjs');
 
-// Set application name for Windows 10+ notifications
-if (process.platform === 'win32') app.setAppUserModelId(app.getName())
-
-if (!app.requestSingleInstanceLock()) {
-  app.quit()
-  process.exit(0)
-}
-
-let win: BrowserWindow | null = null
-const preload = path.join(__dirname, '../preload/index.mjs')
-const indexHtml = path.join(RENDERER_DIST, './index.html')
+const homeView = 'src/index.html';
+const indexHtml = path.join(RENDERER_DIST, './' + homeView);
 
 async function createWindow() {
-  win = new BrowserWindow({
-    title: 'Main window',
-    icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
-    webPreferences: {
-      preload,
-      // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
-      // nodeIntegration: true,
 
-      // Consider using contextBridge.exposeInMainWorld
-      // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
-      // contextIsolation: false,
-    },
-  })
+    let mainWindow = new BrowserWindow({
+        title: 'Main window',
+        icon: path.join(process.env.VITE_PUBLIC!, 'icon.png'),
 
-  if (VITE_DEV_SERVER_URL) { // #298
-    console.log('loadURL', VITE_DEV_SERVER_URL);
-    
-    win.loadURL(VITE_DEV_SERVER_URL)
-    // Open devTool if the app is not packaged
-    win.webContents.openDevTools()
-  } else {
-    win.loadFile(indexHtml)
-  }
+        autoHideMenuBar: true,
+        // frame: false,
+        // transparent: true,  // No shadow, transparent background
 
-  // Test actively push message to the Electron-Renderer
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString())
-  })
+        webPreferences: {
+            preload,
+            // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
+            // nodeIntegration: true,
 
-  // Make all links open with the browser, not with the application
-  win.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:')) shell.openExternal(url)
-    return { action: 'deny' }
-  })
-  // win.webContents.on('will-navigate', (event, url) => { }) #344
+            // Consider using contextBridge.exposeInMainWorld
+            // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
+            // contextIsolation: false,
+        },
+    });
+
+
+    const isMac = process.platform === 'darwin'
+
+    let view = mainWindow.webContents;
+    let history = view.navigationHistory;
+
+    const template: any = [
+        // { role: 'appMenu' }
+        ...(isMac
+            ? [{
+                label: app.name,
+                submenu: [
+                    { role: 'about' },
+                    { type: 'separator' },
+                    { role: 'services' },
+                    { type: 'separator' },
+                    { role: 'hide' },
+                    { role: 'hideOthers' },
+                    { role: 'unhide' },
+                    { type: 'separator' },
+                    { role: 'quit' }
+                ]
+            }]
+            : []),
+        // { role: 'fileMenu' }
+        {
+            label: 'File',
+            submenu: [
+                isMac ? { role: 'close' } : { role: 'quit' }
+            ]
+        },
+        // { role: 'editMenu' }
+        {
+            label: 'Edit',
+            submenu: [
+                { role: 'undo' },
+                { role: 'redo' },
+                { type: 'separator' },
+                { role: 'cut' },
+                { role: 'copy' },
+                { role: 'paste' },
+                ...(isMac
+                    ? [
+                        { role: 'pasteAndMatchStyle' },
+                        { role: 'delete' },
+                        { role: 'selectAll' },
+                        { type: 'separator' },
+                        {
+                            label: 'Speech',
+                            submenu: [
+                                { role: 'startSpeaking' },
+                                { role: 'stopSpeaking' }
+                            ]
+                        }
+                    ]
+                    : [
+                        { role: 'delete' },
+                        { type: 'separator' },
+                        { role: 'selectAll' }
+                    ])
+            ]
+        },
+        // { role: 'viewMenu' }
+        {
+            label: 'View',
+            submenu: [
+
+                {
+                    label: 'Back',
+                    accelerator: 'Alt+Left', // Optional: keyboard shortcut
+                    click() {
+                        if (history.canGoBack()) {
+                            history.goBack();
+                        }
+                    }
+                },
+                {
+                    label: 'Forward',
+                    accelerator: 'Alt+Right', // Optional: keyboard shortcut
+                    click() {
+                        if (history.canGoForward()) {
+                            history.goForward();
+                        }
+                    }
+                },
+
+                { role: 'reload' },
+                { role: 'forceReload' },
+                { role: 'toggleDevTools' },
+                { type: 'separator' },
+                { role: 'resetZoom' },
+                { role: 'zoomIn' },
+                { role: 'zoomOut' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' }
+            ]
+        },
+        // { role: 'windowMenu' }
+        {
+            label: 'Window',
+            submenu: [
+                { role: 'minimize' },
+                { role: 'zoom' },
+                ...(isMac
+                    ? [
+                        { type: 'separator' },
+                        { role: 'front' },
+                        { type: 'separator' },
+                        { role: 'window' }
+                    ]
+                    : [
+                        { role: 'close' }
+                    ])
+            ]
+        },
+
+        {
+            role: 'help',
+            submenu: [
+                {
+                    label: 'Learn More',
+                    click: async () => {
+                        const { shell } = require('electron')
+                        await shell.openExternal('https://electronjs.org')
+                    }
+                }
+            ]
+        }
+    ];
+
+    let menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+
+    ipcMain.handle('nav:canGoBack', () => history.canGoBack());
+    ipcMain.handle('nav:canGoForward', () => history.canGoForward());
+    ipcMain.handle('nav:back', () => history.goBack());
+    ipcMain.handle('nav:forward', () => { history.goForward() });
+
+    ipcMain.handle('nav:getCurrentURL', () => view.getURL());
+    ipcMain.handle('nav:getHistory', () => { return history.getAllEntries() });
+
+    view.on('did-navigate', () => { view.send('nav:updated') });
+    view.on('did-navigate-in-page', () => { view.send('nav:updated') });
+
+    if (VITE_DEV_SERVER_URL) { // #298
+        let url = VITE_DEV_SERVER_URL + homeView;
+        console.log('serverUrl', url);
+        mainWindow.loadURL(VITE_DEV_SERVER_URL + homeView);
+        // win.webContents.openDevTools();
+    } else {
+        mainWindow.loadFile(indexHtml)
+    }
+
+    return mainWindow;
 }
 
-app.whenReady().then(createWindow)
+setupDefaultWindow(createWindow);
 
-app.on('window-all-closed', () => {
-  win = null
-  if (process.platform !== 'darwin') app.quit()
-})
+ipcMain.on('set-title', (event, title) => {
+    const win = BrowserWindow.fromWebContents(event.sender)!
+    if (win == null) return;
+    win.setTitle(title);
+});
 
-app.on('second-instance', () => {
-  if (win) {
-    // Focus on the main window if the user tried to open another
-    if (win.isMinimized()) win.restore()
-    win.focus()
-  }
-})
+ipcMain.handle('getTitle', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)!
+    if (win == null) return;
+    let title = win.getTitle();
+    return title;
+});
 
-app.on('activate', () => {
-  const allWindows = BrowserWindow.getAllWindows()
-  if (allWindows.length) {
-    allWindows[0].focus()
-  } else {
-    createWindow()
-  }
-})
+ipcMain.handle('setTitle', (event, title) => {
+    const win = BrowserWindow.fromWebContents(event.sender)!
+    if (win == null) return;
+    win.setTitle(title);
+});
 
-// New window example arg: new windows url
-ipcMain.handle('open-win', (_, arg) => {
-  const childWindow = new BrowserWindow({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  })
-
-  if (VITE_DEV_SERVER_URL) {
-    childWindow.loadURL(`${VITE_DEV_SERVER_URL}#${arg}`)
-  } else {
-    childWindow.loadFile(indexHtml, { hash: arg })
-  }
-})
+ipcMain.handle('dialog:openFile', async () => {
+    let opts = {};
+    let { canceled, filePaths } = await dialog.showOpenDialog(opts);
+    if (canceled) return undefined;
+    return filePaths
+});

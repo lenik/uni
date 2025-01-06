@@ -1,9 +1,9 @@
 // @see https://www.electron.build/configuration/configuration
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "YourAppID",
-  "asar": true,
-  "productName": "YourAppName",
+  "appId": "net.bodz.pnfwatch",
+  "asar": false,
+  "productName": "PnFWatch",
   "directories": {
     "output": "release/${version}"
   },
@@ -11,6 +11,7 @@
     "dist",
     "dist-electron"
   ],
+  /*
   "mac": {
     "target": [
       "dmg"
@@ -34,10 +35,11 @@
     "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false
   },
+  */
   "linux": {
-    "target": [
-      "AppImage"
-    ],
+    "target": [], //  "AppImage" ],
+    "category": "Utility",
+    "icon": "public/icon.png",
     "artifactName": "${productName}-Linux-${version}.${ext}"
   }
 }

@@ -3,10 +3,13 @@
     "include": [
         "env.d.ts",
         "src/**/*",
-        "src/**/*.vue"
+        "src/**/*.vue",
+        "src2/**/*",
+        "src2/**/*.vue"
     ],
     "exclude": [
-        "src/**/__tests__/*"
+        "src/**/__tests__/*",
+        "src2/**/__tests__/*"
     ],
     "compilerOptions": {
         "rootDir": ".",
@@ -15,9 +18,6 @@
         "composite": true,
         "noEmit": true,
         "baseUrl": "./packages",
-        "paths": {
-        },
-        "references": [
-        ]
+        "paths": {}
     }
 }

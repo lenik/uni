@@ -1,9 +1,10 @@
 import fs from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
+import { resolve } from 'path'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-// import vueJsx from '@vitejs/plugin-vue-jsx'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import electron from 'vite-plugin-electron/simple'
 import pkg from './package.json'
 
@@ -19,9 +20,17 @@ const base = defineConfig(({ command }) => {
     const sourcemap = isServe || !!process.env.VSCODE_DEBUG;
 
     let config: any = {
+        build: {
+            rollupOptions: {
+                input: {
+                    root: resolve(__dirname, 'index.html'),
+                    src: resolve(__dirname, 'src/index.html'),
+                }
+            }
+        },
         plugins: [
             vue(),
-            // vueJsx(),
+            vueJsx(),
             electron({
                 main: {
                     // Shortcut of `build.lib.entry`
@@ -76,28 +85,34 @@ const base = defineConfig(({ command }) => {
         clearScreen: false,
     };
 
+    config.server = {
+        fs: {
+            allow: ['.'],
+            strict: false,
+        },
+    };
+
     if (process.env.VSCODE_DEBUG) {
         let url = new URL(pkg.debug.env.VITE_DEV_SERVER_URL);
+        console.log('debug.env._URL', url);
         config.server = {
             host: url.hostname,
             port: +url.port,
-            fs: {
-                // Allow serving files from one level up to the project root
-                allow: ['.', '/'],
-            },
         };
+    } else {
+        console.log('not VSCODE_DEBUG');
     }
     return config;
 })
 
 const build = defineConfig(({ command }) => {
     return {
-        root: './src',
+        root: './',
         base: './',
         build: {
             target: command === 'serve' ? 'esnext' : 'es2015',
             // minify: command === 'serve' ? false : 'terser',
-            outDir: '../dist',
+            outDir: 'dist',
             emptyOutDir: true,
         }
     }
@@ -106,5 +121,5 @@ const build = defineConfig(({ command }) => {
 // https://vitejs.dev/config/
 export default defineConfig(env => ({
     ...base(env),
-    // ...build(env),
+    //...build(env),
 }))

@@ -1,17 +1,26 @@
 {
     "name": "pnf-watch",
     "version": "1.0.0",
-    "description": "PnF watch",
-    "license": "MIT",
     "main": "./dist-electron/main/index.js",
+    "description": "PnF watch",
+    "author": "Lenik <lenik@bodz.net>",
+    "license": "MIT",
+    "keywords": [
+        "electron",
+        "rollup",
+        "vite",
+        "vue3",
+        "vue"
+    ],
     "debug": {
         "env": {
             "VITE_DEV_SERVER_URL": "http://127.0.0.1:3344/"
         }
     },
+    "type": "module",
     "scripts": {
         "dev": " vite -c ./vite.config.ts --host 0.0.0.0",
-        "build": "run-p type-check \"build-only {@}\" --",
+        "build": "run-p type-check \"build-only {@}\" -- && electron-builder",
         "preview": "vite -c ./vite.config.ts preview",
         "test:unit": "vitest -c ./vitest.config.ts",
         "build-only": "vite -c ./vite.config.ts build",
@@ -51,10 +60,9 @@
         "jquery-ui-dist": "^1.13.2",
         "lodash-es": "^4.17.21",
         "moment": "^2.30.1",
-        "npm": "^10.3.0",
         "pinia": "^2.1.7",
-        "skel01-core": "^0.0.3",
-        "skel01-dba": "^0.0.3"
+        "skel01-core": "link:../../lib/libjs-skel01/packages/core",
+        "skel01-dba": "link:../../lib/libjs-skel01/packages/dba"
     },
     "devDependencies": {
         "@electron/fuses": "^1.8.0",
@@ -68,13 +76,14 @@
         "@vue/tsconfig": "^0.5.1",
         "electron": "^33.2.1",
         "electron-builder": "^25.1.8",
+        "electron-devtools-installer": "^4.0.0",
         "install": "^0.13.0",
         "jsdom": "^23.2.0",
         "npm-run-all2": "^6.1.1",
         "sass": "^1.70.0",
         "typescript": "~5.3.3",
         "vite": "^5.0.12",
-        "vite-plugin-electron": "^0.29.0",
+        "vite-plugin-electron": "^0.28.4",
         "vite-plugin-electron-renderer": "^0.14.6",
         "vitest": "^1.2.0",
         "vue": "^3.4.15",

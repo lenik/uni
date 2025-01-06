@@ -42,9 +42,9 @@ const stat = {
         </template>
 
         <template #project-info>
-            <ProjectInfo :stat="stat" label="PnF Watch"
+            <!-- <ProjectInfo :stat="stat" label="PnF Watch"
                 description="Task dashboard and multiple timers">
-            </ProjectInfo>
+            </ProjectInfo> -->
         </template>
 
         <router-view></router-view>

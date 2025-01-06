@@ -59,6 +59,7 @@ const props = withDefaults(defineProps<Props>(), {
     // label: 'done',
     showTitle: undefined,
     showLabel: undefined,
+    showData: true,
     scale: 100,
     offset: 0,
     hue: 120,
@@ -130,9 +131,15 @@ const options = computed(() => {
                 name: {
                     color: 'hsl(300, 60%, 30%)',
                     // font: { size: '15' },
-                    formatter: (val, ctx) => ctx.chart.data.labels[ctx.dataIndex],
+                    formatter: (val: any, ctx: any) => ctx.chart.data.labels[ctx.dataIndex],
                 },
             }
+        };
+    }
+
+    if (!toBool(props.showData, true)) {
+        plugins.datalabels = {
+            display: false
         };
     }
 
@@ -178,7 +185,7 @@ const rootElement = ref<HTMLElement>();
 // methods
 defineExpose({ update });
 
-function toBool(val: boolean | string | number | null | undefined, defaultVal?: boolean = false): boolean {
+function toBool(val: boolean | string | number | null | undefined, defaultVal: boolean = false): boolean {
     switch (val) {
         case true:
         case 'true':
