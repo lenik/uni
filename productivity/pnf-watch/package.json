@@ -25,6 +25,7 @@
         "test:unit": "vitest -c ./vitest.config.ts",
         "build-only": "vite -c ./vite.config.ts build",
         "type-check": "vue-tsc --build --force",
+        "type1": "run-p type-check \"build-only {@}\"",
         "clean": " vite -c ./vite.config.ts clean",
         "main": "electron .",
         "start": "electron-forge start",
@@ -65,6 +66,7 @@
         "skel01-dba": "link:../../lib/libjs-skel01/packages/dba"
     },
     "devDependencies": {
+        "@electron-forge/cli": "^7.6.0",
         "@electron/fuses": "^1.8.0",
         "@tsconfig/node18": "^18.2.2",
         "@types/jquery": "^3.5.29",
@@ -77,6 +79,7 @@
         "electron": "^33.2.1",
         "electron-builder": "^25.1.8",
         "electron-devtools-installer": "^4.0.0",
+        "electron-prebuilt-compile": "8.2.0",
         "install": "^0.13.0",
         "jsdom": "^23.2.0",
         "npm-run-all2": "^6.1.1",

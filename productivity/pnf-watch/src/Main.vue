@@ -1,8 +1,11 @@
 <script lang="ts">
 const title = "component Main";
 
-import { computed, onMounted, ref } from "vue";
-// import { ipcRenderer} from 'electron';
+import { computed, onMounted, ref, watchEffect } from "vue";
+import ZonedDateTime from 'skel01-core/src/lang/time/ZonedDateTime';
+import LocalDate from 'skel01-core/src/lang/time/LocalDate';
+
+import { Diary, loadDiaries } from "./parser";
 
 export interface Props {
 }
@@ -29,13 +32,32 @@ const hues = ref(Array(40).fill(0).map(() => Math.random() * 360));
 const showTitle = ref(true);
 const showLabel = ref(false);
 
+const dateNow = ref(ZonedDateTime.now());
+
 const _winTitle = ref('');
 const winTitle = computed({
     get: () => _winTitle.value,
     set: (v: string) => {
         _winTitle.value = v;
-        window.ipcRenderer.setTitle(v)
+        window.browserWindow.setTitle(v)
     }
+});
+
+const baseDir = ref("/mnt/istore/pro/diary");
+const dirList = ref<string[]>([]);
+
+const dayMax = ref(10);
+const dayCount = ref(3);
+const dayCountList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50];
+
+const dateEnd = computed(() => {
+    let date = dateNow.value;
+    return LocalDate.of(date.year, date.month, date.dayOfMonth);
+});
+const dateStart = computed(() => {
+    let end = dateEnd.value;
+    let startEpoch = end.epochDay - dayCount.value + 1;
+    return LocalDate.ofEpochDay(startEpoch);
 });
 
 // DOM references
@@ -51,9 +73,31 @@ function random(n: number) {
     return Math.floor(Math.random() * n);
 }
 
+async function chooseDir() {
+    let selection = await dialog.showOpenDialog({
+        title: 'my title',
+        defaultPath: baseDir.value,
+        properties: ['openDirectory', 'createDirectory',],
+    });
+    if (selection != null)
+        baseDir.value = selection[0];
+}
+
+const diaryData = ref<Diary[]>([]);
+
+const input = ref<string>('');
+
+watchEffect(async () => {
+    diaryData.value = await loadDiaries(baseDir.value, dateStart.value, dayCount.value);
+});
+
 onMounted(async () => {
-    let title = await window.ipcRenderer.getTitle();
+    let title = await window.browserWindow.getTitle();
     _winTitle.value = title;
+
+    const fiveMinutes = 5 * 60 * 1000;
+    setInterval(() => dateNow.value = ZonedDateTime.now(), fiveMinutes);
+
 });
 </script>
 
@@ -65,6 +109,10 @@ onMounted(async () => {
                 <div class="alts">
                     <Clock align="h" :showSecondArm="false" timeZone="Asia/Tokyo" theme="green" />
                     <Clock align="h" :showSecondArm="false" timeZone="America/Los_Angeles" theme="red" />
+                    <div class="date-text">
+                        <span class="weekday">{{ dateNow.format('ddd') }}</span>
+                        <span class="date">{{ dateNow.format('YYYY-MM-DD') }}</span>
+                    </div>
                 </div>
             </div>
             <div class="summary">
@@ -90,18 +138,52 @@ onMounted(async () => {
         <!-- <div class="top2"> Versions: {{ chromeVer }} . </div> -->
         <div class="mid">
             <div class="logman">
-                <ul class="inline-block">
-                    <li>Log 1</li>
-                    <li>Log 2</li>
-                    <li>Log 3</li>
-                </ul>
-                <div class="to-do">
-                    <label for="todo">To do:</label>
-                    <input id="todo" type="text">
+                <div class="options">
+                    <span class="dir" @click="chooseDir()"> {{ baseDir }} </span>
+                    <ul class="moons inline-block">
+                        <li>
+                            <span class="range"> Since {{ dateStart.toString() }} </span>
+                        </li>
+                        <li v-for="n in dayMax " @click="dayCount = dayMax - n + 1">
+                            <Icon class="no" name="far-moon" v-if="n <= dayMax - dayCount" />
+                            <Icon class="yes" name="fa-moon" v-else />
+                        </li>
+                    </ul>
+                    <select v-model="dayCount">
+                        <option :value="n" v-for="n in dayCountList">{{ n }}</option>
+                    </select>
                 </div>
-                <div class="done">
-                    <label for="done">Done:</label>
-                    <input id="done" type="text">
+                <ul class="logs">
+
+                    <template v-for="diary in diaryData">
+                        <li class="day-group">{{ diary.date.toString() }}</li>
+                        <li class="log" v-for="log in diary.logs">
+                            <div class="hdr">
+                                <span class="seq"> {{ log.seq }} </span>
+                                <span class="date" v-if="log.date != null"> {{ log.date.format("MM-DD") }} </span>
+                                <span class="time"> {{ log.time.format('HH:mm:ss') }} </span>
+                                <span class="head"> {{ log.head }} </span>
+                            </div>
+                            <ul class="lines" v-if="log.lines.length">
+                                <li v-for="line in log.lines"> {{ line }} </li>
+                            </ul>
+                        </li>
+                    </template>
+                </ul>
+                <div class="input">
+                    <div class="btn did">
+                        <span> Did
+                            <Icon name="fas-sign-in-alt" />
+                        </span>
+                        <div class="kbd">Shift-Cr</div>
+                    </div>
+                    <input type="text" v-model="input">
+                    <div class="btn go">
+                        <span>
+                            <Icon name="far-sign-out-alt" /> Go
+                        </span>
+                        <div class="kbd">Ctrl-Cr</div>
+                    </div>
                 </div>
             </div>
             <div class="tasks">
@@ -119,147 +201,5 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
-.pnf-main {
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    border: solid 2px gray;
-    box-sizing: border-box;
-}
-
-.top {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    justify-items: center;
-
-    .clocks {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        margin-right: .5em;
-
-        >.clock {
-            width: 6em;
-            margin: .5em;
-        }
-
-        .alts .clock {
-            height: 4em;
-            width: 8em;
-        }
-
-    }
-
-    .summary {
-        flex: 1;
-        border-left: solid 1px gray;
-        padding-left: .5em;
-        display: flex;
-        align-items: center;
-
-
-        .pie {
-            width: 4em;
-        }
-    }
-
-    .awards {
-        border-left: solid 1px gray;
-        padding: 0 .5em;
-    }
-
-    .tomatoes {
-        display: flex;
-        align-items: center;
-        border-left: solid 1px gray;
-        max-width: 22em;
-
-        .pie {
-            width: 2.5em;
-            margin: 1px;
-        }
-    }
-}
-
-.mid {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    overflow: hidden;
-    border-top: solid 1px gray;
-    border-bottom: solid 1px gray;
-}
-
-.logman {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border-left: solid 1px gray;
-    border-right: solid 1px gray;
-    padding: 4px;
-
-    ul {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        border-bottom: dashed 1px gray;
-    }
-
-    .to-do,
-    .done {
-        margin: 4px 0 4px 0;
-        display: flex;
-        flex-direction: row;
-
-        label {
-            width: 4em;
-        }
-
-        input {
-            flex: 1;
-            border: none;
-            border-bottom: solid 1px gray;
-        }
-    }
-}
-
-.tasks {
-    display: flex;
-    max-width: 15em;
-
-    ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        // display: flex;
-        // flex-direction: column;
-
-        li {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        .pie {
-            width: 2em;
-            margin-right: .5em;
-        }
-    }
-}
-
-.bottom {
-    display: flex;
-    flex-direction: row;
-
-    .current-task {
-        flex: 1;
-    }
-
-    .datetime2 {
-        width: 5em;
-    }
-}
+@use './Main.scss';
 </style>
