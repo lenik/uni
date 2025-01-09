@@ -1,3 +1,4 @@
+import type { int } from "skel01-core/src/lang/basetype";
 import LocalDate from "skel01-core/src/lang/time/LocalDate";
 import LocalTime from "skel01-core/src/lang/time/LocalTime";
 
@@ -18,16 +19,17 @@ export interface LogEntry {
     lines: string[];
 }
 
-export async function loadDiaries(baseDir: string, startDate: LocalDate, dayCount: Int): Promise<Diary[]> {
+export async function loadDiaries(baseDir: string, startDate: LocalDate, dayCount: int): Promise<Diary[]> {
     let start = startDate.epochDay;
-    let end = start + dayCount.value - 1;
+    let end = start + dayCount - 1;
     let data: Diary[] = [];
     for (let epochDay = start; epochDay <= end; epochDay++) {
         let date = LocalDate.ofEpochDay(epochDay);
         let dateEx = date.format("Y/Y-MM/Y-MM-DD");
         let dateDir = `${baseDir}/by-date/${dateEx}`;
+        if (!await io.isDirectory(dateDir)) continue;
         let diary = new Diary(date);
-        let logs = await readDiary(diary, dateDir);
+        await readDiary(diary, dateDir);
         data.push(diary);
     }
     return data;

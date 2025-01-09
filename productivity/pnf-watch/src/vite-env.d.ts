@@ -1,5 +1,10 @@
 /// <reference types="vite/client" />
 
+import { ObjectEncodingOptions, OpenMode, PathLike, StatOptions, Stats } from 'fs';
+import { CreateReadStreamOptions, FileHandle } from 'fs/promises';
+import { ipcRenderer } from 'electron';
+import { Abortable } from 'events';
+
 declare module '*.vue' {
     import type { DefineComponent } from 'vue'
     const component: DefineComponent<{}, {}, any>
@@ -10,20 +15,20 @@ interface Window {
     // expose in the `electron/preload/index.ts`
     // import('electron').IpcRenderer
     browserWindow: {
-        async getTitle: () => string,
-        async setTitle: (title: string) => void,
+        async getTitle: () => Promise<string>,
+        async setTitle: (title: string) => Promise<void>,
     },
 
     dialog: {
-        async showOpenDialog: (opts: any) => any,
-        async openFile: () => void,
+        async showOpenDialog: (opts: any) => Promise<any>,
+        async openFile: () => Promise<void>,
     },
 
     electron: {
-        async on: (...args: Parameters<typeof ipcRenderer.on>) => any,
-        async off: (...args: Parameters<typeof ipcRenderer.off>) => any,
-        async send: (...args: Parameters<typeof ipcRenderer.send>) => any,
-        async invoke: (...args: Parameters<typeof ipcRenderer.invoke>) => any,
+        async on: (...args: Parameters<typeof ipcRenderer.on>) => Promise<any>,
+        async off: (...args: Parameters<typeof ipcRenderer.off>) => Promise<any>,
+        async send: (...args: Parameters<typeof ipcRenderer.send>) => Promise<any>,
+        async invoke: (...args: Parameters<typeof ipcRenderer.invoke>) => Promise<any>,
     },
 
     io: {
@@ -52,7 +57,7 @@ interface Window {
                     encoding: BufferEncoding;
                     flag?: OpenMode | undefined;
                 } & Abortable)
-                | BufferEncoding) => string,
+                | BufferEncoding) => Promise<string>,
 
         async readFile2: (
             path: PathLike | FileHandle,
