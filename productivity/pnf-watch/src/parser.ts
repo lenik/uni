@@ -17,6 +17,7 @@ export interface LogEntry {
     time: LocalTime;
     head: string;
     lines: string[];
+    // structText: any;
 }
 
 export async function loadDiaries(baseDir: string, startDate: LocalDate, dayCount: int): Promise<Diary[]> {
@@ -49,7 +50,6 @@ export async function readDiary(diary: Diary, dateDir: string) {
     });
 
     let entry: LogEntry | undefined = undefined;
-    let lastLine = undefined;
     for (let line of lines) {
         let array = RE_LOGENTRY.exec(line);
         if (array != undefined) {
@@ -65,7 +65,6 @@ export async function readDiary(diary: Diary, dateDir: string) {
                 entry.date = LocalDate.parse(date);
 
             diary.logs.push(entry);
-            lastLine = undefined;
         }
 
         else {
@@ -75,5 +74,79 @@ export async function readDiary(diary: Diary, dateDir: string) {
             entry.lines.push(line);
         }
     }
+
+    for (let entry of diary.logs) {
+        let lastLine = undefined;
+        for (let line of entry.lines) {
+
+        }
+
+    }
     return diary;
+}
+
+const tabSize = 4;
+
+function parse(lines: string[], parent: HTMLElement): HTMLElement {
+    let doc = parent.ownerDocument;
+    let indents: number[] = [];
+    for (let line of lines) {
+        let indent = indentSize(line, tabSize);
+        let level = indent / tabSize;
+        if (indents.length == 0) {
+            indents.push(indent);
+        } else {
+            for (let i = indents.length - 1; i >= 0; i--)
+                if (indent >= indents[i])
+                    ;
+        }
+        // doc.createTextNode(data);
+        lastLine = line;
+        lastIndent = indent;
+        lastLevel = level;
+    }
+    return parent;
+}
+
+function insertPoint(sorted: number[], num: number) {
+    let l = 0, r = sorted.length;
+    if (r == 0) return 0;
+    while (r - l > 1) {
+        let mid = Math.floor((l + r) / 2);
+        let v = sorted[mid];
+        if (num < sorted[l])
+            return l;
+        if (num == sorted[l])
+            return l + 1;
+        if (num >= sorted[r])
+            return r + 1;
+
+    }
+}
+
+function indentSize(s: string, tabSize = 4, offset = 0): number {
+    let ar = /^(\s*)/.exec(s);
+    if (ar == undefined) return 0;
+    let [ws] = ar;
+    let n = ws.length;
+    let width = 0;
+    for (let i = 0; i < n; i++) {
+        let ch = ws[i];
+        switch (ch) {
+            case ' ':
+                width++;
+                offset++;
+                break;
+            case '\t':
+                let pad = tabSize - offset % tabSize;
+                width += pad;
+                offset += pad;
+                break;
+            case '\n':
+            case '\r':
+                offset = 0;
+                break;
+        }
+    }
+    return offset;
 }
