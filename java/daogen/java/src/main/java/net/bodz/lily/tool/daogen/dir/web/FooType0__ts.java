@@ -7,7 +7,7 @@ import net.bodz.bas.code.util.Attrs;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.err.UnexpectedException;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.esm.skel01.SkeljsModules;
+import net.bodz.bas.esm.skel01.Skel01Modules;
 import net.bodz.bas.esm.util.TsCodeStyle;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -226,9 +226,9 @@ public class FooType0__ts
         out.print(cname.propertyName);
         out.print(": ");
         if (primaryKey)
-            out.print(out.name(SkeljsModules.dba.entity.primaryKey));
+            out.print(out.name(Skel01Modules.dba.entity.primaryKey));
         else
-            out.print(out.name(SkeljsModules.dba.entity.property));
+            out.print(out.name(Skel01Modules.dba.entity.property));
 
         Attrs attrs = new Attrs(tsCodeStyle);
         attrs.put("type", tsTypeInfo);
@@ -304,7 +304,7 @@ public class FooType0__ts
 
         out.print(property);
         out.print(": ");
-        out.print(out.name(SkeljsModules.dba.entity.property));
+        out.print(out.name(Skel01Modules.dba.entity.property));
 
         Attrs attrs = new Attrs(tsCodeStyle);
         attrs.put("type", parentTsTypeInfo);

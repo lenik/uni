@@ -4,7 +4,7 @@ import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.extern.ExternModules;
-import net.bodz.bas.esm.skel01.SkeljsModules;
+import net.bodz.bas.esm.skel01.Skel01Modules;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 
@@ -36,7 +36,7 @@ public class FooAdmin__vue
         out.println();
         out.printf("const admin = %s<InstanceType<typeof %s>>();\n", //
                 out.name(ExternModules.vue.ref), //
-                out.name(SkeljsModules.dba.LilyAdmin));
+                out.name(Skel01Modules.dba.LilyAdmin));
         out.printf("const type = %s.TYPE;\n", //
                 out.importDefault(project.Esm_Foo.qName));
         out.println("const selection = ref<any>({});");
@@ -61,7 +61,7 @@ public class FooAdmin__vue
         out.enter();
         {
             out.printf("<%s ref=\"admin\" :type=\"type\" :typeMap=\"typeMap\" v-model=\"selection\">\n", //
-                    out.name(SkeljsModules.dba.LilyAdmin));
+                    out.name(Skel01Modules.dba.LilyAdmin));
             out.enter();
             {
                 out.println("<template #columns>");

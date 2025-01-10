@@ -2,7 +2,7 @@ package net.bodz.lily.tool.daogen.dir.web;
 
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.esm.skel01.SkeljsModules;
+import net.bodz.bas.esm.skel01.Skel01Modules;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
@@ -25,7 +25,7 @@ public class FooValidators0__ts
         TypeExtendInfo extend = new TypeAnalyzer(project, out)//
                 .getExtendInfo(table, project._Foo_stuff.qName);
 
-        out.name(SkeljsModules.core.uiTypes.ValidateResult);
+        out.name(Skel01Modules.core.uiTypes.ValidateResult);
 
         QualifiedName className = project.Esm_Foo_stuff_Validators.qName;
         QualifiedName superType = extend.baseType.nameAdd(project.validatorsSuffix);

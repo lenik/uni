@@ -4,7 +4,7 @@ import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.extern.ExternModules;
-import net.bodz.bas.esm.skel01.SkeljsModules;
+import net.bodz.bas.esm.skel01.Skel01Modules;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.JavaGenProject;
 
@@ -62,12 +62,12 @@ public class FooChooseDialog__vue
         out.println();
         out.printf("const entityChooseDialog = %s<undefined | InstanceType<typeof %s>>();", //
                 out.name(ExternModules.vue.ref), //
-                out.name(SkeljsModules.dba.EntityChooseDialog));
+                out.name(Skel01Modules.dba.EntityChooseDialog));
         out.println();
         out.println("defineExpose({ open });");
         out.println();
         out.printf("function open(callback?: %s) {\n", //
-                out.name(SkeljsModules.core.uiTypes.DialogSelectCallback));
+                out.name(Skel01Modules.core.uiTypes.DialogSelectCallback));
         out.enter();
         {
             out.println("entityChooseDialog.value?.open(callback);");

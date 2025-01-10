@@ -7,7 +7,7 @@ import java.lang.reflect.TypeVariable;
 import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.code.util.Attrs;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.esm.skel01.SkeljsModules;
+import net.bodz.bas.esm.skel01.Skel01Modules;
 import net.bodz.bas.esm.util.TsCodeStyle;
 import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.potato.element.IProperty;
@@ -156,7 +156,7 @@ public class FooType1__ts
 
         out.print(property.getName());
         out.print(": ");
-        out.print(out.name(SkeljsModules.dba.entity.property));
+        out.print(out.name(Skel01Modules.dba.entity.property));
 
         Attrs attrs = new Attrs(codeStyle);
         attrs.put("type", tsTypeInfo);

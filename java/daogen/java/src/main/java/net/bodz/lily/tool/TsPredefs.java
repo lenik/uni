@@ -9,7 +9,7 @@ import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.type.IndexedTypes;
 import net.bodz.bas.err.IllegalUsageException;
 import net.bodz.bas.esm.TypeScriptWriter;
-import net.bodz.bas.esm.skel01.SkeljsModules;
+import net.bodz.bas.esm.skel01.Skel01Modules;
 import net.bodz.bas.esm.util.TsTemplates;
 import net.bodz.bas.esm.util.TsTypeResolver;
 import net.bodz.bas.io.BCharOut;
@@ -112,7 +112,7 @@ public class TsPredefs
 
         out.printf("export class %s extends %s<%s> {\n", //
                 itemType.name, //
-                out.importName(SkeljsModules.core.Predef), //
+                out.importName(Skel01Modules.core.Predef), //
                 tsKeyType);
         {
             out.enter();
@@ -164,7 +164,7 @@ public class TsPredefs
 
         out.printf("export class %s extends %s<%s, %s> {", //
                 typeInfoType.name, //
-                out.importName(SkeljsModules.core.PredefType), //
+                out.importName(Skel01Modules.core.PredefType), //
                 itemType.name, //
                 tsKeyType);
         {
