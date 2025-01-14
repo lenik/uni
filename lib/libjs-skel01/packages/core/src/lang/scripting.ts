@@ -65,3 +65,33 @@ export function writeVar(path: string, newVal: any, start: any) {
     var d = new VarRef(path, start);
     return d.set(newVal);
 }
+
+
+export function wsSepStr(..._args: (any)[]) {
+    let s = '';
+    let i = 0;
+    for (let a of _args) {
+        if (i++ != 0) s += ' ';
+        s += a;
+    }
+    return s;
+}
+
+function _rawInvokeStr(fn: string, sep: string, ..._args: (any)[]) {
+    let s = fn + '(';
+    let prev: string | null = null;
+    if (typeof _args[0] == 'string')
+        [prev, ..._args] = _args;
+
+    let i = 0;
+    for (let a of _args) {
+        if (i++ != 0) s += sep;
+        s += a;
+    }
+    s += ')';
+    if (prev != null) s += sep + prev;
+    return s;
+}
+
+export const rawInvokeStr = (fn: string, ..._args: (any)[]) => _rawInvokeStr(fn, ', ', ..._args);
+export const wsRawInvokeStr = (fn: string, ..._args: (any)[]) => _rawInvokeStr(fn, ' ', ..._args);

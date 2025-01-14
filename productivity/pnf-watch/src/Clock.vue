@@ -2,13 +2,13 @@
 const title = "component Clock";
 
 import { computed, onMounted, ref } from "vue";
-
+import moment from "moment-timezone";
 import type { ZoneId } from "skel01-core/src/lang/time/MomentWapper";
 import Instant from "skel01-core/src/lang/time/Instant";
 import LocalDateTime from "skel01-core/src/lang/time/LocalDateTime";
 import ZonedDateTime from "skel01-core/src/lang/time/ZonedDateTime";
-import OffsetDateTime from "skel01-core/src/lang/time/OffsetDateTime";
-import moment from "moment-timezone";
+import { hsl } from "skel01-core/src/lang/css";
+import { translate, rotate, scale, viewBox } from "skel01-core/src/lang/svg";
 
 export interface Props {
     offset?: Instant | number | 'dayStart'
@@ -69,7 +69,7 @@ const textAnchor = computed(() => isVert.value ? 'middle' : 'left');
 const titleSize = computed(() => isVert.value ? 13 : 18);
 const textSize = computed(() => isVert.value ? 12 : 18);
 
-const highlightFill = computed(() => props.hue && compileHsl(props.hue, '65%', '55%'));
+const highlightFill = computed(() => props.hue && hsl(props.hue, '65%', '55%'));
 
 const styleClasses = computed(() => {
     let map: any = {
@@ -172,30 +172,6 @@ function right(s: string, n: number) {
         return s;
 }
 
-function compileHsl(hue: number | string, sat: number | string, lum: number | string) {
-    return 'hsl(' + hue + ', ' + sat + ', ' + lum + ')';
-}
-
-function compile(fn: string, ..._args: (number | string)[]) {
-    let s = fn + '(';
-    let prev = null;
-    if (typeof _args[0] == 'string')
-        [prev, ..._args] = _args;
-
-    let i = 0;
-    for (let a of _args) {
-        if (i++ != 0) s += ' ';
-        s += a;
-    }
-    s += ')';
-    if (prev != null) s += ' ' + prev;
-    return s;
-}
-
-function rotate(...args: (number | string)[]) { return compile('rotate', ...args); }
-function translate(...args: (number | string)[]) { return compile('translate', ...args); }
-function scale(...args: (number | string)[]) { return compile('scale', ...args); }
-
 onMounted(() => {
     setInterval(() => {
         let now = Instant.now();
@@ -276,13 +252,13 @@ onMounted(() => {
             </g>
         </svg>
         <div class="texts">
-            <svg class="tz-title" :viewBox="'0 0 100 ' + (titleSize + 7)" v-if="_showTitle">
+            <svg class="tz-title" :viewBox="viewBox(0, 0, 100, titleSize + 7)" v-if="_showTitle">
                 <g :font-size="titleSize" font-weight="400"
                     :transform="isVert ? translate(50, titleSize) : translate(0, titleSize)">
                     <text :text-anchor="textAnchor"> {{ tzTitle }} </text>
                 </g>
             </svg>
-            <svg class="date-time" :viewBox="'0 0 100 ' + (textSize + 3)">
+            <svg class="date-time" :viewBox="viewBox(0, 0, 100, textSize + 3)">
                 <g :font-size="textSize" font-weight="300"
                     :transform="isVert ? translate(50, textSize) : translate(0, textSize)">
                     <text :text-anchor="textAnchor">
