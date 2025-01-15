@@ -21,8 +21,17 @@ order.lst:
 	m2mklib -B
 
                                                                            
-DBNAME=unknown
-createdb: predao                                                                    
+DBNAME = unknown
+
+showdb: 
+	echo $(DBNAME)
+
+psql:
+	. pgcmds; psql $(DBNAME)
+
+resetdb: dropdb createdb
+
+createdb: predao
 	if-database-exists $(DBNAME) || \
 	    (. pgcmds; \
 	    createdb $(DBNAME); \
@@ -30,5 +39,5 @@ createdb: predao
 	set-search-path $(DBNAME)
 
 dropdb:
-	. pgcmds; dropdb $(DBNAME)
+	. pgcmds; dropdb $(DBNAME) || echo "failed to drop db."
 
