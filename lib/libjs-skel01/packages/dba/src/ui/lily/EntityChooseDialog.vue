@@ -2,7 +2,7 @@
 import $ from 'jquery';
 import { computed, inject, onMounted, ref } from "vue";
 import { simpleName, _throw } from "skel01-core/src/logging/api";
-import { DialogSelectCallback } from 'skel01-core/src/ui/types';
+import { DialogOpenOptions } from 'skel01-core/src/ui/types';
 import { Selection } from '../table/types';
 import { EntityType } from '../../net/bodz/lily/entity/EntityType';
 import { SERVER_URL } from './context';
@@ -66,8 +66,8 @@ defineExpose({
     open
 });
 
-function open(callback?: DialogSelectCallback) {
-    dialogComp.value?.open(callback);
+function open(options?: DialogOpenOptions) {
+    dialogComp.value?.open(options);
 }
 
 function onselect(sel: Selection, e: Event) {
@@ -127,7 +127,7 @@ onMounted(() => {
 
 <template>
     <Dialog ref="dialogComp" class="choose-dialog" :name="dialogName" v-model="selection" :modal="modal"
-        :title="dialogTitle" height="25em" :cmds="{ ok: true, cancel: true }">
+        :title="dialogTitle" height="70%" :cmds="{ ok: true, cancel: true }">
         <DataTable ref="dataTableComp" :lilyUrl="_url" @select="onselect">
             <slot></slot>
         </DataTable>

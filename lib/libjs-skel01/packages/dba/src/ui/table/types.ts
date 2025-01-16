@@ -179,4 +179,5 @@ export class Selection {
             columns = this.columns;
         return row2Obj(row, columns.map((c) => c.field));
     }
+
 }

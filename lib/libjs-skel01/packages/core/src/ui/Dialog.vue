@@ -5,7 +5,7 @@ import { computed, onMounted, ref } from "vue";
 import { resolveChild } from "../dom/create";
 import type { Command } from './types';
 import { bool, getDialogCmds } from './types';
-import type { AsyncDialogSelectCallback, DialogSelectCallback } from './types';
+import type { DialogOpenOptions } from './types';
 import { makeMovable } from '../dom/movable';
 
 import Icon from './Icon.vue';
@@ -103,14 +103,14 @@ defineExpose({
 });
 
 class LocalFrame {
-    selectCallback?: DialogSelectCallback | AsyncDialogSelectCallback
+    options?: DialogOpenOptions
 }
 var localStack: LocalFrame[] = [];
 var modalStack: ModalFrame[] = ModalFrame.modalStack;
 
-function open(selectCallback?: DialogSelectCallback | AsyncDialogSelectCallback) {
+function open(options?: DialogOpenOptions) {
     let frame = new LocalFrame();
-    frame.selectCallback = selectCallback;
+    frame.options = options;
     localStack.push(frame);
 
     let _containerDiv = containerDiv.value!;
@@ -157,26 +157,32 @@ function _destroy() {
     return frame;
 }
 
-function close(e: Event) {
+async function close(event: Event) {
     if (localStack.length) {
-        emit('close', e);
+        let frame = localStack[localStack.length - 1];
+        let options = frame.options;
+
+        emit('close', event);
         _destroy();
+        
+        if (options?.onclose != null) {
+            let v = options.onclose('close', event);
+            if (v instanceof Promise)
+                await v;
+        }
     }
 }
 
 async function select(event: Event) {
     if (localStack.length) {
         let frame = localStack[localStack.length - 1];
-
-        if (frame.selectCallback != null) {
+        let options = frame.options;
+        if (options?.onselect != null) {
             // slowly((end) => {
-            let success = frame.selectCallback(model.value, event);
-            if (typeof success == 'object')
-                if (typeof success.then == 'function') {
-                    success = await success;
-                }
-            if (!success)
-                return false;
+            let success = options.onselect(model.value, event);
+            if (success instanceof Promise)
+                success = await success;
+            return success;
         }
 
         emit('select', model.value, event);
@@ -184,14 +190,14 @@ async function select(event: Event) {
     }
 }
 
-function run(button: Command, event: Event) {
+async function run(button: Command, event: Event) {
     switch (button.action) {
         case 'close':
-            close(event);
+            await close(event);
             break;
 
         case 'select':
-            select(event);
+            await select(event);
             break;
 
         case 'maximize':
@@ -199,8 +205,11 @@ function run(button: Command, event: Event) {
             break;
     }
 
-    if (button.run != null)
-        button.run(event);
+    if (button.run != null) {
+        let ret = button.run(event);
+        if (ret instanceof Promise)
+            ret = await ret;
+    }
 }
 
 onMounted(() => {

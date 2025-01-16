@@ -8,7 +8,7 @@ import EntityType from '../../net/bodz/lily/entity/EntityType';
 import { Selection, ColumnType } from '../table/types';
 import { SERVER_URL } from './context';
 
-import { Command, Status } from 'skel01-core/src/ui/types';
+import { Command, DialogOpenOptions, Status } from 'skel01-core/src/ui/types';
 import { showError, _throw } from 'skel01-core/src/logging/api';
 import { VarMap } from 'skel01-core/src/lang/VarMap';
 import { wireUp, flatten } from 'skel01-core/src/lang/json';
@@ -125,7 +125,7 @@ function getIdPath(instance: any) {
 }
 
 let defaultDepth = 2; // props.type.defaultDepth;
-function openNew() {
+function openNew(options?: DialogOpenOptions) {
     let params = new VarMap({
         depth: defaultDepth
     });
@@ -137,11 +137,17 @@ function openNew() {
             let wired = wireUp(data);
             let parsed = props.type.fromJson(wired);
             model.value = parsed;
-            editorDialog.value?.open(saveNew);
+            editorDialog.value?.open({
+                onselect: saveNew,
+                onclose: () => {
+                    // options?.onclose
+                    admin.value?.rootElement?.focus();
+                }
+            });
         });
 }
 
-function openSelected() {
+function openSelected(options?: DialogOpenOptions) {
     let params = new VarMap({
         depth: defaultDepth
     });
@@ -153,7 +159,13 @@ function openSelected() {
         let parsed = props.type.fromJson(wired);
         console.log('openSelected', parsed);
         model.value = parsed;
-        editorDialog.value?.open(saveSelected);
+        editorDialog.value?.open({
+            onselect: saveSelected,
+            onclose: () => {
+                // if (options?.onclose != null) ;
+                admin.value?.rootElement?.focus();
+            }
+        });
     });
 }
 

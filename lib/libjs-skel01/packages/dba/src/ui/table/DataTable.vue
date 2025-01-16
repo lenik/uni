@@ -13,7 +13,7 @@ import { baseName } from "skel01-core/src/io/url";
 import { _throw, showError } from "skel01-core/src/logging/api";
 
 import { ColumnType, DataTab, IDataTypeMap, Selection, SymbolCompileFunc } from "./types";
-import { DataTableInstance, useAjaxDataTable, useDataTable } from "./apply";
+import { DataTableInstance, useAjaxDataTable, useDataTable } from "./DataTable-apply";
 import formats from "./formats";
 import { objv2Tab } from "./objconv";
 
@@ -64,7 +64,6 @@ const selection = defineModel<Selection>();
 
 const props = withDefaults(defineProps<Props>(), {
     captionPosition: 'bottom',
-    typeMap: defaultTypeMap,
     compile: formats,
     multi: false,
     version: 0,
@@ -76,10 +75,12 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-    select: [selection: Selection]
+    select: [selection: Selection, event: Event]
 }>();
 
 // computed properties
+
+const typeMap = computed(() => props.typeMap || defaultTypeMap);
 
 const captionAtTop = computed(() => props.caption != null
     && (props.captionPosition == 'top'
@@ -225,7 +226,7 @@ function onDtSelect(e: Event, dt: Api<any>, type: string, indexes: number[], sel
     let selectedIndexes = dt.rows({ selected: true }).indexes().toArray() as number[];
     let sel = new Selection(columns.value!, selectedRows, selectedIndexes);
     selection.value = sel;
-    emit('select', sel);
+    emit('select', sel, e);
 }
 
 function deleteSelection() {
@@ -295,244 +296,5 @@ table.dataTable {
 </style>
 
 <style lang="scss" scoped>
-.caption {
-    text-align: center;
-    font-style: italic;
-
-    &::before {
-        content: 'Table ' counter(dataTable) ': ';
-    }
-}
-
-
-::v-deep(.dataTables_wrapper) {
-    // border: solid 2px yellow;
-    position: relative;
-
-    .dataTables_filter,
-    .dataTables_info,
-    .dataTables_paginate {
-        display: block;
-        position: relative;
-        font-size: 85%;
-        font-weight: 300;
-        padding-top: 0;
-
-        input {
-            margin: 0 0 .2em .5em;
-            border: none;
-            border-bottom: dashed 1px hsl(200, 50%, 40%);
-            border-radius: 0;
-            padding: 0 .5em;
-            font-weight: 300;
-            font-family: monospace;
-
-            &:focus-visible {
-                outline: none;
-            }
-        }
-    }
-
-
-    .dataTables_filter {
-        color: hsl(200, 50%, 40%);
-    }
-
-    .dataTables_info,
-    .dataTables_paginate {
-        line-height: 1em;
-        top: 1em;
-        transform: translateY(-50%);
-        // margin-bottom: 1.5em;
-    }
-
-    .dataTables_paginate {
-
-        .paginate_button {
-            background: none;
-        }
-
-        .paginate_button.current {
-            background: pink;
-        }
-
-        .paginate_button,
-        .paginate_button.current {
-            padding: .2em 0;
-            border: none;
-            border-radius: 3px;
-            
-            --bar-width: 3px;
-            --bar-padding: 5px;
-            --bar-color: hsl(220, 30%, 60%);
-
-            &:not(:last-child) {
-                margin: 0 calc(-1* var(--bar-width));
-            }
-
-            &::before {
-                content: ' ';
-                padding-right: var(--bar-padding);
-                box-sizing: border-box;
-                border-left-style: solid;
-                border-left-width: var(--bar-width);
-                border-left-color: transparent;
-            }
-
-            &::after {
-                content: ' ';
-                padding-left: var(--bar-padding);
-                border-right-style: solid;
-                border-right-width: var(--bar-width);
-                border-right-color: transparent;
-            }
-
-            &:hover {
-                color: hsl(220, 30%, 30%) !important;
-                background: hsl(220, 30%, 94%);
-
-                &::before,
-                &::after {
-                    content: ' ';
-                    border-color: var(--bar-color);
-                }
-            }
-        }
-    }
-}
-
-// v-deep() since the content are dynamically changed.
-table.dataTable::v-deep() {
-
-    font-size: 85%;
-    user-select: none;
-
-    >thead>tr>th {
-        background: hsl(200, 60%, 94%);
-        color: hsl(200, 60%, 20%);
-        font-weight: 500;
-        // text-align: center;
-        // font-family: serif;
-    }
-
-    >tbody>tr {
-
-        &:hover,
-        &:hover.selected {
-            >* {
-                background-color: #dee;
-                box-shadow: none !important;
-            }
-        }
-
-        &.selected,
-        &.selected.odd,
-        &.selected.even {
-            >* {
-                background-color: #7aa;
-                box-shadow: none;
-            }
-
-            >.sorting_1,
-            >.sorting_2,
-            >.sorting_3 {
-                box-shadow: none !important;
-            }
-        }
-
-        &.selected+tr.selected>td {
-            border-top-color: inherit;
-        }
-    }
-
-    td.with-image {
-        img {
-            max-width: 1.5em;
-            max-height: 1.5em;
-            object-fit: contain;
-        }
-    }
-
-}
-
-ul.pagination {
-    font-family: Sans;
-
-    li {
-        display: inline-block;
-        margin: 0 .3em;
-    }
-}
-
-.debug {
-    display: v-bind(debugDisplay);
-    border-top: solid 1px gray;
-    box-sizing: border-box;
-    font-weight: 300;
-    font-size: 70%;
-    color: #666;
-    user-select: none;
-    cursor: pointer;
-
-    ::v-deep() {
-        span:hover {
-            background: pink;
-        }
-    }
-}
-
-.dt-container {
-
-    --hi-color: red;
-    --hi-width: 1px;
-
-    &.highlight,
-    ::v-deep(.highlight) {
-        border: solid var(--hi-width) var(--hi-color) !important;
-    }
-
-    ::v-deep(tbody.highlight) {
-        tr:first-child td {
-            border-top: solid var(--hi-width) var(--hi-color) !important;
-        }
-
-        tr:last-child td {
-            border-bottom: solid var(--hi-width) var(--hi-color) !important;
-        }
-
-        tr td:first-child {
-            border-left: solid var(--hi-width) var(--hi-color) !important;
-        }
-
-        tr td:last-child {
-            border-right: solid var(--hi-width) var(--hi-color) !important;
-        }
-    }
-
-    ::v-deep() {
-
-        th[data-type=BYTE],
-        th[data-type=SHORT],
-        th[data-type=INT],
-        th[data-type=LONG],
-        th[data-type=FLOAT],
-        th[data-type=DOUBLE],
-        th[data-type=BIG_INTEGER],
-        th[data-type=BIG_DECIMAL] {
-            text-align: center;
-        }
-
-        td[data-type=BYTE],
-        td[data-type=SHORT],
-        td[data-type=INT],
-        td[data-type=LONG],
-        td[data-type=FLOAT],
-        td[data-type=DOUBLE],
-        td[data-type=BIG_INTEGER],
-        td[data-type=BIG_DECIMAL] {
-            text-align: right;
-        }
-    }
-
-}
+@use 'DataTable.scss';
 </style>
