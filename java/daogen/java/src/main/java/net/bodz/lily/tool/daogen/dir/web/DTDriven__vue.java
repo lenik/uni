@@ -89,7 +89,8 @@ public abstract class DTDriven__vue
         Set<String> handledXrefs = new HashSet<>();
 
         for (IColumnMetadata column : table.getColumns()) {
-            if (column.isCompositeProperty()) {
+            boolean composite = column.isCompositeProperty();
+            if (composite) {
                 // checkCompositeProperty(table, column);
                 continue;
             }
@@ -108,10 +109,12 @@ public abstract class DTDriven__vue
 
         ColumnNaming cname = project.config.naming(column);
         String label = column.getLabel();
+        String description = column.getDescription();
+
         if (label == null)
             label = labelFromProperty(cname.propertyName);
 
-        String description = column.getDescription();
+        // boolean debug = "user".equals(column.getTable().getName());
 
         IProperty property = column.getProperty();
         if (property == null)
@@ -162,8 +165,6 @@ public abstract class DTDriven__vue
         String label = xref.getLabel();
         String description = xref.getDescription();
         if (label == null)
-            label = description;
-        if (label == null)
             label = labelFromProperty(propertyName);
 
         IProperty property = xref.getProperty();
@@ -173,6 +174,8 @@ public abstract class DTDriven__vue
                             xref.getConstraintName(), //
                             xref.getParentTable().getId(), //
                             xref.getPropertyName()));
+
+        // boolean debug = "user".equals(xref.getForeignTable().getName());
 
         DTColumn _aColumn = property.getAnnotation(DTColumn.class);
         DTColumnConfig dtColumn = new DTColumnConfig().parse(_aColumn);
@@ -203,6 +206,9 @@ public abstract class DTDriven__vue
 
         if (dtColumn.dataRender != null)
             a.put("data-render", dtColumn.dataRender);
+
+        if (description != null)
+            a.put("title", description);
 
         out.print(a.toHtml("th"));
         out.print(label);

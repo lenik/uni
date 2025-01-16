@@ -6,7 +6,7 @@ public class LilyViolet
         extends EsmModule {
 
     public LilyViolet(int priority) {
-        super("@lily/violet", "src", priority);
+        super("lily-violet", "src", priority);
     }
 
     static final String[] domainPatterns = { //
