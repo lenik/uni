@@ -1,0 +1,160 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    : ${USER_AGENT=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36}
+    
+    . shlib-import cliboot
+    option -O --out-dir =DIR        "The output directory, default ."
+    option -o --out =FILE           "The output mp4 filename"
+    option -f --force               "Overwrite existing file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_outdir=.
+    opt_out=
+    opt_force=0
+
+function setopt() {
+    case "$1" in
+        -O|--outdir)
+            opt_outdir="$2";;
+        -o|--output)
+            opt_out="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ ! -d "$opt_outdir" ]; then
+        mkdir -p "$opt_outdir" || quit "Can't create $opt_outdir."
+    fi
+
+    I="[49;31m"
+    O="[0m"
+    local url
+    for url in "$@"; do
+        local s="$url"
+        local qs="${s#*\?}"
+        if [ "$qs" = "$s" ]; then
+            qs=
+        else
+            s="${s%%\?*}"
+        fi
+        
+        local proto="${s%://*}"
+        local hostport=
+        if [ "$proto" = "$s" ]; then
+            proto=
+        else
+            s="${s#*://}"
+            
+            hostport="${s%%/*}"
+            if [ "$hostport" = "$s" ]; then
+                s=
+            else
+                s="${s#*/}"
+            fi
+        fi
+        
+        # is_dir=0; if [ "${s: -1}" = '/' ]; then is_dir=1; s="${s%/}"; fi
+        
+        local dir="${s%/*}"
+        local base="${s##*/}"
+        local outbase="$(detect-base "$s").mp4"
+        if [ "$dir" = "$s" ]; then
+            dir=
+        fi
+
+        #_log1 "URL: $O$proto$I://$O$hostport$I/$O$dir$I/$O$base$I?$O$qs$I.$O"
+        _log1 "URL: $O$I$proto$O://$I$hostport$O/$I$dir$O/$I$base$O?$I$qs$O."
+
+        if [ -z "$outbase" ]; then
+            if [ -z "$base" ]; then
+                outbase=a.mp4
+            else
+                outbase="${base%.*}.mp4"
+                if [ "$outbase" = "$base" ]; then
+                    _error "Source is already mp4: $base, ignored."
+                    continue
+                fi
+            fi
+        fi
+        
+        convert "$url" "$outbase"
+    done
+}
+
+function detect-base() {
+    local s="$1"
+    local base
+    while [ -n "$s" ]; do
+        base="${s##*/}"
+        if [ "$base" = "$s" ]; then
+            s=
+        else
+            s="${s%/*}"
+        fi
+        
+        [ -z "$base" ] && continue
+        base="${base%.*}"
+        case "$base" in
+            index)
+                continue;;
+            hls)
+                continue;;
+            [0-9]*kb)
+                continue;;
+        esac
+        echo "$base"
+        return 0
+    done
+    return 1
+}
+
+headers=''
+function header() {
+    headers="$headers$1$'\r\n'"
+}
+
+function convert() {
+    local start="$1"
+    local base="$2"
+
+    local out="$opt_outdir/$base"
+    
+    _log1 "Convert $start to $out"
+
+    header 'ttl: 1663912367'
+    header 'l: 0'
+    header 'clientip: 18.136.76.55'
+    header 'ipa: 18.136.76.55'
+    header 'hash: 562eb013eb5d6cf88f0afeaf154bc5c3'
+
+    ffmpeg -y \
+        -user_agent "USER_AGENT" \
+        -headers "$headers" \
+        -loglevel info \
+        -i "$start" \
+        -c copy \
+        -f mpegts \
+        "$out"
+    echo "Exit status: $?"
+    local fixed="$opt_outdir/${base%.*}-fixed.${base##*.}"
+    ffmpeg -err_detect ignore_err -i "$out" -c copy "$fixed"
+}
+
+boot "$@"

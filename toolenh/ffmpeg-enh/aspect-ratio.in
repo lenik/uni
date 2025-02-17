@@ -1,0 +1,61 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Change the aspect ratio setting in a media file}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -a --aspect-ratio =W:H       "Specify the new aspect ratio to change"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_aspect_ratio=
+    
+function setopt() {
+    case "$1" in
+        -a|--aspect-ratio)
+            opt_aspect_ratio="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$opt_aspect_ratio" ]; then
+        quit "Aspect ratio isn't specified."
+    fi
+    
+    for file in "$@"; do
+        dir="${file%/*}"
+        base="${file##*/}"
+        if [ "$dir" = "$file" ]; then
+            dir=.
+        fi
+        
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$name" = "$base" ]; then
+            ext=
+        else
+            ext=".$ext"
+        fi
+
+        tmp="$dir/$name-tmp$ext"
+        if ffmpeg -i "$file" -aspect "$opt_aspect_ratio" -c copy "$tmp"; then
+            mv "$tmp" "$file"
+        fi
+    done
+}
+
+boot "$@"
+

@@ -1,0 +1,53 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -O --out-dir =DIR        "The output directory, default ."
+    option -o --out =FILE           "The output mp4 filename"
+    option -f --force               "Overwrite existing file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_outdir=.
+    opt_out=
+    opt_force=0
+
+function setopt() {
+    case "$1" in
+        -O|--outdir)
+            opt_outdir="$2";;
+        -o|--output)
+            opt_out="$2";;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for s in "$@"; do
+        local dir="${s%/*}"
+        local base="${s##*/}"
+        local name="${base%.*}"
+        if [ "$dir" = "$s" ]; then
+            dir=.
+        fi
+
+        local fixed="$dir/${name}-fixed.${base##*.}"
+        ffmpeg -err_detect ignore_err -i "$s" -c copy "$fixed"
+    done
+}
+
+boot "$@"
