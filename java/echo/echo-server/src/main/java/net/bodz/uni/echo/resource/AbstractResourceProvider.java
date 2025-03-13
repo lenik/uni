@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.meta.decl.Priority;
 
 public abstract class AbstractResourceProvider
@@ -32,8 +33,9 @@ public abstract class AbstractResourceProvider
         this.priority = priority;
     }
 
+    @NotNull
     @Override
-    public final List<URL> getResources(String path)
+    public final List<URL> getResources(@NotNull String path)
             throws IOException {
         List<URL> resources = new ArrayList<URL>();
         findResources(resources, path);
@@ -41,7 +43,7 @@ public abstract class AbstractResourceProvider
     }
 
     @Override
-    public void findResources(List<URL> resources, String path)
+    public void findResources(@NotNull List<URL> resources, @NotNull String path)
             throws IOException {
         URL resource = getResource(path);
         if (resource != null)

@@ -1,9 +1,9 @@
 package net.bodz.uni.echo.resource;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.t.model.AbstractDecorator;
 
 public abstract class DecoratedResourceProvider
@@ -19,18 +19,16 @@ public abstract class DecoratedResourceProvider
         return getWrapped().getPriority();
     }
 
-    public URL getResource(String path)
-            throws IOException {
+    public URL getResource(String path) {
         return getWrapped().getResource(path);
     }
 
-    public List<URL> getResources(String path)
-            throws IOException {
+    @NotNull
+    public List<URL> getResources(@NotNull String path) {
         return getWrapped().getResources(path);
     }
 
-    public void findResources(List<URL> resources, String path)
-            throws IOException {
+    public void findResources(List<URL> resources, String path) {
         getWrapped().findResources(resources, path);
     }
 

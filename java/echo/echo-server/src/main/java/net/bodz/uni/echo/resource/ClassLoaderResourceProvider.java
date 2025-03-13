@@ -6,12 +6,14 @@ import java.util.Enumeration;
 import java.util.List;
 
 import net.bodz.bas.c.object.ObjectInfo;
+import net.bodz.bas.meta.decl.NotNull;
+import net.bodz.bas.meta.decl.Nullable;
 
 public class ClassLoaderResourceProvider
         extends AbstractResourceProvider {
 
-    private ClassLoader classLoader;
-    private String prefix;
+    private final ClassLoader classLoader;
+    private final String prefix;
 
     public ClassLoaderResourceProvider(ClassLoader classLoader) {
         this(classLoader, "");
@@ -27,9 +29,9 @@ public class ClassLoaderResourceProvider
         this.prefix = prefix;
     }
 
+    @Nullable
     @Override
-    public URL getResource(String path)
-            throws IOException {
+    public URL getResource(@NotNull String path) {
         if (!prefix.isEmpty())
             path = prefix + path;
         URL resource = classLoader.getResource(path);
@@ -37,10 +39,11 @@ public class ClassLoaderResourceProvider
     }
 
     @Override
-    public void findResources(List<URL> resources, String path)
+    public void findResources(@NotNull List<URL> resources, @NotNull String path)
             throws IOException {
         if (!prefix.isEmpty())
             path = prefix + path;
+        classLoader.getResource("");
         Enumeration<URL> enm = classLoader.getResources(path);
         while (enm.hasMoreElements()) {
             URL resource = enm.nextElement();

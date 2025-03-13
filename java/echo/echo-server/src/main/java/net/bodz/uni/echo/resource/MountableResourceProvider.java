@@ -1,11 +1,11 @@
 package net.bodz.uni.echo.resource;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
+import net.bodz.bas.meta.decl.NotNull;
 
 public class MountableResourceProvider
         extends AbstractResourceProvider {
@@ -63,9 +63,7 @@ public class MountableResourceProvider
     }
 
     @Override
-    public URL getResource(String path)
-            throws IOException {
-
+    public URL getResource(@NotNull String path) {
         MountPoint node = root;
 
         while (path != null && node != null) {
@@ -92,9 +90,7 @@ public class MountableResourceProvider
     }
 
     @Override
-    public void findResources(List<URL> resources, String path)
-            throws IOException {
-
+    public void findResources(@NotNull List<URL> resources, @NotNull String path) {
         MountPoint node = root;
 
         while (path != null && node != null) {

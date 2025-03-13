@@ -3,6 +3,8 @@ package net.bodz.uni.echo.resource;
 import java.net.URL;
 import java.util.Map;
 
+import net.bodz.bas.meta.decl.NotNull;
+
 public class MappedResourceProvider
         extends AbstractResourceProvider {
 
@@ -22,7 +24,7 @@ public class MappedResourceProvider
     }
 
     @Override
-    public URL getResource(String path) {
+    public URL getResource(@NotNull String path) {
         return resourceMap.get(path);
     }
 

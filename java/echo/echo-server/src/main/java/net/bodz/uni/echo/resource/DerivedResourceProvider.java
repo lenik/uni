@@ -1,6 +1,5 @@
 package net.bodz.uni.echo.resource;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,11 +11,11 @@ import java.util.Map;
 import net.bodz.bas.c.java.io.FilePath;
 import net.bodz.bas.err.DuplicatedKeyException;
 import net.bodz.bas.err.UnexpectedException;
+import net.bodz.bas.meta.decl.NotNull;
 
 public class DerivedResourceProvider
         extends DecoratedResourceProvider
-        implements
-            IResourceProvider {
+        implements IResourceProvider {
 
     private static final long serialVersionUID = 1L;
 
@@ -76,14 +75,12 @@ public class DerivedResourceProvider
     }
 
     @Override
-    public URL getResource(String path)
-            throws IOException {
-
-        String extension = FilePath.getExtension(path, true);
-        if (extension.isEmpty())
+    public URL getResource(@NotNull String path) {
+        String dotExtension = FilePath.getDotExtension(path);
+        if (dotExtension.isEmpty())
             return super.getResource(path);
 
-        String srcExtension = extensionMap.get(extension);
+        String srcExtension = extensionMap.get(dotExtension);
         if (srcExtension == null)
             return super.getResource(path);
 
@@ -93,7 +90,7 @@ public class DerivedResourceProvider
                 return original;
         }
 
-        String srcPath = path.substring(0, path.length() - extension.length()) + srcExtension;
+        String srcPath = path.substring(0, path.length() - dotExtension.length()) + srcExtension;
         URL srcResource = super.getResource(srcPath);
         if (srcResource == null) {
             if (overlapMode == DerivedResourceOverlapMode.derivedFirst)
@@ -105,8 +102,8 @@ public class DerivedResourceProvider
         String srcUrl = srcResource.toString();
         assert srcUrl.endsWith(srcExtension);
 
-        String srcName = FilePath.getBaseName(srcUrl);
-        String derivedName = srcName.substring(0, srcName.length() - srcExtension.length()) + extension;
+        String srcName = FilePath.baseName(srcUrl);
+        String derivedName = srcName.substring(0, srcName.length() - srcExtension.length()) + dotExtension;
 
         URI context;
         try {
@@ -114,15 +111,17 @@ public class DerivedResourceProvider
         } catch (URISyntaxException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
-        URL derivedResource = context.resolve(derivedName).toURL();
-        return derivedResource;
+        URI derivedResource = context.resolve(derivedName);
+        try {
+            return derivedResource.toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("malformed: " + derivedResource, e);
+        }
     }
 
     @Override
-    public void findResources(List<URL> resources, String path)
-            throws IOException {
-
-        String extension = FilePath.getExtension(path, true);
+    public void findResources(@NotNull List<URL> resources, @NotNull String path) {
+        String extension = FilePath.getDotExtension(path);
         String srcExtension = extensionMap.get(extension);
         if (extension.isEmpty() || srcExtension == null) {
             super.findResources(resources, path);

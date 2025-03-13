@@ -1,6 +1,5 @@
 package net.bodz.uni.echo.resource;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -8,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.t.order.PriorityComparator;
 
 public class UnionResourceProvider
@@ -46,8 +46,7 @@ public class UnionResourceProvider
     }
 
     @Override
-    public URL getResource(String path)
-            throws IOException {
+    public URL getResource(@NotNull String path) {
         for (IResourceProvider resourceProvider : resourceProviders) {
             URL resource = resourceProvider.getResource(path);
             if (resource != null)
@@ -57,8 +56,7 @@ public class UnionResourceProvider
     }
 
     @Override
-    public void findResources(List<URL> resources, String path)
-            throws IOException {
+    public void findResources(@NotNull List<URL> resources, @NotNull String path) {
         for (IResourceProvider resourceProvider : resourceProviders)
             resourceProvider.findResources(resources, path);
     }
