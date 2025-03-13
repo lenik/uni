@@ -1,6 +1,6 @@
 package net.bodz.lily.tool.daogen;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,17 +19,17 @@ public class DirSearcher {
     public static final int NPM = 2;
 
     Class<?> appClass;
-    File startDir;
+    Path startDir;
     int maxParents;
 
-    public DirSearcher(Class<?> appClass, File startDir, int maxParents) {
+    public DirSearcher(Class<?> appClass, Path startDir, int maxParents) {
         this.appClass = appClass;
         this.startDir = startDir;
         this.maxParents = maxParents;
     }
 
-    public File findSiblingDir(String logTitle, int type, int index, String... search) {
-        List<File> list = findSiblingDirs(logTitle, type, search);
+    public Path findSiblingDir(String logTitle, int type, int index, String... search) {
+        List<Path> list = findSiblingDirs(logTitle, type, search);
         if (list == null || list.isEmpty())
             return null;
 
@@ -37,11 +37,10 @@ public class DirSearcher {
             index = list.size() + index;
         if (index < 0 || index >= list.size())
             return null;
-        File selection = list.get(index);
-        return selection;
+        return list.get(index);
     }
 
-    public List<File> findSiblingDirs(String logTitle, int type, String... search) {
+    public List<Path> findSiblingDirs(String logTitle, int type, String... search) {
         MavenPomDir startPomDir = MavenDirs.findPomDir(appClass, startDir);
         if (startPomDir == null)
             return null;
@@ -60,7 +59,7 @@ public class DirSearcher {
             searchExpand[i] = s;
         }
 
-        List<File> dirs = new ArrayList<>();
+        List<Path> dirs = new ArrayList<>();
 
         if (type == MAVEN) {
             List<MavenPomDir> pomDirs = MavenDirs.findPomDirs(//
@@ -82,7 +81,7 @@ public class DirSearcher {
                 dirs.add(npmDir.getBaseDir());
         }
 
-        for (File dir : dirs)
+        for (Path dir : dirs)
             logger.log(logTitle + ": " + dir);
         return dirs;
     }

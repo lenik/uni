@@ -3,9 +3,11 @@ package net.bodz.lily.tool.daogen;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.sql.Connection;
 
 import net.bodz.bas.c.java.io.FilePath;
+import net.bodz.bas.c.java.nio.file.FileFn;
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.c.string.StringPart;
 import net.bodz.bas.c.system.SysProps;
@@ -76,7 +78,8 @@ import net.bodz.lily.tool.daogen.util.MavenDirs;
 @ProgramName("daogen")
 public class DaoCodeGenerator
         extends BasicCLI
-        implements IJDBCLoadSelector {
+        implements
+            IJDBCLoadSelector {
 
     static Logger logger = LoggerFactory.getLogger(DaoCodeGenerator.class);
 
@@ -88,7 +91,7 @@ public class DaoCodeGenerator
      * @option -C
      */
     String chdir;
-    File startDir;
+    Path startDir;
 
     /**
      * Parent package name of generated java models.
@@ -104,7 +107,7 @@ public class DaoCodeGenerator
      *
      * @option -O =PATH
      */
-    File outDir;
+    Path outDir;
 
     /**
      * Where to save header files include entity, mask, samples types.
@@ -114,7 +117,7 @@ public class DaoCodeGenerator
      *
      * @option -H =PATH
      */
-    File headerDir;
+    Path headerDir;
 
     /**
      * Where to save -mapper files, exporters.
@@ -124,7 +127,7 @@ public class DaoCodeGenerator
      *
      * @option =PATH
      */
-    File daoDir;
+    Path daoDir;
 
     /**
      * Where to save web-service related files include -Index.
@@ -134,14 +137,14 @@ public class DaoCodeGenerator
      *
      * @option -W =PATH
      */
-    File wsDir;
+    Path wsDir;
 
     /**
      * Where to save ES modules for types and components.
      *
      * @option -M =PATH
      */
-    File webDir;
+    Path webDir;
 
 //    boolean checkHeaderDir;
 
@@ -235,21 +238,21 @@ public class DaoCodeGenerator
      *
      * @option --save-catalog =FILE
      */
-    File saveCatalogFile;
+    Path saveCatalogFile;
 
     /**
      * Load the catalog metadata from file and merge with database.
      *
      * @option --load-catalog =FILE
      */
-    File loadCatalogFile;
+    Path loadCatalogFile;
 
     /**
      * Save the effective config to file, for diagnostic.
      *
      * @option --save-config =FILE
      */
-    File saveConfigFile;
+    Path saveConfigFile;
 
     DataContext dataContext;
     Connection connection;
@@ -366,7 +369,6 @@ public class DaoCodeGenerator
         }
 
     }
-
 
     public void makeTable(ITableMetadata table)
             throws IOException {
@@ -533,38 +535,38 @@ public class DaoCodeGenerator
 
     public void configDirs()
             throws IOException {
-        this.startDir = SysProps.userWorkDir;
-        if (this.chdir != null)
-            this.startDir = new File(this.startDir, this.chdir).getCanonicalFile();
+        startDir = SysProps.userWorkDir;
+        if (chdir != null)
+            startDir = FileFn.getCanonicalFile(startDir.resolve(chdir));
 
-        if (this.outDir == null) {
-            MavenPomDir pomDir = MavenDirs.findPomDir(this.appClass, this.startDir);
-            this.outDir = pomDir.getBaseDir();
+        if (outDir == null) {
+            MavenPomDir pomDir = MavenDirs.findPomDir(appClass, startDir);
+            outDir = pomDir.getBaseDir();
         }
 
-        DirSearcher searcher = new DirSearcher(this.appClass, this.startDir, this.maxParents);
+        DirSearcher searcher = new DirSearcher(appClass, startDir, maxParents);
 
-        if (this.headerDir == null)
-            this.headerDir = searcher.findSiblingDir("header-dir", DirSearcher.MAVEN, 0, //
+        if (headerDir == null)
+            headerDir = searcher.findSiblingDir("header-dir", DirSearcher.MAVEN, 0, //
                     "-types", "-model", "model", "-api");
-        if (this.daoDir == null)
-            this.daoDir = searcher.findSiblingDir("dao-dir", DirSearcher.MAVEN, 0, //
+        if (daoDir == null)
+            daoDir = searcher.findSiblingDir("dao-dir", DirSearcher.MAVEN, 0, //
                     "-dao", "-impl");
-        if (this.wsDir == null)
-            this.wsDir = searcher.findSiblingDir("ws-dir", DirSearcher.MAVEN, 0, //
+        if (wsDir == null)
+            wsDir = searcher.findSiblingDir("ws-dir", DirSearcher.MAVEN, 0, //
                     "-ws", "-webapp", "-server", "server");
-        if (this.webDir == null)
-            this.webDir = searcher.findSiblingDir("web-dir", DirSearcher.NPM, 0, //
+        if (webDir == null)
+            webDir = searcher.findSiblingDir("web-dir", DirSearcher.NPM, 0, //
                     "-web", "html", "client");
 
-        if (this.headerDir == null)
-            this.headerDir = this.outDir;
-        if (this.daoDir == null)
-            this.daoDir = this.outDir;
-        if (this.wsDir == null)
-            this.wsDir = this.outDir;
-        if (this.webDir == null)
-            this.webDir = this.outDir;
+        if (headerDir == null)
+            headerDir = outDir;
+        if (daoDir == null)
+            daoDir = outDir;
+        if (wsDir == null)
+            wsDir = outDir;
+        if (webDir == null)
+            webDir = outDir;
     }
 
     /** ⇱ Implementation Of {@link IJDBCLoadSelector}. */

@@ -1,6 +1,6 @@
 package net.bodz.lily.tool.daogen;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import net.bodz.bas.codegen.ClassPathInfo;
 import net.bodz.bas.codegen.UpdateMethod;
@@ -14,7 +14,7 @@ public class DaoGenProject {
 
     static final Logger logger = LoggerFactory.getLogger(DaoGenProject.class);
 
-    File baseDir;
+    Path baseDir;
     String daoPackage = "dao";
     String wsPackage = "ws";
     UpdateMethod defaultUpdateMethod = UpdateMethod.DIFF_PATCH_UPGRADE;
@@ -69,7 +69,7 @@ public class DaoGenProject {
     public final ClassPathInfo Esm_FooChooseDialog;
     public final ClassPathInfo Esm_FooEditor;
 
-    public DaoGenProject(File baseDir, DirConfig dirs, long randomSeed) {
+    public DaoGenProject(Path baseDir, DirConfig dirs, long randomSeed) {
         this.baseDir = baseDir;
         this.randomSeed = randomSeed;
 

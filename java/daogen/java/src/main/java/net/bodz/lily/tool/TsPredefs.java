@@ -1,10 +1,11 @@
 package net.bodz.lily.tool;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bodz.bas.c.java.nio.file.FileFn;
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.c.type.IndexedTypes;
 import net.bodz.bas.err.IllegalUsageException;
@@ -39,7 +40,7 @@ public class TsPredefs
      *
      * @option -O
      */
-    File outDir;
+    Path outDir;
 
     /**
      * Only types with-in the specific packages are included.
@@ -63,7 +64,7 @@ public class TsPredefs
             for (Class<?> clazz : IndexedTypes.list(Predef.class, true)) {
                 QualifiedName qName = QualifiedName.of(clazz);
 
-                if (! packageNames.isEmpty()) {
+                if (!packageNames.isEmpty()) {
                     boolean found = false;
                     for (String pkg : packageNames) {
                         if (qName.within(pkg)) {
@@ -71,7 +72,7 @@ public class TsPredefs
                             break;
                         }
                     }
-                    if (! found)
+                    if (!found)
                         continue;
                 }
                 generate(clazz);
@@ -82,7 +83,7 @@ public class TsPredefs
     void generate(Class<?> clazz)
             throws IOException {
         QualifiedName qName = QualifiedName.of(clazz);
-        File tsFile = qName.toFile(outDir, "ts");
+        Path tsFile = qName.toPath(outDir, "ts");
 
         logger.info("Generate " + tsFile);
 
@@ -96,8 +97,10 @@ public class TsPredefs
 
         tsw.printf("export default %s;\n", clazz.getSimpleName());
 
-        tsFile.getParentFile().mkdirs();
-        IPrintOut out = ResFn.file(tsFile).newPrintOut();
+        Path tsDir = tsFile.getParent();
+        FileFn.mkdirs(tsDir);
+
+        IPrintOut out = ResFn.path(tsFile).newPrintOut();
         tsw.im.dump(out, false);
         out.println();
         out.print(buf);

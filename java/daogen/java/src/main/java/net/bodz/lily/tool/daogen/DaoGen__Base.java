@@ -1,6 +1,6 @@
 package net.bodz.lily.tool.daogen;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import net.bodz.bas.codegen.ClassPathInfo;
 import net.bodz.bas.codegen.IClassPathInfo;
@@ -47,7 +47,7 @@ public abstract class DaoGen__Base
     protected IFileInfo getFileInfo(ITableMetadata model) {
         String extension = getExtension();
         boolean test = isTest();
-        File parent = pathInfo.getPreferredDir(extension, test);
+        Path parent = pathInfo.getPreferredDir(extension, test);
         String localPath = pathInfo.getQName().getLocalPath(extension);
         return new MutableFileInfo(parent, localPath);
     }
