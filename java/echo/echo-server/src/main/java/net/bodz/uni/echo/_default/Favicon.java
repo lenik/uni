@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import net.bodz.bas.io.res.builtin.OutputStreamTarget;
-import net.bodz.bas.io.res.tools.StreamWriting;
-import net.bodz.bas.servlet.HttpServlet;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import net.bodz.bas.io.res.builtin.OutputStreamTarget;
+import net.bodz.bas.io.res.tools.StreamWriting;
+import net.bodz.bas.servlet.HttpServlet;
 
 public class Favicon
         extends HttpServlet {

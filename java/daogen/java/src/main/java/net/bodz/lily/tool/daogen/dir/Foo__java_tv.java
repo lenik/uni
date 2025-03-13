@@ -1,5 +1,7 @@
 package net.bodz.lily.tool.daogen.dir;
 
+import java.io.Serial;
+
 import javax.persistence.Table;
 
 import net.bodz.bas.c.string.StringQuote;
@@ -14,8 +16,6 @@ import net.bodz.lily.tool.daogen.DaoGenProject;
 import net.bodz.lily.tool.daogen.DaoGen__java;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
-
-import java.io.Serial;
 
 public class Foo__java_tv
         extends DaoGen__java {

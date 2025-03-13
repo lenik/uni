@@ -1,5 +1,7 @@
 package net.bodz.lily.tool.daogen.dir;
 
+import java.io.Serial;
+
 import net.bodz.bas.c.string.StringQuote;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.log.Logger;
@@ -19,8 +21,6 @@ import net.bodz.lily.tool.daogen.DaoGen__java;
 import net.bodz.lily.tool.daogen.OutFormat;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
-
-import java.io.Serial;
 
 public class Foo_stuff__java
         extends DaoGen__java {
