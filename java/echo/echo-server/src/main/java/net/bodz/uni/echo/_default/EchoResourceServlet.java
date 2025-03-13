@@ -4,7 +4,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 
-import org.eclipse.jetty.servlet.DefaultServlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.eclipse.jetty.ee10.servlet.ResourceServlet;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
 import net.bodz.bas.c.java.io.FilePath;
@@ -18,19 +24,12 @@ import net.bodz.bas.std.rfc.mime.ContentType;
 import net.bodz.bas.std.rfc.mime.ContentTypes;
 import net.bodz.uni.echo.resource.IResourceProvider;
 import net.bodz.uni.echo.server.EchoServer;
-import net.bodz.uni.echo.server.EchoServletContextHandler;
-
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.UnavailableException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * This servlet should be served as the default servlet, which means to replace the default one.
  */
 public class EchoResourceServlet
-        extends DefaultServlet {
+        extends ResourceServlet {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,43 +45,21 @@ public class EchoResourceServlet
 
     @Override
     public void init()
-            throws UnavailableException {
+            throws ServletException {
         super.init();
 
         EchoServer echoServer = EchoServer.fromContext(getServletContext());
         resourceProvider = echoServer.getResourceProvider();
     }
 
-    /**
-     * @see EchoServletContextHandler#getResource(String)
-     * @see OverlappedBases#searchResource(String)
-     */
-    @Override
     public Resource getResource(String pathInContext) {
         logger.debug("get-resource: " + pathInContext);
 
-        URL resourceUrl;
-        try {
-            String resourcePath = pathInContext;
-            while (resourcePath.startsWith("/"))
-                resourcePath = resourcePath.substring(1);
-            resourceUrl = resourceProvider.getResource(resourcePath);
-        } catch (IOException e) {
-            logger.error(e);
-            return null;
-        }
+        ServletContextHandler contextHandler = initContextHandler(getServletContext());
 
-        if (resourceUrl == null)
-            // Not in search-bases, fallback to the default one (which is resource-base based).
-            // return super.getResource(pathInContext);
-            return null;
-
-        logger.debug("Resolved as servlet path: " + resourceUrl);
-
-        Resource resource;
-        resource = Resource.newResource(resourceUrl);
-        // logger.debug(" => " + resource);
-        return resource;
+        return MultiLayer.from(resourceProvider) //
+                .convert(contextHandler::newResource) //
+                .getResource(pathInContext);
     }
 
     /**
@@ -141,8 +118,7 @@ public class EchoResourceServlet
         if (extension != null)
             contentType = ContentType.forExtension(extension);
 
-        if (contentType != null)
-            resp.setContentType(contentType.getName());
+        resp.setContentType(contentType.getName());
 
         // Also guess the encoding?
 

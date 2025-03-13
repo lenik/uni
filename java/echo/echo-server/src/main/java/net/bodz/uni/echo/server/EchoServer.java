@@ -10,9 +10,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.management.MBeanServer;
-
 import jakarta.servlet.ServletContext;
 
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -22,9 +24,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -92,9 +91,11 @@ public class EchoServer
 
             if (port % 2 == 0) {
                 URLResource keyStore = ClassResource.getData(getClass(), "jks");
-                ServerConnector httpsConnector = buildHttpsConnector(port + 1, //
-                        keyStore.getURL(), "echoecho");
-                connectors.add(httpsConnector);
+                if (keyStore != null) {
+                    ServerConnector httpsConnector = buildHttpsConnector(port + 1, //
+                            keyStore.getURL(), "echoecho");
+                    connectors.add(httpsConnector);
+                }
             }
         }
         return connectors;
@@ -128,8 +129,7 @@ public class EchoServer
         // sslContextFactory.setKeyManagerPassword(password);
         sslContextFactory.setNeedClientAuth(false);
 
-        ServerConnector sslConnector = new ServerConnector(this,
-                new SslConnectionFactory(sslContextFactory, "http/1.1"), //
+        ServerConnector sslConnector = new ServerConnector(this, new SslConnectionFactory(sslContextFactory, "http/1.1"), //
                 new HttpConnectionFactory(https));
         sslConnector.setPort(port);
         return sslConnector;
@@ -158,8 +158,8 @@ public class EchoServer
      * Returns servletContext.contextHandler.echoServer.
      */
     public static EchoServer fromContext(ServletContext servletContext) {
-        if (servletContext instanceof ContextHandler.Context) {
-            ContextHandler handler = ((ContextHandler.Context) servletContext).getContextHandler();
+        if (servletContext instanceof ServletContextHandler.ServletContextApi) {
+            ContextHandler handler = ((ServletContextHandler.ServletContextApi) servletContext).getContextHandler();
             if (handler instanceof EchoServletContextHandler)
                 return ((EchoServletContextHandler) handler).getEchoServer();
         }
@@ -246,8 +246,7 @@ public class EchoServer
     }
 
     class LifeCycleListener
-            implements
-                LifeCycle.Listener {
+            implements LifeCycle.Listener {
 
         @Override
         public void lifeCycleStarted(LifeCycle event) {

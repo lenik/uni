@@ -1,5 +1,6 @@
 package net.bodz.uni.echo.resource;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -56,7 +57,8 @@ public class UnionResourceProvider
     }
 
     @Override
-    public void findResources(@NotNull List<URL> resources, @NotNull String path) {
+    public void findResources(@NotNull List<URL> resources, @NotNull String path)
+            throws IOException {
         for (IResourceProvider resourceProvider : resourceProviders)
             resourceProvider.findResources(resources, path);
     }

@@ -1,5 +1,6 @@
 package net.bodz.uni.echo.resource;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
@@ -90,7 +91,8 @@ public class MountableResourceProvider
     }
 
     @Override
-    public void findResources(@NotNull List<URL> resources, @NotNull String path) {
+    public void findResources(@NotNull List<URL> resources, @NotNull String path)
+            throws IOException {
         MountPoint node = root;
 
         while (path != null && node != null) {

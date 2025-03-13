@@ -1,5 +1,6 @@
 package net.bodz.uni.echo.resource;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -120,7 +121,8 @@ public class DerivedResourceProvider
     }
 
     @Override
-    public void findResources(@NotNull List<URL> resources, @NotNull String path) {
+    public void findResources(@NotNull List<URL> resources, @NotNull String path)
+            throws IOException {
         String extension = FilePath.getDotExtension(path);
         String srcExtension = extensionMap.get(extension);
         if (extension.isEmpty() || srcExtension == null) {

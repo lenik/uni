@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -155,16 +154,11 @@ public class EchoClient {
         PrintStream out = System.err;
         out.println(response.getStatus() + " " + response.getReason());
 
-        Enumeration<String> names = response.getFieldNames();
-
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
+        for (String name : response.getFieldNamesCollection()) {
             HttpField header = response.getField(name);
             out.println(header);
         }
-
         out.println();
-
         out.println(response.getContent());
     }
 

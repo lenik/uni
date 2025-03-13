@@ -1,5 +1,6 @@
 package net.bodz.uni.echo.resource;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
@@ -24,11 +25,13 @@ public abstract class DecoratedResourceProvider
     }
 
     @NotNull
-    public List<URL> getResources(@NotNull String path) {
+    public List<URL> getResources(@NotNull String path)
+            throws IOException {
         return getWrapped().getResources(path);
     }
 
-    public void findResources(List<URL> resources, String path) {
+    public void findResources(List<URL> resources, String path)
+            throws IOException {
         getWrapped().findResources(resources, path);
     }
 
