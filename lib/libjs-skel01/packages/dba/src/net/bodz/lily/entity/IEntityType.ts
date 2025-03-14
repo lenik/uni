@@ -4,6 +4,7 @@ import EntityProperty from "./EntityProperty";
 
 export interface IEntityType extends ITypeInfo<any> {
     get name(): string        // Java class name
+    get simpleName(): string
 
     get property(): EntityPropertyMap
 

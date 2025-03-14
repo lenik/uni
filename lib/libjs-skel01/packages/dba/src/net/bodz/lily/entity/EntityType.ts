@@ -4,6 +4,7 @@ import type { IEntityProperty } from "./IEntityProperty";
 import EntityProperty from "./EntityProperty";
 import type { EntityPropertyMap } from "./EntityPropertyMap";
 import type { ITypeInfo } from "skel01-core/src/lang/ITypeInfo";
+import { useEntityController } from "./EntityController";
 
 export abstract class EntityType extends TypeInfo<any> implements IEntityType {
 
@@ -97,10 +98,13 @@ export abstract class EntityType extends TypeInfo<any> implements IEntityType {
     }
 
     override fromJson(jv: any): any {
+        if (Array.isArray(jv))
+            throw new Error('Invalid JSON: expect object rather than arrray: ' + jv);
         let o = this.create();
         for (let property of this.properties) {
             let name = property.name!;
             if (o.__lookupGetter__(name) != null)
+                // derived property instead of field, avoid since duplicated.
                 continue;
             let propJv = jv[name];
             if (propJv != null) {
@@ -124,6 +128,7 @@ export abstract class EntityType extends TypeInfo<any> implements IEntityType {
         for (let property of this.properties) {
             let name = property.name!;
             if (o.__lookupGetter__(name) != null)
+                // derived property instead of field, avoid since duplicated.
                 continue;
             let propVal = o[name];
             if (propVal != null) {
@@ -134,6 +139,10 @@ export abstract class EntityType extends TypeInfo<any> implements IEntityType {
         }
 
         return jv;
+    }
+
+    controller(serverUrl: string) {
+        return useEntityController(this, serverUrl);
     }
 
 }
