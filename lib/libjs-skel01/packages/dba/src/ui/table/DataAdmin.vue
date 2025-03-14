@@ -2,8 +2,9 @@
 import { computed, onMounted, ref } from "vue";
 import moment from "moment-timezone";
 
-import { Command, Status } from "skel01-core/src/ui/types";
-import { LogEntry, logsExample, parseException } from "skel01-core/src/logging/api";
+import type { Command, Status } from "skel01-core/src/ui/types";
+import type { LogEntry } from "skel01-core/src/logging/api";
+import { logsExample, parseException } from "skel01-core/src/logging/api";
 
 import EntityType from "../../net/bodz/lily/entity/EntityType";
 import { } from "./types";

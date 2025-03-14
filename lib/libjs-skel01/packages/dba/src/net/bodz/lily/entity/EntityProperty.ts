@@ -1,7 +1,7 @@
 import { int } from "skel01-core/src/lang/basetype"
 import { Validator } from "skel01-core/src/ui/types"
+import type { ITypeInfo } from "skel01-core/src/lang/ITypeInfo"
 import IEntityProperty from "./IEntityProperty"
-import ITypeInfo from "skel01-core/src/lang/ITypeInfo"
 
 export class EntityProperty implements IEntityProperty {
 
