@@ -1,11 +1,18 @@
 import TypeInfo from "../../../../lang/TypeInfo";
 import Attachment from "./Attachment";
+import AttachmentValidators from "./AttachmentValidators";
 
 export class AttachmentTypeInfo extends TypeInfo<Attachment> {
+
+    readonly validators = new AttachmentValidators(this);
 
     get name(): string { return 'IAttachment'; }
     get icon(): string { return 'far-image'; }
     get label(): string { return 'Entity Attachment'; }
+
+    create() {
+        return new Attachment();
+    }
 
     parse(s: string): Attachment {
         let jv = JSON.parse(s);

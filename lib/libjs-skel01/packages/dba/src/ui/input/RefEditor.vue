@@ -149,30 +149,6 @@ function onDialogSelect(val: any) {
     return true;
 }
 
-function hasImage(attachments: Attachment[]) {
-    if (attachments != null)
-        for (let a of attachments) {
-            let name = a.fileName || a.name || a.path;
-            if (name != null)
-                if (isImageName(name))
-                    return true;
-        }
-    return false;
-}
-
-function defaultImages(attachments: Attachment[]) {
-    let images = [] as Attachment[];
-    if (attachments != null)
-        for (let a of attachments) {
-            let name = a.fileName || a.name || a.path;
-            if (name != null)
-                if (isImageName(name))
-                    images.push(a);
-        }
-    return images;
-}
-
-
 function idHref(a: Attachment, id: string | number) {
     if (a == null) return null;
     return a.idHref(id);
@@ -211,8 +187,8 @@ onMounted(() => {
                 'not-listed': item.id == selectedId && !listed,
             }" @click="select(item)">
                 <slot name="quick-item">
-                    <ul class="images" v-if="hasImage(item.files)">
-                        <li v-for="(attachment, i) in defaultImages(item.files)" :key="i">
+                    <ul class="images" v-if="item.files?.images">
+                        <li v-for="(attachment, i) in item.files.images" :key="i">
                             <MediaView :src="attachmentUrl(attachment, item.id)" />
                         </li>
                     </ul>
