@@ -234,10 +234,20 @@ export interface Command extends UiComponent {
 
 }
 
+export interface IDialog {
+
+    open(options?: DialogOpenOptions): void;
+
+    select(event?: Event): Promise<void>;
+
+    close(event?: Event): Promise<void>;
+
+}
+
 type DialogSelectCallback =
-    (value: any, event: Event) => boolean | Promise<boolean>;
+    (value: any, event?: Event) => boolean | Promise<boolean>;
 type DialogCallback =
-    (command: any, event: Event) => void | Promise<void>;
+    (command: any, event?: Event) => void | Promise<void>;
 
 export interface DialogOpenOptions {
     onselect?: DialogSelectCallback

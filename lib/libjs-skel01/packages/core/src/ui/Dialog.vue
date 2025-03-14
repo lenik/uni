@@ -63,9 +63,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-    create: [event: Event]
-    close: [event: Event]
-    select: [value: any, event: Event]
+    // create: [event: Event]
+    close: [event?: Event]
+    select: [value: any, event?: Event]
 }>();
 
 // property shortcuts
@@ -99,7 +99,7 @@ const dialogDiv = ref<HTMLElement>();
 const titleDiv = ref<HTMLElement>();
 
 defineExpose({
-    open, rootElement: containerDiv
+    open, close, rootElement: containerDiv
 });
 
 class LocalFrame {
@@ -157,37 +157,39 @@ function _destroy() {
     return frame;
 }
 
-async function close(event: Event) {
-    if (localStack.length) {
-        let frame = localStack[localStack.length - 1];
-        let options = frame.options;
+async function close(event?: Event) {
+    if (localStack.length == 0)
+        return;
+    let frame = localStack[localStack.length - 1];
+    let options = frame.options;
 
-        emit('close', event);
-        _destroy();
-        
-        if (options?.onclose != null) {
-            let v = options.onclose('close', event);
-            if (v instanceof Promise)
-                await v;
-        }
+    emit('close', event);
+    _destroy();
+    
+    if (options?.onclose != null) {
+        let v = options.onclose('close', event);
+        if (v instanceof Promise)
+            await v;
     }
 }
 
-async function select(event: Event) {
-    if (localStack.length) {
-        let frame = localStack[localStack.length - 1];
-        let options = frame.options;
-        if (options?.onselect != null) {
-            // slowly((end) => {
-            let success = options.onselect(model.value, event);
-            if (success instanceof Promise)
-                success = await success;
-            return success;
-        }
-
-        emit('select', model.value, event);
-        _destroy();
+async function select(event?: Event) {
+    if (localStack.length==0) 
+        return false;
+    let success = true;
+    let frame = localStack[localStack.length - 1];
+    let options = frame.options;
+    if (options?.onselect != null) {
+        // slowly((end) => {
+        let ret = options.onselect(model.value, event);
+        if (ret instanceof Promise)
+            ret = await ret;
+        success = ret as boolean;
     }
+
+    emit('select', model.value, event);
+    _destroy();
+    return success;
 }
 
 async function run(button: Command, event: Event) {
