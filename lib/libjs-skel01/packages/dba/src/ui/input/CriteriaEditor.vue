@@ -34,6 +34,7 @@ onMounted(() => {
     <div class="component-root" ref="rootElement">
         <div @click="emit('error', 'this is a test.')">
         </div>
+    </div>
 </template>
 
 <style scoped lang="scss">
