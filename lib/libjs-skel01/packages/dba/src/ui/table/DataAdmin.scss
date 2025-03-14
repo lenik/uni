@@ -50,8 +50,19 @@
     max-width: 30%;
 }
 
-.preview.attached {
-    flex: 1;
+.preview {
+    ::v-deep() {
+
+        input,
+        textarea,
+        .ref-editor {
+            pointer-events: none;
+        }
+    }
+
+    &.attached {
+        flex: 1;
+    }
 }
 
 .side-tools {
