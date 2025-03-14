@@ -1,6 +1,6 @@
 // import { int } from '../../../../lang/basetype';
 
-export interface IAttachment {
+export interface AttachmentRecord {
     path?: string
     fileName?: string
     name?: string
@@ -8,7 +8,7 @@ export interface IAttachment {
     sha1: string
 }
 
-export function getItemImage(item: IAttachment, id: number | string) {
+export function getItemImage(item: AttachmentRecord, id: number | string) {
     if (item == null)
         return null;
 

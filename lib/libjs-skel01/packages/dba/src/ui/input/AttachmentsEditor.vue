@@ -21,6 +21,7 @@ export interface Props {
 
 <script setup lang="ts">
 import Icon from "skel01-core/src/ui/Icon.vue";
+import MediaView from "skel01-core/src/ui/MediaView.vue";
 
 const model = defineModel<Attachment[]>();
 
@@ -75,6 +76,10 @@ const indexUrl = computed(() => {
     return serverUrl + "/" + simpleName.value;
 });
 
+// app states
+
+const scaleFactor = ref(1.00);
+
 // DOM references
 
 const rootElement = ref<HTMLElement>();
@@ -95,7 +100,7 @@ function idHref(a: Attachment, id: string | number) {
     return a.idHref(id);
 }
 
-function url(a: Attachment, id: string | number) {
+function attachmentUrl(a: Attachment, id: string | number) {
     let url: string;
     if (a.path != null)
         url = serverUrl + a.path;
@@ -120,6 +125,12 @@ function scaleMaxSize(elm: HTMLElement, scale: number) {
     let map = elm.computedStyleMap();
     let maxWidth = map.get('max-width')!;
     let maxHeight = map.get('max-height')!;
+
+    if (maxWidth == 'none')
+        maxWidth = map.get('width')!;
+    if (maxHeight == 'none')
+        maxHeight = map.get('height')!;
+
     if (maxWidth instanceof CSSNumericValue)
         maxWidth = maxWidth.mul(scale);
     if (maxHeight instanceof CSSNumericValue)
@@ -128,6 +139,28 @@ function scaleMaxSize(elm: HTMLElement, scale: number) {
     elm.style.maxHeight = maxHeight.toString();
 }
 
+function onPreviewClick(attachment: Attachment, i: number, e: MouseEvent) {
+    switch (e.button) {
+        case 1:     // middle button
+            remove(i);
+            e.preventDefault();
+            break;
+    }
+}
+
+function onPreviewWheel(attachment: Attachment, i: number, e: WheelEvent) {
+    // console.log(e.deltaMode, e.deltaX, e.deltaY, e.deltaZ);
+    // console.log(WheelEvent.DOM_DELTA_PIXEL, WheelEvent.DOM_DELTA_LINE, WheelEvent.DOM_DELTA_PAGE);
+    let target = e.target as HTMLElement;
+    let mediaView = target.closest('.media-view');
+    if (mediaView != null) target = mediaView as HTMLElement;
+
+    let scale = -Math.round(e.deltaY * 0.01);
+    // scale = 1 + scale * 0.1;
+    scaleFactor.value += scale * 0.1;
+    // scaleMaxSize(target, scale);
+    e.preventDefault();
+}
 onMounted(() => {
 
     let $input = $(fileInput.value!) as any;
@@ -165,23 +198,6 @@ onMounted(() => {
     });
 });
 
-function onPreviewClick(attachment: Attachment, i: number, e: MouseEvent) {
-    switch (e.button) {
-        case 1:     // middle button
-            remove(i);
-            e.preventDefault();
-            break;
-    }
-}
-
-function onPreviewWheel(attachment: Attachment, i: number, e: WheelEvent) {
-    // console.log(e.deltaMode, e.deltaX, e.deltaY, e.deltaZ);
-    // console.log(WheelEvent.DOM_DELTA_PIXEL, WheelEvent.DOM_DELTA_LINE, WheelEvent.DOM_DELTA_PAGE);
-    let scale = -Math.round(e.deltaY * 0.01);
-    scale = 1 + scale * 0.1;
-    scaleMaxSize(e.target as HTMLElement, scale);
-    e.preventDefault();
-}
 </script>
 
 <template>
@@ -195,10 +211,10 @@ function onPreviewWheel(attachment: Attachment, i: number, e: WheelEvent) {
         </div>
         <ul class="previews" v-if="model != null" ref="previewsDiv">
             <li v-for="(attachment, i) in model" :key="i"
-                @mousedown="(e: MouseEvent) => onPreviewClick(attachment, i, e)"
-                @wheel="(e: WheelEvent) => onPreviewWheel(attachment, i, e)">
-                <img :src="url(attachment, id)">
-                <div class="caption">{{ attachment.name }}
+                @mousedown="(e: MouseEvent) => onPreviewClick(attachment, i, e)">
+                <MediaView :src="attachmentUrl(attachment, id)"
+                    @wheel="(e: WheelEvent) => onPreviewWheel(attachment, i, e)" />
+                <div class="caption">{{ attachment.path }}
                     <Icon name="far-trash" @click="remove(i)" />
                 </div>
             </li>
@@ -256,6 +272,8 @@ function onPreviewWheel(attachment: Attachment, i: number, e: WheelEvent) {
     // border: dashed 1px gray;
     background-color: #ffffee;
 
+    --scale-factor: v-bind(scaleFactor);
+
     li {
         border: dashed 1px gray;
         margin-top: .3em;
@@ -264,16 +282,19 @@ function onPreviewWheel(attachment: Attachment, i: number, e: WheelEvent) {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: end;
+        justify-content: flex-end;
 
         &:not(:first-child) {
             margin-left: .5em;
         }
 
-        img {
-            max-width: 4em;
-            max-height: 4em;
-            object-fit: contain;
+        .media-view {
+            // img,
+            // video,
+            // div.unknown {
+            max-width: calc(4em * var(--scale-factor));
+            max-height: calc(4em * var(--scale-factor));
+            // object-fit: contain;
             flex: 1;
         }
 
