@@ -77,7 +77,7 @@ public class DerivedResourceProvider
 
     @Override
     public URL getResource(@NotNull String path) {
-        String dotExtension = FilePath.getDotExtension(path);
+        String dotExtension = FilePath.dotExtensionOfPath(path);
         if (dotExtension.isEmpty())
             return super.getResource(path);
 
@@ -123,7 +123,7 @@ public class DerivedResourceProvider
     @Override
     public void findResources(@NotNull List<URL> resources, @NotNull String path)
             throws IOException {
-        String extension = FilePath.getDotExtension(path);
+        String extension = FilePath.dotExtensionOfPath(path);
         String srcExtension = extensionMap.get(extension);
         if (extension.isEmpty() || srcExtension == null) {
             super.findResources(resources, path);

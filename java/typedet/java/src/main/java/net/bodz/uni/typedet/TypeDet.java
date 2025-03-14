@@ -22,7 +22,7 @@ public class TypeDet
             throws Exception {
         for (String path : args) {
             File file = new File(path);
-            String ext = FilePath.getExtension(file);
+            String ext = FilePath.extension(file);
             if (ext == null) {
                 logger.error("unknown file type: " + file.getName());
                 continue;

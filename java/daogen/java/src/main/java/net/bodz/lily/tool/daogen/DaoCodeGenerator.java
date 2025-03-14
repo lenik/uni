@@ -495,7 +495,7 @@ public class DaoCodeGenerator
 
         try {
             if (loadCatalogFile != null) {
-                String extension = FilePath.getExtension(loadCatalogFile);
+                String extension = FilePath.extension(loadCatalogFile);
                 if ("xml".equals(extension))
                     XmlFn.load(catalog, loadCatalogFile);
                 else
@@ -511,7 +511,7 @@ public class DaoCodeGenerator
             catalog.accept(new FinishProcessor(config));
 
             if (saveCatalogFile != null) {
-                String extension = FilePath.getExtension(saveCatalogFile);
+                String extension = FilePath.extension(saveCatalogFile);
                 if ("xml".equals(extension))
                     XmlFn.save(catalog, saveCatalogFile);
                 else

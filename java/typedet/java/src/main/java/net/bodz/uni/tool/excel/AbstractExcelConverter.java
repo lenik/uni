@@ -79,12 +79,12 @@ public abstract class AbstractExcelConverter
             entireWorkbook = false;
         if (entireWorkbook)
             splitSheets = false;
-        if (! (splitSheets || entireWorkbook))
+        if (!(splitSheets || entireWorkbook))
             splitSheets = true;
 
         for (String name : args) {
             File file = new File(name);
-            if (! file.canRead()) {
+            if (!file.canRead()) {
                 logger.error("Can't read from " + file);
                 continue;
             }
@@ -94,9 +94,9 @@ public abstract class AbstractExcelConverter
             ExcelParseOptions options = new ExcelParseOptions();
             workbook.readObject(src, options);
 
-            File destFile = FilePath.alterExtension(file, destExtension);
+            File destFile = FilePath.dotExtension(file, destExtension);
             if (outDir != null)
-                destFile = FilePath.alterDirectory(destFile, outDir);
+                destFile = FilePath.dirName(destFile, outDir);
 
             convertWorkbook(workbook, destFile);
         }
@@ -113,9 +113,9 @@ public abstract class AbstractExcelConverter
             if (splitSheets) {
                 File sheetFile = file;
                 if (sheetNameOnly)
-                    sheetFile = FilePath.alterName(file, sheetName + destExtension);
+                    sheetFile = FilePath.baseName(file, sheetName + destExtension);
                 else
-                    sheetFile = FilePath.alterExtension(file, "-" + sheetName + destExtension);
+                    sheetFile = FilePath.dotExtension(file, "-" + sheetName + destExtension);
                 convertSheet(sheet, sheetFile);
             } else {
                 if (out == null) {

@@ -114,7 +114,7 @@ public class EchoResourceServlet
         }
 
         ContentType contentType = ContentTypes.application_octet_stream; // null;
-        String extension = FilePath.getExtension(path);
+        String extension = FilePath.extensionOfPath(path);
         if (extension != null)
             contentType = ContentType.forExtension(extension);
 
