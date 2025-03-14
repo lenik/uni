@@ -12,21 +12,21 @@ import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.t.catalog.ITableMetadata;
 
-public abstract class JavaGenFileType
+public abstract class DaoGen__Base
         extends SourceBuilder<ITableMetadata> {
 
-    static final Logger logger = LoggerFactory.getLogger(JavaGenFileType.class);
+    static final Logger logger = LoggerFactory.getLogger(DaoGen__Base.class);
 
     protected static final String JAVA = "java";
     protected static final String XML = "xml";
     protected static final String TS = "ts";
     protected static final String VUE = "vue";
 
-    public final JavaGenProject project;
+    public final DaoGenProject project;
     protected final MiscTemplates templates;
     protected final IClassPathInfo pathInfo;
 
-    public JavaGenFileType(JavaGenProject project, ClassPathInfo pathInfo) {
+    public DaoGen__Base(DaoGenProject project, ClassPathInfo pathInfo) {
         this.project = project;
         this.templates = new MiscTemplates(project);
         this.pathInfo = pathInfo;

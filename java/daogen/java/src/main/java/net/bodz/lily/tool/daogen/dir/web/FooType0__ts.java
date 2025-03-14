@@ -21,20 +21,20 @@ import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__ts;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__ts;
 import net.bodz.lily.tool.daogen.OutFormat;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class FooType0__ts
-        extends JavaGen__ts {
+        extends DaoGen__ts {
 
     static final Logger logger = LoggerFactory.getLogger(FooType0__ts.class);
 
     TsCodeStyle tsCodeStyle = TsCodeStyle.LOOSE;
 
-    public FooType0__ts(JavaGenProject project) {
+    public FooType0__ts(DaoGenProject project) {
         super(project, project.Esm_Foo_stuff_Type);
     }
 

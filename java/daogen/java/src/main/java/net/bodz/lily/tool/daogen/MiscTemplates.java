@@ -53,9 +53,9 @@ import net.bodz.lily.tool.daogen.util.JavaLang;
 
 public class MiscTemplates {
 
-    JavaGenProject project;
+    DaoGenProject project;
 
-    public MiscTemplates(JavaGenProject project) {
+    public MiscTemplates(DaoGenProject project) {
         this.project = project;
     }
 

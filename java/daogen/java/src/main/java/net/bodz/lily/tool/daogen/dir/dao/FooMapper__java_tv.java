@@ -3,13 +3,13 @@ package net.bodz.lily.tool.daogen.dir.dao;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.db.ibatis.IEntityMapper;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 
 public class FooMapper__java_tv
-        extends JavaGen__java {
+        extends DaoGen__java {
 
-    public FooMapper__java_tv(JavaGenProject project) {
+    public FooMapper__java_tv(DaoGenProject project) {
         super(project, project.FooMapper);
     }
 

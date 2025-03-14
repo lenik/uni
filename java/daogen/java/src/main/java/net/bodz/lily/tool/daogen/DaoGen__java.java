@@ -8,10 +8,10 @@ import net.bodz.bas.io.impl.TreeOutImpl;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 
-public abstract class JavaGen__java
-        extends JavaGenFileType {
+public abstract class DaoGen__java
+        extends DaoGen__Base {
 
-    public JavaGen__java(JavaGenProject project, ClassPathInfo pathInfo) {
+    public DaoGen__java(DaoGenProject project, ClassPathInfo pathInfo) {
         super(project, pathInfo);
     }
 
@@ -25,11 +25,11 @@ public abstract class JavaGen__java
     }
 
     @Override
-    public void build(ITreeOut out, ITableMetadata model) {
-        buildClass(out, model);
+    public boolean build(ITreeOut out, ITableMetadata model) {
+        return buildClass(out, model);
     }
 
-    protected final void buildClass(ITreeOut out, ITableMetadata model) {
+    protected final boolean buildClass(ITreeOut out, ITableMetadata model) {
         QualifiedName name = getClassName(model);
         out.println("package " + name.packageName + ";");
         out.println();
@@ -44,6 +44,7 @@ public abstract class JavaGen__java
 
         out.print(body.toString());
         out.flush();
+        return true;
     }
 
     protected abstract void buildClassBody(JavaSourceWriter out, ITableMetadata model);

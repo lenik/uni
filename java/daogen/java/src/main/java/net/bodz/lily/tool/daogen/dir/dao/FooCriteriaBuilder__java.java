@@ -2,13 +2,13 @@ package net.bodz.lily.tool.daogen.dir.dao;
 
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 
 public class FooCriteriaBuilder__java
-        extends JavaGen__java {
+        extends DaoGen__java {
 
-    public FooCriteriaBuilder__java(JavaGenProject project) {
+    public FooCriteriaBuilder__java(DaoGenProject project) {
         super(project, project.FooCriteriaBuilder);
     }
 

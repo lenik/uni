@@ -8,14 +8,14 @@ import net.bodz.bas.db.sql.DDLExporter;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 import net.bodz.lily.tool.daogen.util.SBCodegen;
 
 public class FooExporter__java
-        extends JavaGen__java {
+        extends DaoGen__java {
 
-    public FooExporter__java(JavaGenProject project) {
+    public FooExporter__java(DaoGenProject project) {
         super(project, project.FooExporter);
     }
 

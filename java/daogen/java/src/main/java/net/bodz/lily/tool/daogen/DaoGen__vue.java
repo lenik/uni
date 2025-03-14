@@ -12,14 +12,14 @@ import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 
-public abstract class JavaGen__vue
-        extends JavaGenFileType
+public abstract class DaoGen__vue
+        extends DaoGen__Base
         implements
             ITsImporterAware {
 
     TypeScriptWriter tsOut;
 
-    public JavaGen__vue(JavaGenProject project, ClassPathInfo name) {
+    public DaoGen__vue(DaoGenProject project, ClassPathInfo name) {
         super(project, name);
     }
 
@@ -29,8 +29,8 @@ public abstract class JavaGen__vue
     }
 
     @Override
-    public void build(ITreeOut out, ITableMetadata model) {
-        buildVue(out, model);
+    public boolean build(ITreeOut out, ITableMetadata model) {
+        return buildVue(out, model);
     }
 
     protected abstract String getTitle(ITableMetadata model);
@@ -49,7 +49,7 @@ public abstract class JavaGen__vue
         return pathInfo.getQName();
     }
 
-    protected final void buildVue(ITreeOut out, ITableMetadata model) {
+    protected final boolean buildVue(ITreeOut out, ITableMetadata model) {
         EsmDomainMap domainMap = TsConfig.buildDomainMap(project.web.baseDir);
         EsmImports imports = new EsmImports(null);
         tsOut = new TypeScriptWriter(pathInfo.getQName(), out.indented(), //
@@ -117,6 +117,7 @@ public abstract class JavaGen__vue
             tsOut.println();
         }
         out.flush();
+        return true;
     }
 
     protected abstract void buildScript1(TypeScriptWriter out, ITableMetadata model);

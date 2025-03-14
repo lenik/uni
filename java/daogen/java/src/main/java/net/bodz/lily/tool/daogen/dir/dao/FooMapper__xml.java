@@ -13,12 +13,12 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.ColumnUtils;
-import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.DaoGenProject;
 
 public class FooMapper__xml
         extends VFooMapper__xml {
 
-    public FooMapper__xml(JavaGenProject project) {
+    public FooMapper__xml(DaoGenProject project) {
         super(project);
     }
 

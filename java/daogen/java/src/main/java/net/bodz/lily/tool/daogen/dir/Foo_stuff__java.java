@@ -14,18 +14,20 @@ import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.bas.t.tuple.Split;
 import net.bodz.lily.entity.IdType;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 import net.bodz.lily.tool.daogen.OutFormat;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
+import java.io.Serial;
+
 public class Foo_stuff__java
-        extends JavaGen__java {
+        extends DaoGen__java {
 
     static final Logger logger = LoggerFactory.getLogger(Foo_stuff__java.class);
 
-    public Foo_stuff__java(JavaGenProject project) {
+    public Foo_stuff__java(DaoGenProject project) {
         super(project, project._Foo_stuff);
     }
 
@@ -60,6 +62,7 @@ public class Foo_stuff__java
         out.enter();
         {
             out.println();
+            out.println("@" + out.importName(Serial.class));
             out.println("private static final long serialVersionUID = 1L;");
 
             TableOid oid = table.getId();

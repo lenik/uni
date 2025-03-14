@@ -44,19 +44,19 @@ import net.bodz.lily.concrete.StructRow;
 import net.bodz.lily.meta.FieldGroupVue;
 import net.bodz.lily.meta.ReadOnly;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__vue;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__vue;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class FooEditor__vue
-        extends JavaGen__vue {
+        extends DaoGen__vue {
 
     static final Logger logger = LoggerFactory.getLogger(FooEditor__vue.class);
 
     Map<String, EsmName> dialogs = new LinkedHashMap<>();
 
-    public FooEditor__vue(JavaGenProject project) {
+    public FooEditor__vue(DaoGenProject project) {
         super(project, project.Esm_FooEditor);
     }
 
@@ -203,6 +203,7 @@ public class FooEditor__vue
 
     static final List<Class<? extends Annotation>> excludeAnnotations;
     static final List<Class<? extends Annotation>> readOnlyAnnotations;
+
     static {
         excludeAnnotations = new ArrayList<>();
         excludeAnnotations.add(Derived.class);
@@ -237,7 +238,8 @@ public class FooEditor__vue
             IType type = BeanTypeProvider.getInstance().getType(decl);
 
             Map<IProperty, IColumnMetadata> selection = new LinkedHashMap<>();
-            L: for (IProperty property : type.getProperties()) {
+L:
+            for (IProperty property : type.getProperties()) {
                 String propName = property.getName();
                 if (handled.contains(propName))
                     continue;
@@ -300,8 +302,7 @@ public class FooEditor__vue
         }
     }
 
-    void fieldGroup(TypeScriptWriter out, ITableMetadata table, Class<?> decl,
-            Map<IProperty, IColumnMetadata> selection) {
+    void fieldGroup(TypeScriptWriter out, ITableMetadata table, Class<?> decl, Map<IProperty, IColumnMetadata> selection) {
 
         String tsTypeInfo = typeInfoResolver().resolveClass(decl);
 
@@ -382,6 +383,10 @@ public class FooEditor__vue
         String className = xref.getParentTable().getJavaTypeName();
 
         QualifiedName qType = QualifiedName.parse(className);
+        // EsmSource typeSrc = out.domainMap.findSource(qType, "ts", project.Esm_FooEditor.qName);
+        QualifiedName qTypeInfo = qType.nameAdd("TypeInfo");
+        String typeInfoClass = out.importDefault(qTypeInfo);
+
         QualifiedName qDialogType = qType.nameAdd("ChooseDialog");
         EsmSource dialogSource = out.domainMap.findSource(qDialogType, "vue", project.Esm_FooEditor.qName);
         if (dialogSource == null)
@@ -391,6 +396,7 @@ public class FooEditor__vue
         dialogs.put(dialogVar, dialogSource.defaultExport(qDialogType.name));
 
         Attrs attrs = new Attrs();
+        attrs.put(":type", typeInfoClass + ".INSTANCE");
         attrs.put(":dialog", dialogVar);
         attrs.put("v-model", "model." + propertyName);
         attrs.put("v-model:id", "model." + propertyName + "Id");
@@ -425,55 +431,59 @@ public class FooEditor__vue
         String tagName = defaultTagName;
         Attrs tagAttrs = new Attrs();
         switch (tsType) {
-        case "number":
-        case "byte":
-        case "short":
-        case "int":
-        case "long":
-        case "float":
-        case "double":
-            tagAttrs.put("type", "number");
-            break;
+            case "number":
+            case "byte":
+            case "short":
+            case "int":
+            case "long":
+            case "float":
+            case "double":
+                tagAttrs.put("type", "number");
+                break;
 
-        case "BigDecimal":
-        case "BigInteger":
-            tagAttrs.put("type", "number");
-            break;
+            case "BigDecimal":
+            case "BigInteger":
+                tagAttrs.put("type", "number");
+                break;
 
-        case "boolean":
-            tagAttrs.put("type", "checkbox");
-            break;
-        case "char":
-        case "string":
-        case "InetAddress":
-            tagAttrs.put("type", "text");
-            if (tsType.equals("char"))
-                tagAttrs.put("maxlength", 1);
-            break;
+            case "boolean":
+                tagAttrs.put("type", "checkbox");
+                break;
+            case "char":
+            case "string":
+            case "InetAddress":
+                tagAttrs.put("type", "text");
+                if (tsType.equals("char"))
+                    tagAttrs.put("maxlength", 1);
+                break;
 
-        case "JavaDate":
-        case "SQLDate":
-        case "Timestamp":
+            case "JavaDate":
+            case "SQLDate":
+            case "Timestamp":
 
-        case "LocalDate":
-        case "LocalTime":
-        case "OffsetTime":
-        case "Instant":
-        case "LocalDateTime":
-        case "ZonedDateTime":
-        case "OffsetDateTime":
-            tagName = out.importName(Skel01Modules.core.DateTime);
-            break;
+            case "LocalDate":
+            case "LocalTime":
+            case "OffsetTime":
+            case "Instant":
+            case "LocalDateTime":
+            case "ZonedDateTime":
+            case "OffsetDateTime":
+                tagName = out.importName(Skel01Modules.core.DateTime);
+                break;
 
-        case "JsonVariant":
-            tagName = out.importName(Skel01Modules.core.JsonEditor);
-            break;
+            case "JsonVariant":
+                if ("files".equals(propertyName)) {
+                    tagName = out.importName(Skel01Modules.dba.FilesEditor);
+                } else {
+                    tagName = out.importName(Skel01Modules.core.JsonEditor);
+                }
+                break;
         }
 
         if (! tagAttrs.isEmpty() || ! tagName.equals(defaultTagName)) {
             switch (tsType) {
-            default:
-                tagAttrs.put("v-model", propertyModel);
+                default:
+                    tagAttrs.put("v-model", propertyModel);
             }
             if (isReadOnly(property))
                 tagAttrs.put("disabled", Attrs.NO_VALUE);

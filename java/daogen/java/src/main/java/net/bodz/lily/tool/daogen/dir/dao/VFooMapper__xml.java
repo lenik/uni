@@ -18,20 +18,20 @@ import net.bodz.bas.t.catalog.IViewMetadata;
 import net.bodz.bas.t.catalog.TableKey;
 import net.bodz.lily.tool.daogen.AliasedColumn;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__xml;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__xml;
 import net.bodz.lily.tool.daogen.JoinColumns;
 import net.bodz.lily.tool.daogen.RuntimeSupport;
 
 public class VFooMapper__xml
-        extends JavaGen__xml {
+        extends DaoGen__xml {
 
     static final Logger logger = LoggerFactory.getLogger(VFooMapper__xml.class);
 
     static final String SQLID_OBJLIST = "objlist_sql";
     static final String SQLID_OBJEDIT = "objedit_sql";
 
-    public VFooMapper__xml(JavaGenProject project) {
+    public VFooMapper__xml(DaoGenProject project) {
         super(project, project.FooMapper);
     }
 

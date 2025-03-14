@@ -4,13 +4,13 @@ import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.meta.decl.ObjectType;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.concrete.CoIndex;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 
 public class FooIndex__java
-        extends JavaGen__java {
+        extends DaoGen__java {
 
-    public FooIndex__java(JavaGenProject project) {
+    public FooIndex__java(DaoGenProject project) {
         super(project, project.FooIndex);
     }
 

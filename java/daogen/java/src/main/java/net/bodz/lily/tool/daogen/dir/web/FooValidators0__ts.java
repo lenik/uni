@@ -8,15 +8,15 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__ts;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__ts;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
 public class FooValidators0__ts
-        extends JavaGen__ts {
+        extends DaoGen__ts {
 
-    public FooValidators0__ts(JavaGenProject project) {
+    public FooValidators0__ts(DaoGenProject project) {
         super(project, project.Esm_Foo_stuff_Validators);
     }
 

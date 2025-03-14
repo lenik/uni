@@ -13,13 +13,13 @@ import net.bodz.lily.concrete.CoObjectCriteriaBuilder;
 import net.bodz.lily.concrete.StructRowCriteriaBuilder;
 import net.bodz.lily.entity.manager.ForEntityType;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 
 public class FooCriteriaBuilder_stuff__java
-        extends JavaGen__java {
+        extends DaoGen__java {
 
-    public FooCriteriaBuilder_stuff__java(JavaGenProject project) {
+    public FooCriteriaBuilder_stuff__java(DaoGenProject project) {
         super(project, project._FooCriteriaBuilder_stuff);
     }
 

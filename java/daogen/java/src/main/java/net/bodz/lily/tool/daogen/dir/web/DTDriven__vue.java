@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.string.StringArray;
 import net.bodz.bas.c.string.StringId;
 import net.bodz.bas.c.string.StringQuote;
@@ -23,16 +24,16 @@ import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.entity.esm.DTColumn;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__vue;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__vue;
 import net.bodz.lily.tool.daogen.util.DTColumnConfig;
 
 public abstract class DTDriven__vue
-        extends JavaGen__vue {
+        extends DaoGen__vue {
 
     Map<String, String> typeMap = new LinkedHashMap<>();
 
-    public DTDriven__vue(JavaGenProject project, ClassPathInfo name) {
+    public DTDriven__vue(DaoGenProject project, ClassPathInfo name) {
         super(project, name);
     }
 
@@ -153,7 +154,8 @@ public abstract class DTDriven__vue
             a.put("data-render", dtColumn.dataRender);
 
         if (description != null)
-            a.put("title", description);
+            if (! Nullables.equals(description, label))
+                a.put("title", description);
 
         out.print(a.toHtml("th"));
         out.print(label);
@@ -208,7 +210,8 @@ public abstract class DTDriven__vue
             a.put("data-render", dtColumn.dataRender);
 
         if (description != null)
-            a.put("title", description);
+            if (! Nullables.equals(description, label))
+                a.put("title", description);
 
         out.print(a.toHtml("th"));
         out.print(label);

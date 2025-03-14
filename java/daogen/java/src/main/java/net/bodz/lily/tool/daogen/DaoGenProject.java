@@ -10,9 +10,9 @@ import net.bodz.bas.t.catalog.ICatalogMetadata;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.lily.tool.daogen.config.CatalogConfig;
 
-public class JavaGenProject {
+public class DaoGenProject {
 
-    static final Logger logger = LoggerFactory.getLogger(JavaGenProject.class);
+    static final Logger logger = LoggerFactory.getLogger(DaoGenProject.class);
 
     File baseDir;
     String daoPackage = "dao";
@@ -69,7 +69,7 @@ public class JavaGenProject {
     public final ClassPathInfo Esm_FooChooseDialog;
     public final ClassPathInfo Esm_FooEditor;
 
-    public JavaGenProject(File baseDir, DirConfig dirs, long randomSeed) {
+    public DaoGenProject(File baseDir, DirConfig dirs, long randomSeed) {
         this.baseDir = baseDir;
         this.randomSeed = randomSeed;
 

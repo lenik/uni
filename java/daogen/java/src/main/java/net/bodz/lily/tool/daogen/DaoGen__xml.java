@@ -5,10 +5,10 @@ import net.bodz.bas.codegen.XmlSourceBuffer;
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
 
-public abstract class JavaGen__xml
-        extends JavaGenFileType {
+public abstract class DaoGen__xml
+        extends DaoGen__Base {
 
-    public JavaGen__xml(JavaGenProject project, ClassPathInfo name) {
+    public DaoGen__xml(DaoGenProject project, ClassPathInfo name) {
         super(project, name);
     }
 
@@ -18,15 +18,16 @@ public abstract class JavaGen__xml
     }
 
     @Override
-    public void build(ITreeOut out, ITableMetadata model) {
-        buildXml(out, model);
+    public boolean build(ITreeOut out, ITableMetadata model) {
+        return buildXml(out, model);
     }
 
-    protected final void buildXml(ITreeOut out, ITableMetadata model) {
+    protected final boolean buildXml(ITreeOut out, ITableMetadata model) {
         out.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
         XmlSourceBuffer buf = new XmlSourceBuffer(out);
         buildXmlBody(buf, model);
         out.flush();
+        return true;
     }
 
     protected abstract void buildXmlBody(XmlSourceBuffer out, ITableMetadata model);

@@ -1,5 +1,6 @@
 package net.bodz.lily.tool.daogen.dir;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -11,14 +12,14 @@ import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.lily.entity.IIdentity;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 import net.bodz.lily.tool.daogen.OutFormat;
 
 public class Foo_Id__java
-        extends JavaGen__java {
+        extends DaoGen__java {
 
-    public Foo_Id__java(JavaGenProject project) {
+    public Foo_Id__java(DaoGenProject project) {
         super(project, project.Foo_Id);
     }
 
@@ -43,6 +44,7 @@ public class Foo_Id__java
         out.enter();
         {
             out.println();
+            out.println("@" + out.importName(Serial.class));
             out.println("private static final long serialVersionUID = 1L;");
 
             templates.FIELD_consts(out, table, true, OutFormat.JAVA);

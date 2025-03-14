@@ -10,15 +10,17 @@ import net.bodz.bas.t.catalog.TableOid;
 import net.bodz.lily.entity.PrimaryKeyColumns;
 import net.bodz.lily.entity.PrimaryKeyProperties;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 import net.bodz.lily.tool.daogen.util.TypeAnalyzer;
 import net.bodz.lily.tool.daogen.util.TypeExtendInfo;
 
-public class Foo__java_tv
-        extends JavaGen__java {
+import java.io.Serial;
 
-    public Foo__java_tv(JavaGenProject project) {
+public class Foo__java_tv
+        extends DaoGen__java {
+
+    public Foo__java_tv(DaoGenProject project) {
         super(project, project.Foo);
     }
 
@@ -92,6 +94,7 @@ public class Foo__java_tv
         out.enter();
         {
             out.println();
+            out.println("@" + out.importName(Serial.class));
             out.println("private static final long serialVersionUID = 1L;");
 
             out.leave();

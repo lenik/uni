@@ -5,21 +5,19 @@ import java.io.Serializable;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 import net.bodz.lily.tool.daogen.OutFormat;
 
 public class IFoo_Id__java
-        extends JavaGen__java {
+        extends DaoGen__java {
 
-    public IFoo_Id__java(JavaGenProject project) {
+    public IFoo_Id__java(DaoGenProject project) {
         super(project, project.IFoo_Id);
     }
 
     @Override
-    protected void buildClassBody(JavaSourceWriter out, ITableMetadata tableView) {
-        ITableMetadata table = tableView;
-
+    protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
         IColumnMetadata[] primaryKeyCols = table.getPrimaryKeyColumns();
         switch (primaryKeyCols.length) {
         case 0:

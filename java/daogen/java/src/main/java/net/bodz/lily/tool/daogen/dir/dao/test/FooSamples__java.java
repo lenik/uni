@@ -33,18 +33,18 @@ import net.bodz.lily.entity.type.EntityTypes;
 import net.bodz.lily.entity.type.IEntityTypeInfo;
 import net.bodz.lily.test.TestSampleBuilder;
 import net.bodz.lily.tool.daogen.ColumnNaming;
-import net.bodz.lily.tool.daogen.JavaGenProject;
-import net.bodz.lily.tool.daogen.JavaGen__java;
+import net.bodz.lily.tool.daogen.DaoGenProject;
+import net.bodz.lily.tool.daogen.DaoGen__java;
 import net.bodz.lily.util.IRandomPicker;
 
 public class FooSamples__java
-        extends JavaGen__java {
+        extends DaoGen__java {
 
     static final Logger logger = LoggerFactory.getLogger(FooSamples__java.class);
 
     JavaSamples samples;
 
-    public FooSamples__java(JavaGenProject project) {
+    public FooSamples__java(DaoGenProject project) {
         super(project, project.FooSamples);
     }
 

@@ -13,20 +13,20 @@ import net.bodz.bas.t.tuple.QualifiedName;
 import net.bodz.lily.concrete.CoEntity;
 import net.bodz.lily.concrete.IdEntity;
 import net.bodz.lily.concrete.StructRow;
-import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.DaoGenProject;
 import net.bodz.lily.tool.daogen.MiscTemplates;
 
 public class TypeAnalyzer
         extends BaseTypeAnalyzer {
 
-    final JavaGenProject project;
+    final DaoGenProject project;
 
-    public TypeAnalyzer(JavaGenProject project, IJavaImporter javaImporter) {
+    public TypeAnalyzer(DaoGenProject project, IJavaImporter javaImporter) {
         super(javaImporter);
         this.project = project;
     }
 
-    public TypeAnalyzer(JavaGenProject project, ITsImporter tsImporter) {
+    public TypeAnalyzer(DaoGenProject project, ITsImporter tsImporter) {
         super(tsImporter);
         this.project = project;
     }

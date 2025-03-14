@@ -12,14 +12,14 @@ import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.t.catalog.ITableMetadata;
 import net.bodz.bas.t.tuple.QualifiedName;
 
-public abstract class JavaGen__ts
-        extends JavaGenFileType
+public abstract class DaoGen__ts
+        extends DaoGen__Base
         implements
             ITsImporterAware {
 
     TypeScriptWriter tsOut;
 
-    public JavaGen__ts(JavaGenProject project, ClassPathInfo name) {
+    public DaoGen__ts(DaoGenProject project, ClassPathInfo name) {
         super(project, name);
     }
 
@@ -29,8 +29,8 @@ public abstract class JavaGen__ts
     }
 
     @Override
-    public void build(ITreeOut out, ITableMetadata model) {
-        buildTs(out, model);
+    public boolean build(ITreeOut out, ITableMetadata model) {
+        return buildTs(out, model);
     }
 
     @Override
@@ -43,7 +43,7 @@ public abstract class JavaGen__ts
         return pathInfo.getQName();
     }
 
-    protected final void buildTs(ITreeOut out, ITableMetadata model) {
+    protected final boolean buildTs(ITreeOut out, ITableMetadata model) {
         BCharOut buf = new BCharOut();
 
         QualifiedName qName = pathInfo.getQName();
@@ -60,6 +60,7 @@ public abstract class JavaGen__ts
 
         out.print(buf);
         out.flush();
+        return true;
     }
 
     protected abstract void buildTsBody(TypeScriptWriter out, ITableMetadata model);

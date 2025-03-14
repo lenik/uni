@@ -20,7 +20,7 @@ import net.bodz.bas.fmt.json.JsonFn;
 import net.bodz.bas.fmt.json.JsonFormOptions;
 import net.bodz.bas.fmt.rst.RstFn;
 import net.bodz.bas.fmt.xml.XmlFn;
-import net.bodz.bas.io.res.AbstractStreamResource;
+import net.bodz.bas.io.res.IStreamResource;
 import net.bodz.bas.io.res.builtin.FileResource;
 import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.bas.log.Logger;
@@ -76,8 +76,7 @@ import net.bodz.lily.tool.daogen.util.MavenDirs;
 @ProgramName("daogen")
 public class DaoCodeGenerator
         extends BasicCLI
-        implements
-            IJDBCLoadSelector {
+        implements IJDBCLoadSelector {
 
     static Logger logger = LoggerFactory.getLogger(DaoCodeGenerator.class);
 
@@ -277,41 +276,41 @@ public class DaoCodeGenerator
 
     boolean processTableOrView(ITableMetadata table) {
         switch (table.getTableType()) {
-        case TABLE:
-        case SYSTEM_TABLE:
-        case TEMP:
-        case GLOBAL_TEMP:
-            logger.info("make table " + table.getId());
-            try {
-                makeTable(table);
-            } catch (Exception e) {
-                logger.error("Error make table: " + e.getMessage(), e);
-                return false;
-            } finally {
-            }
-            return true;
+            case TABLE:
+            case SYSTEM_TABLE:
+            case TEMP:
+            case GLOBAL_TEMP:
+                logger.info("make table " + table.getId());
+                try {
+                    makeTable(table);
+                } catch (Exception e) {
+                    logger.error("Error make table: " + e.getMessage(), e);
+                    return false;
+                } finally {
+                }
+                return true;
 
-        case VIEW:
-        case MATERIALIZED_VIEW:
-            if (table.getTableType() == TableType.MATERIALIZED_VIEW)
-                logger.info("make materialized view " + table.getId());
-            else
-                logger.info("make view " + table.getId());
-            try {
-                makeView((IViewMetadata) table);
-            } catch (Exception e) {
-                logger.error("Error make table: " + e.getMessage(), e);
-                return false;
-            } finally {
-            }
-            return true;
+            case VIEW:
+            case MATERIALIZED_VIEW:
+                if (table.getTableType() == TableType.MATERIALIZED_VIEW)
+                    logger.info("make materialized view " + table.getId());
+                else
+                    logger.info("make view " + table.getId());
+                try {
+                    makeView((IViewMetadata) table);
+                } catch (Exception e) {
+                    logger.error("Error make table: " + e.getMessage(), e);
+                    return false;
+                } finally {
+                }
+                return true;
 
-        default:
-            return false;
+            default:
+                return false;
         }
     }
 
-    JavaGenProject createProject(ITableMetadata table) {
+    DaoGenProject createProject(ITableMetadata table) {
         long seed;
         if (seedRandom)
             seed = System.currentTimeMillis();
@@ -329,7 +328,7 @@ public class DaoCodeGenerator
 
         DirConfig dirConfig = new DirConfig(headerPath, daoPath, wsPath, esmPath);
 
-        JavaGenProject project = new JavaGenProject(outDir, dirConfig, seed);
+        DaoGenProject project = new DaoGenProject(outDir, dirConfig, seed);
         project.catalog = table.getCatalog();
         project.config = config;
         project.extraDDLs = extraDDLs;
@@ -338,65 +337,98 @@ public class DaoCodeGenerator
         return project;
     }
 
+    static class Counter {
+        public int n = 0;
+
+        boolean incr() {
+            n++;
+            return false;
+        }
+
+        void add(boolean val) {
+            if (val)
+                n++;
+        }
+
+        void subtract(boolean val) {
+            if (val)
+                n--;
+        }
+
+        void count(boolean val) {
+            if (val)
+                n++;
+        }
+
+        void countFalse(boolean val) {
+            if (!val)
+                n++;
+        }
+
+    }
+
+
     public void makeTable(ITableMetadata table)
             throws IOException {
-        JavaGenProject project = createProject(table);
+        DaoGenProject project = createProject(table);
+        Counter nFailed = new Counter();
 
-        new Foo_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE);
+        nFailed.countFalse(new Foo_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE));
         if (table.getPrimaryKeyColumns().length > 1)
-            new Foo_Id__java(project).buildFile(table, UpdateMethod.OVERWRITE);
+            nFailed.countFalse(new Foo_Id__java(project).buildFile(table, UpdateMethod.OVERWRITE));
 
-        new Foo__java(project).buildFile(table);
-        new FooCriteriaBuilder_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE);
-        new FooCriteriaBuilder__java(project).buildFile(table);
-        new FooSamples__java(project).buildFile(table, UpdateMethod.OVERWRITE);
+        nFailed.countFalse(new Foo__java(project).buildFile(table));
+        nFailed.countFalse(new FooCriteriaBuilder_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE));
+        nFailed.countFalse(new FooCriteriaBuilder__java(project).buildFile(table));
+        nFailed.countFalse(new FooSamples__java(project).buildFile(table, UpdateMethod.OVERWRITE));
 
-        new FooMapper__xml(project).buildFile(table);
-        new FooMapper__java(project).buildFile(table);
-        new FooMapperTest__java(project).buildFile(table);
-        new FooManager__java(project).buildFile(table);
-        new FooManagerTest__java(project).buildFile(table);
+        nFailed.countFalse(new FooMapper__xml(project).buildFile(table));
+        nFailed.countFalse(new FooMapper__java(project).buildFile(table));
+        nFailed.countFalse(new FooMapperTest__java(project).buildFile(table));
+        nFailed.countFalse(new FooManager__java(project).buildFile(table));
+        nFailed.countFalse(new FooManagerTest__java(project).buildFile(table));
 
         if (extraDDLs)
-            new FooExporter__java(project).buildFile(table, UpdateMethod.OVERWRITE);
+            nFailed.countFalse(new FooExporter__java(project).buildFile(table, UpdateMethod.OVERWRITE));
 
-        new FooIndex__java(project).buildFile(table);
-        // new FooIndexTest__java(project).buildFile(table);
+        nFailed.countFalse(new FooIndex__java(project).buildFile(table));
+        // nFailed.countFalse(new FooIndexTest__java(project).buildFile(table));
 
-        new FooType0__ts(project).buildFile(table, UpdateMethod.OVERWRITE);
-        new FooType1__ts(project).buildFile(table);
-        new Foo0__ts(project).buildFile(table, UpdateMethod.OVERWRITE);
-        new Foo1__ts(project).buildFile(table);
-        new FooValidators0__ts(project).buildFile(table, UpdateMethod.OVERWRITE);
-        new FooValidators1__ts(project).buildFile(table);
-        new FooAdmin__vue(project).buildFile(table);
-        new FooChooseDialog__vue(project).buildFile(table);
-        new FooEditor__vue(project).buildFile(table);
+        nFailed.countFalse(new FooType0__ts(project).buildFile(table, UpdateMethod.OVERWRITE));
+        nFailed.countFalse(new FooType1__ts(project).buildFile(table));
+        nFailed.countFalse(new Foo0__ts(project).buildFile(table, UpdateMethod.OVERWRITE));
+        nFailed.countFalse(new Foo1__ts(project).buildFile(table));
+        nFailed.countFalse(new FooValidators0__ts(project).buildFile(table, UpdateMethod.OVERWRITE));
+        nFailed.countFalse(new FooValidators1__ts(project).buildFile(table));
+        nFailed.countFalse(new FooAdmin__vue(project).buildFile(table));
+        nFailed.countFalse(new FooChooseDialog__vue(project).buildFile(table));
+        nFailed.countFalse(new FooEditor__vue(project).buildFile(table));
     }
 
     public void makeView(IViewMetadata view)
             throws IOException {
-        JavaGenProject project = createProject(view);
+        DaoGenProject project = createProject(view);
+        Counter nFailed = new Counter();
 
-        new Foo_stuff__java(project).buildFile(view, UpdateMethod.OVERWRITE);
+        nFailed.countFalse(new Foo_stuff__java(project).buildFile(view, UpdateMethod.OVERWRITE));
         if (view.getPrimaryKeyColumns().length > 1)
-            new Foo_Id__java(project).buildFile(view, UpdateMethod.OVERWRITE);
+            nFailed.countFalse(new Foo_Id__java(project).buildFile(view, UpdateMethod.OVERWRITE));
 
-        new Foo__java_tv(project).buildFile(view);
-        new FooCriteriaBuilder_stuff__java(project).buildFile(view, UpdateMethod.OVERWRITE);
-        new FooCriteriaBuilder__java(project).buildFile(view);
-        new FooIndex__java(project).buildFile(view);
-        new VFooMapper__xml(project).buildFile(view);
-        new FooMapper__java_tv(project).buildFile(view);
-        new FooMapperTest__java_v(project).buildFile(view);
+        nFailed.countFalse(new Foo__java_tv(project).buildFile(view));
+        nFailed.countFalse(new FooCriteriaBuilder_stuff__java(project).buildFile(view, UpdateMethod.OVERWRITE));
+        nFailed.countFalse(new FooCriteriaBuilder__java(project).buildFile(view));
+        nFailed.countFalse(new FooIndex__java(project).buildFile(view));
+        nFailed.countFalse(new VFooMapper__xml(project).buildFile(view));
+        nFailed.countFalse(new FooMapper__java_tv(project).buildFile(view));
+        nFailed.countFalse(new FooMapperTest__java_v(project).buildFile(view));
 
-        new FooType0__ts(project).buildFile(view, UpdateMethod.OVERWRITE);
-        new FooType1__ts(project).buildFile(view);
-        new Foo0__ts(project).buildFile(view, UpdateMethod.OVERWRITE);
-        new Foo1__ts(project).buildFile(view);
-        new FooValidators0__ts(project).buildFile(view, UpdateMethod.OVERWRITE);
-        new FooValidators1__ts(project).buildFile(view);
-        new FooChooseDialog__vue(project).buildFile(view);
+        nFailed.countFalse(new FooType0__ts(project).buildFile(view, UpdateMethod.OVERWRITE));
+        nFailed.countFalse(new FooType1__ts(project).buildFile(view));
+        nFailed.countFalse(new Foo0__ts(project).buildFile(view, UpdateMethod.OVERWRITE));
+        nFailed.countFalse(new Foo1__ts(project).buildFile(view));
+        nFailed.countFalse(new FooValidators0__ts(project).buildFile(view, UpdateMethod.OVERWRITE));
+        nFailed.countFalse(new FooValidators1__ts(project).buildFile(view));
+        nFailed.countFalse(new FooChooseDialog__vue(project).buildFile(view));
     }
 
     @Override
@@ -425,7 +457,7 @@ public class DaoCodeGenerator
         for (String arg : args) {
             if (arg.startsWith("@")) {
                 String path = arg.substring(1);
-                AbstractStreamResource resource;
+                IStreamResource resource;
 
                 if (new File(path).exists()) {
                     resource = new FileResource(new File(path));

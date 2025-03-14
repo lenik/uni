@@ -6,12 +6,12 @@ import net.bodz.bas.esm.TypeScriptWriter;
 import net.bodz.bas.esm.extern.ExternModules;
 import net.bodz.bas.esm.skel01.Skel01Modules;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.lily.tool.daogen.JavaGenProject;
+import net.bodz.lily.tool.daogen.DaoGenProject;
 
 public class FooAdmin__vue
         extends DTDriven__vue {
 
-    public FooAdmin__vue(JavaGenProject project) {
+    public FooAdmin__vue(DaoGenProject project) {
         super(project, project.Esm_FooAdmin);
     }
 
