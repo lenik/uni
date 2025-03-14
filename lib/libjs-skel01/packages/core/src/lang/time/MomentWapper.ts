@@ -1,13 +1,15 @@
-import moment, { Moment } from "moment-timezone";
+import type { Moment } from "moment-timezone";
+import moment from "moment-timezone";
 
 export type ZoneId = ZoneOffset | ZoneRegion;
 export type ZoneOffset = number;
 export type ZoneRegion = string;
 
 export class MomentWrapper {
-    private _moment: Moment
-    version = 0
-    defaultFormat: string
+
+    private _moment: Moment;
+    version = 0;
+    defaultFormat: string;
 
     constructor(defaultFormat: string, inp?: moment.MomentInput) {
         this.defaultFormat = defaultFormat;

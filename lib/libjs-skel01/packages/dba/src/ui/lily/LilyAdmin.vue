@@ -1,18 +1,19 @@
 <script lang="ts">
 import $ from 'jquery';
 import { computed, inject, onMounted, ref } from 'vue';
-import { Api } from 'datatables.net';
+import type { Api } from 'datatables.net';
 
-import IEntityType from '../../net/bodz/lily/entity/IEntityType';
-import EntityType from '../../net/bodz/lily/entity/EntityType';
-import { Selection, ColumnType } from '../table/types';
-import { SERVER_URL } from './context';
-
-import { Command, DialogOpenOptions, Status } from 'skel01-core/src/ui/types';
+import type { Command, DialogOpenOptions, Status } from 'skel01-core/src/ui/types';
 import { showError, _throw } from 'skel01-core/src/logging/api';
 import { VarMap } from 'skel01-core/src/lang/VarMap';
 import { wireUp, flatten } from 'skel01-core/src/lang/json';
 import { QueryString } from 'skel01-core/src/cgi/QueryString';
+
+import EntityType from '../../net/bodz/lily/entity/EntityType';
+import type { ColumnType } from '../table/types';
+import { Selection } from '../table/types';
+
+import { SERVER_URL } from './context';
 
 export interface Props {
     type: EntityType
@@ -70,7 +71,7 @@ const selectionText = computed(() => {
     let sb = '[' + sel.dtIndexes.join(', ') + '] ';
 
     let columnHeaders =
-        (api.columns() as any).header().map(d => d.textContent).toArray();
+        (api.columns() as any).header().map((d: any) => d.textContent).toArray();
 
     for (let i = 0; i < columnHeaders.length; i++) {
         let cell = sel.firstRow[i];

@@ -37,7 +37,9 @@ export class LocalDateTime extends MomentWrapper {
         return new LocalDateTime();
     }
 
-    static of(year: number, month: number, dayOfMonth: number, hour: number, minute: number, second = 0, nanoSecond = 0) {
+    static of(year: number, month: number, dayOfMonth: number,
+        hour: number, minute: number, second = 0, nanoSecond = 0) //
+    {
         let o = new LocalDateTime(0);
         o.year = year;
         o.month = month;

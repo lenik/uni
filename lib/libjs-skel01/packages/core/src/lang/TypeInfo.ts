@@ -1,4 +1,4 @@
-import type ITypeInfo from './ITypeInfo';
+import type { ITypeInfo } from './ITypeInfo';
 
 // export { ITypeInfo };
 

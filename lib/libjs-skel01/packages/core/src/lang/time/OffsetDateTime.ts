@@ -1,5 +1,6 @@
 import type { Moment } from "moment-timezone";
-import MomentWrapper, { ZoneOffset, defaultUtcOffset } from "./MomentWapper";
+import type { ZoneOffset } from "./MomentWapper";
+import MomentWrapper, { defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
 import { ISO_OFFSET_DATE_TIME, UI_OFFSET_DATE_TIME } from "./formats";
@@ -39,7 +40,10 @@ export class OffsetDateTime extends MomentWrapper {
         return new OffsetDateTime(offset);
     }
 
-    static of(year: number, month: number, dayOfMonth: number, hour: number, minute: number, second, nanoSecond, offset: ZoneOffset) {
+    static of(year: number, month: number, dayOfMonth: number,
+        hour: number, minute: number, second: number, nanoSecond: number,
+        offset: ZoneOffset) //
+    {
         let o = new OffsetDateTime(offset, 0);
         o.year = year;
         o.month = month;

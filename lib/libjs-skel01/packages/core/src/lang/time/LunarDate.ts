@@ -9,6 +9,10 @@ export class LunarDateType extends TypeInfo<LunarDate>{
     override get icon() { return "far-clock"; }
     override get description() { return "a lunar local date."; }
 
+    override create() {
+        return LunarDate.now();
+    }
+
     override parse(s: string): LunarDate {
         throw 'not implemented';
     }

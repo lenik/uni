@@ -35,7 +35,12 @@ export const FIELD_ROW_PROPS = Symbol('FieldRowProps');
 </script>
 
 <script setup lang="ts">
+
+/**
+ * model is required for validation, which is defined in props.property.
+ */
 const model = defineModel();
+
 const expanded = defineModel<boolean>('expanded');
 const valid = defineModel<ValidateResult>('valid');
 

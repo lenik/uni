@@ -244,9 +244,9 @@ export interface IDialog {
 
 }
 
-type DialogSelectCallback =
+export type DialogSelectCallback =
     (value: any, event?: Event) => boolean | Promise<boolean>;
-type DialogCallback =
+export type DialogCallback =
     (command: any, event?: Event) => void | Promise<void>;
 
 export interface DialogOpenOptions {

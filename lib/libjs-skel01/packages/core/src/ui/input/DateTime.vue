@@ -9,7 +9,7 @@ import LocalTime from "../../lang/time/LocalTime";
 import OffsetDateTime from "../../lang/time/OffsetDateTime";
 import OffsetTime from "../../lang/time/OffsetTime";
 import ZonedDateTime from "../../lang/time/ZonedDateTime";
-import { SQLDate, SQLTime, Timestamp } from "../../lang/time";
+import type { SQLDate, SQLTime, Timestamp } from "../../lang/time";
 import formats from "../../lang/time/formats";
 import { bool } from "../types";
 

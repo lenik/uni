@@ -1,10 +1,11 @@
 import type { Moment } from "moment-timezone";
-import MomentWrapper, { ZoneOffset, defaultUtcOffset } from "./MomentWapper";
+import type { ZoneOffset } from "./MomentWapper";
+import MomentWrapper, { defaultUtcOffset } from "./MomentWapper";
 import MomentWrapperType from "./MomentWapperType";
 import Instant from "./Instant";
 import { HHMMSS_Z, ISO_OFFSET_TIME, UI_OFFSET_TIME } from "./formats";
 
-export class OffsetTimeType extends MomentWrapperType<OffsetTime>{
+export class OffsetTimeType extends MomentWrapperType<OffsetTime> {
 
     get name() { return "OffsetTime"; }
     get icon() { return "far-clock"; }
@@ -38,7 +39,7 @@ export class OffsetTime extends MomentWrapper {
     static now(offset?: ZoneOffset) {
         return new OffsetTime(offset);
     }
-    F
+
     static of(hour: number, minute: number, second: number, nanoSecond: number, offset: ZoneOffset) {
         let o = new OffsetTime(offset, 0);
         o.hour = hour;
