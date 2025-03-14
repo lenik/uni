@@ -6,7 +6,7 @@ import { isEqual } from 'lodash-es';
 
 import { baseName } from "skel01-core/src/io/url";
 import { _throw, showError } from "skel01-core/src/logging/api";
-import { derefByPath, wireUp } from "skel01-core/src/lang/json";
+import { pathPropertyGet, wireUp } from "skel01-core/src/lang/json";
 
 import { AjaxProtocol } from "./ajax";
 import { convertToDataRows } from './objconv';
@@ -32,6 +32,17 @@ function getFormats(columns: ColumnType[]) {
 export class Lily extends AjaxProtocol {
 
     entityClass: string     // simple name
+
+    /**
+      Add _class column to the result rows, like:
+
+          array: col col ...  _class
+                  -   -        FQCN     (well, the same for all rows.)
+          object: {
+              ...,
+              _class: FQCN
+          }
+    */
     addClassColumn: boolean
 
     constructor(controllerUrl: string) {
@@ -40,7 +51,7 @@ export class Lily extends AjaxProtocol {
         this.addClassColumn = true;
     }
 
-    getParameters(columns: ColumnType[]) {
+    override getParameters(columns: ColumnType[]) {
         let fields = columns.map(f => f.field).join(", ");
         let formats = columns.map(f => f.format);
         return {
@@ -50,26 +61,24 @@ export class Lily extends AjaxProtocol {
         }
     }
 
-    toRowArray(_data: any): any[][] {
-        let data: TableData = _data;
-        if (data == null)
-            throw new Error("null response");
-        if (!Array.isArray(data.rows))
-            throw new Error("no rows array in the response data");
-        if (this.addClassColumn) {
-            if (data.rows.length > 0) {
-                let firstRow = data.rows[0];
-                if (Array.isArray(firstRow)) {
-                    data.columns.push('_class');
-                    data.rows.forEach(row => { row.push(this.entityClass); });
-                } else if (typeof 'firstRow' == 'object') {
-                    data.rows.forEach(row => {
-                        row._class = this.entityClass;
-                    });
-                }
+    override toRowArray(tableData: TableData): any[][] {
+        if (tableData == null)
+            throw new Error("null data");
+        if (!Array.isArray(tableData.rows))
+            throw new Error("expect rows array, but got " + tableData);
+        if (this.addClassColumn && tableData.rows.length) {
+            let firstRow = tableData.rows[0];
+            let arrayRow = Array.isArray(firstRow);
+            if (arrayRow) {
+                tableData.columns.push('_class');
+                tableData.rows.forEach(row => { row.push(this.entityClass); });
+            } else {
+                tableData.rows.forEach(row => {
+                    row._class = this.entityClass;
+                });
             }
         }
-        return data.rows;
+        return tableData.rows;
     }
 }
 

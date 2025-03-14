@@ -1,4 +1,55 @@
 
+export const defaultPropertyDelim = '.';
+export const refKeyDelim = '/';
+
+export function pathPropertyGet(context: any, path: string, delim = defaultPropertyDelim): any {
+    if (path == null || path == '') return context;
+    if (context == null)
+        return undefined;
+
+    let slash = path.indexOf(delim);
+    if (slash == -1)
+        return context[path];
+
+    let head = path.substring(0, slash);
+    let child = context[head];
+    if (child == null)
+        return undefined;
+
+    let tail = path.substring(slash + delim.length);
+    return pathPropertyGet(child, tail);
+}
+
+export type PropertyFactoryFn = (context: any, propertyName: string, contextPath?: string) => any;
+
+function defaultFactory(context: any, propertyName: string, contextPath?: string) {
+    return {} as any;
+}
+
+/**
+ * @returns [ leaf-context-path, leaf-context ]
+ */
+export function pathPropertySet(context: any, path: string, newValue: any, delim = defaultPropertyDelim, factory = defaultFactory, contextPath?: string): any {
+    if (context == null)
+        throw new Error('null context.');
+    if (path == null || path == '') return context;
+
+    let slash = path.indexOf(delim);
+    if (slash == -1) {
+        context[path] = newValue;
+        return [contextPath, context]
+    } else {
+        let head = path.substring(0, slash);
+        let child = context[head];
+        if (child == null)
+            child = context[head] = factory(context, head, contextPath);
+
+        let childPath = contextPath == null ? head : contextPath + delim + head;
+        let tail = path.substring(slash + delim.length);
+        return pathPropertySet(child, tail, newValue, delim, factory, childPath);
+    }
+}
+
 export function parseJson(json: string): any {
     let val = JSON.parse(json);
     wireUp(val);
@@ -46,7 +97,7 @@ export function wireUp(o: any, root: any = o) {
                     if (val.startsWith("<ref:")
                         && val.endsWith(">")) {
                         let refPath = val.substring(5, val.length - 1);
-                        let target = derefByPath(root, refPath);
+                        let target = pathPropertyGet(root, refPath, refKeyDelim);
                         o[key] = target;
                     }
                     break;
@@ -57,21 +108,4 @@ export function wireUp(o: any, root: any = o) {
             }
         }
     return o;
-}
-
-export function derefByPath(node: any, path: string): any {
-    if (path == null || path == '') return node;
-    if (node == null)
-        return undefined;
-
-    let slash = path.indexOf('/');
-    if (slash == -1)
-        return node[path];
-    let head = path.substring(0, slash);
-    let next = node[head];
-    if (next == null)
-        return undefined;
-
-    let tail = path.substring(slash + 1);
-    return derefByPath(next, tail);
 }
