@@ -1,5 +1,6 @@
 import { _throw } from 'skel01-core/src/logging/api';
-import { ColumnType, DataTab } from './types';
+import { pathPropertySet } from 'skel01-core/src/lang/json';
+import { ColumnType, DataTab, DataTabColumn } from './types';
 
 interface KeyOccurs {
     [key: string]: number
@@ -34,14 +35,22 @@ export function objv2Tab(objv: any[], fallback = null) {
     };
 }
 
-export function tab2Objv(tab: DataTab) {
-    let keys = tab.columns.map(c => c.title);
+export function tab2Objv(tab: DataTab);
+export function tab2Objv(columns: DataTabColumn[], rows: any[][]);
+export function tab2Objv(tabOrColumns: DataTab | DataTabColumn[], rows?: any[][]) {
+    let tabOnly = rows == undefined;
+    let columns = tabOnly ? (tabOrColumns as DataTab).columns : (tabOrColumns as DataTabColumn[]);
+    if (rows == undefined)
+        rows = (tabOrColumns as DataTab).data as any[][];
+
+    let keys = columns.map(c => c.title);
     let objv: any[] = [];
-    for (let i = 0; i < tab.data.length; i++) {
-        let row = tab.data[i];
+    for (let i = 0; i < rows.length; i++) {
+        let row = rows[i];
         let obj: any = {};
-        for (let j = 0; j < keys.length; j++)
-            obj[keys[j]] = row[j];
+        for (let j = 0; j < keys.length; j++) {
+            pathPropertySet(obj, keys[j], row[j]);
+        }
         objv.push(obj);
     }
     return objv;
