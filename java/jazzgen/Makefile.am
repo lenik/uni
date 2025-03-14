@@ -2,7 +2,8 @@ include libauto/project.am
 
 dist_bin_SCRIPTS = \
     java/ioforms \
-    java/tcoll
+    java/tcoll \
+    java/tsapi
 
 dist_man_MANS = 
 
@@ -29,6 +30,7 @@ install-data-hook:
 install-debug:
 	sudo ln -snf $$PWD/java/tcoll.in /bin/tcoll
 	sudo ln -snf $$PWD/java/ioforms.in /bin/ioforms
+	sudo ln -snf $$PWD/java/tsapi.in /bin/tsapi
 
 autobuild:
 	@echo "autobuild isn't supported, yet."
