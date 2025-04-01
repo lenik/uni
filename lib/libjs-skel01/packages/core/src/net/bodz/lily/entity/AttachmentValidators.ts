@@ -1,15 +1,15 @@
 import AttachmentTypeInfo from "./AttachmentTypeInfo";
 
+const TYPE = Symbol('type');
+
 export class AttachmentValidators {
 
-    _type: AttachmentTypeInfo;
-
     constructor(type: AttachmentTypeInfo) {
-        this._type = type;
+        this[TYPE] = type;
     }
 
     get type(): AttachmentTypeInfo {
-        return this._type;
+        return this[TYPE];
     }
 
 }

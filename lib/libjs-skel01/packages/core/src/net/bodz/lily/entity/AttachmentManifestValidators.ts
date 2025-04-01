@@ -1,15 +1,15 @@
 import AttachmentManifestTypeInfo from "./AttachmentManifestTypeInfo";
 
+const TYPE = Symbol('type');
+
 export class AttachmentManifestValidators {
 
-    _type: AttachmentManifestTypeInfo;
-
     constructor(type: AttachmentManifestTypeInfo) {
-        this._type = type;
+        this[TYPE] = type;
     }
 
-    get type(): AttachmentManifestTypeInfo {
-        return this._type;
+    get type() {
+        return this[TYPE];
     }
 
 }
