@@ -102,7 +102,7 @@ public class EchoServer
     }
 
     ServerConnector buildHttpConnector(int port) {
-        ServerConnector connector = new ServerConnector(this);
+        ServerConnector connector = new EchoServerConnector(this);
         String hostName = config.getHostName();
 
         if (hostName == null) {
@@ -129,10 +129,12 @@ public class EchoServer
         // sslContextFactory.setKeyManagerPassword(password);
         sslContextFactory.setNeedClientAuth(false);
 
-        ServerConnector sslConnector = new ServerConnector(this, new SslConnectionFactory(sslContextFactory, "http/1.1"), //
+        ServerConnector connector = new EchoServerConnector( //
+                this, //
+                new SslConnectionFactory(sslContextFactory, "http/1.1"), //
                 new HttpConnectionFactory(https));
-        sslConnector.setPort(port);
-        return sslConnector;
+        connector.setPort(port);
+        return connector;
     }
 
     private void buildResourceProvider()
