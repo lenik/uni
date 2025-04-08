@@ -1,0 +1,57 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Print fd info of a process}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] PID}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    pid=$1
+    for fd in /proc/$pid/fd/*; do
+        fdnum=${fd##*/}
+        file=$( readlink -f $fd )
+        if [ -f "$file" ]; then
+            _log2 "$fd $file"
+        else
+            continue
+        fi
+        
+        pos=
+        while read -r key val; do
+            key=${key%:}
+            case "$key" in
+                pos)
+                    pos=$val;;
+            esac
+        done <"/proc/$pid/fdinfo/$fdnum"
+        
+        if [ "$pos" != 0 ]; then
+            size=$(stat -c %s "$file")
+            if [ "$pos" != "$size" ]; then
+                _log1 "$fd $file +$pos/$size"
+            fi
+        fi
+    done
+}
+
+boot "$@"
