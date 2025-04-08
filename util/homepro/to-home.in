@@ -1,0 +1,53 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Reorganize app to /home/app}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] APPNAME}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for app in "$@"; do
+        appdir="/home/$app"
+        if [ ! -d "$appdir" ]; then
+            _log1 "create dir $appdir"
+            mkdir "$appdir" || quit "failed to mkdir $appdir."
+        fi
+        
+        if [ -d "$HOME/.config/$app" ]; then
+            mv -nv "$HOME/.config/$app" "$appdir/config"
+            ln -snf "../../$app/config" "$HOME/.config/$app"
+        fi
+        
+        if [ -d "$HOME/.local/share/$app" ]; then
+            mv -nv "$HOME/.local/share/$app" "$appdir/share"
+            ln -snf "../../../$app/share" "$HOME/.local/share/$app"
+        fi
+        
+        if [ -d "$HOME/.cache/$app" ]; then
+            mv -nv "$HOME/.cache/$app" "$appdir/cache"
+            ln -snf "../../$app/cache" "$HOME/.cache/$app"
+        fi
+    done
+}
+
+boot "$@"
