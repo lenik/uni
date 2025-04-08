@@ -109,8 +109,8 @@ recreate "$src" "$tmp" "$dst" "$stage"
 
 if [ "$self" = 1 ]; then
     echo "backup src repo $src to $src.bak"
-    mv "$src" "$src.bak"
-    mv "$dst" "$src"
+    mv -- "$src" "$src.bak"
+    mv -- "$dst" "$src"
 fi
 
 echo clean up

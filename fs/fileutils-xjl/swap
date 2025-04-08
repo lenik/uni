@@ -5,6 +5,7 @@ if [ -z "$2" ]; then
     exit 1
 fi
 
-mv "$1" "$1.swp.tmp"
-mv "$2" "$1"
-mv "$1.swp.tmp" "$2"
+mv -- "$1" "$1.swp.tmp"
+mv -- "$2" "$1"
+mv -- "$1.swp.tmp" "$2"
+

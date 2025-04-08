@@ -112,12 +112,12 @@ function main() {
                 vmlinuz-*)
                     dst="$cdrom/casper/vmlinuz"
                     _log1 "Move out $base to $dst"
-                    sudo mv -f "$x" "$dst"
+                    sudo mv -f -- "$x" "$dst"
                     ;;
                 initrd.*)
                     dst="$cdrom/casper/initrd.lz"
                     sudo sh -c "gunzip -c '$x' | lzma >'$dst'"
-                    sudo rm "$x"
+                    sudo rm -- "$x"
                     ;;
             esac
         done

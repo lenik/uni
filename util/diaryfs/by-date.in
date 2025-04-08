@@ -109,7 +109,7 @@ function main() {
         fi
 
         _log2 "move $file to $outdir/"
-        if ! mv "${mvopts[@]}" "$file" "$outdir"/; then
+        if ! mv "${mvopts[@]}" -- "$file" "$outdir"/; then
             _error "failed to move $file: error $?, $!"
         elif [ -e "$file" ]; then
             _error "file is already existed: $file"

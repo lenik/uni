@@ -89,8 +89,8 @@ function main() {
                 fi
             fi
 
-            mv "$base" "$stem_date_ext"
-            ln -snf "$stem_date_ext" "$stem$ext"
+            mv -- "$base" "$stem_date_ext"
+            ln -snf -- "$stem_date_ext" "$stem$ext"
         )
     done
 }

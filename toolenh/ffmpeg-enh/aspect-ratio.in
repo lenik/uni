@@ -52,7 +52,7 @@ function main() {
 
         tmp="$dir/$name-tmp$ext"
         if ffmpeg -i "$file" -aspect "$opt_aspect_ratio" -c copy "$tmp"; then
-            mv "$tmp" "$file"
+            mv -- "$tmp" "$file"
         fi
     done
 }

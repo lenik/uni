@@ -47,19 +47,19 @@ function main() {
             cd "$dir"
 
             dst=$(readlink "$base")
-            if ! mv -n "$base" "$base.deltmp"; then
+            if ! mv -n -- "$base" "$base.deltmp"; then
                 _err "Failed to rename $base to $base.deltmp."
                 continue
             fi
 
-            if ! mv -n "$dst" "$base"; then
+            if ! mv -n -- "$dst" "$base"; then
                 _err "Failed to move $dir/$dst to $dir/$base."
                 _log2 "Restore $base: rename back from $base.deltmp."
-                mv -n "$base.deltmp" "$base"
+                mv -n -- "$base.deltmp" "$base"
                 continue
             fi
 
-            rm "$base.deltmp"
+            rm -- "$base.deltmp"
         )
     done
 }

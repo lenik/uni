@@ -36,11 +36,11 @@ while true; do
     if [ ${ID/[A-Za-z]} == $ID ]; then
         echo "Got!"
         mkdir -p $base
-        mv -f $base.pub $base/$base-$SZ-$ID.pub
-        mv -f $base.sec $base/$base-$SZ-$ID.sec
+        mv -f -- $base.pub $base/$base-$SZ-$ID.pub
+        mv -f -- $base.sec $base/$base-$SZ-$ID.sec
         break
     else
-        mv -f $base.pub last.pub
-        mv -f $base.sec last.sec
+        mv -f -- $base.pub last.pub
+        mv -f -- $base.sec last.sec
     fi
 done

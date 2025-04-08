@@ -68,7 +68,7 @@ function _mv() {
         return 1
     fi
 
-    mv "$src" "$dst"
+    mv -- "$src" "$dst"
 }
 
 if [ "${0##*-}" = nover ]; then
@@ -76,7 +76,7 @@ if [ "${0##*-}" = nover ]; then
     err=$?
     echo "$dir_nover"
 else
-    _mv "$dir" "$dir_ver"
+    _mv -- "$dir" "$dir_ver"
     err=$?
     echo "$dir_ver"
 fi

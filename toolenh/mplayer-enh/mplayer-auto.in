@@ -235,7 +235,7 @@ function trashormove() {
             trashdir="$dir/$opt_trash_dir"
             mkdir -p "$trashdir"
             _log2 "Move $f to $trashdir"
-            mv -nv "$f" "$trashdir"
+            mv -nv -- "$f" "$trashdir"
         fi
     done
 }

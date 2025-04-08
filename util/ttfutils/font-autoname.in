@@ -104,7 +104,7 @@ function main() {
             continue
         fi
 
-        mv -v -n "$f" "$dir/$dst$ext"
+        mv -v -n -- "$f" "$dir/$dst$ext"
         
     done
 }

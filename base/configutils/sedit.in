@@ -121,7 +121,7 @@ function main() {
 
     err=$?
 
-    cmp -s "$file" "$buff"
+    cmp -s -- "$file" "$buff"
     # 0 if same, 1 if diff
     dirty=$?
 
@@ -150,11 +150,11 @@ function main() {
             fi
 
             # overwrite self
-            mv -f "$buff" "$file"
+            mv -f -- "$buff" "$file"
         fi
     fi
 
-    rm -f "$buff"
+    rm -f -- "$buff"
 
     if [ -n "$message" ]; then
         if [ "$dirty" = 1 ]; then

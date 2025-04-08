@@ -225,9 +225,9 @@ function reduce() {
         if [ -d "$dirbak" ]; then
             quit "Pre-exist dir conflicts: $dirbak"
         fi
-        mv -n "$dir" "$dirbak"
-        mv -n "$dirbak/$base1" "$parent/$base$iext"
-        rmdir "$dirbak"
+        mv -n -- "$dir" "$dirbak"
+        mv -n -- "$dirbak/$base1" "$parent/$base$iext"
+        rmdir -- "$dirbak"
     done
 }
 

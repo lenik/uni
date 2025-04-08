@@ -75,8 +75,8 @@ function main() {
         else
             _log1 "Rename $f to $dir/$lower"
             tmp="$f.~$RANDOM~"
-            mv "$f" "$tmp"
-            mv "$tmp" "$dir/$lower"
+            mv -- "$f" "$tmp"
+            mv -- "$tmp" "$dir/$lower"
 
             queue[0]="$dir/$lower"
         fi

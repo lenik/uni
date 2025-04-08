@@ -92,7 +92,7 @@ function main() {
 
                 if [ $diff_status != 0 ]; then
                     _log2 "Change detected from check-cmd."
-                    mv -f $cc_tmp $cc_out
+                    mv -f -- $cc_tmp $cc_out
                     break
                 else
                     rm -f $cc_tmp

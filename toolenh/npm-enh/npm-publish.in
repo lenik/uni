@@ -101,7 +101,7 @@ function vm_publish() {
     
     _log1 "restore to workspace:^"
     #git checkout .
-    mv "$dir/package.json.bak" "$dir/package.json"
+    mv -- "$dir/package.json.bak" "$dir/package.json"
     
     if [ "$state" != 0 ]; then
         quit "error publish. aborted"
@@ -296,10 +296,10 @@ function json_subst() {
     done <"$file" >$newfile
     
     if [ -n "$file_bak" ]; then
-        mv "$file" "$file_bak" || quit "can't rename $file to $file_bak."
+        mv -- "$file" "$file_bak" || quit "can't rename $file to $file_bak."
     fi
     
-    mv $newfile "$file"
+    mv -- $newfile "$file"
 }
 
 function jq() {

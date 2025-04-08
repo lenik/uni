@@ -45,12 +45,12 @@ function main() {
             done
         )
 
-        mv "$d/.git"/* "$d"
-        rmdir -v "$d/.git"
+        mv -- "$d/.git"/* "$d"
+        rmdir -v -- "$d/.git"
 
         # Add .git extension
         if [ "${d%.git}" = "$d" ]; then
-            mv -v "$d" "$d.git"
+            mv -v -- "$d" "$d.git"
             d="$d.git"
         fi
 

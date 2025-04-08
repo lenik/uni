@@ -59,8 +59,8 @@ function main() {
         echo $modfqcn >>$mods
 
         tmp=`mktemp`
-        sort $mods | uniq >$tmp
-        mv -f $tmp $mods
+        sort -- $mods | uniq >$tmp
+        mv -f -- $tmp $mods
     ); done
 }
 

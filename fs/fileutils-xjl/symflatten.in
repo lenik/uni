@@ -52,7 +52,7 @@ function main() {
                 _log2 "  remove"
                 if rm -fR "$f"; then
                     _log2 "  rename"
-                    if mv "$tmp" "$f"; then
+                    if mv -- "$tmp" "$f"; then
                         _log2 "  done"
                     else
                         _log2 "  can't rename, leave the tmp file $tmp"

@@ -74,7 +74,7 @@ function mkmv() {
         fi
     fi
 
-    try git mv "$src" "$dst"
+    try git mv -- "$src" "$dst"
 
     if [ "$cleanup" = 1 ]; then
         rmdir-p "$src"

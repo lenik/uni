@@ -120,7 +120,7 @@ function main() {
             quit "Failed to convert deb packages to rpms."
 
         _log2 "Move converted rpms to $workdir_rpm"
-        mv *.rpm "$workdir_rpm" ||
+        mv -- *.rpm "$workdir_rpm" ||
             quit "Failed to move rpms to rpm workdir."
 
         cd "$workdir_rpm"

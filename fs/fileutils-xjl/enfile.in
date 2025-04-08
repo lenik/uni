@@ -87,7 +87,7 @@ function main() {
                 exit 1
             fi
 
-            if mv "$decorated_file" "$stripped_file"; then
+            if mv -- "$decorated_file" "$stripped_file"; then
                 dirty=1
             fi
 
@@ -103,7 +103,7 @@ function main() {
                 exit 1
             fi
 
-            if mv "$stripped_file" "$decorated_file"; then
+            if mv -- "$stripped_file" "$decorated_file"; then
                 dirty=1
             fi
         fi

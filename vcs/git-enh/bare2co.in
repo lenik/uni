@@ -34,12 +34,12 @@ function main() {
         else
             [ -d "$d/.git" ] && continue
             mkdir -v "$d/.git"
-            mv "$d"/* "$d/.git"
+            mv -- "$d"/* "$d/.git"
         fi
 
         # Remove .git extension
         if [ "${d%.git}" != "$d" ]; then
-            mv -v "$d" "${d%.git}"
+            mv -v -- "$d" "${d%.git}"
             d="${d%.git}"
         fi
 

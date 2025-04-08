@@ -30,7 +30,7 @@ all-text: \
     ../$(project).src.tgz.txt
 
 %.tgz.txt: %.tar.gz
-	mv -nv "$<" "$@"
+	mv -nv -- "$<" "$@"
 
 ../$(project).bin.tar.%: .
 	shopt -s dotglob; \
