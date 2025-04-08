@@ -21,7 +21,7 @@ dist_bin_SCRIPTS = \
     m2layout \
     m2localdeps \
     m2localgraph \
-    m2mkdirs \
+    m2mkpkg \
     m2modlist \
     m2release \
     m2repo \
@@ -56,7 +56,7 @@ dist_man_MANS = \
     m2layout.1 \
     m2localdeps.1 \
     m2localgraph.1 \
-    m2mkdirs.1 \
+    m2mkpkg.1 \
     m2modlist.1 \
     m2repo.8 \
     m2release.1 \

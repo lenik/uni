@@ -14,7 +14,7 @@ m2installfile
 m2layout
 m2localdeps
 m2localgraph
-m2mkdirs
+m2mkpkg
 m2modlist
 m2release
 m2repo
