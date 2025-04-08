@@ -5,11 +5,13 @@ incdir = ${includedir}/coolmake
 dist_bin_SCRIPTS = \
     main \
     m2href \
+    m2mkdirs \
     m2mklib
 
 dist_man_MANS = \
     main.1 \
     m2href.1 \
+    m2mkdirs.1 \
     m2mklib.1
 
 dist_inc_DATA = \
