@@ -102,7 +102,7 @@ function main() {
 
         if [ ! -d "$outdir" ]; then
             _log2 "create dir $outdir"
-            if ! mkdir -p "$outdir"; then
+            if ! mkdir -p -- "$outdir"; then
                 _error "  failed to create $outdir."
                 continue
             fi
