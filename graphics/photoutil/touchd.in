@@ -1,0 +1,61 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Touch util with a delta time modification}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] DELTA FILES}
+
+    . shlib-import cliboot
+    option -d --delta =DELTA        "Specify the delta. No DELTA argument."
+    option -z --tz-offset "=H[:M]"  "Specify timezone offset. No DELTA argument."
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_delta=
+
+function setopt() {
+    case "$1" in
+        -d|--delta)
+            opt_delta="$2";;
+        -z|--tz-offset)
+            tz="$2"
+            hr="${tz%:*}"
+            min="${tz#*:}"
+            if [ "$min" = "$tz" ]; then
+                min=0
+            fi
+            minutes=$(( hr * 60 + min ))
+            opt_delta="$minutes minutes"
+            ;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ -z "$opt_delta" ]; then
+        if [ $# -lt 1 ]; then
+            quit "expect DELTA argument."
+        fi
+        opt_delta="$1"
+        shift
+    fi
+
+    _log1 "Delta: $opt_delta"
+
+    for file in "$@"; do
+        _log1 "Apply to file: $file"
+        touch -r "$file" -d "$opt_delta" "$file"
+    done
+}
+
+boot "$@"

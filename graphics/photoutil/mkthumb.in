@@ -1,0 +1,69 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Create thumbnail images for supported files}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILES...}
+
+    . shlib
+    import cliboot
+    import strfn
+
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_dot=0
+    
+function setopt() {
+    case "$1" in
+        -d|--dot)
+            opt_dot=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for file in "$@"; do
+        dir="${file%/*}"
+        base="${file##*/}"
+        if [ "$dir" = "$file" ]; then
+            dir=.
+        fi
+
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$ext" = "$base" ]; then
+            ext=
+        else
+            ext=".$ext"
+        fi
+        
+        base_lower=$( tolower "$base" )
+                
+        case "$base_lower" in
+            *-thumb.png)
+                continue;;
+                
+            *.jpg|*.png|*.tif|*.bmp)
+                thumb_file="$dir/$name-thumb.png"
+                if [ "$file" -nt "$thumb_file" ]; then
+                    _log1 "Make $thumb_file"
+                    convert "$file" -resize 800 "$thumb_file" \
+                        && touch -r "$file" "$thumb_file"
+                fi
+                ;;
+        esac
+    done
+}
+
+boot "$@"

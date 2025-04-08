@@ -1,0 +1,111 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Modify clip file datetime according to NonRealTimeMeta XML}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] videofiles}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for file in "$@"; do
+        dir="${file%/*}"
+        base="${file##*/}"
+        if [ "$dir" = "$file" ]; then
+            dir=.
+        fi
+        
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$ext" = "$base" ]; then
+            ext=
+        else
+            ext=".$ext"
+        fi
+        
+        case "$base" in
+            *M01.XML)
+                file_xml="$file"
+                name="${base%M01.XML}"
+                ;;
+            *)
+                file_xml="$dir/${name}M01.XML"
+                if [ ! -f "$file_xml" ]; then
+                    _error "no xml file $file_xml, skipped."
+                    continue
+                fi
+                ;;
+        esac
+        
+        if ! datetime=$( nrtm-creation "$file_xml" ); then
+            _error "error get NRTM creation date from $file"
+            continue
+        fi
+        
+        #2024-09-21T12:07:51+08:00
+        date="${datetime%%T*}"
+        time_tz="${datetime#*T}"
+        time="${time_tz%+*}"
+        
+        if [ "${#date}" != 10 ]; then
+            _warn "illegal date format: $date"
+            continue
+        fi
+        if [ "${#time}" != 8 ]; then
+            _warn "illegal time format: $time"
+            continue
+        fi
+        
+        if old=$( stat -c %y "$file" ); then
+            #2025-04-08 08:48:19.949060953 +0800
+            old="${old:0:19}"
+            if [ "$date $time" == "$old" ]; then
+                _log2 "nop: $file"
+                continue
+            fi
+        fi
+        
+        _log1 "set to $date $time on file $file."
+        touch -d "$date $time" "$file"
+        touch -d "$date $time" "$file_xml"
+        
+        for subdir in ../SUB .; do
+            if [ -d "$dir/$subdir" ]; then
+                for sub in "$dir/$subdir/${name}S"*.MP4; do
+                    _log1 "set to $date $time on sub $sub."
+                    touch -d "$date $time" "$sub"
+                done
+                break
+            fi
+        done
+    done
+}
+
+function nrtm-creation() {
+    local xml="$1"
+    local s
+    if ! s=$( xml2 < "$xml" | grep /NonRealTimeMeta/CreationDate/@value= ); then
+        return 1
+    fi
+    echo "${s##*=}"
+}
+
+boot "$@"

@@ -1,0 +1,76 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Set photo file datetime according to EXIF}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    for file in "$@"; do
+        dir="${file%/*}"
+        base="${file##*/}"
+        if [ "$dir" = "$file" ]; then
+            dir=.
+        fi
+        
+        name="${base%.*}"
+        ext="${base##*.}"
+        if [ "$ext" = "$base" ]; then
+            ext=
+        else
+            ext=".$ext"
+        fi
+        
+        if ! datetime=$( exif -t 0x9003 -m "$file" ); then
+            _error "error get exit DateTimeOriginal from $file"
+            continue
+        fi
+        
+        #2024:06:09 12:08:43
+        date="${datetime%% *}"
+        date="${date//:/-}"
+        time="${datetime#* }"
+        if [ "${#date}" != 10 ]; then
+            _warn "illegal date format: $date"
+            continue
+        fi
+        if [ "${#time}" != 8 ]; then
+            _warn "illegal time format: $time"
+            continue
+        fi
+        
+        if old=$( stat -c %y "$file" ); then
+            #2025-04-08 08:48:19.949060953 +0800
+            old="${old:0:19}"
+            if [ "$date $time" == "$old" ]; then
+                _log2 "nop: $file"
+                continue
+            fi
+        fi
+        
+        _log1 "set to $date $time on file $file."
+        touch -d "$date $time" "$file"
+    done
+}
+
+boot "$@"
