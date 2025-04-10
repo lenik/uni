@@ -1,0 +1,71 @@
+# vim: set filetype=sh:
+
+function _ollama() {
+    local oldbrk="$COMP_WORDBREAKS"
+    COMP_WORDBREAKS=${COMP_WORDBREAKS//:}
+
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+    local prev2=
+    local cword=`_get_cword`
+    local cwlen=${#cword}
+    local cwtype=
+    
+    local list=()
+    if [ "$COMP_CWORD" = 1 ]; then
+        list=( serve start create show run stop pull push list ps cp rm help -h --help -v --version )
+    else
+        local cmd="${COMP_WORDS[1]}"
+        case "$prev" in
+            --format)
+                list=( json )
+                ;;
+            
+            *)
+                case "$cmd" in
+                    serve|start)
+                        list+=(-h --help)
+                        ;;
+                        
+                    create)
+                        list+=(-f --file -h --help -q --quantize)
+                        ;;
+                        
+                    show)
+                        list+=(-h --help --license --modelfile --parameters --system --template -v --verbose)
+                        ;;
+                        
+                    run)
+                        list=($(ollama ls | cut -d' ' -f1 | sed -e 's,:,\\:,g' ))
+                        list=( "${list[@]:1}" )             # remove the HEADER
+                        list+=(--format --insecure --keepalive --nowordwrap)
+                        ;;
+
+                    stop)
+                        list=($(ollama ps | cut -d' ' -f1 ))
+                        list=( "${list[@]:1}" )             # remove the HEADER
+                        ;;
+                        
+                    pull|push|cp|rm)
+                        list=($( ollama ls | cut -d' ' -f1 ))
+                        list=( "${list[@]:1}" )             # remove the HEADER
+                        list+=(--insecure -h --help)
+                        ;;
+                        
+                    ps|ls|help)
+                        list=()
+                        ;;
+                esac
+                ;;
+        esac
+    fi
+
+    #_init_completion -n : cword
+    COMPREPLY=($( compgen -o default -W "${list[*]}" -- "$cword" ))
+    #__ltrim_colon_completions "$cword"
+    
+    COMP_WORDBREAKS="$oldbrk"
+    return 0
+}
+
+complete -F _ollama ollama
+
