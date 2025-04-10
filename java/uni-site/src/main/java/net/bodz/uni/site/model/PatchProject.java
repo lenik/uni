@@ -1,6 +1,7 @@
 package net.bodz.uni.site.model;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import net.bodz.bas.i18n.dom.iString;
 import net.bodz.bas.i18n.dom.StrFn;
@@ -10,7 +11,7 @@ public class PatchProject
 
     String version;
 
-    public PatchProject(Section section, String name, File directory) {
+    public PatchProject(Section section, String name, Path directory) {
         super(section, name, directory);
     }
 

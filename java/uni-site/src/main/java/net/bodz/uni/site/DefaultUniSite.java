@@ -2,6 +2,9 @@ package net.bodz.uni.site;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import net.bodz.bas.c.m2.MavenPomDir;
 import net.bodz.bas.log.Logger;
@@ -16,10 +19,10 @@ public class DefaultUniSite
     private UniSite uniSite;
 
     public DefaultUniSite() {
-        File dir = getUniDirFromSrc();
+        Path dir = getUniDirFromSrc();
         if (dir == null) {
             logger.warn("Can't find base dir of the uni project.");
-            dir = new File("/mnt/istore/pro/uni");
+            dir = Paths.get("/mnt/istore/pro/uni");
         }
         uniSite = new UniSite(dir);
     }
@@ -29,22 +32,28 @@ public class DefaultUniSite
         return uniSite;
     }
 
-    public static File getUniDirFromSrc() {
-        File pomDir = MavenPomDir.fromClass(UniSite.class).getBaseDir();
-        File uniSiteProjDir;
+    public static Path getUniDirFromSrc() {
+        MavenPomDir project = MavenPomDir.fromClass(UniSite.class);
+        if (project == null) {
+            logger.error("Can't find the maven project.");
+            return null;
+        }
+
+        Path pomDir = project.getBaseDir();
+        Path uniSiteProjDir;
         try {
-            uniSiteProjDir = pomDir.getCanonicalFile();
+            uniSiteProjDir = pomDir.toRealPath();
         } catch (IOException e) {
             logger.error("Bad base-dir: " + pomDir);
             return null;
         }
-        File javaDir = uniSiteProjDir.getParentFile();
+        Path javaDir = uniSiteProjDir.getParent();
         if (javaDir == null)
             return null;
-        File uniDir = javaDir.getParentFile();
+        Path uniDir = javaDir.getParent();
         if (uniDir == null)
             return null;
-        if (!uniDir.exists())
+        if (Files.notExists(uniDir))
             uniDir = null;
         return uniDir;
     }

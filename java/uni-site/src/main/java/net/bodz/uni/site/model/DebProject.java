@@ -1,11 +1,14 @@
 package net.bodz.uni.site.model;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.io.res.builtin.PathResource;
 import net.bodz.bas.io.res.tools.StreamReading;
 import net.bodz.uni.site.util.DebControl;
 
@@ -15,11 +18,11 @@ public class DebProject
     private DebControl debControl;
     private Set<String> amIncludes = new HashSet<String>();
 
-    public DebProject(Section section, String name, File directory) {
+    public DebProject(Section section, String name, Path directory) {
         super(section, name, directory);
-        File am = new File(directory, "Makefile.am");
-        if (am.exists())
-            for (String line : new FileResource(am).to(StreamReading.class).lines()) {
+        Path am = directory.resolve("Makefile.am");
+        if (Files.exists(am))
+            for (String line : new PathResource(am).to(StreamReading.class).lines()) {
                 if (line.startsWith("include "))
                     amIncludes.add(line.substring(8).trim());
             }

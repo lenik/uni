@@ -2,11 +2,13 @@ package net.bodz.uni.site.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.junit.Assert;
 
 import net.bodz.bas.io.ITreeOut;
 import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.io.res.builtin.PathResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.uni.site.DefaultUniSite;
@@ -22,8 +24,8 @@ public class GenerateProjectItmFiles
         UniSite site = new DefaultUniSite().getTarget();
         for (Section section : site.getSectionMap().values()) {
             for (Project project : section.getProjects()) {
-                File docFile = new File(project.getDirectory(), project.getName() + ".itm");
-                FileResource file = new FileResource(docFile);
+                Path docFile = project.getDirectory().resolve(project.getName() + ".itm");
+                PathResource file = new PathResource(docFile);
                 ITreeOut out = file.newTreeOut();
                 out.println("@label");
                 out.enter();

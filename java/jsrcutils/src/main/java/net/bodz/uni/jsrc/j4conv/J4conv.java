@@ -99,7 +99,7 @@ public class J4conv
         IFile in = handler.getInputFile();
         IFile out = handler.getOutputFile();
 
-        if (! ".java".equals(FilePath.getExtension(in.getName(), true)))
+        if (! ".java".equals(FilePath.dotExtension(in.getName())))
             return;
 
         String src = in.to(StreamReading.class).readString();

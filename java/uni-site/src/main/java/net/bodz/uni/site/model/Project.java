@@ -2,6 +2,8 @@ package net.bodz.uni.site.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -17,6 +19,7 @@ import net.bodz.bas.err.ParseException;
 import net.bodz.bas.fmt.textmap.I18nTextMapDocLoader;
 import net.bodz.bas.io.res.IStreamInputSource;
 import net.bodz.bas.io.res.builtin.FileResource;
+import net.bodz.bas.io.res.builtin.PathResource;
 import net.bodz.bas.io.res.builtin.StringSource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
@@ -34,8 +37,8 @@ public class Project
 
     Section section;
     String name;
-    File directory;
-    File docFile;
+    Path directory;
+    Path docFile;
     String vcspath;
 
     ProjectStat projectStat;
@@ -44,21 +47,21 @@ public class Project
     Map<String, IVcsLogEntry> cachedLogs;
     Date logsExpires;
 
-    public Project(Section section, String name, File directory) {
+    public Project(Section section, String name, Path directory) {
         this.section = section;
         this.name = name;
         this.directory = directory;
 
-        docFile = new File(directory, name + ".itm");
-        if (! docFile.exists()) {
-            docFile = new File(directory, "." + name + ".itm");
-            if (! docFile.exists())
+        docFile = directory.resolve(name + ".itm");
+        if (Files.notExists(docFile)) {
+            docFile = directory.resolve("." + name + ".itm");
+            if (Files.notExists(docFile))
                 if (docFile == null)
                     throw new NullPointerException("docFile");
         }
 
-        File rootDir = section.getSite().getBaseDir();
-        vcspath = FilePath.getRelativePath(directory.getPath(), rootDir + "/");
+        Path rootDir = section.getSite().getBaseDir();
+        vcspath = FilePath.getRelativePath(directory.toString(), rootDir + "/");
 
         projectStat = new ProjectStat();
 
@@ -81,8 +84,7 @@ public class Project
                 item.section = branch.getName();
                 item.filename = baseName;
                 item.href = "http://deb.bodz.net/" + branch.getName() + "/" + baseName;
-                item.lastModified = ZonedDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()),
-                        ZoneId.systemDefault());
+                item.lastModified = ZonedDateTime.ofInstant(Instant.ofEpochMilli(file.lastModified()), ZoneId.systemDefault());
                 item.fileSize = file.length();
                 downloadItems.add(item);
             }
@@ -94,11 +96,11 @@ public class Project
         if (docFile == null)
             throw new NullPointerException("docFile");
         IStreamInputSource docRes;
-        if (! docFile.exists()) {
+        if (Files.notExists(docFile)) {
             logger.warn("No doc file: " + docFile);
             docRes = new StringSource("");
         } else {
-            docRes = new FileResource(docFile);
+            docRes = new PathResource(docFile);
         }
         IMutableElementDoc doc = I18nTextMapDocLoader.load(docRes);
         return doc;
@@ -113,7 +115,7 @@ public class Project
         return name;
     }
 
-    public File getDirectory() {
+    public Path getDirectory() {
         return directory;
     }
 
@@ -157,7 +159,7 @@ public class Project
     /* _____________________________ */static section.iface __CACHE__;
 
     @Override
-    public int getMaxAge() {
+    public Integer getMaxAge() {
         return 36 * 3600; // 1.5 days
     }
 

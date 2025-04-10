@@ -1,11 +1,15 @@
 package net.bodz.uni.site;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import net.bodz.bas.i18n.dom.StrFn;
 import net.bodz.bas.i18n.dom.iString;
@@ -30,6 +34,8 @@ import net.bodz.uni.site.model.ToolMenu;
 
 import jakarta.servlet.http.HttpSession;
 
+import section.iface;
+
 /**
  * @label Uni - Development Tools
  * @label.zh.cn Uni 开发工具
@@ -42,7 +48,7 @@ public class UniSite
     static final Logger logger = LoggerFactory.getLogger(UniSite.class);
 
     /** Root directory of the uni project. */
-    private File baseDir;
+    private Path baseDir;
     private IVcsWorkingCopy workingCopy;
 
     private Map<String, Section> sectionMap = new TreeMap<>();
@@ -51,7 +57,7 @@ public class UniSite
     public String googleId;
     public String baiduId;
 
-    public UniSite(File baseDir) {
+    public UniSite(Path baseDir) {
         this.baseDir = baseDir;
         workingCopy = new NativeGitVcsWorkingCopy(baseDir);
         reload();
@@ -71,7 +77,7 @@ public class UniSite
         return alternateUrls;
     }
 
-    public File getBaseDir() {
+    public Path getBaseDir() {
         return baseDir;
     }
 
@@ -109,26 +115,31 @@ public class UniSite
     public synchronized void reload() {
         logger.info("Reload uni-site in the directory " + baseDir);
         sectionMap.clear();
-        for (File sectionDir : baseDir.listFiles()) {
-            if (!sectionDir.isDirectory())
-                continue;
+        try (Stream<Path> stream = Files.list(baseDir)) {
+            stream.forEach(sectionDir -> {
 
-            String name = sectionDir.getName();
+                if (Files.isDirectory(sectionDir))
+                    return;
 
-            Section section = new Section(this, name, sectionDir);
-            if (section.getDocFile() == null) {
-                logger.infof("Skipped non-section dir %s.", sectionDir);
-                continue;
-            }
+                String name = sectionDir.getFileName().toString();
 
-            section.load();
+                Section section = new Section(this, name, sectionDir);
+                if (section.getDocFile() == null) {
+                    logger.infof("Skipped non-section dir %s.", sectionDir);
+                    return;
+                }
 
-            sectionMap.put(name, section);
+                section.load();
+
+                sectionMap.put(name, section);
+            });
+        } catch (IOException e) {
+            logger.error("Error listing " + baseDir);
         }
     }
 
     /** ⇱ Implementation Of {@link IPathDispatchable}. */
-    /* _____________________________ */static section.iface __PATH_DISP__;
+    /* _____________________________ */static iface __PATH_DISP__;
 
     @Override
     public synchronized IPathArrival dispatch(IPathArrival previous, ITokenQueue tokens, IVariantMap<String> q)
@@ -145,7 +156,7 @@ public class UniSite
     }
 
     /** ⇱ Implementation Of {@link ICrawlable}. */
-    /* _____________________________ */static section.iface __CRAWL__;
+    /* _____________________________ */static iface __CRAWL__;
 
     @Override
     public void crawlableIntrospect(ICrawler crawler) {
