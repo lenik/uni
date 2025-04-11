@@ -2,15 +2,16 @@ include libauto/project.am
 
 dist_bin_SCRIPTS = \
     2utf8 \
-    wcc \
-    unindent \
-    tabify \
-    tabsize \
-    iconvf \
+    bobup \
     getrandomlines \
     grepstat \
+    iconvf \
     ljoin \
-    bobup
+    sortafter \
+    tabify \
+    tabsize \
+    unindent \
+    wcc
 #    rjoin
 
 dist_setup_SCRIPTS = \
@@ -18,3 +19,7 @@ dist_setup_SCRIPTS = \
     prerm
 
 CLEANFILES = ${dist_setup_SCRIPTS}
+
+install-data-hook:
+	ln -sn sortafter ${DESTDIR}${bindir}/sorta
+
