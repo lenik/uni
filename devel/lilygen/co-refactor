@@ -1,0 +1,13 @@
+#!/bin/bash
+
+repl -d -r net.bodz.lily.template.CoCategory            net.bodz.lily.concrete.CoCategory
+repl -d -r net.bodz.lily.template.CoPhase               net.bodz.lily.concrete.CoPhase
+repl -d -r net.bodz.lily.template.CoParameter           net.bodz.lily.concrete.CoParameter
+repl -d -r net.bodz.lily.template.CoTag                 net.bodz.lily.concrete.CoTag
+repl -d -r net.bodz.lily.model.base.CoNode              net.bodz.lily.concrete.CoNode
+repl -d -r net.bodz.lily.model.base.CoCode              net.bodz.lily.concrete.CoCode
+repl -d -r net.bodz.lily.model.base.CoMomentInterval    net.bodz.lily.concrete.CoMomentInterval
+repl -d -r net.bodz.lily.template.CoTalk                net.bodz.lily.concrete.CoTalk
+repl -d -r net.bodz.lily.t.base.CoMessage               net.bodz.lily.concrete.CoMessage
+repl -d -r net.bodz.lily.schema.model.base.CoObject     net.bodz.lily.concrete.CoObject
+
