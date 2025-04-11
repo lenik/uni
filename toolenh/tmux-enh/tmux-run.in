@@ -1,0 +1,62 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Run tmux config file}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] configfile}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    n_session=0
+    n_window=0
+    
+    session_list=()
+    
+    while read head n _windows creation; do
+        if [ "$head $n" == 'no server' ]; then
+            break
+        fi
+        
+        case "$head" in
+            *:)
+                name="${head%:}"
+                session_list+=( "$name" )
+                (( n_session++ ))
+                
+                if [ "$_windows" == 'windows' ]; then
+                    (( n_window += $n ))
+                fi
+                ;;
+        esac
+    done < <( tmux ls 2>&1 )
+    
+    if [ "$n_session" == 0 ]; then
+        _log1 "create default background session"
+        tmux new -A -s 'default' \; detach >/dev/null
+    else
+        _log1 "found $n_session sessions: ${session_list[@]}, and $n_window windows."
+    fi
+    
+    tmux source-file "$@"
+}
+
+boot "$@"
