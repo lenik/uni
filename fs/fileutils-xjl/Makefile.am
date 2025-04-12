@@ -16,6 +16,8 @@ dist_bin_SCRIPTS = \
     ren-symback \
     ren-timever \
     swap \
+    swapback \
+    swapout \
     symfl \
     symflatten \
     textp \
@@ -26,6 +28,8 @@ dist_man_MANS = \
     fix-symlinks.8 \
     ren-symback.1 \
     ren-timever.1 \
+    swapback.1 \
+    swapout.1 \
     symfl.1 \
     mv-p.1
 

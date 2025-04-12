@@ -1,0 +1,114 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Move out file to other location, and make symlink to it}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILES... TARGETDIR}
+
+    . shlib-import cliboot
+    option -n --no-clobber      "do not overwrite existing file"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_clobber=1
+
+function setopt() {
+    case "$1" in
+        -n|--no-clobber)
+            opt_clobber=0;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    if [ $# -lt 2 ]; then
+        quit 'expect files and target dir'
+    fi
+
+    mvopts=()
+    lnopts=()
+    if [ "$opt_clobber" == 0 ]; then
+        mvopts+=(-n)
+    else
+        lnopts+=(-f)
+    fi
+
+    if [ $LOGLEVEL -ge 2 ]; then
+        mvopts+=(-v)
+        lnopts+=(-v)
+    fi
+
+    targetdir="${!#}"
+    files=("${@:1:$#-1}")
+    
+    targetdir="${targetdir%/}"
+    if [ -z "$targetdir" ]; then
+        targetdir=/
+    fi
+    
+    _log2 "Swap out ${files[*]} to $targetdir."
+
+    if [ ! -d "$targetdir" ]; then
+        quit "Target isn't a directory: $targetdir"
+    fi
+    if [ ! -w "$targetdir" ]; then
+        quit "Can't write to directory $targetdir"
+    fi
+
+    for file in "${files[@]}"; do
+        dir="${file%/*}"
+        base="${file##*/}"
+
+        if [ "$dir" = "$file" ]; then
+            dir=.
+            targetsubdir="$targetdir"
+        else
+            targetsubdir="$targetdir/$dir"
+        fi
+
+        if [ ! -d "$targetsubdir" ]; then
+            _log2 "create directory $targetsubdir"
+            mkdir -p "$targetsubdir" || quit "failed to mkdir"
+        fi
+
+        if [ -L "$file" ]; then
+            if ! link_target=$( readlink -f "$file" ); then
+                link_target=$( readlink -m "$file" )
+                _error "bad link: $file -> $link_target (missing)"
+                continue
+            fi
+            
+            target_real=$( readlink -f "${targetdir}/${file}" )
+            if [ "$link_target" == "$target_real" ]; then
+                _warn "already in the state: $file, skipped"
+                continue
+            else
+                file="$link_target"
+            fi
+        fi
+
+        _log1 "move $file to $targetsubdir"
+        if ! mv "${mvopts[@]}" "$file" "$targetsubdir"; then
+            _error "failed to move: $?"
+            continue
+        fi
+
+        _log2 "create symlink $dir/$base -> $targetsubdir/$base"
+        # -n/--no-dereference: treat LINK_NAME as a normal file if it is a symbolic link to a directory
+        if ! ln -sn "${lnopts[@]}" "${targetsubdir}/${base}" "$dir/$base"; then
+            _error "error create: $?"
+        fi
+    done
+}
+
+boot "$@"

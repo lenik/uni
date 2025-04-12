@@ -6,4 +6,6 @@ ren-mkdirs
 ren-r
 ren-symback
 ren-timever
+swapback
+swapout
 symflatten

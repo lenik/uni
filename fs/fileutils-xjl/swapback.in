@@ -1,0 +1,84 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Move swapped out files back, by convert symlink to real file}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib-import cliboot
+    option -n --no-clobber      "do not overwrite exist files"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_clobber=1
+
+function setopt() {
+    case "$1" in
+        -n|--no-clobber)
+            opt_clobber=0;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    mvopts=()
+    lnopts=()
+
+    if [ "$opt_clobber" == 0 ]; then
+        mvopts+=(-n)
+    else
+        lnopts+=(-f)
+    fi
+
+    if [ $LOGLEVEL -ge 2 ]; then
+        mvopts+=(-v)
+        lnopts+=(-v)
+    fi
+
+    for file in "$@"; do
+        if [ ! -L "$file" ]; then
+            _log2 "Not a symbolic link, skipped: $file"
+            continue
+        fi
+        link="$file"
+        
+        if ! real=$( readlink -f "$link" ); then
+            link_target=$( readlink -m "$link" )
+            _error "skip bad link $link -> $link_target (missing)"
+            continue
+        fi
+
+        link_target=$( readlink "$link" )
+        if ! rm -f "$link"; then
+            _error "can't remove the symbolic link $link: $?"
+            continue
+        fi
+        
+        dir="${link%/*}"
+        base="${link##*/}"
+        if [ "$dir" = "$link" ]; then
+            dir=.
+        fi
+        
+        _log1 "move $real to $link"
+        if ! mv "${mvopts[@]}" "$real" "$link"; then
+            _error "failed to move: $?"
+            _log1 "recreate symbolic link $link -> $link_target"
+            if ! ln -sn "${lnopts[@]}" "$link_target" "$link"; then
+                _error "failed to create: $!"
+            fi
+        fi
+    done
+}
+
+boot "$@"
