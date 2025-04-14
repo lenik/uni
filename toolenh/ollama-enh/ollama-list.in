@@ -1,0 +1,188 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=ollama list with specific order}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] [listfile.machine]}
+
+    . shlib-import cliboot
+    option -b --size-bits       'sort by size-bits'
+    option -i --id              'sort by id'
+    option -n --name            'sort by name (default)'
+    option -s --size -S         'sort by size'
+    option -t --time            'sort by time'
+    option -r --reverse         'reverse order while sorting'
+    option -m --machine         'list in machine readable format'
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+    
+    opt_machine=0
+    
+    sort_field=name
+    sort_ascending=1
+    
+function setopt() {
+    case "$1" in
+        -b|--size-bits)
+            sort_field=sizebits;;
+        -i|--id)
+            sort_field=id;;
+        -n|--name)
+            sort_field=name;;
+        -s|--size|-S)
+            sort_field=size;;
+        -t|--time)
+            sort_field=time;;
+        -r|--reverse)
+            sort_ascending=0;;
+        -m|--machine)
+            opt_machine=1;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    sortopts=()
+    fieldrev=
+    if [ "$sort_ascending" = 0 ]; then
+        fieldrev=r
+    fi
+
+    # machine format:
+    #   NAME ID Size Bits Date Time SIZE MODIFIED
+    #   1    2  3    4    5    6    7    8
+    in_format=raw
+
+    case "$sort_field" in
+        id)
+            sortopts+=(-k2"$fieldrev")
+            ;;
+        name)
+            sortopts+=(-k1"$fieldrev")
+            ;;
+        sizebits)
+            in_format=machine
+            sortopts+=(-k4,4n"$fieldrev")
+            sortopts+=(-k2,2)
+            ;;
+        size)
+            in_format=machine
+            sortopts+=(-k3n"$fieldrev")
+            ;;
+        time)
+            in_format=machine
+            sortopts+=(-k5,5"$fieldrev")
+            sortopts+=(-k6,6"$fieldrev")
+            ;;
+        *)
+            quit "invalid sort field: $sort_field"
+            ;;
+    esac
+    
+    list_in "$in_format" | sortafter 1 "${sortopts[@]}" | conv_output
+}
+
+function list_in() {
+    if [ "$1" == 'machine' ]; then
+        ollama list | conv_output machine
+    else
+        ollama list
+    fi
+}
+
+function sortafter() {
+    local n=1
+    if [ $# -ge 1 ]; then
+        n="$1"
+        shift
+    fi
+
+    sed -u "${n}q"
+
+    sort "$@"
+}
+
+function conv_output() {
+    local mode=$1
+    if [ -z "$mode" ]; then
+        if [ "$opt_machine" == 1 ]; then
+            mode=machine
+        else
+            mode=cat
+        fi
+    fi
+    
+    if [ "$mode" == "machine" ]; then
+        local NAME ID SIZE UNIT TIME
+        while read NAME ID SIZE UNIT TIME; do
+            if [ "$NAME $ID $SIZE $UNIT" = "NAME ID SIZE MODIFIED" ]; then
+                echo "ID NAME Size Bits Date Time SIZE MODIFIED"
+                continue ## drop header
+            fi
+            case "$UNIT" in
+                MB)
+                    Size=$SIZE;;
+                GB)
+                    Size=$( pow10 3 $SIZE );;
+                TB)
+                    Size=$( pow10 6 $SIZE );;
+                *)
+                    quit "unknown size unit: $UNIT";;
+            esac
+            
+            Bits=$( num_bits $Size )
+            Time=$( date -d "$TIME" '+%Y-%m-%d %T' )
+            
+            #printf "%-65s %s %8d %4d %s %8s %s %s\n" \
+            #    "$NAME" "$ID" "$Size" "$Bits" "$Time" "$SIZE" "$TIME"
+            echo "$NAME $ID $Size $Bits $Time ${SIZE}"$'\u00a0'"${UNIT} $TIME"
+        done #| column -t -R '3,4,7' -l 8
+    else
+        cut -d' ' -f1,2,7,8- | column -t -R '3' -l4
+    fi
+}
+
+function num_bits() {
+    local n="$1"
+    local bits=0
+    if [ $n == 0 ]; then
+        bits=1
+    else
+        while [ $n != 0 ]; do
+            (( n >>= 1 ))
+            (( bits++ ))
+        done
+    fi
+    echo $bits
+}
+
+function x1000() {
+    pow10 3 "$@"
+}
+
+function pow10() {  # 10^pow * float
+    local pow="$1"
+    local float="$2"
+    local int=${float%.*}
+    local dec=${float##*.}
+    if [ "$int" = "$float" ]; then
+        dec=0
+    fi
+    if [ ${#dec} -gt $pow ]; then
+        dec=${dec:0:pow}
+    fi
+    local base=$(( 10**pow ))
+    echo $(( int * base + dec ))
+}
+
+boot "$@"

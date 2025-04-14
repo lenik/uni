@@ -51,7 +51,10 @@ function _ollama() {
                         list+=(--insecure -h --help)
                         ;;
                         
-                    ps|ls|help)
+                    list|ls)
+                        list+=(-b --size-bits -i --id -n --name -s --size -S -t --time -r --reverse --m --machine -h --help)
+                        ;;
+                    ps|help)
                         list=()
                         ;;
                 esac
@@ -63,9 +66,8 @@ function _ollama() {
     COMPREPLY=($( compgen -o default -W "${list[*]}" -- "$cword" ))
     #__ltrim_colon_completions "$cword"
     
-    COMP_WORDBREAKS="$oldbrk"
     return 0
 }
 
-complete -F _ollama ollama
+complete -o filenames -F _ollama ollama
 
