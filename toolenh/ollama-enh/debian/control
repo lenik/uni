@@ -14,5 +14,6 @@ Package: ollama-enh
 Architecture: all
 Depends:
     bash-shlib,
+    tmux-enh,
     ${misc:Depends},
 Description: Ollama add-ons.
