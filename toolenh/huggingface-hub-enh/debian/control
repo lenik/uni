@@ -1,0 +1,19 @@
+Source: huggingface-hub-enh
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.7.2
+Homepage: http://uni.bodz.net/toolenh/huggingface-hub-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/huggingface-hub-enh
+
+Package: huggingface-hub-enh
+Architecture: all
+Depends:
+    bash-alias,
+    bash-shlib,
+    ${misc:Depends},
+Description: Enhancements on huggingface-hub cmdline tools
