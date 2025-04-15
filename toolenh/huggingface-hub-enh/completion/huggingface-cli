@@ -1,0 +1,83 @@
+# vim: set filetype=sh:
+
+function _huggingface_cli() {
+    local oldbrk="$COMP_WORDBREAKS"
+    COMP_WORDBREAKS=${COMP_WORDBREAKS//:}
+
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+    local prev2=
+    local cword=`_get_cword`
+    local cwlen=${#cword}
+    local cwtype=
+    
+    local list=()
+    if [ "$COMP_CWORD" = 1 ]; then
+        list=( download upload repo-files env login whoami logout auth repo lfs-enable-largefiles scan-cache delete-cache tag version upload-large-folder -h --help)
+    else
+        local cmd="${COMP_WORDS[1]}"
+        case "$prev" in
+            --repo-type)
+                list=( model dataset space );;
+            --local-dir-use-symlinks)
+                list=( auto True False );;
+            switch)
+                list=( --token-name --add-to-git-credential );;
+            list)
+                list=();;
+            create)
+                list=( --type --organization --space_sdk -y --yes );;
+            --type)
+                list=( dataset space model );;
+            --space_sdk)
+                list=( gradio streamlit docker static );;
+            --sort)
+                list=( alphabetical lastUpdated lastUsed size );;
+            *)
+            case "$cmd" in
+                download)
+                    list=( --repo-type --revision --include --exclude --cache-dir --local-dir --local-dir-use-symlinks --force-download --resume-download --token --quiet --max-workers )
+                    ;;
+                upload)
+                    list=( --repo-type --revision --private --include --exclude --delete --commit-message --commit-description --create-pr --every --token --quiet )
+                    ;;
+                repo-files)
+                    list=( --token );;
+                env)
+                    list=();;
+                login)
+                    list=( --token --add-to-git-credential );;
+                whoami)
+                    list=();;
+                logout)
+                    list=( --token-name );;
+                auth)
+                    list=( switch list );;
+                repo)
+                    list=( create );;
+                lfs-enable-largefiles)
+                    list=();;
+                scan-cache)
+                    list=( --dir -v --verbose );;
+                delete-cache)
+                    list=( --dir --disable-tui --sort );;
+                tag)
+                    list=(-m --message --revision --token --repo-type -y --yes -l --list -d --delete );;
+                version)
+                    list=();;
+                upload-large-folder)
+                    list+=(--repo-type --revision --private --include --exclude --token --num-workers --no-report --no-bars )
+                    ;;
+            esac
+            ;;
+        esac
+    fi
+
+    #_init_completion -n : cword
+    COMPREPLY=($( compgen -o default -W "${list[*]}" -- "$cword" ))
+    #__ltrim_colon_completions "$cword"
+    
+    return 0
+}
+
+complete -o filenames -F _huggingface_cli huggingface-cli hf
+
