@@ -21,6 +21,7 @@ CLEANFILES = \
     ${dist_setup_SCRIPTS}
 
 install-debug:
-	sudo ln -snf $$PWD/completion/ollama ${completiondir}
-	sudo ln -snf $$PWD/ollama.tmux ${bindir}
+	sudo ln -snf $$PWD/completion/ollama ${completiondir}/ollama
+	sudo ln -snf $$PWD/ollama.tmux ${bindir}/ollama.tmux
+	sudo ln -snf $$PWD/ollama-list.in ${bindir}/ollama-list
 

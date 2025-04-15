@@ -18,6 +18,7 @@
     option    --version
     
     opt_machine=0
+    opt_compat=1
     
     sort_field=name
     sort_ascending=1
@@ -59,9 +60,8 @@ function main() {
     fi
 
     # machine format:
-    #   NAME ID Size Bits Date Time SIZE MODIFIED
-    #   1    2  3    4    5    6    7    8
-    in_format=raw
+    #   NAME ID Size Bits Date Time SIZE[UNIT] MODIFIED
+    #   1    2  3    4    5    6    7[8]       8/9
 
     case "$sort_field" in
         id)
@@ -71,16 +71,13 @@ function main() {
             sortopts+=(-k1"$fieldrev")
             ;;
         sizebits)
-            in_format=machine
             sortopts+=(-k4,4n"$fieldrev")
             sortopts+=(-k2,2)
             ;;
         size)
-            in_format=machine
             sortopts+=(-k3n"$fieldrev")
             ;;
         time)
-            in_format=machine
             sortopts+=(-k5,5"$fieldrev")
             sortopts+=(-k6,6"$fieldrev")
             ;;
@@ -89,15 +86,10 @@ function main() {
             ;;
     esac
     
-    list_in "$in_format" | sortafter 1 "${sortopts[@]}" | conv_output
-}
-
-function list_in() {
-    if [ "$1" == 'machine' ]; then
-        ollama list | conv_output machine
-    else
-        ollama list
-    fi
+    ollama list \
+        | conv_output machine \
+        | sortafter 1 "${sortopts[@]}" \
+        | conv_output
 }
 
 function sortafter() {
@@ -126,7 +118,11 @@ function conv_output() {
         local NAME ID SIZE UNIT TIME
         while read NAME ID SIZE UNIT TIME; do
             if [ "$NAME $ID $SIZE $UNIT" = "NAME ID SIZE MODIFIED" ]; then
-                echo "ID NAME Size Bits Date Time SIZE MODIFIED"
+                if [ "$opt_compat" == 1 ]; then
+                    echo "NAME ID Size Bits Date Time SIZE MODIFIED"
+                else
+                    echo "NAME ID Size Bits Date Time SIZE U MODIFIED"
+                fi
                 continue ## drop header
             fi
             case "$UNIT" in
@@ -142,13 +138,34 @@ function conv_output() {
             
             Bits=$( num_bits $Size )
             Time=$( date -d "$TIME" '+%Y-%m-%d %T' )
+            Date=${Time%% *}
+            Time=${Time#* }
             
             #printf "%-65s %s %8d %4d %s %8s %s %s\n" \
-            #    "$NAME" "$ID" "$Size" "$Bits" "$Time" "$SIZE" "$TIME"
-            echo "$NAME $ID $Size $Bits $Time ${SIZE}"$'\u00a0'"${UNIT} $TIME"
+            #    "$NAME" "$ID" "$Size" "$Bits" "$Date" "$Time" "$SIZE" "$TIME"
+            if [ "$opt_compat" == 1 ]; then
+                SIZE10=$( pow10 1 $SIZE )
+                SIZE_F=${SIZE10:0:-1}.${SIZE10: -1}
+                # [ "${SIZE10: -1}" == '0' ] && SIZE_F="${SIZE10:0:-1}"$'\u00a0'$'\u00a0'
+                echo "$NAME $ID $Size $Bits $Date $Time ${SIZE_F}"$'\u00a0'"${UNIT} $TIME"
+            else
+                echo "$NAME $ID $Size $Bits $Date $Time $SIZE $UNIT $TIME"
+            fi
         done #| column -t -R '3,4,7' -l 8
     else
-        cut -d' ' -f1,2,7,8- | column -t -R '3' -l4
+        #cat
+        if [ "$opt_compat" == 1 ]; then
+            field_list=1,2,7,8-
+            n_field=4
+            sep='   '
+            
+        else
+            field_list=1,2,7,8,9-
+            n_field=5
+            sep=' '
+        fi
+        
+        cut -d' ' -f$field_list | column -t -R '3' -l${n_field} -o"$sep"
     fi
 }
 
