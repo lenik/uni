@@ -32,6 +32,15 @@ function _huggingface_cli() {
                 list=( gradio streamlit docker static );;
             --sort)
                 list=( alphabetical lastUpdated lastUsed size );;
+            --token)
+                list=()
+                file_tokens=$HOME/local/keys/huggingface/tokens
+                if [ -f "$file_tokens" ]; then
+                    while read token id _; do
+                        list+=( "$token" )
+                    done <"$file_tokens"
+                fi
+                ;;
             *)
             case "$cmd" in
                 download)
