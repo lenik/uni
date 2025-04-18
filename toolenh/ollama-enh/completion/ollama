@@ -35,8 +35,12 @@ function _ollama() {
                         ;;
                         
                     run)
-                        list=($(ollama ls | cut -d' ' -f1 | sed -e 's,:,\\:,g' ))
-                        list=( "${list[@]:1}" )             # remove the HEADER
+                        if [ $COMP_CWORD == 2 ]; then
+                            list=($(ollama ls | cut -d' ' -f1 | sed -e 's,:,\\:,g' ))
+                            list=( "${list[@]:1}" )             # remove the HEADER
+                        else
+                            compopt -o filenames
+                        fi
                         list+=(--format --insecure --keepalive --nowordwrap)
                         ;;
 
@@ -69,5 +73,5 @@ function _ollama() {
     return 0
 }
 
-complete -o filenames -F _ollama ollama
+complete -F _ollama ollama
 
