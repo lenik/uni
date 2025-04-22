@@ -34,7 +34,6 @@ dist_bin_SCRIPTS = \
     substexec \
     substtree \
     swapox \
-    testox \
     until-changed \
     xxcat \
     xxxcat \
@@ -65,3 +64,9 @@ dist_setup_SCRIPTS = \
 
 CLEANFILES = \
     ${dist_setup_SCRIPTS}
+
+install-debug:
+	for script in $(dist_bin_SCRIPTS); do \
+        sudo ln -snf $$PWD/$$script ${bindir}; \
+    done
+

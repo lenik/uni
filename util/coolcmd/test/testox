@@ -1,0 +1,73 @@
+#!/bin/sh
+
+echo "stdout apple apple apple apple apple"
+echo "stderr banana banana banana banana banana" >&2
+
+echo "stdout Linux x1x 6.12.22-amd64 \#1 SMP PREEMPT_DYNAMIC Debian 6.12.22-1 (2025-04-10) x86_64 GNU/Linux"
+echo "stderr Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" >&2
+
+echo "stdout lenik"
+echo "stderr bill gates" >&2
+
+echo "stdout apple apple apple apple apple"
+echo "stderr banana banana banana banana banana" >&2
+
+echo "stdout Linux x1x 6.12.22-amd64 \#1 SMP PREEMPT_DYNAMIC Debian 6.12.22-1 (2025-04-10) x86_64 GNU/Linux"
+echo "stderr Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" >&2
+
+echo "stdout lenik"
+echo "stderr bill gates" >&2
+
+echo "stdout apple apple apple apple apple"
+echo "stderr banana banana banana banana banana" >&2
+
+echo "stdout Linux x1x 6.12.22-amd64 \#1 SMP PREEMPT_DYNAMIC Debian 6.12.22-1 (2025-04-10) x86_64 GNU/Linux"
+echo "stderr Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" >&2
+
+echo "stdout lenik"
+echo "stderr bill gates" >&2
+
+echo "stdout apple apple apple apple apple"
+echo "stderr banana banana banana banana banana" >&2
+
+echo "stdout Linux x1x 6.12.22-amd64 \#1 SMP PREEMPT_DYNAMIC Debian 6.12.22-1 (2025-04-10) x86_64 GNU/Linux"
+echo "stderr Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" >&2
+
+echo "stdout lenik"
+echo "stderr bill gates" >&2
+
+echo "stdout apple apple apple apple apple"
+echo "stderr banana banana banana banana banana" >&2
+
+echo "stdout Linux x1x 6.12.22-amd64 \#1 SMP PREEMPT_DYNAMIC Debian 6.12.22-1 (2025-04-10) x86_64 GNU/Linux"
+echo "stderr Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" >&2
+
+echo "stdout lenik"
+echo "stderr bill gates" >&2
+
+echo "stdout apple apple apple apple apple"
+echo "stderr banana banana banana banana banana" >&2
+
+echo "stdout Linux x1x 6.12.22-amd64 \#1 SMP PREEMPT_DYNAMIC Debian 6.12.22-1 (2025-04-10) x86_64 GNU/Linux"
+echo "stderr Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" >&2
+
+echo "stdout lenik"
+echo "stderr bill gates" >&2
+
+echo "stdout apple apple apple apple apple"
+echo "stderr banana banana banana banana banana" >&2
+
+echo "stdout Linux x1x 6.12.22-amd64 \#1 SMP PREEMPT_DYNAMIC Debian 6.12.22-1 (2025-04-10) x86_64 GNU/Linux"
+echo "stderr Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" >&2
+
+echo "stdout lenik"
+echo "stderr bill gates" >&2
+
+echo "stdout apple apple apple apple apple"
+echo "stderr banana banana banana banana banana" >&2
+
+echo "stdout Linux x1x 6.12.22-amd64 \#1 SMP PREEMPT_DYNAMIC Debian 6.12.22-1 (2025-04-10) x86_64 GNU/Linux"
+echo "stderr Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36" >&2
+
+echo "stdout lenik"
+echo "stderr bill gates" >&2
