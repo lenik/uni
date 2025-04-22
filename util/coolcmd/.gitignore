@@ -1,7 +1,5 @@
 autobuild
-chop
 eachdir
-echo-x
 esti-exec
 if-modified
 ldd-which
@@ -11,5 +9,3 @@ onchange
 repeat
 subst
 until-changed
-xcat.c
-xcat

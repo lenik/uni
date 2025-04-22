@@ -1,8 +1,9 @@
 #include "config.h"
 
-#include <unistd.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #define UPPER   0                       /* ALL UPPER CASE */
 #define LOWER   1                       /* ALL LOWER CASE */

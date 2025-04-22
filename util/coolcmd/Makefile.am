@@ -8,15 +8,6 @@ dist_alias_DATA = \
 dist_cmtlib_DATA = \
     cmt/subst.pm
 
-bin_PROGRAMS = \
-    chop \
-    echo-x \
-    xcat
-
-AM_CPPFLAGS = $(GLIB_CFLAGS)
-chop_LDADD = $(GLIB_LIBS)
-xcat_LDADD = $(GLIB_LIBS)
-
 dist_bin_SCRIPTS = \
     cd-exec \
     colorox \
@@ -66,8 +57,7 @@ dist_man_MANS = \
     onchange.1 \
     repeat.1 \
     subst.1 \
-    until-changed.1 \
-    xcat.1
+    until-changed.1
 
 dist_setup_SCRIPTS = \
     postinst \
