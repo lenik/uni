@@ -5,22 +5,29 @@
 
     . shlib-import cliboot
     option -f --list-file =FILE     "Read process names from FILE"
-    option -s --signal =SIGNAL      "Send specific signal to process"
+    option -s --signal =opt_signal      "Send specific signal to process"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
+    option -0 -1 -2 -3 -4 -5 -6 -7 -8 -9 "select signal to send"
 
-    SIGNAL=TERM
+    opt_signal=
+    opt_sigbuf=
+
     LISTFILE=
-    PS_OPTS=afx
+    psopts=(afx)
+
+    killopts=()
 
 function setopt() {
     case "$1" in
+        -0|-1|-2|-3|-4|-5|-6|-7|-8|-9)
+            opt_sigbuf="$opt_sigbuf$2";;
         -f|--list-file)
             LISTFILE="$2";;
         -s|--signal)
-            SIGNAL="$2";;
+            opt_signal="$2";;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -42,10 +49,17 @@ function _kill() {
     read cmdline <"/proc/$pid/cmdline"
     _log1 "Kill pid=$pid"
     _log2 "    -> $cmdline"
-    kill -s $SIGNAL $pid
+    kill "${killopts[@]}" $pid
 }
 
 function main() {
+    if [ -n "$opt_sigbuf" ]; then
+        killopts+=("-$opt_sigbuf")
+    fi
+    if [ -n "$opt_signal" ]; then
+        killopts+=( -s "$opt_signal" )
+    fi
+
     if [ "$#" = 0 ] && [ -z "$LISTFILE" ]; then
         while read pid xxx; do
             _kill $pid
@@ -59,7 +73,7 @@ function main() {
     fi
 
     for pattern in "$@"; do
-        COLUMNS=1000 ps $PS_OPTS | grep "$pattern" | while read pid xxx; do
+        COLUMNS=1000 ps "${psopts[@]}" | grep "$pattern" | while read pid xxx; do
 
             if [ "$xxx" != "${xxx/kill-all}" ]; then continue; fi
             if [ "$xxx" != "${xxx/grep }"    ]; then continue; fi

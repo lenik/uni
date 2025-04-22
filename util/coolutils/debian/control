@@ -2,20 +2,20 @@ Source: coolutils
 Section: utils
 Priority: required
 Maintainer: Lenik (谢继雷) <lenik@bodz.net>
-Build-Depends: debhelper (>= 9), libglib2.0-dev
-Standards-Version: 4.5.1
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.7.2
 Homepage: http://uni.bodz.net/utils/coolutils
 Vcs-Git: git://git.bodz.net/uni.git
 Vcs-Browser: http://git.bodz.net/uni/util/coolutils
 
 Package: coolutils
 Provides: coolutils
-Architecture: any
+Architecture: all
 Depends:
     bash-shlib,
+    coolbin,
     ${misc:Depends}
 Recommends:
-    libglib2.0-0,
     configutils,
     vexmount
 Description: Bundles of cool utils by Lenik.
