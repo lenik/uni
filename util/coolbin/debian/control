@@ -1,0 +1,18 @@
+Source: coolbin
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+    debhelper-compat (= 13),
+Standards-Version: 4.7.2
+Homepage: http://uni.bodz.net/util/coolbin
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/util/coolbin
+
+Package: coolbin
+Architecture: any
+Depends:
+    ${shlibs:Depends},
+    ${misc:Depends},
+Description: utilities as binary executables
