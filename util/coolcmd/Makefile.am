@@ -20,6 +20,7 @@ dist_bin_SCRIPTS = \
     makeoutdated \
     make1 \
     onchange \
+    penv \
     postproc \
     ppid-closest \
     repeat \
@@ -54,6 +55,7 @@ dist_man_MANS = \
     localhost.1 \
     make1.1 \
     onchange.1 \
+    penv.1 \
     repeat.1 \
     subst.1 \
     until-changed.1

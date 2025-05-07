@@ -1,0 +1,66 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=Print or compare environ of process(es)}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] PID [PID to compare...]}
+
+    . shlib-import cliboot
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+function setopt() {
+    case "$1" in
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    case $# in
+        0)
+            quit "expect PID";;
+        1)
+            print_env $1;;
+        *)
+            base=$1
+            shift
+            for arg in "$@"; do
+                diff_env $base $arg
+            done
+            ;;
+    esac
+}
+
+function print_env() {
+    local pid=$1
+    sudo strings /proc/$pid/environ \
+        | sort \
+        | highlight --out-format=ansi --syntax ini
+}
+
+function diff_env() {
+    local pid1=$1
+    local pid2=$2
+    local cmd1=$( sudo cat /proc/$pid1/cmdline | tr '\0' ' ' )
+    local cmd2=$( sudo cat /proc/$pid2/cmdline | tr '\0' ' ' )
+    _log1 "Compare process environment between processes $pid1 and $pid2"
+    _log2 "     Process $pid1: $cmd1"
+    _log2 "     Process $pid2: $cmd2"
+    if diff -u --color \
+            <( sudo strings /proc/$pid1/environ | sort ) \
+            <( sudo strings /proc/$pid2/environ | sort ); then
+        _log1 "They are same. :)"
+    fi
+}
+
+boot "$@"
