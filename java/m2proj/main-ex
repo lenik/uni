@@ -1,0 +1,57 @@
+# vim: set ft=sh :
+
+MAIN=$( which main )
+mainopts=()
+
+function findenv() {
+    # find current working user project as add-on
+    if [ -z "$userdir" ]; then
+        local userdir=$(readlink -f "$PWD")
+        while [ -n "$userdir" ]; do
+            if [ -f "$userdir/pom.xml" ]; then
+                break
+            fi
+            if [ "$userdir" != "${userdir%/*}" ]; then
+                userdir="${userdir%/*}"
+            else
+                userdir=
+            fi
+        done
+    fi
+    if [ -d "$userdir" ]; then
+        mainopts+=( -r "$userdir" )
+    fi
+    
+    # find the tool project
+    if [ -z "$tooldir" ]; then
+        #         3       2      1            0
+        # ... <caller> import main-ex current=main-ex
+        local __FILE__=$(readlink -f "${BASH_SOURCE[3]}")
+        local dir=${__FILE__%/*}
+        if [ "${dir##*/}" == 'bin' ]; then
+            dir=${dir%/bin}
+        fi
+
+        local d
+        for d in "$dir/java" "$dir"; do
+            if [ -f "$d/pom.xml" ]; then
+                tooldir="$d"
+                break
+            fi
+        done
+    fi
+    if [ -d "$tooldir" ] && [ "$tooldir" != "$userdir" ]; then
+        mainopts+=( -r "$tooldir" )
+    fi
+}
+
+function main() {
+    $MAIN "${mainopts[@]}" "$@"
+}
+
+function exec-main() {
+    exec $MAIN "${mainopts[@]}" "$@"
+}
+
+findenv
+

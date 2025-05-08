@@ -8,6 +8,9 @@ dist_bin_SCRIPTS = \
     m2mkdirs \
     m2mklib
 
+dist_shlib_DATA = \
+    main-ex
+
 dist_man_MANS = \
     main.1 \
     m2href.1 \
