@@ -78,14 +78,14 @@ public class MiscTemplates {
     public QualifiedName getIdType(ITableMetadata table) {
         IColumnMetadata[] primaryKeyCols = table.getPrimaryKeyColumns();
         switch (primaryKeyCols.length) {
-        case 0:
-            return null;
-        case 1:
-            Class<?> kType = primaryKeyCols[0].getJavaClass();
-            Class<?> kBoxed = Primitives.box(kType);
-            return QualifiedName.parse(kBoxed.getCanonicalName());
-        default:
-            return project.IFoo_Id.qName;
+            case 0:
+                return null;
+            case 1:
+                Class<?> kType = primaryKeyCols[0].getJavaClass();
+                Class<?> kBoxed = Primitives.box(kType);
+                return QualifiedName.parse(kBoxed.getCanonicalName());
+            default:
+                return project.IFoo_Id.qName;
         }
     }
 
@@ -95,6 +95,7 @@ public class MiscTemplates {
     }
 
     static Map<Class<?>, CodeSnippet> initVals = new HashMap<>();
+
     static {
         initVals.put(String.class, (JavaSourceWriter out) -> "\"\"");
         initVals.put(BigDecimal.class, (JavaSourceWriter out) -> "BigDecimal.ZERO");
@@ -167,7 +168,7 @@ public class MiscTemplates {
         List<String> defs = new ArrayList<>();
         for (IColumnMetadata column : table.getColumns()) {
             if (wantPrimaryKey != null)
-                if (column.isPrimaryKey() != wantPrimaryKey.booleanValue())
+                if (column.isPrimaryKey() != wantPrimaryKey)
                     continue;
 
             if (column.isExcluded())
@@ -178,24 +179,24 @@ public class MiscTemplates {
 
             ColumnNaming cname = project.naming(column);
             switch (fmt) {
-            case JAVA:
-                defs.add("public static final String FIELD_" + cname.constFieldName + " = " //
-                        + StringQuote.qqJavaString(cname.column) + ";");
-                break;
+                case JAVA:
+                    defs.add("public static final String FIELD_" + cname.constFieldName + " = " //
+                            + StringQuote.qqJavaString(cname.column) + ";");
+                    break;
 
-            case TS_NAMESPACE:
-                defs.add("export const FIELD_" + cname.constFieldName + " = "//
-                        + StringQuote.qqJavaString(cname.column) + ";");
-                break;
+                case TS_NAMESPACE:
+                    defs.add("export const FIELD_" + cname.constFieldName + " = "//
+                            + StringQuote.qqJavaString(cname.column) + ";");
+                    break;
 
-            case TS_CLASS:
-                // defs.add("get FIELD_" + cname.constFieldName + "() { return "//
-                // + StringQuote.qqJavaString(cname.column) + "; }");
-                defs.add("static readonly FIELD_" + cname.constFieldName + " = "//
-                        + StringQuote.qqJavaString(cname.column) + ";");
+                case TS_CLASS:
+                    // defs.add("get FIELD_" + cname.constFieldName + "() { return "//
+                    // + StringQuote.qqJavaString(cname.column) + "; }");
+                    defs.add("static readonly FIELD_" + cname.constFieldName + " = "//
+                            + StringQuote.qqJavaString(cname.column) + ";");
             }
         }
-        if (! defs.isEmpty()) {
+        if (!defs.isEmpty()) {
             out.println();
             for (String def : defs)
                 out.println(def);
@@ -206,7 +207,7 @@ public class MiscTemplates {
         List<String> defs = new ArrayList<>();
         for (IColumnMetadata column : table.getColumns()) {
             if (wantPrimaryKey != null)
-                if (column.isPrimaryKey() != wantPrimaryKey.booleanValue())
+                if (column.isPrimaryKey() != wantPrimaryKey)
                     continue;
 
             if (column.isExcluded())
@@ -223,24 +224,24 @@ public class MiscTemplates {
             int scale = column.getScale();
             if (type == String.class || Number.class.isAssignableFrom(type)) {
             } else {
-                if (precision < 0 && precision == Integer.MAX_VALUE)
+                if (precision < 0 || precision == Integer.MAX_VALUE)
                     precision = 0;
             }
             if (precision > 0) {
                 String precisionVar = "N_" + cname.constFieldName;
                 switch (fmt) {
-                case JAVA:
-                    defs.add("public static final int " + precisionVar + " = " + precision + ";");
-                    break;
+                    case JAVA:
+                        defs.add("public static final int " + precisionVar + " = " + precision + ";");
+                        break;
 
-                case TS_CLASS:
-                    // defs.add("get " + precisionVar + "() { return " + precision + "; }");
-                    defs.add("static readonly " + precisionVar + " = " + precision + ";");
-                    break;
+                    case TS_CLASS:
+                        // defs.add("get " + precisionVar + "() { return " + precision + "; }");
+                        defs.add("static readonly " + precisionVar + " = " + precision + ";");
+                        break;
 
-                case TS_NAMESPACE:
-                    defs.add("export const " + precisionVar + " = " + precision + ";");
-                    break;
+                    case TS_NAMESPACE:
+                        defs.add("export const " + precisionVar + " = " + precision + ";");
+                        break;
                 }
 
                 DefaultColumnMetadata m = (DefaultColumnMetadata) column;
@@ -250,7 +251,7 @@ public class MiscTemplates {
                 String scaleVar = "NS_" + cname.constFieldName;
             }
         }
-        if (! defs.isEmpty()) {
+        if (!defs.isEmpty()) {
             out.println();
             for (String def : defs)
                 out.println(def);
@@ -265,7 +266,7 @@ public class MiscTemplates {
         int lastOrdinal = 0;
         for (IColumnMetadata column : table.getColumns()) {
             if (wantPrimaryKey != null)
-                if (column.isPrimaryKey() != wantPrimaryKey.booleanValue())
+                if (column.isPrimaryKey() != wantPrimaryKey)
                     continue;
 
             if (column.isExcluded())
@@ -287,24 +288,24 @@ public class MiscTemplates {
                 expr = "" + ordinal;
 
             switch (fmt) {
-            case JAVA:
-                defs.add("private static final int " + varName + " = " + expr + ";");
-                break;
+                case JAVA:
+                    defs.add("private static final int " + varName + " = " + expr + ";");
+                    break;
 
-            case TS_CLASS:
-                // defs.add("get " + varName + "() { return " + expr + "; }");
-                defs.add("static readonly " + varName + " = " + expr + ";");
-                break;
+                case TS_CLASS:
+                    // defs.add("get " + varName + "() { return " + expr + "; }");
+                    defs.add("static readonly " + varName + " = " + expr + ";");
+                    break;
 
-            case TS_NAMESPACE:
-                defs.add("export const " + varName + " = " + expr + ";");
-                break;
+                case TS_NAMESPACE:
+                    defs.add("export const " + varName + " = " + expr + ";");
+                    break;
             }
 
             lastVarName = varName;
             lastOrdinal = ordinal;
         }
-        if (! defs.isEmpty()) {
+        if (!defs.isEmpty()) {
             out.println();
             for (String def : defs)
                 out.println(def);
@@ -313,21 +314,33 @@ public class MiscTemplates {
 
     public void columnField(JavaSourceWriter out, IColumnMetadata column) {
         String javaType = project.config.javaType(column);
+        Class<?> javaClass = column.getJavaClass();
+        boolean primitive = javaClass != null && javaClass.isPrimitive();
 
         String description = column.getDescription();
-        if (description != null && ! description.isEmpty())
+        if (description != null && !description.isEmpty())
             out.println("/** " + description + " */");
 
         if (column.isPrimaryKey())
             out.println("@" + out.im.name(Id.class));
 
-        boolean notNull = ! column.isNullable(true);
-        if (notNull)
+        boolean notNull = !column.isNullable(true);
+        if (notNull && !primitive)
             out.println("@" + out.im.name(NotNull.class));
 
         ColumnNaming cname = project.naming(column);
 //        String fieldName = fieldOverride != null ? fieldOverride : cname.field;
         out.print(out.im.name(javaType) + " " + cname.fieldName);
+
+        // Not-Null default value
+        if (notNull && !primitive) {
+            CodeSnippet initValSnippet = MiscTemplates.initVals.get(javaClass);
+            if (initValSnippet != null) {
+                String initVal = initValSnippet.make(out);
+                out.print(" = " + initVal);
+            }
+        }
+
         out.println(";");
     }
 
@@ -338,7 +351,7 @@ public class MiscTemplates {
         Class<?> type = column.getJavaClass();
 
         String description = column.getDescription();
-        if (description != null && ! description.isEmpty()) {
+        if (description != null && !description.isEmpty()) {
             out.println("/**");
             out.println(" * " + description);
             out.println(" */");
@@ -356,8 +369,8 @@ public class MiscTemplates {
 
         boolean unique = column.isUnique();
 
-        boolean notNull = ! column.isNullable(true);
-        if (notNull && ! type.isPrimitive())
+        boolean notNull = !column.isNullable(true);
+        if (notNull && !type.isPrimitive())
             out.println("@" + out.im.name(NotNull.class));
 
         // int columnDisplaySize = column.getColumnDisplaySize();
@@ -389,7 +402,7 @@ public class MiscTemplates {
 
         out.print("@" + out.im.name(Column.class));
         {
-            out.print("(name = \"" + n.column + "\"");
+            out.print("(name = FIELD_" + n.constFieldName);
             if (unique)
                 out.print(", unique = true");
             if (notNull)
@@ -397,15 +410,20 @@ public class MiscTemplates {
 
             boolean insertable = true;
             boolean updatable = true;
-            if (! insertable)
+            if (!insertable)
                 out.print(", insertable = false");
-            if (! updatable)
+            if (!updatable)
                 out.print(", updatable = false");
 
             if (type == String.class)
                 out.print(", length = " + N_COL_NAME);
             else {
-                out.print(", precision = " + precision);
+                if (precision > 0 && //
+                        (Number.class.isAssignableFrom(type))) {
+                    out.print(", precision = " + N_COL_NAME);
+                } else {
+                    out.print(", precision = " + precision);
+                }
                 if (scale != 0)
                     out.print(", scale = " + scale);
             }
@@ -415,7 +433,7 @@ public class MiscTemplates {
 
     void columnSetterHeader(JavaSourceWriter out, IColumnMetadata column) {
         String description = column.getDescription();
-        if (description != null && ! description.isEmpty()) {
+        if (description != null && !description.isEmpty()) {
             out.println("/**");
             out.println(" * " + description);
             out.println(" */");
@@ -433,7 +451,7 @@ public class MiscTemplates {
     public void columnAccessors(JavaSourceWriter out, IColumnMetadata column, boolean impl) {
         ColumnNaming n = project.naming(column);
         String javaType = project.config.javaType(column);
-        boolean notNull = ! column.isNullable(true);
+        boolean notNull = !column.isNullable(true);
         String isOrGet = "boolean".equals(javaType) ? "is" : "get";
 
         columnGetterHeader(out, column);
@@ -450,10 +468,8 @@ public class MiscTemplates {
 
         columnSetterHeader(out, column);
         out.printf("public void set%s(%s%s value)", n.capPropertyName, //
-                (notNull && ! JavaLang.isPrimitive(javaType)) //
-                        ? ("@" + out.im.name(NotNull.class) + " ")
-                        : "",
-                out.im.name(javaType));
+                (notNull && !JavaLang.isPrimitive(javaType)) //
+                        ? ("@" + out.im.name(NotNull.class) + " ") : "", out.im.name(javaType));
         if (impl) {
             out.println(" {");
             out.printf("    this.%s = value;\n", n.fieldName);
@@ -491,7 +507,7 @@ public class MiscTemplates {
 
         boolean notNull = false;
         for (IColumnMetadata c : columns)
-            if (! c.isNullable(false)) {
+            if (!c.isNullable(false)) {
                 notNull = true;
                 break;
             }
@@ -505,6 +521,9 @@ public class MiscTemplates {
         String property = xref.getPropertyName();
 
         out.print(out.im.name(parentType) + " " + property);
+
+        // TODO NotNull reference default value?
+
         out.println(";");
     }
 
@@ -548,6 +567,7 @@ public class MiscTemplates {
         }
 
         for (String fColumn : fColumns) {
+            // TODO camel => snake...
             out.printf("@%s(name = %s)\n", //
                     out.im.name(JoinColumn.class), //
                     StringQuote.qqJavaString(fColumn));
@@ -562,7 +582,7 @@ public class MiscTemplates {
 
         boolean notNull = false;
         for (IColumnMetadata c : columns)
-            if (! c.isNullable(false)) {
+            if (!c.isNullable(false)) {
                 notNull = true;
                 break;
             }
@@ -580,7 +600,7 @@ public class MiscTemplates {
         out.println();
 
         out.println("/**");
-        if (description != null && ! description.isEmpty())
+        if (description != null && !description.isEmpty())
             out.println(" * " + description);
         out.println(" */");
 
@@ -599,13 +619,12 @@ public class MiscTemplates {
      * @TextInput
      * @Column
      */
-    public void foreignKeyColumnAccessors(JavaSourceWriter out, CrossReference xref, IColumnMetadata column,
-            IColumnMetadata parentColumn, boolean impl) {
+    public void foreignKeyColumnAccessors(JavaSourceWriter out, CrossReference xref, IColumnMetadata column, IColumnMetadata parentColumn, boolean impl) {
         ColumnNaming n = project.naming(column);
         ColumnNaming p = project.naming(parentColumn);
 
         Class<?> returnType = column.getJavaClass();
-        boolean notNull = ! column.isNullable(true);
+        boolean notNull = !column.isNullable(true);
         String isOrGet = boolean.class == returnType ? "is" : "get";
 
         String refFieldName = xref.getPropertyName();
@@ -615,7 +634,7 @@ public class MiscTemplates {
             ColumnMember m = ColumnUtils.getMemberInfo(parentColumn, p, //
                     ColumnUtils.GET_GETTER);
             if (m != null && m.getter != null)
-                parentNullable = ! m.getter.getReturnType().isPrimitive();
+                parentNullable = !m.getter.getReturnType().isPrimitive();
         }
 
         columnGetterHeader(out, column);
@@ -644,11 +663,10 @@ public class MiscTemplates {
 
         columnSetterHeader(out, column);
         out.printf("public synchronized void set%s(%s%s value)", n.capPropertyName, //
-                (notNull && ! returnType.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "",
-                out.im.name(returnType));
+                (notNull && !returnType.isPrimitive()) ? ("@" + out.im.name(NotNull.class) + " ") : "", out.im.name(returnType));
         if (impl) {
             out.enterln(" {");
-            if (! project.parentColumnInParallelMode)
+            if (!project.parentColumnInParallelMode)
                 out.printf("this.%s = null;\n", refFieldName);
             out.printf("this.%s = value;\n", n.fieldName);
             out.leaveln("}");
@@ -658,6 +676,7 @@ public class MiscTemplates {
     }
 
     static Map<Class<?>, String> nullDefaults;
+
     static {
         nullDefaults = new HashMap<>();
         nullDefaults.put(byte.class, "(byte) 0");
@@ -702,7 +721,7 @@ public class MiscTemplates {
         qColumn = StringEscape.escapeJava(qColumn);
 
         String description = column.getDescription();
-        if (description != null && ! description.isEmpty())
+        if (description != null && !description.isEmpty())
             out.println("/** " + description + " */");
 
         CriteriaBuilderFieldInfo info = CriteriaBuilderFieldInfo.meet(type);
@@ -776,11 +795,11 @@ public class MiscTemplates {
 //        Class<?> type = column.getType();  type == Object.class
 //        if (JsonMap.class.isAssignableFrom(type)) {
         switch (column.getSqlTypeName()) {
-        case "json":
-        case "jsonb":
-            return cname.propertyName;
-        default:
-            return cname.propertyName;
+            case "json":
+            case "jsonb":
+                return cname.propertyName;
+            default:
+                return cname.propertyName;
         }
     }
 
@@ -801,8 +820,8 @@ public class MiscTemplates {
 //            sb.append(cname.propertyName);
 //            sb.append(".jsonStr}::jsonb");
 //            break;
-        default:
-            sb.append(cname.propertyName);
+            default:
+                sb.append(cname.propertyName);
         }
         sb.append("}");
         return sb.toString();
@@ -814,7 +833,7 @@ public class MiscTemplates {
         while ((dot = path.indexOf('.')) != -1) {
             String field = path.substring(0, dot);
             path = path.substring(dot + 1);
-            sb.append("get" + Strings.ucfirst(field) + "().");
+            sb.append("get").append(Strings.ucfirst(field)).append("().");
         }
         String prefix = sb.toString();
         return prefix;
@@ -849,7 +868,7 @@ public class MiscTemplates {
         ColumnNaming cname = project.naming(column);
         IProperty property = column.getProperty();
         if (property != null //
-                && (! directAccess || column.isCompositeProperty())) {
+                && (!directAccess || column.isCompositeProperty())) {
             String context = getContextPrefix(cname.propertyName);
             if (property instanceof FieldProperty) {
                 FieldProperty fp = (FieldProperty) property;

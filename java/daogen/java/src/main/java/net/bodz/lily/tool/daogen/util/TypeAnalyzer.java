@@ -49,7 +49,8 @@ public class TypeAnalyzer
 
         try {
             info.javaClass = Class.forName(info.type.getFullName());
-        } catch (ClassNotFoundException e1) {
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            //
         }
 
         MiscTemplates templates = new MiscTemplates(project);
