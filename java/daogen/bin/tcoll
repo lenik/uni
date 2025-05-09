@@ -1,7 +1,0 @@
-#!/bin/bash
-
-. shlib
-import main-ex
-
-exec-main tcoll "$@"
-
