@@ -33,9 +33,17 @@ resetdb: dropdb createdb
 
 createdb: predao
 	if-database-exists $(DBNAME) || \
-	    (. pgcmds; \
+	    ( \
+            . pgcmds; \
 	    createdb $(DBNAME); \
-	    psql -d $(DBNAME) -1 -f ../sql/out/$(DBNAME).sql)
+            for name in all $(DBNAME); do \
+                file="../sql/out/$$name.sql"; \
+                if [ -f "$$file" ]; then \
+                    psql -d $(DBNAME) -1 -f "$$file"; \
+                    break; \
+                fi; \
+            done \
+            )
 	set-search-path $(DBNAME)
 
 dropdb:
