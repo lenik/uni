@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([coolbin], [1.2.18], [xjl-bug@99jsj.com])
+AC_INIT([coolbin], [0.2.0], [xjl-bug@99jsj.com])
 AM_INIT_AUTOMAKE([-Wno-portability])
-AC_CONFIG_SRCDIR([echo-x.c])
+AC_CONFIG_SRCDIR([echo-exec.c])
 
 # Checks for programs.
 AC_PROG_CC

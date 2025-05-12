@@ -13,7 +13,9 @@ bin_PROGRAMS = \
     gcd \
     random \
     chop \
-    echo-x \
+    echo-exec \
+    echo-n \
+    println \
     xcat
 #    valsum
 
