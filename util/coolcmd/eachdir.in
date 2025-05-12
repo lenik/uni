@@ -4,17 +4,21 @@
     : ${PROGRAM_SYNTAX:=[OPTIONS] [--] COMMAND ARGS}
 
     . shlib-import cliboot
-    option -a --all         "Include hidden files"
-    option -s --srcfile =FILE "Read dirs from given file, instead of * (If FILE is '-', then read from stdin.)"
-    option -r --recursive   "Find recursive"
-    option -f --ifexist =FILE "Only dirs with FILE inside, can be multiple"
-    option -F --ifnotexist =FILE "Only dirs without FILE inside, can be multiple"
-    option -l --list        "List only, don't execute command"
-    option -L --follow-symlinks "Follow symbolic links"
-    option -C --chdir =DIR  "Chdir to DIR before enum dirs"
-    option -I --replace =STR "Replace the occurence of STR to the dir path"
-    option -x --exclude =PATTERN "Simple regex to exclude (NOT IMPL)"
-    option -b --background  "Run each cmd in background"
+    option -a --all                 "Include hidden files"
+    option -d --dirs                "Directories after the options, ended by --, and then cmdline arguments"
+    option -g --glob =GLOB          "Use glob expr to select dirs"
+    option -s --srcfile =FILE       "Read dirs from given file, instead of * (If FILE is '-', then read from stdin.)"
+    option -r --recursive           "Find recursive"
+    option    --max-depth =N        "Max depth recursive into, default 1 or 100 (-r)"
+    option -f --ifexist =FILE       "Only dirs with FILE inside, can be multiple"
+    option -F --ifnotexist =FILE    "Only dirs without FILE inside, can be multiple"
+    option -l --list                "List only, don't execute command"
+    option -L --follow-symlinks     "Follow symbolic links"
+    option -C --chdir =DIR          "Chdir to DIR before enum dirs"
+    option -I --replace =STR        "Replace the occurence of STR to the dir path"
+    option -x --exclude =PATTERN    "Simple regex to exclude (NOT IMPL)"
+    option -b --background          "Run each cmd in background"
+    option -c --bash-cmd            "Invoke the command thru bash -c"
     option -q --quiet
     option -v --verbose
     option -h --help
@@ -22,44 +26,58 @@
 
     shopt -s nullglob
 
-    maxdepth=1
-    background=
-    chdir=
-    list=
-    followsym=
-    srcfile=
-    exclude=
-    replace="{}"
+    opt_dirs=0
+    opt_glob=
+    opt_max_depth=1
+    opt_bg=0
+    opt_chdir=
+    opt_list_only=0
+    opt_follow=0
+    opt_srcfile=
+    opt_exclude=
+    opt_replace="{}"
+    opt_bash_cmd=0
 
     incl=()
     excl=()
     nincl=0
     nexcl=0
 
+
+    dels=()
+
 function setopt() {
     case "$1" in
         -a|--all)
             shopt -s dotglob;;
+        -d|--dirs)
+            opt_dirs=1;;
+        -g|--glob)
+            opt_glob="$2";;
         -r|--recursive)
-            maxdepth=256;;
+            opt_max_depth=100;;
+        --max-depth)
+            opt_max_depth=$2;;
         -f|--ifexist)
             incl[nincl++]="$2";;
         -F|--ifnotexist)
             excl[nexcl++]="$2";;
-        -b|--background)
-            background=1;;
+        -b|--opt_bg)
+            opt_bg=1;;
+        -c|--bash-cmd)
+            opt_bash_cmd=1;;
         -l|--list)
-            list=1;;
+            opt_list_only=1;;
         -L|--follow-symlinks)
-            followsym=1;;
+            opt_follow=1;;
         -s|--srcfile)
-            srcfile="$2";;
+            opt_srcfile="$2";;
         -C|--chdir)
-            chdir="$2";;
+            opt_chdir="$2";;
         -I|--replace)
-            replace="$2";;
+            opt_replace="$2";;
         -x|--exclude)
-            exclude="$2";;
+            opt_exclude="$2";;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -81,11 +99,11 @@ function search() {
     local f
     local fail
 
-    [ $((depth++)) -lt $maxdepth ] || return
+    [ $((depth++)) -lt $opt_max_depth ] || return
 
     for d in "$start"*/; do
         d="${d%/}"
-        if [ -z "$followsym" ] && [ -L "$d" ]; then continue; fi
+        if [ -z "$opt_follow" ] && [ -L "$d" ]; then continue; fi
 
         fail=
         for f in "${incl[@]}"; do
@@ -113,58 +131,104 @@ function search() {
 }
 
 function main() {
-    if [ -n "$chdir" ]; then
-        if ! cd $chdir; then
-            echo "Can't chdir to $chdir" >&2
+    if [ -n "$opt_chdir" ]; then
+        if ! cd "$opt_chdir"; then
+            echo "Failed to enter directory $opt_chdir" >&2
             exit 1
         fi
     fi
 
-    if [ -z "$srcfile" ]; then
-        quit_clean=1
-        srcfile=/tmp/eachdir-$$-$RANDOM
-        search . 0 >$srcfile
-    elif [ "$srcfile" = '-' ]; then
-        srcfile=/dev/stdin
-    fi
+    dir_list=()
+    list_file=
 
-    while read dir; do
-        _log2 "$dir: "
-
-        cmdline=()
-        i=0
-        for arg in "$@"; do
-            arg="${arg//$replace/$dir}"
-            cmdline[i]="$arg"
-            ((i++))
-        done
-
-        if [ "$list" = 1 ]; then
-            if [ $# = 0 ]; then
-                echo "$dir"
-            else
-                echo "${cmdline[@]}"
+    if [ "$opt_dirs" == 1 ]; then
+        while [ $# -gt 0 ]; do
+            if [ "$1" == '--' ]; then
+                shift
+                break
             fi
-            continue
-        fi
-
-        if ! pushd "$dir" >/dev/null; then
-            _error "    Failed to enter $dir, skipped"
-            continue
-        fi
-
-        if [ "$background" = 1 ]; then
-            bash -c "${cmdline[*]}" </dev/tty &
+            dir_list+=("$1")
+            shift
+        done
+    elif [ -n "$opt_glob" ]; then
+        dir_list=( $opt_glob )
+    else
+        if [ -n "$opt_srcfile" ]; then
+            if [ "$opt_srcfile" = '-' ]; then
+                list_file=/dev/stdin
+            else
+                list_file="$opt_srcfile"
+            fi
         else
-            bash -c "${cmdline[*]}" </dev/tty
+            list_file=$( mktemp )
+            dels+=( "$list_file" )
+            search . 0 >"$list_file"
         fi
-
-        popd >/dev/null
-    done <"$srcfile"
-
-    if [ "$quit_clean" = 1 ]; then
-        rm -f "$srcfile"
+        trap clean_up QUIT
     fi
+
+    if [ -n "$list_file" ]; then
+        while read dir; do
+            handle "$dir" "$@"
+        done <"$list_file"
+    else
+        for dir in "${dir_list[@]}"; do
+            if [ -d "$dir" ]; then
+                handle "$dir" "$@"
+            else
+                _log2 "ignored non-directory: $dir"
+            fi
+        done
+    fi
+}
+
+function handle() {
+    local dir="$1"
+    _log2 "Dir $dir: "
+    shift
+
+    cmdline=()
+    i=0
+    for arg in "$@"; do
+        arg="${arg//$opt_replace/$dir}"
+        cmdline[i]="$arg"
+        ((i++))
+    done
+
+    if [ "$opt_list_only" = 1 ]; then
+        if [ $# = 0 ]; then
+            echo "$dir"
+        else
+            echo "${cmdline[@]}"
+        fi
+        return 0
+    fi
+
+    if pushd "$dir" >/dev/null; then
+        if [ $opt_bash_cmd == 1 ]; then
+            if [ "$opt_bg" == 1 ]; then
+                bash -c "${cmdline[*]}" </dev/tty &
+            else
+                bash -c "${cmdline[*]}" </dev/tty
+            fi
+        else
+            if [ "$opt_bg" == 1 ]; then
+                "${cmdline[@]}" </dev/tty &
+            else
+                "${cmdline[@]}" </dev/tty
+            fi
+        fi
+        popd >/dev/null
+    else
+        _error "    Failed to enter $dir, skipped"
+    fi
+}
+
+function clean_up() {
+    for del in "${dels[@]}"; do
+        _log1 "Delete $del"
+        rm -f "$del"
+    done
 }
 
 boot "$@"
