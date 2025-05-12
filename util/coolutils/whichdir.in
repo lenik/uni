@@ -1,0 +1,110 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] NAME...}
+
+    . shlib-import cliboot
+    option -a --all                 "find all occurrences"
+    option -c --closest             "find the closest parent dir instead of PATH"
+    option    --have                "accept if directory contains the argument file, instead of executable"
+    option    --and                 "accept if all conditions meet (default)"
+    option -o --or                  "accept if any condition meets, default --and"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    opt_all=0
+    opt_mode=path
+    opt_test=exec
+    opt_bool=and
+
+function setopt() {
+    case "$1" in
+        -a|--all)
+            opt_all=1;;
+        -c|--closest)
+            opt_mode=closest;;
+        --have)
+            opt_test=have;;
+        --and)
+            opt_bool=and;;
+        -o|--any)
+            opt_bool=or;;
+        -h|--help)
+            help $1; exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version; exit;;
+        *)
+            quit "invalid option: $1";;
+    esac
+}
+
+function main() {
+    local arg
+    local any=0
+    local all=1
+    for arg in "$@"; do
+        if find "$arg"; then
+            any=1
+        else
+            all=0
+        fi
+    done
+    if [ $any == 1 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function find() {
+    local name="$1"
+    local exe exedir
+
+    case "$opt_mode" in
+        path)
+            if exe=$( which "$name" ); then
+                exedir="${exe%/*}"
+                echo "$exedir"
+            fi
+            ;;
+        closest)
+            find_closest "$name" "$PWD"
+            ;;
+    esac
+}
+
+function find_closest() {
+    local name="$1"
+    local dir="$2"
+    if testfn "$dir/$name"; then
+        echo "$dir"
+        return 0
+    else
+        local parent="${dir%/*}"
+        if [ "$parent" = "$dir" ]; then
+            return 1
+        fi
+        find_closest "$name" "$parent"
+    fi
+}
+
+function testfn() {
+    local file="$1"
+    case "$opt_test" in
+        exec)
+            test -x "$file"
+            ;;
+        have)
+            test -e "$file"
+            ;;
+    esac
+}
+
+boot "$@"
