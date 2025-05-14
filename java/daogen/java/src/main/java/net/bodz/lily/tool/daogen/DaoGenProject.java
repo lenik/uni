@@ -36,7 +36,8 @@ public class DaoGenProject {
     public final ClassPathInfo _Foo_stuff;
     public final ClassPathInfo IFoo_Id;
     public final ClassPathInfo Foo_Id;
-    public final ClassPathInfo Foo_IdAccessor;
+    //    public final ClassPathInfo Foo_IdAccessor;
+    public final ClassPathInfo Foo_IdTypeInfo;
 
     public final ClassPathInfo FooTest; // test
     public final ClassPathInfo _Foo_stuffTest; // test
@@ -81,7 +82,8 @@ public class DaoGenProject {
         _Foo_stuff = Foo.child("_" + Foo.name + "_stuff", generated);
         IFoo_Id = Foo.child("I" + Foo.name + "_Id");
         Foo_Id = Foo.child(Foo.name + "_Id");
-        Foo_IdAccessor = Foo.child(Foo.name + ".Id");
+//        Foo_IdAccessor = Foo.child(Foo.name + ".Id");
+        Foo_IdTypeInfo = Foo.child(Foo.name + "_IdTypeInfo");
 
         FooTest = dirs.modelPath.child(Foo.name + "Test");
         _Foo_stuffTest = FooTest.child("_" + Foo.name + "_stuff_Test");

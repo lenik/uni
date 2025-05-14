@@ -11,6 +11,7 @@ import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.ICatalogMetadata;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
+import net.bodz.bas.t.catalog.IViewMetadata;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.ColumnUtils;
 import net.bodz.lily.tool.daogen.DaoGenProject;
@@ -49,18 +50,40 @@ public class FooMapper__xml
             out.println();
             select_filter(out, table, SQLID_OBJLIST);
 
-            select(out, table, SQLID_OBJEDIT);
+            IColumnMetadata[] keyCols = table.getPrimaryKeyColumns();
+            if (keyCols.length == 0) {
+                if (table instanceof IViewMetadata) {
+                    keyCols = getIdColumnsFromUsageInfo((IViewMetadata) table);
+                    if (keyCols == null) {
+                        IColumnMetadata idColumn = getDefaultSingleIdColumn(table);
+                        if (idColumn != null)
+                            keyCols = new IColumnMetadata[] { idColumn };
+                        else
+                            keyCols = new IColumnMetadata[0]; // { table.getColumn(0) };
+                    }
+                }
+            }
+
+            if (keyCols.length != 0) {
+                out.println();
+                select(out, table, SQLID_OBJEDIT, keyCols);
+            }
 
             out.println();
             insert(out, table);
-            out.println();
-            update(out, table);
-            out.println();
-            delete(out, table);
+
+            if (keyCols.length != 0) {
+                out.println();
+                update(out, table, keyCols);
+
+                out.println();
+                delete(out, table, keyCols);
+            }
+
             out.println();
             select_count(out, table);
-            out.println();
 
+            out.println();
             if (project.extraDDLs) {
                 if (deleteXrefs(out, table))
                     out.println();
@@ -104,7 +127,7 @@ public class FooMapper__xml
                     if (ColumnUtils.isIgnoredInCreation(column))
                         continue;
 
-                    if (! first)
+                    if (!first)
                         out.print(",\n");
 
                     ColumnNaming cname = project.naming(column);
@@ -123,7 +146,7 @@ public class FooMapper__xml
                     if (ColumnUtils.isIgnoredInCreation(column))
                         continue;
 
-                    if (! first)
+                    if (!first)
                         out.print(",\n");
 
                     out.print(templates.toSqlVar(null, column));
@@ -140,7 +163,7 @@ public class FooMapper__xml
         out.println("]]></insert>");
     }
 
-    void update(XmlSourceBuffer out, ITableMetadata table) {
+    void update(XmlSourceBuffer out, ITableMetadata table, IColumnMetadata[] keyCols) {
         String qTableName = DialectFn.quoteQName(table.getCompactName());
         List<IColumnMetadata> columns = getIncludedColumns(table.getColumns());
 
@@ -163,21 +186,21 @@ public class FooMapper__xml
             out.leaveln("</set>");
 
             out.enterln("<where>");
-            templates.sqlMatchPrimaryKey(out, null, table.getPrimaryKeyColumns(), null);
+            templates.sqlMatchPrimaryKey(out, null, keyCols, null);
             out.println();
             out.leaveln("</where>");
         }
         out.leaveln("</update>");
     }
 
-    void delete(XmlSourceBuffer out, ITableMetadata table) {
+    void delete(XmlSourceBuffer out, ITableMetadata table, IColumnMetadata[] keyCols) {
         String qTableName = DialectFn.quoteQName(table.getCompactName());
         out.enterln("<delete id=\"delete\">");
         {
             out.println("delete from " + qTableName);
 
             out.enterln("<where>");
-            templates.sqlMatchPrimaryKey(out, "id", table.getPrimaryKeyColumns(), null);
+            templates.sqlMatchPrimaryKey(out, "id", keyCols, null);
             out.println();
             out.leaveln("</where>");
 
@@ -221,7 +244,7 @@ public class FooMapper__xml
                         DialectFn.quoteName(xref.getConstraintName()));
                 int i = 0;
                 for (IColumnMetadata foreignColumn : xref.getForeignColumns()) {
-                    if (i != 0)
+                    if (i++ != 0)
                         out.print(", ");
                     out.print(DialectFn.quoteName(foreignColumn.getName()));
                 }
@@ -232,7 +255,7 @@ public class FooMapper__xml
                 out.printf("references %s (", //
                         DialectFn.quoteQName(xref.getParentKey().getId()));
                 for (IColumnMetadata parentColumn : xref.getParentColumns()) {
-                    if (i != 0)
+                    if (i++ != 0)
                         out.print(", ");
                     out.print(DialectFn.quoteName(parentColumn.getName()));
                 }
@@ -240,22 +263,22 @@ public class FooMapper__xml
 
                 // on update cascade
                 switch (xref.getUpdateRule()) {
-                case DatabaseMetaData.importedKeyCascade:
-                    out.println("on update cascade");
-                    break;
+                    case DatabaseMetaData.importedKeyCascade:
+                        out.println("on update cascade");
+                        break;
                 }
 
                 // on delete cascade
                 switch (xref.getDeleteRule()) {
-                case DatabaseMetaData.importedKeyCascade:
-                    out.println("on delete cascade");
-                    break;
-                case DatabaseMetaData.importedKeySetDefault:
-                    out.println("on delete set default");
-                    break;
-                case DatabaseMetaData.importedKeySetNull:
-                    out.println("on delete set null");
-                    break;
+                    case DatabaseMetaData.importedKeyCascade:
+                        out.println("on delete cascade");
+                        break;
+                    case DatabaseMetaData.importedKeySetDefault:
+                        out.println("on delete set default");
+                        break;
+                    case DatabaseMetaData.importedKeySetNull:
+                        out.println("on delete set null");
+                        break;
                 }
 
                 out.println(";");

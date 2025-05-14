@@ -58,7 +58,24 @@ public class VFooMapper__xml
             out.println();
             select_filter(out, table, SQLID_OBJLIST);
 
-            select(out, table, SQLID_OBJEDIT);
+            IColumnMetadata[] keyCols = table.getPrimaryKeyColumns();
+            if (keyCols.length == 0) {
+                if (table instanceof IViewMetadata) {
+                    keyCols = getIdColumnsFromUsageInfo((IViewMetadata) table);
+                    if (keyCols == null) {
+                        IColumnMetadata idColumn = getDefaultSingleIdColumn(table);
+                        if (idColumn != null)
+                            keyCols = new IColumnMetadata[] { idColumn };
+                        else
+                            keyCols = new IColumnMetadata[0]; // { table.getColumn(0) };
+                    }
+                }
+            }
+
+            if (keyCols.length != 0) {
+                out.println();
+                select(out, table, SQLID_OBJEDIT, keyCols);
+            }
 
             out.println();
             select_count(out, table);
@@ -77,7 +94,7 @@ public class VFooMapper__xml
     }
 
     boolean isUpdatable(IColumnMetadata column) {
-        return ! column.isReadOnly();
+        return !column.isReadOnly();
     }
 
     List<IColumnMetadata> getIncludedColumns(Iterable<? extends IColumnMetadata> columns) {
@@ -98,7 +115,7 @@ public class VFooMapper__xml
         {
             List<IColumnMetadata> basicColumns = j.reorder(table.getColumns(), 3);
             for (IColumnMetadata column : basicColumns) {
-                if (! isIncluded(column))
+                if (!isIncluded(column))
                     continue;
                 map(out, table, column, j);
             }
@@ -129,6 +146,7 @@ public class VFooMapper__xml
     }
 
     static final Set<String> ignoredProperties = new HashSet<>();
+
     static {
         ignoredProperties.add("-");
     }
@@ -263,22 +281,7 @@ public class VFooMapper__xml
         out.println("</select>");
     }
 
-    boolean select(XmlSourceBuffer out, ITableMetadata table, String sqlId) {
-        IColumnMetadata[] keyCols = table.getPrimaryKeyColumns();
-        if (keyCols.length == 0) {
-            keyCols = getIdColumnsFromUsageInfo(table);
-            if (keyCols == null) {
-                IColumnMetadata idColumn = getDefaultSingleIdColumn(table);
-                if (idColumn != null)
-                    keyCols = new IColumnMetadata[] { idColumn };
-                else
-                    keyCols = new IColumnMetadata[0]; // { table.getColumn(0) };
-            }
-        }
-        if (keyCols.length == 0)
-            return false;
-
-        out.println();
+    void select(XmlSourceBuffer out, ITableMetadata table, String sqlId, IColumnMetadata[] keyCols) {
         out.println("<select id=\"select\" resultMap=\"objlist_map\">");
         out.enter();
         {
@@ -295,15 +298,15 @@ public class VFooMapper__xml
             out.leave();
         }
         out.println("</select>");
-        return true;
     }
 
-    IColumnMetadata[] getIdColumnsFromUsageInfo(ITableMetadata _view) {
-        IViewMetadata view = (IViewMetadata) _view;
-        L: for (ITableUsage tableUsage : view.getTableUsages()) {
+    IColumnMetadata[] getIdColumnsFromUsageInfo(IViewMetadata view) {
+        //IViewMetadata view = (IViewMetadata) _view;
+L:
+        for (ITableUsage tableUsage : view.getTableUsages()) {
             Set<String> columnUsage = new HashSet<>(tableUsage.getFromColumns());
 
-            ITableMetadata parent = _view.getCatalog().getTable(tableUsage.getFromTableId());
+            ITableMetadata parent = view.getCatalog().getTable(tableUsage.getFromTableId());
             if (parent == null) {
                 logger.warn("referenced table isn't loaded: " + tableUsage.getFromTableId());
                 continue;
@@ -312,7 +315,7 @@ public class VFooMapper__xml
             IColumnMetadata[] parentKeyCols = parent.getPrimaryKeyColumns();
             for (IColumnMetadata parentKeyCol : parentKeyCols) {
                 String parentColName = parentKeyCol.getName();
-                if (! columnUsage.contains(parentColName))
+                if (!columnUsage.contains(parentColName))
                     continue L;
             }
 
@@ -320,7 +323,7 @@ public class VFooMapper__xml
             IColumnMetadata[] viewKeyCols = new IColumnMetadata[parentKeyCols.length];
             for (int i = 0; i < viewKeyCols.length; i++) {
                 String name = parentKeyCols[i].getName();
-                IColumnMetadata viewCol = _view.getColumn(name);
+                IColumnMetadata viewCol = view.getColumn(name);
                 viewKeyCols[i] = viewCol;
             }
             return viewKeyCols;

@@ -29,7 +29,7 @@ public class Foo__java_tv
         if (values.length == 1) {
             out.print(StringQuote.qqJavaString(values[0]));
         } else {
-            out.println();
+            out.println("{");
             out.enter();
             for (int i = 0; i < values.length; i++) {
                 if (i != 0)
@@ -38,6 +38,7 @@ public class Foo__java_tv
                 out.println();
             }
             out.leave();
+            out.print("}");
         }
         out.println(")");
     }
@@ -64,12 +65,12 @@ public class Foo__java_tv
             }
 
             PrimaryKeyColumns aColumns = extend.javaBaseClass.getAnnotation(PrimaryKeyColumns.class);
-            if (aColumns == null || ! arrayEquals(aColumns.value(), colNames)) {
+            if (aColumns == null || !arrayEquals(aColumns.value(), colNames)) {
                 annotateStrings(out, PrimaryKeyColumns.class, colNames);
             }
 
             PrimaryKeyProperties aProperties = extend.javaBaseClass.getAnnotation(PrimaryKeyProperties.class);
-            if (aProperties == null || ! arrayEquals(aProperties.value(), colProps)) {
+            if (aProperties == null || !arrayEquals(aProperties.value(), colProps)) {
                 annotateStrings(out, PrimaryKeyProperties.class, colProps);
             }
         }
@@ -107,7 +108,7 @@ public class Foo__java_tv
         if (a.length != b.length)
             return false;
         for (int i = 0; i < a.length; i++)
-            if (! a[i].equals(b[i]))
+            if (!a[i].equals(b[i]))
                 return false;
         return true;
     }

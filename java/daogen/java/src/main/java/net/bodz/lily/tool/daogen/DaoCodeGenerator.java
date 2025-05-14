@@ -44,10 +44,12 @@ import net.bodz.lily.tool.daogen.config.CatalogConfig;
 import net.bodz.lily.tool.daogen.config.CatalogConfigApplier;
 import net.bodz.lily.tool.daogen.config.FinishProcessor;
 import net.bodz.lily.tool.daogen.config.LangFixupApplier;
+import net.bodz.lily.tool.daogen.dir.Foo_IdTypeInfo__java;
 import net.bodz.lily.tool.daogen.dir.Foo_Id__java;
 import net.bodz.lily.tool.daogen.dir.Foo__java;
 import net.bodz.lily.tool.daogen.dir.Foo__java_tv;
 import net.bodz.lily.tool.daogen.dir.Foo_stuff__java;
+import net.bodz.lily.tool.daogen.dir.IFoo_Id__java;
 import net.bodz.lily.tool.daogen.dir.dao.FooCriteriaBuilder__java;
 import net.bodz.lily.tool.daogen.dir.dao.FooCriteriaBuilder_stuff__java;
 import net.bodz.lily.tool.daogen.dir.dao.FooExporter__java;
@@ -78,14 +80,13 @@ import net.bodz.lily.tool.daogen.util.MavenDirs;
 @ProgramName("daogen")
 public class DaoCodeGenerator
         extends BasicCLI
-        implements
-            IJDBCLoadSelector {
+        implements IJDBCLoadSelector {
 
     static Logger logger = LoggerFactory.getLogger(DaoCodeGenerator.class);
 
     /**
      * Change to this directory.
-     *
+     * <p>
      * The utility search for the closest maven project start from the workdir.
      *
      * @option -C
@@ -111,7 +112,7 @@ public class DaoCodeGenerator
 
     /**
      * Where to save header files include entity, mask, samples types.
-     *
+     * <p>
      * By default, search sibling -api or -model projects and put header files in src/main/java.
      * fallback to out-dir.
      *
@@ -121,7 +122,7 @@ public class DaoCodeGenerator
 
     /**
      * Where to save -mapper files, exporters.
-     *
+     * <p>
      * By default, search sibling -impl or -dao projects and put class files in src/main/java.
      * fallback to out-dir.
      *
@@ -131,7 +132,7 @@ public class DaoCodeGenerator
 
     /**
      * Where to save web-service related files include -Index.
-     *
+     * <p>
      * By default, search sibling -webapp, -web, -ws, -server projects and put class files in
      * src/main/java. fallback to out-dir.
      *
@@ -258,13 +259,14 @@ public class DaoCodeGenerator
     Connection connection;
 
     CatalogSubset catalogSubset = new CatalogSubset(null);
-    DefaultCatalogMetadata catalog = new DefaultCatalogMetadata();
+    DefaultCatalogMetadata catalog;
     boolean loadDependedObjects = true;
 
     public DaoCodeGenerator(DataContext dataContext) {
         if (dataContext == null)
             throw new NullPointerException("dataContext");
         this.dataContext = dataContext;
+        catalog = DefaultCatalogMetadata.fromContext(dataContext);
     }
 
     /**
@@ -376,8 +378,11 @@ public class DaoCodeGenerator
         Counter nFailed = new Counter();
 
         nFailed.countFalse(new Foo_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE));
-        if (table.getPrimaryKeyColumns().length > 1)
+        if (table.getPrimaryKeyColumns().length > 1) {
+            nFailed.countFalse(new IFoo_Id__java(project).buildFile(table, UpdateMethod.OVERWRITE));
             nFailed.countFalse(new Foo_Id__java(project).buildFile(table, UpdateMethod.OVERWRITE));
+            nFailed.countFalse(new Foo_IdTypeInfo__java(project).buildFile(table, UpdateMethod.OVERWRITE));
+        }
 
         nFailed.countFalse(new Foo__java(project).buildFile(table));
         nFailed.countFalse(new FooCriteriaBuilder_stuff__java(project).buildFile(table, UpdateMethod.OVERWRITE));
@@ -386,9 +391,11 @@ public class DaoCodeGenerator
 
         nFailed.countFalse(new FooMapper__xml(project).buildFile(table));
         nFailed.countFalse(new FooMapper__java(project).buildFile(table));
-        nFailed.countFalse(new FooMapperTest__java(project).buildFile(table));
+        if (table.isPrimaryKeyPresent())
+            nFailed.countFalse(new FooMapperTest__java(project).buildFile(table));
         nFailed.countFalse(new FooManager__java(project).buildFile(table));
-        nFailed.countFalse(new FooManagerTest__java(project).buildFile(table));
+        if (table.isPrimaryKeyPresent())
+            nFailed.countFalse(new FooManagerTest__java(project).buildFile(table));
 
         if (extraDDLs)
             nFailed.countFalse(new FooExporter__java(project).buildFile(table, UpdateMethod.OVERWRITE));
@@ -413,8 +420,11 @@ public class DaoCodeGenerator
         Counter nFailed = new Counter();
 
         nFailed.countFalse(new Foo_stuff__java(project).buildFile(view, UpdateMethod.OVERWRITE));
-        if (view.getPrimaryKeyColumns().length > 1)
+        if (view.getPrimaryKeyColumns().length > 1) {
+            nFailed.countFalse(new IFoo_Id__java(project).buildFile(view, UpdateMethod.OVERWRITE));
             nFailed.countFalse(new Foo_Id__java(project).buildFile(view, UpdateMethod.OVERWRITE));
+            nFailed.countFalse(new Foo_IdTypeInfo__java(project).buildFile(view, UpdateMethod.OVERWRITE));
+        }
 
         nFailed.countFalse(new Foo__java_tv(project).buildFile(view));
         nFailed.countFalse(new FooCriteriaBuilder_stuff__java(project).buildFile(view, UpdateMethod.OVERWRITE));
@@ -422,7 +432,8 @@ public class DaoCodeGenerator
         nFailed.countFalse(new FooIndex__java(project).buildFile(view));
         nFailed.countFalse(new VFooMapper__xml(project).buildFile(view));
         nFailed.countFalse(new FooMapper__java_tv(project).buildFile(view));
-        nFailed.countFalse(new FooMapperTest__java_v(project).buildFile(view));
+        if (view.isPrimaryKeyPresent())
+            nFailed.countFalse(new FooMapperTest__java_v(project).buildFile(view));
 
         nFailed.countFalse(new FooType0__ts(project).buildFile(view, UpdateMethod.OVERWRITE));
         nFailed.countFalse(new FooType1__ts(project).buildFile(view));
@@ -503,7 +514,8 @@ public class DaoCodeGenerator
             }
 
             connection = dataContext.getConnection();
-            catalog.loadFromJDBC(connection, "TABLE", "VIEW", "MATERIALIZED VIEW");
+
+            catalog.loadFromJDBC(connection, catalogSubset, "TABLE", "VIEW", "MATERIALIZED VIEW");
 
             config.defaultPackageName = parentPackage;
             catalog.accept(new CatalogConfigApplier(config));
@@ -569,7 +581,9 @@ public class DaoCodeGenerator
             webDir = outDir;
     }
 
-    /** ⇱ Implementation Of {@link IJDBCLoadSelector}. */
+    /**
+     * ⇱ Implementation Of {@link IJDBCLoadSelector}.
+     */
     /* _____________________________ */static section.iface __jdbc_selector__;
 
     @Override

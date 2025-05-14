@@ -77,9 +77,9 @@ public class Foo_stuff__java
                 out.printf("public static final String TABLE_NAME = %s;\n", //
                         StringQuote.qqJavaString(oid.getTableName()));
 
-            templates.FIELD_consts(out, table, null, OutFormat.JAVA);
-            templates.N_consts(out, table, null, OutFormat.JAVA);
-            templates.ord_consts(out, table, null, OutFormat.JAVA);
+            templates.FIELD_consts(out, table, null, OutFormat.JAVA_CLASS);
+            templates.N_consts(out, table, null, OutFormat.JAVA_CLASS);
+            templates.ord_consts(out, table, null, OutFormat.JAVA_CLASS);
 
             for (IColumnMetadata column : table.getColumns()) {
                 if (column.isExcluded())
@@ -209,8 +209,7 @@ public class Foo_stuff__java
         String head = Split.headDomain(cname.propertyName).a;
         IProperty headProperty = table.getPotatoType().getProperty(head);
         if (headProperty == null)
-            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.", table.getJavaType(),
-                    head, cname.propertyName);
+            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.", table.getJavaType(), head, cname.propertyName);
     }
 
 }

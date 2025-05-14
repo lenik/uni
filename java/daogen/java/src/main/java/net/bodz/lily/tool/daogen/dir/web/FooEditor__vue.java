@@ -257,10 +257,10 @@ L:
 
                 Class<?> propDecl = property.getDeclaringClass();
                 if (propDecl != decl) {
-                    if (! bringForwards)
+                    if (!bringForwards)
                         continue;
                     String classProp = propDecl.getSimpleName() + "." + propName;
-                    if (! bringForwardProps.contains(classProp))
+                    if (!bringForwardProps.contains(classProp))
                         continue;
                 }
 
@@ -357,7 +357,7 @@ L:
     }
 
     static boolean isReadOnly(IProperty property) {
-        if (! property.isWritable())
+        if (!property.isWritable())
             return true;
         for (Class<? extends Annotation> a : readOnlyAnnotations)
             if (property.isAnnotationPresent(a))
@@ -480,7 +480,7 @@ L:
                 break;
         }
 
-        if (! tagAttrs.isEmpty() || ! tagName.equals(defaultTagName)) {
+        if (!tagAttrs.isEmpty() || !tagName.equals(defaultTagName)) {
             switch (tsType) {
                 default:
                     tagAttrs.put("v-model", propertyModel);
@@ -508,8 +508,8 @@ L:
             return;
         }
 
-        logger.errorf("undefined input type(%s) for property %s.", //
-                type, propertyName);
+        logger.errorf("don't know how to make an html input for type %s used by property %s.", //
+                type.getName(), propertyName);
     }
 
     void selectOptions(TypeScriptWriter out, String property, Map<?, ?> options) {

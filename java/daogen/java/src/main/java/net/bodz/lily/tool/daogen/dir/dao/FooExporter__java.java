@@ -51,7 +51,7 @@ public class FooExporter__java
                     continue;
                 String code = String.format("encode(obj.%s, %s)", //
                         getExpr, //
-                        out.im.simpleId(column.getJdbcType()));
+                        out.im.simpleId(column.getSqlTypeEnum()));
                 map.put(col, code);
             }
 

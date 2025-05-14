@@ -2,7 +2,8 @@ package net.bodz.lily.tool.daogen;
 
 public enum OutFormat {
 
-    JAVA,
+    JAVA_CLASS,
+    JAVA_INTERFACE,
 
     TS_CLASS,
 
