@@ -23,6 +23,8 @@ order.lst:
                                                                            
 DBNAME = unknown
 
+sqldir = $(shell whichdir --closest --have sql/Makefile)/sql
+
 showdb: 
 	echo $(DBNAME)
 
@@ -37,7 +39,7 @@ createdb: predao
             . pgcmds; \
 	    createdb $(DBNAME); \
             for name in all $(DBNAME); do \
-                file="../sql/out/$$name.sql"; \
+                file="$(sqldir)/out/$$name.sql"; \
                 if [ -f "$$file" ]; then \
                     psql -d $(DBNAME) -1 -f "$$file"; \
                     break; \
