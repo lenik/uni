@@ -115,7 +115,7 @@ public class Foo0__ts
         ColumnNaming cname = project.naming(column);
         out.print(cname.propertyName);
 
-        boolean optional = column.isNullable(true);
+        boolean optional = column.isNullable();
         if (optional)
             out.print("?");
         out.print(": ");
@@ -172,7 +172,7 @@ public class Foo0__ts
         int optionalColumns = 0;
         int requiredColumns = 0;
         for (IColumnMetadata c : columns)
-            if (c.isNullable(false))
+            if (c.isNullable())
                 optionalColumns++;
             else
                 requiredColumns++;

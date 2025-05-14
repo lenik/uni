@@ -144,7 +144,7 @@ public class MiscTemplates {
             if (column.isExcluded())
                 continue;
 
-            if (column.isNullable(true))
+            if (column.isNullable())
                 continue;
 
             if (column.isCompositeProperty())
@@ -343,7 +343,7 @@ public class MiscTemplates {
         if (column.isPrimaryKey())
             out.println("@" + out.im.name(Id.class));
 
-        boolean notNull = !column.isNullable(true);
+        boolean notNull = column.isNoNulls();
         if (notNull && !primitive)
             out.println("@" + out.im.name(NotNull.class));
 
@@ -394,7 +394,7 @@ public class MiscTemplates {
 
         boolean unique = column.isUnique();
 
-        boolean notNull = !column.isNullable(true);
+        boolean notNull = column.isNoNulls();
         if (notNull && !type.isPrimitive())
             out.println("@" + out.im.name(NotNull.class));
 
@@ -482,7 +482,7 @@ public class MiscTemplates {
     public void columnAccessors(JavaSourceWriter out, IColumnMetadata column, boolean impl, boolean getter, boolean setter) {
         ColumnNaming n = project.naming(column);
         String javaType = project.config.javaType(column);
-        boolean notNull = !column.isNullable(true);
+        boolean notNull = column.isNoNulls();
         String isOrGet = "boolean".equals(javaType) ? "is" : "get";
 
         if (getter) {
@@ -527,7 +527,7 @@ public class MiscTemplates {
         if (impl && ctorColumns == null)
             throw new NullPointerException("ctorColumns");
 
-        boolean notNull = !fieldColumn.isNullable(true);
+        boolean notNull = fieldColumn.isNoNulls();
         Class<?> javaClass = fieldColumn.getJavaClass();
         boolean primitive = javaClass != null && javaClass.isPrimitive();
 
@@ -591,7 +591,7 @@ public class MiscTemplates {
 
         boolean notNull = false;
         for (IColumnMetadata c : columns)
-            if (!c.isNullable(false)) {
+            if (c.isNoNulls()) {
                 notNull = true;
                 break;
             }
@@ -666,7 +666,7 @@ public class MiscTemplates {
 
         boolean notNull = false;
         for (IColumnMetadata c : columns)
-            if (!c.isNullable(false)) {
+            if (c.isNoNulls()) {
                 notNull = true;
                 break;
             }
@@ -708,12 +708,12 @@ public class MiscTemplates {
         ColumnNaming p = project.naming(parentColumn);
 
         Class<?> returnType = column.getJavaClass();
-        boolean notNull = !column.isNullable(true);
+        boolean notNull = column.isNoNulls();
         String isOrGet = boolean.class == returnType ? "is" : "get";
 
         String refFieldName = xref.getPropertyName();
 
-        boolean parentNullable = parentColumn.isNullable(false);
+        boolean parentNullable = parentColumn.isNullable();
         if (parentNullable == false) {
             ColumnMember m = ColumnUtils.getMemberInfo(parentColumn, p, //
                     ColumnUtils.GET_GETTER);

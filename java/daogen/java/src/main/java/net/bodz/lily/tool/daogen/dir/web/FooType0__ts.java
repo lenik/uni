@@ -206,14 +206,13 @@ public class FooType0__ts
         String head = Split.headDomain(cname.propertyName).a;
         IProperty headProperty = table.getPotatoType().getProperty(head);
         if (headProperty == null)
-            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.", table.getJavaType(),
-                    head, cname.propertyName);
+            logger.warnf("context property (%s.%s) of the composite property(%s) isn't defined.", table.getJavaType(), head, cname.propertyName);
     }
 
     void declProperty(TypeScriptWriter out, IColumnMetadata column, //
             boolean validator) {
         boolean primaryKey = column.isPrimaryKey();
-        boolean notNull = ! column.isNullable(true);
+        boolean notNull = column.isNoNulls();
 
         String javaType = project.config.javaType(column);
         // String tsType = typeResolver().property(column.getName()).resolve(javaType);
@@ -245,10 +244,10 @@ public class FooType0__ts
 
         // attrs.put("icon", "fa-user");
 
-        if (! Nullables.isEmpty(label))
+        if (!Nullables.isEmpty(label))
             attrs.putQuoted("label", label);
 
-        if (! Nullables.isEmpty(description))
+        if (!Nullables.isEmpty(description))
             attrs.putQuoted("description", description);
 
         if (validator) {
@@ -284,7 +283,7 @@ public class FooType0__ts
 
         boolean anyNotNull = false;
         for (IColumnMetadata c : columns)
-            if (! c.isNullable(false)) {
+            if (c.isNoNulls()) {
                 anyNotNull = true;
                 break;
             }
@@ -313,10 +312,10 @@ public class FooType0__ts
 
         // attrs.put("icon", "fa-user");
 
-        if (! Nullables.isEmpty(label))
+        if (!Nullables.isEmpty(label))
             attrs.putQuoted("label", label);
 
-        if (! Nullables.isEmpty(description)) {
+        if (!Nullables.isEmpty(description)) {
             if (inheritDocFrom != null) {
                 // description = "(" + description + ")";
                 attrs.put("inheritsDoc", true);

@@ -122,7 +122,7 @@ public class Foo_Id__java
             if (i != 0)
                 out.print(", ");
 
-            boolean notNull = !column.isNullable(true);
+            boolean notNull = column.isNoNulls();
             Class<?> javaClass = column.getJavaClass();
             boolean primitive = javaClass != null && javaClass.isPrimitive();
 
