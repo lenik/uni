@@ -88,9 +88,10 @@ public class DaoGenProject {
         Foo_IdTest = FooTest.child(Foo.name + "_IdTest");
         Foo_IdAccessorTest = FooTest.child(Foo.name + "_IdAccessorTest");
 
-        _FooCriteriaBuilder_stuff = Foo.child(dao_ + "_" + Foo.name + criteriaBuilderSuffix + "_stuff", generated);
-        FooCriteriaBuilder = Foo.child(dao_ + Foo.name + criteriaBuilderSuffix);
-        FooCriteriaBuilderTest = FooTest.child(dao_ + Foo.name + criteriaBuilderSuffix + "Test");
+        ClassPathInfo criteriaBase = dirs.criteriaInDao ? dirs.daoPath : dirs.modelPath;
+        _FooCriteriaBuilder_stuff = criteriaBase.child(dao_ + "_" + Foo.name + criteriaBuilderSuffix + "_stuff", generated);
+        FooCriteriaBuilder = criteriaBase.child(dao_ + Foo.name + criteriaBuilderSuffix);
+        FooCriteriaBuilderTest = criteriaBase.child(dao_ + Foo.name + criteriaBuilderSuffix + "Test");
 
         FooSamples = dirs.daoPath.child(Foo.name + "Samples", generated);
 

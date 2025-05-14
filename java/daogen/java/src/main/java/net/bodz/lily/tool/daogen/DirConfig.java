@@ -13,6 +13,8 @@ public class DirConfig {
     public ClassPathInfo wsPath;
     public ClassPathInfo webPath;
 
+    boolean criteriaInDao = false;
+
     public DirConfig(ClassPathInfo modelPath, ClassPathInfo daoPath, ClassPathInfo wsPath, ClassPathInfo webPath) {
         this.modelPath = modelPath;
         this.daoPath = daoPath;
