@@ -147,7 +147,7 @@ public class MiscTemplates {
             if (column.isNullable())
                 continue;
 
-            if (column.isCompositeProperty())
+            if (column.isPropertyOfComposite())
                 continue;
 
             Class<?> type = column.getJavaClass();
@@ -176,7 +176,7 @@ public class MiscTemplates {
             if (column.isExcluded())
                 continue;
 
-            if (column.isCompositeProperty())
+            if (column.isPropertyOfComposite())
                 continue;
 
             ColumnNaming cname = project.naming(column);
@@ -220,7 +220,7 @@ public class MiscTemplates {
             if (column.isExcluded())
                 continue;
 
-            if (column.isCompositeProperty())
+            if (column.isPropertyOfComposite())
                 continue;
 
             Class<?> type = column.getJavaClass();
@@ -283,7 +283,7 @@ public class MiscTemplates {
             if (column.isExcluded())
                 continue;
 
-            if (column.isCompositeProperty())
+            if (column.isPropertyOfComposite())
                 continue;
 
             ColumnNaming cname = project.naming(column);
@@ -952,7 +952,7 @@ public class MiscTemplates {
         ColumnNaming cname = project.naming(column);
         IProperty property = column.getProperty();
         if (property != null //
-                && (!directAccess || column.isCompositeProperty())) {
+                && (!directAccess || column.isPropertyOfComposite())) {
             String context = getContextPrefix(cname.propertyName);
             if (property instanceof FieldProperty) {
                 FieldProperty fp = (FieldProperty) property;
@@ -984,7 +984,7 @@ public class MiscTemplates {
         for (IColumnMetadata column : table.getColumns()) {
             if (column.isExcluded()) // mixin?
                 continue;
-            if (column.isCompositeProperty()) {
+            if (column.isPropertyOfComposite()) {
                 // head name of the property-path
                 String head = column.getJavaQName().getHead();
                 compositeHeads.add(head);

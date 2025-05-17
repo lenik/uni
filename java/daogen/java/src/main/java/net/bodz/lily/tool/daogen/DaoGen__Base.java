@@ -39,14 +39,14 @@ public abstract class DaoGen__Base
 
     protected abstract String getExtension();
 
-    protected boolean isTest() {
+    protected boolean isTestScoped() {
         return false;
     }
 
     @Override
     protected IFileInfo getFileInfo(ITableMetadata model) {
         String extension = getExtension();
-        boolean test = isTest();
+        boolean test = isTestScoped();
         Path parent = pathInfo.getPreferredDir(extension, test);
         String localPath = pathInfo.getQName().getLocalPath(extension);
         return new MutableFileInfo(parent, localPath);

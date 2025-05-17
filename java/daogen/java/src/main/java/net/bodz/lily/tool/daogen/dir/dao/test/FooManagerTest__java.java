@@ -14,7 +14,7 @@ public class FooManagerTest__java
     }
 
     @Override
-    protected boolean isTest() {
+    protected boolean isTestScoped() {
         return true;
     }
 

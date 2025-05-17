@@ -85,7 +85,7 @@ public class Foo_stuff__java
                 if (column.isExcluded())
                     continue;
 
-                if (column.isCompositeProperty()) {
+                if (column.isPropertyOfComposite()) {
                     checkCompositeProperty(table, column);
                     continue;
                 }
@@ -159,7 +159,7 @@ public class Foo_stuff__java
                 if (column.isExcluded())
                     continue;
 
-                if (column.isCompositeProperty())
+                if (column.isPropertyOfComposite())
                     continue;
 
                 if (column.isForeignKey())

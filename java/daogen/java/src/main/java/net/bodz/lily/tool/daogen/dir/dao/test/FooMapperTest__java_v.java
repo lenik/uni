@@ -13,7 +13,7 @@ public class FooMapperTest__java_v
     }
 
     @Override
-    protected boolean isTest() {
+    protected boolean isTestScoped() {
         return true;
     }
 

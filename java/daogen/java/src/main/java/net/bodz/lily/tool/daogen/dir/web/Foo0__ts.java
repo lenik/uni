@@ -54,7 +54,7 @@ public class Foo0__ts
                 if (column.isExcluded())
                     continue;
 
-                if (column.isCompositeProperty()) {
+                if (column.isPropertyOfComposite()) {
                     checkCompositeProperty(table, column);
                     continue;
                 }

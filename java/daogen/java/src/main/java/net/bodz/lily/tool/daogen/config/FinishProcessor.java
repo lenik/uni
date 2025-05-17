@@ -124,7 +124,7 @@ public class FinishProcessor
             DefaultColumnMetadata mutable = (DefaultColumnMetadata) column;
             ColumnNaming cname = config.naming(column);
             IProperty property;
-            if (column.isCompositeProperty()) {
+            if (column.isPropertyOfComposite()) {
                 property = getPathProperty(type, cname.propertyName);
             } else {
                 property = type.getProperty(cname.propertyName);

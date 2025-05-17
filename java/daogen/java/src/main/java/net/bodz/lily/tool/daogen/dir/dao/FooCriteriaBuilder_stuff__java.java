@@ -63,7 +63,7 @@ public class FooCriteriaBuilder_stuff__java
             ColumnNaming cname = project.naming(column);
             if (cname.propertyName.isEmpty() || cname.propertyName.equals("-"))
                 continue;
-            if (column.isCompositeProperty())
+            if (column.isPropertyOfComposite())
                 continue;
             if (parentType != null && parentType.getProperty(cname.propertyName) != null)
                 continue; // exclude inherited ones.

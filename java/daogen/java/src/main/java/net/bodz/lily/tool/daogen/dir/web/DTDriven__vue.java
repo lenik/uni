@@ -90,7 +90,7 @@ public abstract class DTDriven__vue
         Set<String> handledXrefs = new HashSet<>();
 
         for (IColumnMetadata column : table.getColumns()) {
-            boolean composite = column.isCompositeProperty();
+            boolean composite = column.isPropertyOfComposite();
             if (composite) {
                 // checkCompositeProperty(table, column);
                 continue;
