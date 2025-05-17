@@ -1,18 +1,14 @@
 package net.bodz.lily.tool.daogen.dir.dao.test;
 
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import net.bodz.bas.c.java.lang.OptionNames;
+import net.bodz.bas.c.object.Nullables;
 import net.bodz.bas.c.object.Unknown;
-import net.bodz.bas.c.primitive.Primitives;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.codegen.JavaSourceWriter;
 import net.bodz.bas.log.Logger;
@@ -20,14 +16,11 @@ import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.potato.element.IProperty;
 import net.bodz.bas.potato.element.IType;
 import net.bodz.bas.potato.provider.bean.BeanProperty;
-import net.bodz.bas.rtx.Options;
+import net.bodz.bas.rtx.IMutableOptions;
 import net.bodz.bas.t.catalog.CrossReference;
 import net.bodz.bas.t.catalog.IColumnMetadata;
 import net.bodz.bas.t.catalog.ITableMetadata;
-import net.bodz.bas.t.predef.Predef;
 import net.bodz.bas.t.tuple.QualifiedName;
-import net.bodz.bas.typer.Typers;
-import net.bodz.bas.typer.std.ISampleGenerator;
 import net.bodz.lily.concrete.CoObject;
 import net.bodz.lily.entity.type.EntityTypes;
 import net.bodz.lily.entity.type.IEntityTypeInfo;
@@ -35,6 +28,10 @@ import net.bodz.lily.test.TestSampleBuilder;
 import net.bodz.lily.tool.daogen.ColumnNaming;
 import net.bodz.lily.tool.daogen.DaoGenProject;
 import net.bodz.lily.tool.daogen.DaoGen__java;
+import net.bodz.lily.tool.daogen.util.DefaultJavaConstructs;
+import net.bodz.lily.tool.daogen.util.IJavaConstructContext;
+import net.bodz.lily.tool.daogen.util.IJavaConstructs;
+import net.bodz.lily.tool.daogen.util.JavaConstructContext;
 import net.bodz.lily.util.IRandomPicker;
 
 public class FooSamples__java
@@ -42,20 +39,22 @@ public class FooSamples__java
 
     static final Logger logger = LoggerFactory.getLogger(FooSamples__java.class);
 
-    JavaSamples samples;
+    SampleFactory sampleFactory;
+    IJavaConstructs javaConstructs;
 
     public FooSamples__java(DaoGenProject project) {
         super(project, project.FooSamples);
     }
 
     @Override
-    protected boolean isTest() {
+    protected boolean isTestScoped() {
         return false;
     }
 
     @Override
     protected void buildClassBody(JavaSourceWriter out, ITableMetadata table) {
-        samples = new JavaSamples(project.randomSeed, table.getId(), out);
+        sampleFactory = new MySampleFactory(project.randomSeed, Nullables.hashCode(table.getId()));
+        javaConstructs = new DefaultJavaConstructs();
 
         out.println("public class " + project.FooSamples.name);
         out.enter();
@@ -105,7 +104,7 @@ public class FooSamples__java
             for (IColumnMetadata foreignColumn : xref.getForeignColumns())
                 columns.remove(foreignColumn);
         }
-        if (! table.getForeignKeys().isEmpty())
+        if (!table.getForeignKeys().isEmpty())
             out.println();
 
         for (String head : compositeHeads) {
@@ -119,7 +118,7 @@ public class FooSamples__java
             out.printf("public %s %s;\n", //
                     out.im.name(propertyClass), head);
         }
-        if (! compositeHeads.isEmpty())
+        if (!compositeHeads.isEmpty())
             out.println();
     }
 
@@ -146,6 +145,8 @@ public class FooSamples__java
                 if (refProperty != null) {
                     BeanProperty bp = (BeanProperty) refProperty;
                     Method setter = bp.getPropertyDescriptor().getWriteMethod();
+                    if (setter == null)
+                        continue;
                     setterName = setter.getName();
                 } else {
                     String property = xref.getPropertyName();
@@ -162,10 +163,10 @@ public class FooSamples__java
                 if (column.isExcluded()) // mixin?
                     continue;
 
-                if (column.isCompositeProperty())
+                if (column.isPropertyOfComposite())
                     continue;
 
-                if (! canWrite(entityType, column))
+                if (!canWrite(entityType, column))
                     continue;
 
                 makeEntry(out, column);
@@ -253,62 +254,24 @@ public class FooSamples__java
     }
 
     void makeEntry(JavaSourceWriter out, IColumnMetadata column) {
+        assert !column.isForeignKey();
+
+        Class<?> columnType = column.getJavaClass();
+        assert !CoObject.class.isAssignableFrom(columnType);
+
         ColumnNaming cname = project.naming(column);
-        Class<?> preferredType = column.getJavaClass();
 
-        if (CoObject.class.isAssignableFrom(preferredType)) {
-            logger.warn("unexpected column of entity: " + cname);
-            return;
-        }
+        IMutableOptions options = sampleFactory.newOptions(column);
+        options.addOption(OptionNames.signed, column.isSigned());
+        options.addOption(Random.class, sampleFactory.random);
 
-        String javaExpr = null;
+        Object sample = sampleFactory.newSample(column, options);
 
-        Class<?> actualType = null;
-        IProperty property = column.getProperty();
-        if (property != null) {
-            actualType = property.getPropertyClass();
-            actualType = Primitives.box(actualType);
-            preferredType = actualType;
-        }
+        IJavaConstructContext context = new JavaConstructContext(out);
+        String javaConstruct = javaConstructs.construct(sample, context);
 
-        if (preferredType == String.class)
-            javaExpr = samples.string(column.getPrecision());
-
-        else if (preferredType == BigDecimal.class) {
-            javaExpr = samples.bigDecimal(column.getPrecision(), column.getScale());
-
-        } else if (preferredType == BigInteger.class) {
-            javaExpr = samples.bigInteger(column.getPrecision());
-
-        } else {
-            ISampleGenerator<?> generator = Typers.getTyper(preferredType, ISampleGenerator.class);
-            // IToJavaCode toJavaCode= Typers.getTyper(type, IToJavaCode.class);
-            if (generator != null) {
-                Options options = new Options();
-                options.addOption(OptionNames.signed, false);
-                options.addOption(Random.class, samples.random);
-
-                Object sample = generator.newSample(options);
-
-                if (sample instanceof Date) {
-                    javaExpr = samples.date((Date) sample, preferredType);
-
-                } else if (sample instanceof TemporalAccessor) {
-                    javaExpr = samples.javaTime((TemporalAccessor) sample, preferredType);
-
-                } else if (sample instanceof Predef<?, ?>) {
-                    javaExpr = samples.predef((Predef<?, ?>) sample, preferredType);
-
-                } else {
-                    javaExpr = samples.simpleValue(sample, preferredType);
-                    if (javaExpr == null)
-                        javaExpr = samples.parseString(sample.toString(), preferredType);
-                }
-            }
-        }
-
-        if (javaExpr != null)
-            out.printf("a.set%s(%s);\n", cname.capPropertyName, javaExpr);
+        if (javaConstruct != null)
+            out.printf("a.set%s(%s);\n", cname.capPropertyName, javaConstruct);
     }
 
     static boolean canWrite(IType type, IColumnMetadata column) {
@@ -322,7 +285,7 @@ public class FooSamples__java
             if (property == null) {
                 // return false;
             } else {
-                if (! property.isWritable()) // read-only column/property.
+                if (!property.isWritable()) // read-only column/property.
                     return false;
             }
         }

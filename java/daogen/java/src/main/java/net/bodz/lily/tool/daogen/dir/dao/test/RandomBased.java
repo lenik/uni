@@ -10,38 +10,26 @@ public class RandomBased {
     public final Random random;
     public final EnglishTextGenerator enGen;
 
-    public RandomBased(long rootSeed, Object seedObj) {
-        this.rootSeed = rootSeed;
-        random = random(seedObj);
-        enGen = en(seedObj);
+    public RandomBased(long... seeds) {
+        this.rootSeed = computeSeed(seeds);
+        random = random();
+        enGen = en();
     }
 
-    Random random(Object seedObj) {
-        int prime = 17;
-        long seed = this.rootSeed;
-        if (seedObj != null)
-            seed += prime * seedObj.hashCode();
-        return new Random(seed);
+    long computeSeed(long... seeds) {
+        long seed = rootSeed;
+        for (long s : seeds)
+            seed = seed * 251 + s;
+        return seed;
     }
 
-    EnglishTextGenerator en(Object seedObj) {
-        Random random = random(seedObj);
+    Random random(long... seeds) {
+        return new Random(computeSeed(seeds));
+    }
+
+    EnglishTextGenerator en(long... seeds) {
+        Random random = random(seeds);
         return new EnglishTextGenerator(random);
-    }
-
-    protected void randomDigits(StringBuilder sb, int len, boolean noZeroStart, Random random) {
-        for (int i = 0; i < len; i++) {
-            int digit;
-            while (true) {
-                digit = random.nextInt(10);
-                if (i == 0)
-                    if (noZeroStart && digit == 0)
-                        continue;
-                break;
-            }
-            char ch = (char) ('0' + digit);
-            sb.append(ch);
-        }
     }
 
 }
