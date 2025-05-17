@@ -21,7 +21,7 @@ public class BigDatasetStats<K>
     }
 
     public BigDatasetStats(SortOrder sortOrder) {
-        this(sortOrder.newMap());
+        this(sortOrder.newMapDefault());
     }
 
     public BigDatasetStats(int lruSize) {
@@ -33,7 +33,7 @@ public class BigDatasetStats<K>
         this(new LRUMap<K, Long>(lruSize) {
             @Override
             protected boolean removeLRU(LinkEntry<K, Long> entry) {
-                long count = entry.getValue().longValue();
+                long count = entry.getValue();
                 return count <= maxCountToDrop;
             }
         });

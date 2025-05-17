@@ -15,6 +15,7 @@ import net.bodz.bas.fmt.rst.IRstHandler;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.fmt.rst.StackRstHandler;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.meta.decl.NotNull;
 
 public class KeyColumnFormat
         implements
@@ -85,7 +86,7 @@ public class KeyColumnFormat
     private static final String K_COMPONENT_FORMAT = "component";
 
     @Override
-    public void jsonIn(JsonObject o, JsonFormOptions opts)
+    public void jsonIn(@NotNull JsonObject o, JsonFormOptions opts)
             throws ParseException {
         String regex = o.getString(K_PATTERN);
         this.pattern = Pattern.compile(regex);

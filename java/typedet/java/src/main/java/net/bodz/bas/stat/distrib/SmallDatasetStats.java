@@ -9,8 +9,7 @@ import net.bodz.bas.repr.form.SortOrder;
 
 public class SmallDatasetStats<K>
         extends DecoratedMap<K, Integer>
-        implements
-            ICountDistribMap<K, Integer> {
+        implements ICountDistribMap<K, Integer> {
 
     private static final long serialVersionUID = 1L;
 
@@ -21,7 +20,7 @@ public class SmallDatasetStats<K>
     }
 
     public SmallDatasetStats(SortOrder sortOrder) {
-        this(sortOrder.<K, Integer> newMap());
+        this(sortOrder.<K, Integer>newMapDefault());
     }
 
     public SmallDatasetStats(int lruSize) {
@@ -33,7 +32,7 @@ public class SmallDatasetStats<K>
         this(new LRUMap<K, Integer>(lruSize) {
             @Override
             protected boolean removeLRU(LinkEntry<K, Integer> entry) {
-                int count = entry.getValue().intValue();
+                int count = entry.getValue();
                 return count <= maxCountToDrop;
             }
         });
@@ -90,7 +89,7 @@ public class SmallDatasetStats<K>
     protected void merge(SmallDatasetStats<K> o) {
         for (K k : o.keySet()) {
             Integer n = o.get(k);
-            add(k, n.intValue());
+            add(k, n);
         }
     }
 

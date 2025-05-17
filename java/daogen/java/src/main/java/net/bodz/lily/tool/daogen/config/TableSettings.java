@@ -16,6 +16,7 @@ import net.bodz.bas.fmt.rst.IRstHandler;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.fmt.rst.StackRstHandler;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.meta.decl.NotNull;
 
 public class TableSettings
         implements
@@ -52,7 +53,7 @@ public class TableSettings
     }
 
     @Override
-    public void jsonIn(JsonObject o, JsonFormOptions opts)
+    public void jsonIn(@NotNull JsonObject o, JsonFormOptions opts)
             throws ParseException {
         javaName = o.getString(K_JAVA_NAME);
         javaType = o.getString(K_JAVA_TYPE);

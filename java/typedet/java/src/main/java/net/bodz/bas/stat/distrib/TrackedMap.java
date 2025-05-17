@@ -22,7 +22,7 @@ public class TrackedMap<K, V>
     }
 
     public TrackedMap(SortOrder sortOrder) {
-        super(sortOrder.newMap());
+        super(sortOrder.newMapDefault());
     }
 
     public TrackedMap(Map<K, V> _orig) {

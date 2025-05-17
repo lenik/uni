@@ -23,6 +23,7 @@ import net.bodz.bas.fmt.rst.IRstForm;
 import net.bodz.bas.fmt.rst.IRstHandler;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.repr.form.SortOrder;
 import net.bodz.bas.t.catalog.ColumnOid;
 import net.bodz.bas.t.catalog.IColumnMetadata;
@@ -417,7 +418,7 @@ public class CatalogConfig
     }
 
     @Override
-    public void jsonIn(JsonObject o, JsonFormOptions opts)
+    public void jsonIn(@NotNull JsonObject o, JsonFormOptions opts)
             throws ParseException {
         throw new NotImplementedException();
     }

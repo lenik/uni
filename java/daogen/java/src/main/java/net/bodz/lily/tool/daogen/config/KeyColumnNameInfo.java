@@ -9,6 +9,7 @@ import net.bodz.bas.fmt.json.IJsonForm;
 import net.bodz.bas.fmt.json.IJsonOut;
 import net.bodz.bas.fmt.json.JsonFormOptions;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.meta.decl.NotNull;
 
 public class KeyColumnNameInfo
         implements
@@ -55,7 +56,7 @@ public class KeyColumnNameInfo
     private static final String K_FIELD = "field";
 
     @Override
-    public void jsonIn(JsonObject o, JsonFormOptions opts)
+    public void jsonIn(@NotNull JsonObject o, JsonFormOptions opts)
             throws ParseException {
         this.sqlAlias = o.getString(K_ALIAS);
         this.sqlField = o.getString(K_FIELD);

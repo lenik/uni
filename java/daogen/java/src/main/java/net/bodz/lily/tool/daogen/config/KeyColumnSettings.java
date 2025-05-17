@@ -14,6 +14,7 @@ import net.bodz.bas.fmt.rst.IRstForm;
 import net.bodz.bas.fmt.rst.IRstHandler;
 import net.bodz.bas.fmt.rst.IRstOutput;
 import net.bodz.bas.json.JsonObject;
+import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.t.catalog.CrossReference;
 
 public class KeyColumnSettings
@@ -70,7 +71,7 @@ public class KeyColumnSettings
     private static final String K_FORMAT_rst = "format"; // rst only
 
     @Override
-    public void jsonIn(JsonObject o, JsonFormOptions opts)
+    public void jsonIn(@NotNull JsonObject o, JsonFormOptions opts)
             throws ParseException {
         JsonObject jFormats = o.getJsonObject(K_FORMATS_json);
         if (jFormats != null) {
