@@ -1,30 +1,26 @@
 include libauto/project.am
 
 dist_bin_SCRIPTS = \
-    shell/cmd-runner \
-    shell/2print \
-    shell/criterion \
-    shell/daogen \
-    shell/foob \
-    shell/ls-entity \
-    shell/tcoll \
-    shell/tstool
+    bin/2print \
+    bin/criterion \
+    bin/daogen \
+    bin/foob \
+    bin/ls-entity \
+    bin/tstool
 
-#dist_man_MANS = \
-#    shell/2print.1 \
-#    shell/criterion.1 \
-#    shell/daogen.1 \
-#    shell/foob.1 \
-#    shell/ls-entity.1 \
-#    shell/tcoll.1 \
-#    shell/tstool.1
+dist_man_MANS = \
+    bin/2print.1 \
+    bin/criterion.1 \
+    bin/daogen.1 \
+    bin/foob.1 \
+    bin/ls-entity.1 \
+    bin/tstool.1
 
 dist_setup_SCRIPTS = \
     postinst \
     prerm
 
 CLEANFILES = \
-    ${dist_bin_SCRIPTS} \
     ${dist_man_MANS} \
     ${dist_setup_SCRIPTS}
 
@@ -40,14 +36,12 @@ install-data-hook:
 	cp -RL java/lib $(DESTDIR)$(pkgdatadir)
 
 install-debug:
-	sudo ln -snf $$PWD/shell/cmd-runner.in  /bin/cmd-runner
-	sudo ln -snf $$PWD/shell/2print         /bin/2print
-	sudo ln -snf $$PWD/shell/criterion      /bin/criterion
-	sudo ln -snf $$PWD/shell/daogen         /bin/daogen
-	sudo ln -snf $$PWD/shell/foob           /bin/foob
-	sudo ln -snf $$PWD/shell/ls-entity      /bin/ls-entity
-	sudo ln -snf $$PWD/shell/tcoll          /bin/tcoll
-	sudo ln -snf $$PWD/shell/tstool         /bin/tstool
+	sudo ln -snf $$PWD/bin/2print           /bin/2print
+	sudo ln -snf $$PWD/bin/criterion        /bin/criterion
+	sudo ln -snf $$PWD/bin/daogen           /bin/daogen
+	sudo ln -snf $$PWD/bin/foob             /bin/foob
+	sudo ln -snf $$PWD/bin/ls-entity        /bin/ls-entity
+	sudo ln -snf $$PWD/bin/tstool           /bin/tstool
 
 autobuild:
 	@echo "autobuild isn't supported, yet."
