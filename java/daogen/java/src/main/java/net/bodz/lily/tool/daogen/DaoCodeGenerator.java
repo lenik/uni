@@ -28,6 +28,7 @@ import net.bodz.bas.io.res.builtin.URLResource;
 import net.bodz.bas.log.Logger;
 import net.bodz.bas.log.LoggerFactory;
 import net.bodz.bas.meta.build.ProgramName;
+import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.program.skel.BasicCLI;
 import net.bodz.bas.t.catalog.CatalogSubset;
 import net.bodz.bas.t.catalog.ContainingType;
@@ -266,7 +267,7 @@ public class DaoCodeGenerator
         if (dataContext == null)
             throw new NullPointerException("dataContext");
         this.dataContext = dataContext;
-        catalog = DefaultCatalogMetadata.fromContext(dataContext);
+        this.catalog = new DefaultCatalogMetadata(dataContext);
     }
 
     /**
@@ -291,7 +292,6 @@ public class DaoCodeGenerator
                 } catch (Exception e) {
                     logger.error("Error make table: " + e.getMessage(), e);
                     return false;
-                } finally {
                 }
                 return true;
 
@@ -469,19 +469,7 @@ public class DaoCodeGenerator
 
         for (String arg : args) {
             if (arg.startsWith("@")) {
-                String path = arg.substring(1);
-                IStreamResource resource;
-
-                if (new File(path).exists()) {
-                    resource = new FileResource(new File(path));
-                } else {
-                    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                    URL classRes = classLoader.getResource(path);
-                    if (classRes == null)
-                        throw new IllegalArgumentException("Bad resource path: " + path);
-                    resource = new URLResource(classRes);
-                }
-
+                IStreamResource resource = findResource(arg);
                 for (String line : resource.read().lines()) {
                     String name = line.trim();
                     if (name.isEmpty() || name.startsWith("#"))
@@ -543,6 +531,23 @@ public class DaoCodeGenerator
             if (connection != null)
                 connection.close();
         }
+    }
+
+    @NotNull
+    IStreamResource findResource(String name) {
+        String path = name.substring(1);
+        IStreamResource resource;
+
+        if (new File(path).exists()) {
+            resource = new FileResource(new File(path));
+        } else {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            URL classRes = classLoader.getResource(path);
+            if (classRes == null)
+                throw new IllegalArgumentException("Bad resource path: " + path);
+            resource = new URLResource(classRes);
+        }
+        return resource;
     }
 
     public void configDirs()
