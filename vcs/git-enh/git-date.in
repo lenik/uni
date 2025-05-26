@@ -2,19 +2,27 @@
     : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
     : ${PACKAGE:=@PACKAGE@}
     : ${PROGRAM_TITLE:=Show the formatted date of git-tracked files}
-    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] FILES}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] COMMITISH or FILES}
 
     . shlib-import cliboot
     option -d --date-format =DATE_FORMAT    "Specify the date format"
+    option -l --long                        "Use long date format: YYYY-mm-dd HH:MM:SS"
+    option -s --short                       "Use short date format: YYYY-mm-dd"
     option -q --quiet
     option -v --verbose
     option -h --help
     option    --version
 
-    opt_date_format="%Y-%m-%d %H:%M:%S"
+    opt_date_format=
 
 function setopt() {
     case "$1" in
+        -d|--date-format)
+            opt_date_format="$2";;
+        -l|--long)
+            opt_date_format="%Y-%m-%d %H:%M:%S";;
+        -s|--short)
+            opt_date_format="%Y-%m-%d";;
         -h|--help)
             help $1; exit;;
         -q|--quiet)
@@ -29,7 +37,24 @@ function setopt() {
 }
 
 function main() {
-    git log --format="%ad" --date="format:$opt_date_format" -- "$@"
+    if [ $# == 0 ]; then
+        quit "nothing to do."
+    fi
+
+    gitopts=(--no-pager)
+
+    logopts=()
+    log_format="%aD"        # author date, RFC2822 style
+    if [ -n "$opt_date_format" ]; then
+        log_format="%ad"    # author date (format respects --date= option)
+        logopts+=( --date="format:$opt_date_format" )
+    fi
+
+    if [ -f "$1" ]; then
+        git "${gitopts[@]}" log --format="$log_format" "${logopts[@]}" -- "$@"
+    else
+        git "${gitopts[@]}" log --format="$log_format" "${logopts[@]}" -n 1 "$@"
+    fi
 }
 
 boot "$@"
