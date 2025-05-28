@@ -11,6 +11,7 @@ import java.util.function.BiFunction;
 import net.bodz.bas.c.string.Strings;
 import net.bodz.bas.io.IPrintOut;
 import net.bodz.bas.io.Stdio;
+import net.bodz.bas.meta.decl.NotNull;
 
 public class LRUHistoMap<K extends Comparable<K>>
         extends SmallDatasetStats<K>
@@ -71,7 +72,7 @@ public class LRUHistoMap<K extends Comparable<K>>
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends Integer> m) {
+    public void putAll(@NotNull Map<? extends K, ? extends Integer> m) {
         _boundKeys.removeAll(m.keySet());
         super.putAll(m);
         _boundKeys.addAll(m.keySet());

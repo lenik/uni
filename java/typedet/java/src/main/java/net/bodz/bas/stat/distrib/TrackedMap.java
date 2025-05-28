@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.bodz.bas.meta.decl.NotNull;
 import net.bodz.bas.proxy.java.util.DecoratedMap;
 import net.bodz.bas.repr.form.SortOrder;
 
@@ -55,7 +56,7 @@ public class TrackedMap<K, V>
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
+    public void putAll(@NotNull Map<? extends K, ? extends V> m) {
         for (K k : m.keySet())
             updateTime(k);
         super.putAll(m);
