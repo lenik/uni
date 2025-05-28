@@ -3,5 +3,4 @@ net.bodz.lily.tool.TsPredefs
 net.bodz.lily.tool.TsPredefs2
 net.bodz.lily.tool.daogen.DaoCodeGenerator
 net.bodz.lily.tool.daogen.FooBuilderCodegen
-net.bodz.lily.tool.daogen.IndentedOutPrintsCompiler
 net.bodz.lily.tool.daogen.config.ConfigFormatConv
