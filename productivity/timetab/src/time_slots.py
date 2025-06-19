@@ -156,7 +156,9 @@ class TimeSlots:
     
     def get_allocated_slots(self) -> List[TimeSlot]:
         """Get all allocated time slots (originally available slots with sector descriptions)"""
-        return [slot for slot in self.slots if slot.is_available() and slot.description and ':' in slot.description and not slot.description.startswith(':')]
+        return [slot for slot in self.slots if 
+                (slot.is_available() and slot.description and ':' in slot.description and not slot.description.startswith(':')) or
+                slot.is_generated()]
     
     def count_allocated_slots(self) -> int:
         """Count number of allocated time slots"""
@@ -181,7 +183,7 @@ class TimeSlots:
         # Add allocated slots
         new_slots.extend(allocated_slots)
         
-        # Sort by original order
+        # Sort by original order (not by start time)
         new_slots.sort(key=lambda x: x.order)
         
         self.slots = new_slots

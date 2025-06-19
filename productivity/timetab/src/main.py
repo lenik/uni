@@ -134,6 +134,10 @@ def main():
                        help='Order sectors by weight (largest first)')
     parser.add_argument('-a', '--all', action='store_true', 
                        help='Output all time slots (default: only available/allocated slots)')
+    parser.add_argument('-n', '--maxload', type=int, metavar='MINUTES',
+                       help='Maximum load per time slice (splits sectors into smaller chunks)')
+    parser.add_argument('-b', '--break', dest='break_minutes', type=int, metavar='MINUTES', default=0,
+                       help='Break minutes between time slices (default: 0)')
     
     args = parser.parse_args()
     
@@ -226,7 +230,7 @@ def main():
         logging.info(f"Loaded {len(sectors)} sectors")
         logging.info(f"Found {time_slots.count_available_slots()} available time slots")
         
-        # Log ordering options
+        # Log ordering and load management options
         if args.shuffle:
             logging.info("Using shuffle mode: sectors will be allocated in random order")
         elif args.large_first:
@@ -234,8 +238,18 @@ def main():
         else:
             logging.info("Using default mode: sectors will be allocated in original file order")
         
+        if args.maxload:
+            logging.info(f"Using maxload mode: maximum {args.maxload} minutes per time slice")
+        if args.break_minutes > 0:
+            logging.info(f"Using break mode: {args.break_minutes} minutes break between slices")
+        
         # Allocate sectors to timetable
-        scheduler = Scheduler(shuffle_sectors=args.shuffle, large_first=args.large_first)
+        scheduler = Scheduler(
+            shuffle_sectors=args.shuffle, 
+            large_first=args.large_first,
+            maxload=args.maxload,
+            break_minutes=args.break_minutes
+        )
         logging.info("Starting sector allocation...")
         updated_time_slots = scheduler.allocate_sectors_proportionally(time_slots, sectors)
         

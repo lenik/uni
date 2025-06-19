@@ -7,11 +7,14 @@ from .time_slots import TimeSlots
 from .sectors import Sectors
 
 class Scheduler:
-    def __init__(self, shuffle_sectors: bool = False, large_first: bool = False):
+    def __init__(self, shuffle_sectors: bool = False, large_first: bool = False, 
+                 maxload: Optional[int] = None, break_minutes: int = 0):
         self.allocated_slots = []
         self.shuffle_sectors = shuffle_sectors
         self.large_first = large_first
-        self.sector_split_counts: Dict[str, int] = {}  # Track split counts for each sector
+        self.maxload = maxload
+        self.break_minutes = break_minutes
+        self.accumulated_break_time = 0  # Track accumulated break time for adjacent sectors
     
     def allocate_sectors_proportionally(self, time_slots: TimeSlots, sectors: Sectors) -> TimeSlots:
         """Allocate sectors proportionally to available time slots"""
@@ -24,6 +27,11 @@ class Scheduler:
         logging.info(f"Total available time: {total_available_time} minutes")
         logging.info(f"Total sector weight: {total_weight}")
         
+        if self.maxload:
+            logging.info(f"Max load per slice: {self.maxload} minutes")
+        if self.break_minutes > 0:
+            logging.info(f"Break between slices: {self.break_minutes} minutes")
+        
         # Calculate allocated duration for each sector
         sector_allocations = self._calculate_sector_allocations(sectors, total_available_time, total_weight)
         
@@ -35,6 +43,9 @@ class Scheduler:
         
         # Post-process to add split information to descriptions
         self._add_split_info_to_descriptions()
+        
+        # Insert break time slots (pass original slots for reference)
+        self._insert_break_slots(time_slots.get_slots())
         
         # Create new TimeSlots instance with allocated slots
         new_time_slots = TimeSlots(time_slots.get_slots())
@@ -69,6 +80,33 @@ class Scheduler:
             logging.info(f"{sector.abbr}: {sector.weight}/{total_weight} = {percentage:.3f} -> {allocated_duration} minutes")
         return allocations
     
+    def _split_duration_with_breaks(self, total_duration: int, sector_abbr: str) -> List[tuple]:
+        """
+        Split duration into chunks respecting maxload and break constraints.
+        Returns list of tuples: (work_duration, sequence_number)
+        Work duration = maxload - break_minutes to leave room for breaks.
+        """
+        if not self.maxload or total_duration <= (self.maxload - self.break_minutes):
+            return [(total_duration, 1)]
+        
+        chunks = []
+        remaining = total_duration
+        sequence_number = 1
+        
+        # Calculate actual work duration per chunk (maxload minus break time)
+        work_duration_per_chunk = self.maxload - self.break_minutes
+        
+        while remaining > 0:
+            # Calculate work duration for this chunk
+            work_duration = min(remaining, work_duration_per_chunk)
+            
+            chunks.append((work_duration, sequence_number))
+            remaining -= work_duration
+            sequence_number += 1
+        
+        logging.debug(f"Splitting {total_duration} minutes for {sector_abbr} into chunks: {chunks}")
+        return chunks
+    
     def _allocate_sectors(self, sector_allocations: List[SectorAllocation], available_slots: List[TimeSlot]):
         """Allocate sectors to available time slots"""
         available_slots_copy = available_slots.copy()
@@ -78,92 +116,216 @@ class Scheduler:
             sector_abbr = allocation.sector.abbr
             logging.debug(f"Allocating {sector_abbr}: target {allocation.target_duration} minutes")
             
-            # Initialize split counter for this sector
-            if sector_abbr not in self.sector_split_counts:
-                self.sector_split_counts[sector_abbr] = 0
+            # Split the duration if maxload is specified
+            duration_chunks = self._split_duration_with_breaks(remaining_duration, sector_abbr)
             
-            while remaining_duration > 0 and available_slots_copy:
-                current_slot = available_slots_copy[0]
+            for chunk_index, (work_duration, sequence_number) in enumerate(duration_chunks):
+                # Check if we can use accumulated break time
+                actual_work_duration = work_duration
+                if chunk_index == 0 and self.accumulated_break_time > 0:
+                    # Use accumulated break time for the first chunk
+                    actual_work_duration = work_duration + self.accumulated_break_time
+                    self.accumulated_break_time = 0
+                    logging.debug(f"Using {work_duration} accumulated break minutes for {sector_abbr}")
                 
-                # Check for slot underflow
-                if current_slot.duration <= 0:
-                    logging.error(f"Slot underflow detected: slot {current_slot.order} has duration {current_slot.duration}")
-                    raise ValueError(f"Invalid slot duration: {current_slot.duration} for slot {current_slot.order}")
+                # Allocate this chunk with the same sequence number for all slots in this chunk
+                allocated_duration = self._allocate_chunk(available_slots_copy, actual_work_duration, allocation, sequence_number)
                 
-                # Calculate how much we can take from this slot
-                take_duration = min(remaining_duration, current_slot.duration)
+                if allocated_duration < actual_work_duration:
+                    # Could not fully allocate, accumulate remaining time as break
+                    remaining_break = actual_work_duration - allocated_duration
+                    self.accumulated_break_time += remaining_break
+                    logging.debug(f"Accumulating {remaining_break} minutes as break time")
+                    # Don't break here - continue with next chunk if possible
                 
-                logging.debug(f"  Taking {take_duration} minutes from slot {current_slot.order} (has {current_slot.duration} minutes)")
-                
-                # Assign split number (0 for first part, 1, 2, 3... for subsequent parts)
-                split_number = None
-                if len(allocation.allocated_parts) > 0:
-                    split_number = len(allocation.allocated_parts)  # 1, 2, 3, etc.
-                    logging.debug(f"  Creating split part {split_number} for {sector_abbr}")
-                
-                # Create allocated part
-                allocated_part = self._create_allocated_slot(current_slot, take_duration, allocation.sector, split_number)
-                allocation.allocated_parts.append(allocated_part)
-                
-                # Update remaining duration
-                remaining_duration -= take_duration
-                
-                # Update or remove the current slot
-                if take_duration == current_slot.duration:
-                    logging.debug(f"  Slot {current_slot.order} fully used, removing")
-                    available_slots_copy.pop(0)
-                else:
-                    # Update start time and duration
-                    current_slot.start = current_slot.start.add_minutes(take_duration)
-                    current_slot.duration -= take_duration
-                    logging.debug(f"  Slot {current_slot.order} partially used, remaining duration: {current_slot.duration}")
+                # Update remaining duration for this sector
+                remaining_duration -= min(allocated_duration, work_duration)
             
             if remaining_duration > 0:
                 logging.warning(f"Could not fully allocate {sector_abbr}: {remaining_duration} minutes remaining")
+        
+        # Collect all allocated parts from all allocations (avoid duplicates)
+        seen_slots = set()
+        for allocation in sector_allocations:
+            for slot in allocation.allocated_parts:
+                # Create a unique identifier for each slot
+                slot_id = (slot.start, slot.end, slot.description, slot.split)
+                if slot_id not in seen_slots:
+                    seen_slots.add(slot_id)
+                    self.allocated_slots.append(slot)
+    
+    def _allocate_chunk(self, available_slots_copy: List[TimeSlot], target_duration: int, 
+                       allocation: SectorAllocation, sequence_number: int) -> int:
+        """Allocate a single chunk of work"""
+        sector_abbr = allocation.sector.abbr
+        allocated_duration = 0
+        
+        while allocated_duration < target_duration and available_slots_copy:
+            current_slot = available_slots_copy[0]
             
-            self.allocated_slots.extend(allocation.allocated_parts)
+            # Check for slot underflow
+            if current_slot.duration <= 0:
+                logging.error(f"Slot underflow detected: slot {current_slot.order} has duration {current_slot.duration}")
+                raise ValueError(f"Invalid slot duration: {current_slot.duration} for slot {current_slot.order}")
+            
+            # Calculate how much we can take from this slot
+            remaining_needed = target_duration - allocated_duration
+            take_duration = min(remaining_needed, current_slot.duration)
+            
+            logging.debug(f"  Taking {take_duration} minutes from slot {current_slot.order} (has {current_slot.duration} minutes)")
+            
+            # Create allocated part with the same sequence number for this chunk
+            allocated_part = self._create_allocated_slot(current_slot, take_duration, allocation.sector, sequence_number)
+            allocation.allocated_parts.append(allocated_part)
+            
+            # Update allocated duration
+            allocated_duration += take_duration
+            
+            # Update or remove the current slot
+            if take_duration == current_slot.duration:
+                logging.debug(f"  Slot {current_slot.order} fully used, removing")
+                available_slots_copy.pop(0)
+            else:
+                # Update start time and duration
+                current_slot.start = current_slot.start.add_minutes(take_duration)
+                current_slot.duration -= take_duration
+                logging.debug(f"  Slot {current_slot.order} partially used, remaining duration: {current_slot.duration}")
+        
+        return allocated_duration
+    
+    def _insert_break_slots(self, original_slots):
+        """Insert break time slots between maxload chunks"""
+        if not self.break_minutes or not self.maxload:
+            return
+        
+        # Group slots by sector and sequence number
+        sector_chunks = {}
+        for slot in self.allocated_slots:
+            sector_abbr = slot.description.split(':')[0]
+            sequence_number = slot.split if slot.split is not None else 1
+            
+            if sector_abbr not in sector_chunks:
+                sector_chunks[sector_abbr] = {}
+            if sequence_number not in sector_chunks[sector_abbr]:
+                sector_chunks[sector_abbr][sequence_number] = []
+            sector_chunks[sector_abbr][sequence_number].append(slot)
+        
+        # Create a flat list of chunks in chronological order
+        all_chunks = []
+        for sector_abbr, chunks in sector_chunks.items():
+            for sequence_number in sorted(chunks.keys()):
+                chunk_slots = chunks[sequence_number]
+                # Find the latest end time in this chunk
+                chunk_end = max(slot.end for slot in chunk_slots)
+                all_chunks.append({
+                    'sector': sector_abbr,
+                    'sequence': sequence_number,
+                    'end_time': chunk_end,
+                    'slots': chunk_slots
+                })
+        
+        # Sort chunks by end time
+        all_chunks.sort(key=lambda x: x['end_time'])
+        
+        # Insert break slots between consecutive chunks and adjust work slot timing
+        new_slots = []
+        accumulated_break_time = 0  # Track total break time to adjust subsequent work slots
+        
+        for i, chunk in enumerate(all_chunks):
+            # Adjust the start and end times of all slots in this chunk
+            for slot in chunk['slots']:
+                slot.start = slot.start.add_minutes(accumulated_break_time)
+                slot.end = slot.end.add_minutes(accumulated_break_time)
+            
+            # Add all slots for this chunk
+            new_slots.extend(chunk['slots'])
+            
+            # Insert break slot if this is not the last chunk AND the next chunk is from the same sector
+            if i < len(all_chunks) - 1:
+                next_chunk = all_chunks[i + 1]
+                
+                # Only insert break if the next chunk is from the same sector
+                if next_chunk['sector'] == chunk['sector']:
+                    # Create break slot starting immediately after this chunk ends
+                    break_start = chunk['end_time'].add_minutes(accumulated_break_time)
+                    break_end = break_start.add_minutes(self.break_minutes)
+                    
+                    break_slot = TimeSlot(
+                        order=chunk['slots'][0].order,  # Use order from first slot in chunk
+                        start=break_start,
+                        duration=self.break_minutes,
+                        end=break_end,
+                        slot_type="Break/Load",
+                        description=f"{chunk['sector']}: -",
+                        original_index=chunk['slots'][0].original_index,
+                        split=None
+                    )
+                    
+                    new_slots.append(break_slot)
+                    accumulated_break_time += self.break_minutes
+                    logging.debug(f"Inserted break slot: {break_start}-{break_end} ({self.break_minutes}min)")
+        
+        self.allocated_slots = new_slots
     
     def _add_split_info_to_descriptions(self):
         """Add split information to descriptions for split sectors"""
         # Group slots by sector
         sector_slots = {}
         for slot in self.allocated_slots:
-            if slot.split is not None:  # Only process split slots
-                sector_abbr = slot.description.split(':')[0]  # Extract sector abbreviation
-                if sector_abbr not in sector_slots:
-                    sector_slots[sector_abbr] = []
-                sector_slots[sector_abbr].append(slot)
+            sector_abbr = slot.description.split(':')[0]  # Extract sector abbreviation
+            if sector_abbr not in sector_slots:
+                sector_slots[sector_abbr] = []
+            sector_slots[sector_abbr].append(slot)
         
         # Add split information to descriptions
         for sector_abbr, slots in sector_slots.items():
-            # Sort by split number
-            slots.sort(key=lambda x: x.split)
-            total_parts = len(slots) + 1  # +1 because first part has split=None
+            # Group slots by sequence number (maxload chunk)
+            chunk_groups = {}
+            for slot in slots:
+                sequence_number = slot.split if slot.split is not None else 1
+                if sequence_number not in chunk_groups:
+                    chunk_groups[sequence_number] = []
+                chunk_groups[sequence_number].append(slot)
+            
+            # Count total maxload chunks
+            total_chunks = len(chunk_groups)
             
             # Update descriptions with split information
-            for slot in slots:
-                current_part = slot.split + 1  # Convert to 1-based for display
+            for sequence_number, chunk_slots in sorted(chunk_groups.items()):
+                # Check if this chunk is split across multiple time slots
+                is_split_chunk = len(chunk_slots) > 1
                 
-                # Remove any existing ellipsis or split info
-                base_description = slot.description.split('...')[0].split(' (')[0]
-                
-                if current_part < total_parts:
-                    # Non-final part: add ellipsis and split info
-                    slot.description = f"{base_description}... ({current_part}/{total_parts})"
-                else:
-                    # Final part: add only split info
-                    slot.description = f"{base_description} ({current_part}/{total_parts})"
-            
-            # Also update the first part (split=None) if it exists
-            first_slots = [s for s in self.allocated_slots if s.split is None and s.description.startswith(f"{sector_abbr}:")]
-            for slot in first_slots:
-                base_description = slot.description.split('...')[0].split(' (')[0]
-                if total_parts > 1:
-                    slot.description = f"{base_description}... (1/{total_parts})"
+                for i, slot in enumerate(chunk_slots):
+                    current_chunk = sequence_number
+                    
+                    # Remove any existing ellipsis or split info
+                    base_description = slot.description.split('...')[0].split(' (')[0]
+                    
+                    if current_chunk < total_chunks:
+                        # Non-final chunk: add ellipsis
+                        if is_split_chunk:
+                            # Split chunk: add sequence number
+                            slot.description = f"{base_description}... ({current_chunk}/{total_chunks} #{i+1})"
+                        else:
+                            # Single slot chunk: no sequence number
+                            slot.description = f"{base_description}... ({current_chunk}/{total_chunks})"
+                    else:
+                        # Final chunk: no ellipsis
+                        if is_split_chunk:
+                            # Split chunk: add sequence number
+                            slot.description = f"{base_description} ({current_chunk}/{total_chunks} #{i+1})"
+                        else:
+                            # Single slot chunk: no sequence number
+                            slot.description = f"{base_description} ({current_chunk}/{total_chunks})"
     
-    def _create_allocated_slot(self, original_slot: TimeSlot, duration: int, sector: Sector, split_number: Optional[int] = None) -> TimeSlot:
+    def _create_allocated_slot(self, original_slot: TimeSlot, duration: int, sector: Sector, sequence_number: int) -> TimeSlot:
         """Create a new allocated time slot"""
-        end_time = original_slot.start.add_minutes(duration)
+        # Ensure the end time doesn't exceed the original slot's end time
+        calculated_end = original_slot.start.add_minutes(duration)
+        end_time = min(calculated_end, original_slot.end)
+        
+        # Adjust duration if it was truncated
+        actual_duration = end_time.to_minutes() - original_slot.start.to_minutes()
         
         # Create base description (split info will be added later)
         description = f"{sector.abbr}: {sector.description}"
@@ -171,10 +333,10 @@ class Scheduler:
         return TimeSlot(
             order=original_slot.order,
             start=original_slot.start,
-            duration=duration,
+            duration=actual_duration,
             end=end_time,
             slot_type=original_slot.slot_type,
             description=description,
             original_index=original_slot.original_index,
-            split=split_number
+            split=sequence_number  # Store the sequence number from maxload division
         )

@@ -41,6 +41,9 @@ class Time:
         if total_minutes < 0:
             raise ValueError(f"Total minutes cannot be negative: {total_minutes}")
         
+        # Handle time wrapping (24-hour cycle)
+        total_minutes = total_minutes % (24 * 60)  # Wrap around 24 hours
+        
         hours = total_minutes // 60
         minutes = total_minutes % 60
         
