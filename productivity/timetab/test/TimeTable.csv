@@ -1,0 +1,31 @@
+Order,Start,Duration,End,Type,Description
+1,06:35,25,07:00,A0-L,
+2,07:00,60,08:00,Reserved,Prepare
+3,08:00,25,08:25,FEM,
+4,08:25,15,08:40,Traffic,Ride to Station
+5,08:40,45,09:25,A1-T,@Train
+6,09:25,15,09:40,Traffic,Walk to work
+7,09:40,10,09:50,Reserved,Prepare
+8,09:50,100,11:30,A2-Maj,Morning major
+9,11:30,50,12:20,Reserved,Lunch
+10,12:20,10,12:30,Reserved,Prepare
+11,12:30,30,13:00,A3-N,
+12,13:00,60,14:00,Break/Sleep,Nap
+13,14:00,90,15:30,A4-Major,Afternoon major
+14,15:30,30,16:00,Break,Afternoon Tea
+15,16:00,90,17:30,A5-Minor,Afternoon minor
+16,17:30,15,17:45,Break,Supper Snack
+17,17:45,90,19:15,A6-Major,Evening major
+18,19:15,15,19:30,Traffic,Ride to yoga
+19,19:30,60,20:30,FEM,Yoga
+20,20:30,15,20:45,Traffic,Ride to work
+21,20:45,45,21:30,A7-Minor,Evening minor
+22,21:30,15,21:45,Traffic,Walk to Wulin
+23,21:45,45,22:30,A8-T,@Train
+24,22:30,15,22:45,Traffic,Ride to LP
+25,22:45,15,23:00,Reserved,Get Parcels
+26,23:00,40,23:40,A9-Final,
+27,23:40,20,00:00,FEM,
+28,00:00,10,00:10,Traffic,Ride to home
+29,00:10,25,00:35,Reserved,"Clean up, tide up, memories"
+30,00:35,360,06:35,Break/Sleep,Main sleep
