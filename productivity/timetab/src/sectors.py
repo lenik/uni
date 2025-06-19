@@ -1,8 +1,10 @@
 import csv
 import logging
 from typing import List, Optional
+from pathlib import Path
 from .models import Sector
 from .csv_utils import CSVParser
+from .ods_utils import ODSParser
 
 class Sectors:
     def __init__(self, sectors: Optional[List[Sector]] = None):
@@ -46,6 +48,54 @@ class Sectors:
             raise
         
         return cls(sectors)
+    
+    @classmethod
+    def from_ods(cls, filename: str) -> 'Sectors':
+        """Create Sectors instance from ODS file"""
+        sectors = []
+        try:
+            # Create ODS parser with sectors required fields
+            parser = ODSParser(required_fields={'sector', 'occupy', 'weight', 'abbr', 'description'})
+            sheets = parser.parse_ods(filename)
+            
+            if not sheets:
+                raise ValueError(f"No sectors data found in {filename}")
+            
+            # Use the first sheet found
+            sheet_name = list(sheets.keys())[0]
+            rows = sheets[sheet_name]
+            
+            for row in rows:
+                sector = Sector.from_strings(
+                    sector_id=row['Sector'],
+                    occupy=row['Occupy'],
+                    weight=int(row['Weight']),
+                    abbr=row['Abbr'],
+                    description=row['Description']
+                )
+                sectors.append(sector)
+                
+            logging.info(f"Successfully loaded {len(sectors)} sectors from sheet '{sheet_name}' in {filename}")
+        except FileNotFoundError:
+            logging.error(f"Sectors file not found: {filename}")
+            raise
+        except Exception as e:
+            logging.error(f"Error reading sectors file {filename}: {e}")
+            raise
+        
+        return cls(sectors)
+    
+    @classmethod
+    def from_file(cls, filename: str) -> 'Sectors':
+        """Create Sectors instance from file (CSV or ODS)"""
+        file_path = Path(filename)
+        
+        if file_path.suffix.lower() == '.ods':
+            return cls.from_ods(filename)
+        elif file_path.suffix.lower() == '.csv':
+            return cls.from_csv(filename)
+        else:
+            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods")
     
     def to_csv(self, filename: str):
         """Write sectors to CSV file"""

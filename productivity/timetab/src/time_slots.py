@@ -1,9 +1,11 @@
 import csv
 import logging
 from typing import List, Optional
+from pathlib import Path
 from .models import TimeSlot
 from .time_utils import Time
 from .csv_utils import CSVParser
+from .ods_utils import ODSParser
 
 
 class TimeSlots:
@@ -51,6 +53,56 @@ class TimeSlots:
             raise
         
         return cls(slots)
+    
+    @classmethod
+    def from_ods(cls, filename: str) -> 'TimeSlots':
+        """Create TimeSlots instance from ODS file"""
+        slots = []
+        try:
+            # Create ODS parser with timetable required fields
+            parser = ODSParser(required_fields={'order', 'start', 'duration', 'end', 'type', 'description'})
+            sheets = parser.parse_ods(filename)
+            
+            if not sheets:
+                raise ValueError(f"No timetable data found in {filename}")
+            
+            # Use the first sheet found
+            sheet_name = list(sheets.keys())[0]
+            rows = sheets[sheet_name]
+            
+            for i, row in enumerate(rows):
+                slot = TimeSlot.from_strings(
+                    order=int(row['Order']),
+                    start=row['Start'],
+                    duration=int(row['Duration']),
+                    end=row['End'],
+                    slot_type=row['Type'],
+                    description=row['Description'],
+                    original_index=i
+                )
+                slots.append(slot)
+                
+            logging.info(f"Successfully loaded {len(slots)} time slots from sheet '{sheet_name}' in {filename}")
+        except FileNotFoundError:
+            logging.error(f"Timetable file not found: {filename}")
+            raise
+        except Exception as e:
+            logging.error(f"Error reading timetable file {filename}: {e}")
+            raise
+        
+        return cls(slots)
+    
+    @classmethod
+    def from_file(cls, filename: str) -> 'TimeSlots':
+        """Create TimeSlots instance from file (CSV or ODS)"""
+        file_path = Path(filename)
+        
+        if file_path.suffix.lower() == '.ods':
+            return cls.from_ods(filename)
+        elif file_path.suffix.lower() == '.csv':
+            return cls.from_csv(filename)
+        else:
+            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods")
     
     def to_csv(self, filename: str):
         """Write time slots to CSV file"""
