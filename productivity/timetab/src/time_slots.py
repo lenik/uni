@@ -131,7 +131,8 @@ class TimeSlots:
         try:
             with open(filename, 'w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Order', 'Start', 'Duration', 'End', 'Type', 'Description'])
+                # Add split column to header
+                writer.writerow(['Order', 'Start', 'Duration', 'End', 'Type', 'Description', 'Split'])
                 
                 for i, slot in enumerate(slots_to_write, 1):
                     slot_dict = slot.to_dict()
@@ -141,7 +142,8 @@ class TimeSlots:
                         slot_dict['duration'],
                         slot_dict['end'],
                         slot_dict['slot_type'],
-                        slot_dict['description']
+                        slot_dict['description'],
+                        slot_dict.get('split', '')  # Empty string if no split
                     ])
             logging.info(f"Successfully wrote {len(slots_to_write)} time slots to {filename}")
         except Exception as e:

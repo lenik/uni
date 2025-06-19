@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 from .time_utils import Time
 
 @dataclass
@@ -11,6 +11,7 @@ class TimeSlot:
     slot_type: str
     description: str
     original_index: int
+    split: Optional[int] = None  # Split sequence number for split sectors
     
     def is_available(self) -> bool:
         """
@@ -23,15 +24,15 @@ class TimeSlot:
     
     @classmethod
     def from_strings(cls, order: int, start: str, duration: int, end: str, 
-                    slot_type: str, description: str, original_index: int) -> 'TimeSlot':
+                    slot_type: str, description: str, original_index: int, split: Optional[int] = None) -> 'TimeSlot':
         """Create TimeSlot from string time values"""
         start_time = Time.from_string(start)
         end_time = Time.from_string(end)
-        return cls(order, start_time, duration, end_time, slot_type, description, original_index)
+        return cls(order, start_time, duration, end_time, slot_type, description, original_index, split)
     
     def to_dict(self) -> dict:
         """Convert to dictionary with string time values"""
-        return {
+        result = {
             'order': self.order,
             'start': self.start.to_string(),
             'duration': self.duration,
@@ -40,6 +41,9 @@ class TimeSlot:
             'description': self.description,
             'original_index': self.original_index
         }
+        if self.split is not None:
+            result['split'] = self.split
+        return result
 
 @dataclass
 class Sector:
