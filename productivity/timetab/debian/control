@@ -1,0 +1,18 @@
+Source: timetab
+Section: utils
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.7.2
+Homepage: http://uni.bodz.net/productivity/timetab
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/productivity/timetab
+
+Package: timetab
+Architecture: all
+Depends:
+    python3,
+    ${misc:Depends}
+Description: Time scheduler
