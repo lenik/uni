@@ -3,6 +3,7 @@
 
 #include <bas/cli.h>
 #include <bas/file.h>
+#include <bas/stdio.h>
 
 #include "config.h"
 #include "ai.h"
@@ -67,7 +68,7 @@ gboolean parse_option(const char *_opt, const char *val,
         if (shortopt || streq(opt, "ascii")) {
             int level = strtol(val, NULL, 0);
             if (level <= 0) {
-                error("Bad ascii-7 encode level: %s\n", val);
+                errorf("Bad ascii-7 encode level: %s\n", val);
                 return false;
             }
 
