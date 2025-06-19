@@ -35,6 +35,7 @@
 *-docs.docs
 *.dsc
 *.dvi
+*.egg-info/
 *.ff
 *.gch
 *.glo
@@ -82,6 +83,7 @@
 .project
 .settings
 /.pomdirs
+__pycache__/
 ABOUT-NLS
 COPYING
 ChangeLog

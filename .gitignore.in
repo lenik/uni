@@ -35,6 +35,7 @@
 *-docs.docs                             # cooldeb
 *.dsc                                   # cooldeb
 *.dvi                                   # cooltex
+*.egg-info/                             # pip
 *.ff                                    # mda-xjdoc
 *.gch                                   # atom
 *.glo                                   # cooltex
@@ -82,6 +83,7 @@
 .project                                # Eclipse project file
 .settings                               # Eclipse project settings
 /.pomdirs                               # coolmaven
+__pycache__/                            # python
 ABOUT-NLS                               # gettextize
 COPYING                                 # cooldeb
 ChangeLog                               # coolauto
