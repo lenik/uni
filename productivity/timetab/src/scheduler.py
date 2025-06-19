@@ -1,4 +1,5 @@
 import logging
+import random
 from typing import List
 from .models import TimeSlot, Sector, SectorAllocation
 from .time_utils import Time
@@ -6,8 +7,10 @@ from .time_slots import TimeSlots
 from .sectors import Sectors
 
 class Scheduler:
-    def __init__(self):
+    def __init__(self, shuffle_sectors: bool = False, large_first: bool = False):
         self.allocated_slots = []
+        self.shuffle_sectors = shuffle_sectors
+        self.large_first = large_first
     
     def allocate_sectors_proportionally(self, time_slots: TimeSlots, sectors: Sectors) -> TimeSlots:
         """Allocate sectors proportionally to available time slots"""
@@ -23,8 +26,8 @@ class Scheduler:
         # Calculate allocated duration for each sector
         sector_allocations = self._calculate_sector_allocations(sectors, total_available_time, total_weight)
         
-        # Sort sectors by weight (descending) to allocate larger chunks first
-        sector_allocations.sort(key=lambda x: x.sector.weight, reverse=True)
+        # Apply ordering based on options
+        self._apply_sector_ordering(sector_allocations)
         
         # Allocate sectors
         self._allocate_sectors(sector_allocations, available_slots)
@@ -34,6 +37,22 @@ class Scheduler:
         new_time_slots.replace_available_slots(self.allocated_slots)
         
         return new_time_slots
+    
+    def _apply_sector_ordering(self, sector_allocations: List[SectorAllocation]):
+        """Apply ordering to sector allocations based on options"""
+        if self.shuffle_sectors:
+            logging.info("Shuffling sectors in random order")
+            random.shuffle(sector_allocations)
+        elif self.large_first:
+            logging.info("Ordering sectors by weight (largest first)")
+            sector_allocations.sort(key=lambda x: x.sector.weight, reverse=True)
+        else:
+            # Default: preserve original order from file
+            logging.info("Preserving original sector order from file")
+        
+        # Log the ordering
+        order_str = ", ".join([f"{alloc.sector.abbr}({alloc.sector.weight})" for alloc in sector_allocations])
+        logging.info(f"Sector allocation order: {order_str}")
     
     def _calculate_sector_allocations(self, sectors: Sectors, total_available_time: int, total_weight: int) -> List[SectorAllocation]:
         """Calculate target duration for each sector"""

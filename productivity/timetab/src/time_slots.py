@@ -104,9 +104,28 @@ class TimeSlots:
         else:
             raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods")
     
-    def to_csv(self, filename: str):
-        """Write time slots to CSV file"""
+    def to_csv(self, filename: str, all_slots: bool = False):
+        """
+        Write time slots to CSV file
+        
+        Args:
+            filename: Output file path
+            all_slots: If True, write all time slots. If False, write only available/allocated slots.
+        """
         if not self.slots:
+            return
+        
+        # Determine which slots to write
+        if all_slots:
+            slots_to_write = self.slots
+            logging.info(f"Writing all {len(slots_to_write)} time slots to {filename}")
+        else:
+            # Write only available slots (including allocated ones)
+            slots_to_write = self.get_available_slots()
+            logging.info(f"Writing {len(slots_to_write)} available/allocated time slots to {filename}")
+        
+        if not slots_to_write:
+            logging.warning("No slots to write to output file")
             return
         
         try:
@@ -114,7 +133,7 @@ class TimeSlots:
                 writer = csv.writer(file)
                 writer.writerow(['Order', 'Start', 'Duration', 'End', 'Type', 'Description'])
                 
-                for i, slot in enumerate(self.slots, 1):
+                for i, slot in enumerate(slots_to_write, 1):
                     slot_dict = slot.to_dict()
                     writer.writerow([
                         i,  # Reorder from 1
@@ -124,7 +143,7 @@ class TimeSlots:
                         slot_dict['slot_type'],
                         slot_dict['description']
                     ])
-            logging.info(f"Successfully wrote {len(self.slots)} time slots to {filename}")
+            logging.info(f"Successfully wrote {len(slots_to_write)} time slots to {filename}")
         except Exception as e:
             logging.error(f"Error writing timetable file {filename}: {e}")
             raise
@@ -132,6 +151,14 @@ class TimeSlots:
     def get_available_slots(self) -> List[TimeSlot]:
         """Get all available time slots (Type starts with 'A')"""
         return [slot for slot in self.slots if slot.is_available()]
+    
+    def get_allocated_slots(self) -> List[TimeSlot]:
+        """Get all allocated time slots (originally available slots with sector descriptions)"""
+        return [slot for slot in self.slots if slot.is_available() and slot.description and ':' in slot.description and not slot.description.startswith(':')]
+    
+    def count_allocated_slots(self) -> int:
+        """Count number of allocated time slots"""
+        return len(self.get_allocated_slots())
     
     def get_total_available_time(self) -> int:
         """Calculate total available time in minutes"""

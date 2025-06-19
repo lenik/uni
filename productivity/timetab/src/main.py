@@ -128,6 +128,12 @@ def main():
                        help='Sectors file path (CSV or ODS). If multiple specified, only last one used.')
     parser.add_argument('-o', '--output', default='Scheduled_TimeTable.csv', 
                        help='Output file (default: Scheduled_TimeTable.csv)')
+    parser.add_argument('-s', '--shuffle', action='store_true', 
+                       help='Shuffle sectors in random order before allocation')
+    parser.add_argument('-j', '--large-first', action='store_true', 
+                       help='Order sectors by weight (largest first)')
+    parser.add_argument('-a', '--all', action='store_true', 
+                       help='Output all time slots (default: only available/allocated slots)')
     
     args = parser.parse_args()
     
@@ -218,25 +224,72 @@ def main():
         
         logging.info(f"Loaded {len(time_slots)} time slots")
         logging.info(f"Loaded {len(sectors)} sectors")
-        logging.info(f"Found {time_slots.count_available_slots()} available time slots (A- type)")
+        logging.info(f"Found {time_slots.count_available_slots()} available time slots")
+        
+        # Log ordering options
+        if args.shuffle:
+            logging.info("Using shuffle mode: sectors will be allocated in random order")
+        elif args.large_first:
+            logging.info("Using large-first mode: sectors will be allocated by weight (largest first)")
+        else:
+            logging.info("Using default mode: sectors will be allocated in original file order")
         
         # Allocate sectors to timetable
-        scheduler = Scheduler()
+        scheduler = Scheduler(shuffle_sectors=args.shuffle, large_first=args.large_first)
         logging.info("Starting sector allocation...")
         updated_time_slots = scheduler.allocate_sectors_proportionally(time_slots, sectors)
         
+        # Log allocation results
+        allocated_slots = updated_time_slots.get_allocated_slots()
+        logging.info(f"Allocation completed: {len(allocated_slots)} slots allocated")
+        
+        if allocated_slots:
+            for slot in allocated_slots:
+                logging.debug(f"Allocated: {slot.start}-{slot.end} ({slot.duration}min): {slot.description}")
+        
         # Write output
         logging.info(f"Writing output to {args.output}")
-        updated_time_slots.to_csv(args.output)
+        if args.all:
+            logging.info("Writing all time slots to output file")
+            updated_time_slots.to_csv(args.output, all_slots=True)
+        else:
+            logging.info("Writing only available/allocated time slots to output file")
+            updated_time_slots.to_csv(args.output, all_slots=False)
         
         logging.info("Scheduling completed successfully!")
         
         # Print summary of allocations (only in non-quiet mode)
         if not args.quiet:
             print("\nAllocation Summary:")
-            for slot in updated_time_slots:
-                if slot.slot_type.startswith('A-'):
+            
+            if args.all:
+                # Show all time slots
+                print("All time slots:")
+                for slot in updated_time_slots:
                     print(f"{slot.start}-{slot.end} ({slot.duration}min, {slot.slot_type}): {slot.description}")
+                
+                # Show statistics
+                total_slots = len(updated_time_slots)
+                available_slots = updated_time_slots.count_available_slots()
+                allocated_slots_count = len(allocated_slots)
+                
+                print(f"\nSummary Statistics:")
+                print(f"- Total time slots: {total_slots}")
+                print(f"- Available slots: {available_slots}")
+                print(f"- Allocated slots: {allocated_slots_count}")
+                print(f"- Non-available slots: {total_slots - available_slots}")
+            else:
+                # Show only allocated slots (default behavior)
+                if allocated_slots:
+                    for slot in allocated_slots:
+                        print(f"{slot.start}-{slot.end} ({slot.duration}min, {slot.slot_type}): {slot.description}")
+                    print(f"\nTotal allocated slots: {len(allocated_slots)}")
+                else:
+                    print("No sectors were allocated to available time slots.")
+                    print("This might happen if:")
+                    print("- No available time slots were found")
+                    print("- No sectors were loaded")
+                    print("- All available slots were too short for allocation")
     
     except FileNotFoundError as e:
         logging.error(f"File not found: {e}")
