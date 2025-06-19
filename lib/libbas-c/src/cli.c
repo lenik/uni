@@ -95,7 +95,7 @@ gboolean _parse_option(const char *opt,
 bool opt_error_continue = false;
 bool opt_force = false;
 
-bool error(const char *fmt, ...) {
+bool errorf(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);

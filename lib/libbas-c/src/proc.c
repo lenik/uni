@@ -2,8 +2,9 @@
 #include <limits.h>
 #include <stdio.h>
 
-#include <bas/proc.h>
 #include <bas/compat/scanf.h>
+#include <bas/proc.h>
+#include <bas/stdio.h>
 
 pid_t getppidof(pid_t pid) {
     char path[PATH_MAX];

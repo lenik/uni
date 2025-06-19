@@ -3,6 +3,7 @@
 #include <stdlib.h>                     /* malloc, realloc, free */
 #include <string.h>                     /* memcpy */
 #include <bas/file.h>
+#include <bas/stdio.h>
 
 #define BLOCK_SIZE 64
 
@@ -33,7 +34,7 @@ char *_load_file(FILE *in, const char *path, size_t *sizep,
     while (! feof(in)) {
         cb = fread(buf, 1, BLOCK_SIZE, in);
         if (ferror(in)) {
-            error("Failed to read from file %s: ", path);
+            errorf("Failed to read from file %s: ", path);
             perror("");
             err = 1;
             break;
@@ -47,7 +48,7 @@ char *_load_file(FILE *in, const char *path, size_t *sizep,
 
             data = realloc(data, capacity * 2);
             if (data == NULL) {
-                error("Insufficient memory to load file %s.\n", path);
+                errorf("Insufficient memory to load file %s.\n", path);
                 exit(1);
             }
             capacity *= 2;
