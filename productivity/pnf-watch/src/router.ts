@@ -3,24 +3,43 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 export const links = {
     "Project": "component Project",
     "App": "component App",
+    "Clock": "component Clock",
     "": 'Directory',
     "Main": "component Main",
-    "Page1": "component Page1",
-    "Page2": "component Page2",
-    "Page3": "component Page3",
-    "Page4": "component Page4",
+    "Progress": "component Progress",
 };
 
 export const routes = [
-    { path: '/Project', component: () => import('skel01-core/src/ui/demo/Project.vue') },
-    { path: '/App', component: () => import('./App.vue') },
-    // { path: '/', component: () => import('./Index.vue') },
-    { path: '/', component: () => import('./Main.vue') },
-    { path: '/Main', component: () => import('./Main.vue') },
-    { path: '/Page1', component: () => import('./Page1.vue') },
-    { path: '/Page2', component: () => import('./Page2.vue') },
-    { path: '/Page3', component: () => import('./Page3.vue') },
-    { path: '/Page4', component: () => import('./Page4.vue') },
+    {
+        name: 'Project', 
+        path: '/Project', 
+        component: () => import('../node_modules/skel01-core/src/ui/demo/Project.vue')
+    },
+    {
+        name: 'App', 
+        path: '/App', 
+        component: () => import('./App.vue')
+    },
+    {
+        name: 'Clock', 
+        path: '/Clock', 
+        component: () => import('./Clock.vue')
+    },
+    {
+        name: 'Index', 
+        path: '', 
+        component: () => import('./Index.vue')
+    },
+    {
+        name: 'Main', 
+        path: '/Main', 
+        component: () => import('./Main.vue')
+    },
+    {
+        name: 'Progress', 
+        path: '/Progress', 
+        component: () => import('./Progress.vue')
+    },
 ];
 
 const router = createRouter({
