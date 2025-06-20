@@ -16,7 +16,7 @@ class TimeSlots(JSONMixin):
     
     @classmethod
     def from_file(cls, filename: str, sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
-        """Create TimeSlots instance from file (CSV, ODS, or JSON)"""
+        """Create TimeSlots instance from file (CSV, ODS, XLSX, or JSON)"""
         file_path = Path(filename)
         
         if file_path.suffix.lower() == '.json':
@@ -25,8 +25,10 @@ class TimeSlots(JSONMixin):
             return cls.from_csv(filename)
         elif file_path.suffix.lower() == '.ods':
             return cls.from_ods(filename)
+        elif file_path.suffix.lower() == '.xlsx':
+            return cls.from_xlsx(filename)
         else:
-            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods, .json")
+            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods, .xlsx, .json")
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any], sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
@@ -109,6 +111,38 @@ class TimeSlots(JSONMixin):
             logging.error(f"Error reading timetable file {filename}: {e}")
             raise
         
+        return cls(slots)
+    
+    @classmethod
+    def from_xlsx(cls, filename: str) -> 'TimeSlots':
+        """Create TimeSlots instance from Excel XLSX file"""
+        from .excel_utils import ExcelParser
+        slots = []
+        try:
+            parser = ExcelParser(required_fields={'Seq', 'Start', 'Duration', 'End', 'Type', 'Description'})
+            sheets = parser.parse_excel(filename)
+            if not sheets:
+                raise ValueError(f"No timetable data found in {filename}")
+            sheet_name = list(sheets.keys())[0]
+            rows = sheets[sheet_name]
+            for i, row in enumerate(rows):
+                slot = TimeSlot.from_strings(
+                    seq=int(row['Seq']),
+                    start=row['Start'],
+                    duration=int(row['Duration']),
+                    end=row['End'],
+                    slot_type=row['Type'],
+                    description=row['Description'],
+                    original_index=i
+                )
+                slots.append(slot)
+            logging.info(f"Successfully loaded {len(slots)} time slots from sheet '{sheet_name}' in {filename}")
+        except FileNotFoundError:
+            logging.error(f"Timetable file not found: {filename}")
+            raise
+        except Exception as e:
+            logging.error(f"Error reading timetable file {filename}: {e}")
+            raise
         return cls(slots)
     
     def to_dict(self) -> Dict[str, Any]:

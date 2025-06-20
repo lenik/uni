@@ -14,7 +14,7 @@ class Sectors(JSONMixin):
     
     @classmethod
     def from_file(cls, filename: str) -> 'Sectors':
-        """Create Sectors instance from file (CSV, ODS, or JSON)"""
+        """Create Sectors instance from file (CSV, ODS, XLSX, or JSON)"""
         file_path = Path(filename)
         
         if file_path.suffix.lower() == '.json':
@@ -23,8 +23,10 @@ class Sectors(JSONMixin):
             return cls.from_csv(filename)
         elif file_path.suffix.lower() == '.ods':
             return cls.from_ods(filename)
+        elif file_path.suffix.lower() == '.xlsx':
+            return cls.from_xlsx(filename)
         else:
-            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods, .json")
+            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods, .xlsx, .json")
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Sectors':
@@ -100,6 +102,36 @@ class Sectors(JSONMixin):
             logging.error(f"Error reading sectors file {filename}: {e}")
             raise
         
+        return cls(sectors)
+    
+    @classmethod
+    def from_xlsx(cls, filename: str) -> 'Sectors':
+        """Create Sectors instance from Excel XLSX file"""
+        from .excel_utils import ExcelParser
+        sectors = []
+        try:
+            parser = ExcelParser(required_fields={'Id', 'Occupy', 'Weight', 'Abbr', 'Description'})
+            sheets = parser.parse_excel(filename)
+            if not sheets:
+                raise ValueError(f"No sectors data found in {filename}")
+            sheet_name = list(sheets.keys())[0]
+            rows = sheets[sheet_name]
+            for i, row in enumerate(rows):
+                sector = Sector.from_strings(
+                    id=row['Id'],
+                    occupy=row['Occupy'],
+                    weight=int(row['Weight']),
+                    abbr=row['Abbr'],
+                    description=row['Description']
+                )
+                sectors.append(sector)
+            logging.info(f"Successfully loaded {len(sectors)} sectors from sheet '{sheet_name}' in {filename}")
+        except FileNotFoundError:
+            logging.error(f"Sectors file not found: {filename}")
+            raise
+        except Exception as e:
+            logging.error(f"Error reading sectors file {filename}: {e}")
+            raise
         return cls(sectors)
     
     def to_dict(self) -> Dict[str, Any]:
