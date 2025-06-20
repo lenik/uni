@@ -126,8 +126,8 @@ def main():
                        help='Timetable file path (CSV or ODS). If multiple specified, only last one used.')
     parser.add_argument('--sectors', action='append', 
                        help='Sectors file path (CSV or ODS). If multiple specified, only last one used.')
-    parser.add_argument('-o', '--output', default='Scheduled_TimeTable.csv', 
-                       help='Output file (default: Scheduled_TimeTable.csv)')
+    parser.add_argument('-o', '--output', 
+                       help='Output file (if not specified, no file is written)')
     parser.add_argument('-s', '--shuffle', action='store_true', 
                        help='Shuffle sectors in random order before allocation')
     parser.add_argument('-j', '--large-first', action='store_true', 
@@ -262,13 +262,14 @@ def main():
                 logging.debug(f"Allocated: {slot.start}-{slot.end} ({slot.duration}min): {slot.description}")
         
         # Write output
-        logging.info(f"Writing output to {args.output}")
-        if args.all:
-            logging.info("Writing all time slots to output file")
-            updated_time_slots.to_csv(args.output, all_slots=True)
-        else:
-            logging.info("Writing only available/allocated time slots to output file")
-            updated_time_slots.to_csv(args.output, all_slots=False)
+        if args.output:
+            logging.info(f"Writing output to {args.output}")
+            if args.all:
+                logging.info("Writing all time slots to output file")
+                updated_time_slots.to_csv(args.output, all_slots=True)
+            else:
+                logging.info("Writing only available/allocated time slots to output file")
+                updated_time_slots.to_csv(args.output, all_slots=False)
         
         logging.info("Scheduling completed successfully!")
         
