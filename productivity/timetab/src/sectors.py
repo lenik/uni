@@ -15,31 +15,23 @@ class Sectors:
         """Create Sectors instance from CSV file"""
         sectors = []
         try:
-            # Create CSV parser with required fields and field mappings
-            parser = CSVParser(
-                required_fields=['sector', 'occupy', 'weight', 'abbr', 'description'],
-                field_mappings={
-                    'Sector': 'sector',
-                    'Occupy': 'occupy',
-                    'Weight': 'weight',
-                    'Abbr': 'abbr',
-                    'Description': 'description'
-                }
-            )
-            
+            # Create CSV parser with sectors required fields - using exact CSV column names
+            parser = CSVParser(required_fields={'Id', 'Occupy', 'Weight', 'Abbr', 'Description'})
             rows = parser.parse_csv(filename)
             
             for row in rows:
                 sector = Sector.from_strings(
-                    sector_id=row['sector'],
-                    occupy=row['occupy'],
-                    weight=int(row['weight']),
-                    abbr=row['abbr'],
-                    description=row['description']
+                    id=row['Id'],
+                    occupy=row['Occupy'],
+                    weight=int(row['Weight']),
+                    abbr=row['Abbr'],
+                    description=row['Description']
                 )
                 sectors.append(sector)
                 
             logging.info(f"Successfully loaded {len(sectors)} sectors from {filename}")
+            for sector in sectors:
+                logging.debug(f"Loaded sector: {sector.abbr}({sector.id}) - {sector.description}")
         except FileNotFoundError:
             logging.error(f"Sectors file not found: {filename}")
             raise
@@ -54,8 +46,8 @@ class Sectors:
         """Create Sectors instance from ODS file"""
         sectors = []
         try:
-            # Create ODS parser with sectors required fields
-            parser = ODSParser(required_fields={'sector', 'occupy', 'weight', 'abbr', 'description'})
+            # Create ODS parser with sectors required fields - using exact CSV column names
+            parser = ODSParser(required_fields={'Id', 'Occupy', 'Weight', 'Abbr', 'Description'})
             sheets = parser.parse_ods(filename)
             
             if not sheets:
@@ -67,7 +59,7 @@ class Sectors:
             
             for row in rows:
                 sector = Sector.from_strings(
-                    sector_id=row['Sector'],
+                    id=row['Id'],
                     occupy=row['Occupy'],
                     weight=int(row['Weight']),
                     abbr=row['Abbr'],
@@ -105,17 +97,17 @@ class Sectors:
         try:
             with open(filename, 'w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file)
-                # Write header lines
+                # Write header lines matching the exact CSV format
                 writer.writerow(['', '', '297', '', 'Total'])
                 writer.writerow(['', '', str(len(self.sectors)), '', 'Rows'])
                 writer.writerow(['', '', '29.70', '', 'Average'])
                 writer.writerow(['', '', '', '', ''])
-                writer.writerow(['Sector', 'Occupy', 'Weight', 'Abbr', 'Description'])
+                writer.writerow(['Id', 'Occupy', 'Weight', 'Abbr', 'Description'])
                 
                 for sector in self.sectors:
                     sector_dict = sector.to_dict()
                     writer.writerow([
-                        sector_dict['sector_id'],
+                        sector_dict['id'],
                         sector_dict['occupy'],
                         sector_dict['weight'],
                         sector_dict['abbr'],
@@ -142,10 +134,10 @@ class Sectors:
         """Remove a sector"""
         self.sectors.remove(sector)
     
-    def get_sector_by_id(self, sector_id: str) -> Optional[Sector]:
+    def get_sector_by_id(self, id: str) -> Optional[Sector]:
         """Get sector by ID"""
         for sector in self.sectors:
-            if sector.sector_id == sector_id:
+            if sector.id == id:
                 return sector
         return None
     

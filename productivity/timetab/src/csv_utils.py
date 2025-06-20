@@ -7,13 +7,13 @@ from pathlib import Path
 class CSVParser:
     """Generic CSV parser that handles leading lines, comments, and flexible field matching"""
     
-    def __init__(self, required_fields: Optional[List[str]] = None, 
+    def __init__(self, required_fields: Optional[Set[str]] = None, 
                  field_mappings: Optional[Dict[str, str]] = None):
         """
         Initialize CSV parser.
         
         Args:
-            required_fields: List of required field names (case-insensitive)
+            required_fields: Set of required field names (case-insensitive)
             field_mappings: Dictionary mapping CSV field names to internal field names
         """
         self.required_fields = set(required_fields or [])
@@ -117,11 +117,16 @@ class CSVParser:
             # Find the header row
             header_row_num, field_names = self.find_header_row(file_path)
             
-            # Validate that all required fields are present
+            # Validate that all required fields are present (case-insensitive)
             if self.required_fields:
-                missing_fields = self.required_fields - {field.lower() for field in field_names}
+                field_names_lower = {field.lower() for field in field_names}
+                required_lower = {field.lower() for field in self.required_fields}
+                missing_fields = required_lower - field_names_lower
                 if missing_fields:
-                    raise ValueError(f"Missing required fields in {file_path}: {missing_fields}")
+                    # Convert back to original case for error message
+                    missing_original = {field for field in self.required_fields 
+                                      if field.lower() in missing_fields}
+                    raise ValueError(f"Missing required fields in {file_path}: {missing_original}")
             
             # Parse the data rows
             rows = []

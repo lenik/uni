@@ -4,13 +4,14 @@ from .time_utils import Time
 
 @dataclass
 class TimeSlot:
-    order: int
+    seq: int
     start: Time
     duration: int
     end: Time
     slot_type: str
     description: str
     original_index: int
+    sector: Optional['Sector'] = None  # Direct reference to sector instance
     split: Optional[int] = None  # Split sequence number for split sectors
     
     def is_available(self) -> bool:
@@ -32,17 +33,18 @@ class TimeSlot:
         return self.slot_type == "Break/Load"
     
     @classmethod
-    def from_strings(cls, order: int, start: str, duration: int, end: str, 
-                    slot_type: str, description: str, original_index: int, split: Optional[int] = None) -> 'TimeSlot':
+    def from_strings(cls, seq: int, start: str, duration: int, end: str, 
+                    slot_type: str, description: str, original_index: int, 
+                    sector: Optional['Sector'] = None, split: Optional[int] = None) -> 'TimeSlot':
         """Create TimeSlot from string time values"""
         start_time = Time.from_string(start)
         end_time = Time.from_string(end)
-        return cls(order, start_time, duration, end_time, slot_type, description, original_index, split)
+        return cls(seq, start_time, duration, end_time, slot_type, description, original_index, sector, split)
     
     def to_dict(self) -> dict:
         """Convert to dictionary with string time values"""
         result = {
-            'order': self.order,
+            'seq': self.seq,
             'start': self.start.to_string(),
             'duration': self.duration,
             'end': self.end.to_string(),
@@ -50,31 +52,33 @@ class TimeSlot:
             'description': self.description,
             'original_index': self.original_index
         }
+        if self.sector:
+            result['sector_id'] = self.sector.id
         if self.split is not None:
             result['split'] = self.split
         return result
 
 @dataclass
 class Sector:
-    sector_id: str
-    occupy: float  # Changed from str to float
+    id: str
+    occupy: float
     weight: int
     abbr: str
     description: str
     
     @classmethod
-    def from_strings(cls, sector_id: str, occupy: str, weight: int, 
+    def from_strings(cls, id: str, occupy: str, weight: int, 
                     abbr: str, description: str) -> 'Sector':
         """Create Sector from string values, parsing occupy as percentage"""
         from .time_utils import parse_percentage
         occupy_float = parse_percentage(occupy)
-        return cls(sector_id, occupy_float, weight, abbr, description)
+        return cls(id, occupy_float, weight, abbr, description)
     
     def to_dict(self) -> dict:
         """Convert to dictionary with formatted percentage"""
         from .time_utils import format_percentage
         return {
-            'sector_id': self.sector_id,
+            'id': self.id,
             'occupy': format_percentage(self.occupy),
             'weight': self.weight,
             'abbr': self.abbr,

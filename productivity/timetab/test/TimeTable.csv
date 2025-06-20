@@ -1,4 +1,4 @@
-Order,Start,Duration,End,Type,Description
+Seq,Start,Duration,End,Type,Description
 1,06:35,25,07:00,A0-L,
 2,07:00,60,08:00,Reserved,Prepare
 3,08:00,25,08:25,FEM,

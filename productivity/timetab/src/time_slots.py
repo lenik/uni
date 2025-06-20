@@ -17,34 +17,28 @@ class TimeSlots:
         """Create TimeSlots instance from CSV file"""
         slots = []
         try:
-            # Create CSV parser with required fields and field mappings
+            # Create CSV parser with timetable required fields - using exact CSV column names
             parser = CSVParser(
-                required_fields=['order', 'start', 'duration', 'end', 'type', 'description'],
-                field_mappings={
-                    'Order': 'order',
-                    'Start': 'start', 
-                    'Duration': 'duration',
-                    'End': 'end',
-                    'Type': 'type',
-                    'Description': 'description'
-                }
+                required_fields={'Seq', 'Start', 'Duration', 'End', 'Type', 'Description'}
             )
             
             rows = parser.parse_csv(filename)
             
             for i, row in enumerate(rows):
                 slot = TimeSlot.from_strings(
-                    order=int(row['order']),
-                    start=row['start'],
-                    duration=int(row['duration']),
-                    end=row['end'],
-                    slot_type=row['type'],
-                    description=row['description'],
+                    seq=int(row['Seq']),
+                    start=row['Start'],
+                    duration=int(row['Duration']),
+                    end=row['End'],
+                    slot_type=row['Type'],
+                    description=row['Description'],
                     original_index=i
                 )
                 slots.append(slot)
                 
             logging.info(f"Successfully loaded {len(slots)} time slots from {filename}")
+            for slot in slots:
+                logging.debug(f"Loaded slot: {slot.slot_type}({slot.seq}) - {slot.start}-{slot.end}")
         except FileNotFoundError:
             logging.error(f"Timetable file not found: {filename}")
             raise
@@ -59,8 +53,8 @@ class TimeSlots:
         """Create TimeSlots instance from ODS file"""
         slots = []
         try:
-            # Create ODS parser with timetable required fields
-            parser = ODSParser(required_fields={'order', 'start', 'duration', 'end', 'type', 'description'})
+            # Create ODS parser with timetable required fields - using exact CSV column names
+            parser = ODSParser(required_fields={'Seq', 'Start', 'Duration', 'End', 'Type', 'Description'})
             sheets = parser.parse_ods(filename)
             
             if not sheets:
@@ -72,7 +66,7 @@ class TimeSlots:
             
             for i, row in enumerate(rows):
                 slot = TimeSlot.from_strings(
-                    order=int(row['Order']),
+                    seq=int(row['Seq']),
                     start=row['Start'],
                     duration=int(row['Duration']),
                     end=row['End'],
@@ -131,8 +125,8 @@ class TimeSlots:
         try:
             with open(filename, 'w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file)
-                # Add split column to header
-                writer.writerow(['Order', 'Start', 'Duration', 'End', 'Type', 'Description', 'Split'])
+                # Add split column to header - using exact CSV column names
+                writer.writerow(['Seq', 'Start', 'Duration', 'End', 'Type', 'Description', 'Split'])
                 
                 for i, slot in enumerate(slots_to_write, 1):
                     slot_dict = slot.to_dict()
@@ -157,8 +151,8 @@ class TimeSlots:
     def get_allocated_slots(self) -> List[TimeSlot]:
         """Get all allocated time slots (originally available slots with sector descriptions)"""
         return [slot for slot in self.slots if 
-                (slot.is_available() and slot.description and ':' in slot.description and not slot.description.startswith(':')) or
-                slot.is_generated()]
+                (slot.is_available() and slot.sector is not None) or  # Work slots with sector reference
+                slot.is_generated()]  # Break slots
     
     def count_allocated_slots(self) -> int:
         """Count number of allocated time slots"""
@@ -184,7 +178,7 @@ class TimeSlots:
         new_slots.extend(allocated_slots)
         
         # Sort by original order (not by start time)
-        new_slots.sort(key=lambda x: x.order)
+        new_slots.sort(key=lambda x: x.seq)
         
         self.slots = new_slots
     
