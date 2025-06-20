@@ -1,9 +1,11 @@
+import json
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from .time_utils import Time
+from .json_interface import JSONMixin
 
 @dataclass
-class TimeSlot:
+class TimeSlot(JSONMixin):
     seq: int
     start: Time
     duration: int
@@ -13,6 +15,51 @@ class TimeSlot:
     original_index: int
     sector: Optional['Sector'] = None  # Direct reference to sector instance
     split: Optional[int] = None  # Split sequence number for split sectors
+    
+    @classmethod
+    def from_strings(cls, seq: int, start: str, duration: int, end: str, 
+                    slot_type: str, description: str, original_index: int, 
+                    sector: Optional['Sector'] = None, split: Optional[int] = None) -> 'TimeSlot':
+        """Create TimeSlot from string time values"""
+        start_time = Time.from_string(start)
+        end_time = Time.from_string(end)
+        return cls(seq, start_time, duration, end_time, slot_type, description, original_index, sector, split)
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any], sector_map: Optional[Dict[str, 'Sector']] = None) -> 'TimeSlot':
+        """Create TimeSlot from dictionary"""
+        sector = None
+        if 'sector_id' in data and sector_map:
+            sector = sector_map.get(data['sector_id'])
+        
+        return cls.from_strings(
+            seq=data['seq'],
+            start=data['start'],
+            duration=data['duration'],
+            end=data['end'],
+            slot_type=data['slot_type'],
+            description=data['description'],
+            original_index=data['original_index'],
+            sector=sector,
+            split=data.get('split')
+        )
+
+    def to_dict(self) -> dict:
+        """Convert to dictionary with string time values"""
+        result = {
+            'seq': self.seq,
+            'start': self.start.to_string(),
+            'duration': self.duration,
+            'end': self.end.to_string(),
+            'slot_type': self.slot_type,
+            'description': self.description,
+            'original_index': self.original_index
+        }
+        if self.sector:
+            result['sector_id'] = self.sector.id
+        if self.split is not None:
+            result['split'] = self.split
+        return result
     
     def is_available(self) -> bool:
         """
@@ -32,34 +79,8 @@ class TimeSlot:
         """
         return self.slot_type == "Break/Load"
     
-    @classmethod
-    def from_strings(cls, seq: int, start: str, duration: int, end: str, 
-                    slot_type: str, description: str, original_index: int, 
-                    sector: Optional['Sector'] = None, split: Optional[int] = None) -> 'TimeSlot':
-        """Create TimeSlot from string time values"""
-        start_time = Time.from_string(start)
-        end_time = Time.from_string(end)
-        return cls(seq, start_time, duration, end_time, slot_type, description, original_index, sector, split)
-    
-    def to_dict(self) -> dict:
-        """Convert to dictionary with string time values"""
-        result = {
-            'seq': self.seq,
-            'start': self.start.to_string(),
-            'duration': self.duration,
-            'end': self.end.to_string(),
-            'slot_type': self.slot_type,
-            'description': self.description,
-            'original_index': self.original_index
-        }
-        if self.sector:
-            result['sector_id'] = self.sector.id
-        if self.split is not None:
-            result['split'] = self.split
-        return result
-
 @dataclass
-class Sector:
+class Sector(JSONMixin):
     id: str
     occupy: float
     weight: int
@@ -74,6 +95,17 @@ class Sector:
         occupy_float = parse_percentage(occupy)
         return cls(id, occupy_float, weight, abbr, description)
     
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Sector':
+        """Create Sector from dictionary"""
+        return cls.from_strings(
+            id=data['id'],
+            occupy=data['occupy'],
+            weight=data['weight'],
+            abbr=data['abbr'],
+            description=data['description']
+        )
+
     def to_dict(self) -> dict:
         """Convert to dictionary with formatted percentage"""
         from .time_utils import format_percentage
@@ -84,9 +116,25 @@ class Sector:
             'abbr': self.abbr,
             'description': self.description
         }
-
+    
 @dataclass
-class SectorAllocation:
+class SectorAllocation(JSONMixin):
     sector: Sector
     target_duration: int
     allocated_parts: List[TimeSlot]
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any], sector_map: Optional[Dict[str, Sector]] = None) -> 'SectorAllocation':
+        """Create SectorAllocation from dictionary"""
+        sector = Sector.from_dict(data['sector'])
+        allocated_parts = [TimeSlot.from_dict(part, sector_map) for part in data['allocated_parts']]
+        return cls(sector, data['target_duration'], allocated_parts)
+
+    def to_dict(self) -> dict:
+        """Convert to dictionary"""
+        return {
+            'sector': self.sector.to_dict(),
+            'target_duration': self.target_duration,
+            'allocated_parts': [slot.to_dict() for slot in self.allocated_parts]
+        }
+    

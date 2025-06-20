@@ -1,16 +1,41 @@
 import csv
+import json
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pathlib import Path
-from .models import TimeSlot
+from .models import TimeSlot, Sector
 from .time_utils import Time
 from .csv_utils import CSVParser
 from .ods_utils import ODSParser
+from .json_interface import JSONMixin
 
 
-class TimeSlots:
+class TimeSlots(JSONMixin):
     def __init__(self, slots: Optional[List[TimeSlot]] = None):
         self.slots = slots or []
+    
+    @classmethod
+    def from_file(cls, filename: str, sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
+        """Create TimeSlots instance from file (CSV, ODS, or JSON)"""
+        file_path = Path(filename)
+        
+        if file_path.suffix.lower() == '.json':
+            return cls.from_json(filename, sector_map)
+        elif file_path.suffix.lower() == '.csv':
+            return cls.from_csv(filename)
+        elif file_path.suffix.lower() == '.ods':
+            return cls.from_ods(filename)
+        else:
+            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods, .json")
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any], sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
+        """Create TimeSlots instance from dictionary"""
+        slots = []
+        for slot_data in data.get('slots', []):
+            slot = TimeSlot.from_dict(slot_data, sector_map)
+            slots.append(slot)
+        return cls(slots)
     
     @classmethod
     def from_csv(cls, filename: str) -> 'TimeSlots':
@@ -86,17 +111,17 @@ class TimeSlots:
         
         return cls(slots)
     
-    @classmethod
-    def from_file(cls, filename: str) -> 'TimeSlots':
-        """Create TimeSlots instance from file (CSV or ODS)"""
-        file_path = Path(filename)
-        
-        if file_path.suffix.lower() == '.ods':
-            return cls.from_ods(filename)
-        elif file_path.suffix.lower() == '.csv':
-            return cls.from_csv(filename)
-        else:
-            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods")
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary"""
+        return {
+            'slots': [slot.to_dict() for slot in self.slots],
+            'metadata': {
+                'total_slots': len(self.slots),
+                'available_slots': len(self.get_available_slots()),
+                'allocated_slots': len(self.get_allocated_slots()),
+                'total_available_time': self.get_total_available_time()
+            }
+        }
     
     def to_csv(self, filename: str, all_slots: bool = False):
         """

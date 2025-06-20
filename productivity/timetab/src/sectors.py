@@ -1,14 +1,39 @@
 import csv
+import json
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pathlib import Path
 from .models import Sector
 from .csv_utils import CSVParser
 from .ods_utils import ODSParser
+from .json_interface import JSONMixin
 
-class Sectors:
+class Sectors(JSONMixin):
     def __init__(self, sectors: Optional[List[Sector]] = None):
         self.sectors = sectors or []
+    
+    @classmethod
+    def from_file(cls, filename: str) -> 'Sectors':
+        """Create Sectors instance from file (CSV, ODS, or JSON)"""
+        file_path = Path(filename)
+        
+        if file_path.suffix.lower() == '.json':
+            return cls.from_json(filename)
+        elif file_path.suffix.lower() == '.csv':
+            return cls.from_csv(filename)
+        elif file_path.suffix.lower() == '.ods':
+            return cls.from_ods(filename)
+        else:
+            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods, .json")
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Sectors':
+        """Create Sectors instance from dictionary"""
+        sectors = []
+        for sector_data in data.get('sectors', []):
+            sector = Sector.from_dict(sector_data)
+            sectors.append(sector)
+        return cls(sectors)
     
     @classmethod
     def from_csv(cls, filename: str) -> 'Sectors':
@@ -57,7 +82,7 @@ class Sectors:
             sheet_name = list(sheets.keys())[0]
             rows = sheets[sheet_name]
             
-            for row in rows:
+            for i, row in enumerate(rows):
                 sector = Sector.from_strings(
                     id=row['Id'],
                     occupy=row['Occupy'],
@@ -77,17 +102,15 @@ class Sectors:
         
         return cls(sectors)
     
-    @classmethod
-    def from_file(cls, filename: str) -> 'Sectors':
-        """Create Sectors instance from file (CSV or ODS)"""
-        file_path = Path(filename)
-        
-        if file_path.suffix.lower() == '.ods':
-            return cls.from_ods(filename)
-        elif file_path.suffix.lower() == '.csv':
-            return cls.from_csv(filename)
-        else:
-            raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods")
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary"""
+        return {
+            'sectors': [sector.to_dict() for sector in self.sectors],
+            'metadata': {
+                'total_sectors': len(self.sectors),
+                'total_weight': self.get_total_weight()
+            }
+        }
     
     def to_csv(self, filename: str):
         """Write sectors to CSV file"""
