@@ -1,9 +1,10 @@
 import csv
-import json
 import logging
 from typing import List, Optional, Dict, Any
 from pathlib import Path
-from .models import TimeSlot, Sector
+from .time_slot import TimeSlot
+from .user import User
+from .sector import Sector
 from .time_utils import Time
 from .csv_utils import CSVParser
 from .ods_utils import ODSParser
@@ -11,36 +12,39 @@ from .json_interface import JSONMixin
 
 
 class TimeSlots(JSONMixin):
-    def __init__(self, slots: Optional[List[TimeSlot]] = None):
+    def __init__(self, slots: Optional[List[TimeSlot]] = None, user: Optional[User] = None):
         self.slots = slots or []
+        self.user = user
     
     @classmethod
-    def from_file(cls, filename: str, sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
+    def from_file(cls, filename: str, user: Optional[User] = None, 
+                  sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
         """Create TimeSlots instance from file (CSV, ODS, XLSX, or JSON)"""
         file_path = Path(filename)
         
         if file_path.suffix.lower() == '.json':
-            return cls.from_json(filename, sector_map)
+            return cls.from_json(filename, user, sector_map)
         elif file_path.suffix.lower() == '.csv':
-            return cls.from_csv(filename)
+            return cls.from_csv(filename, user)
         elif file_path.suffix.lower() == '.ods':
-            return cls.from_ods(filename)
+            return cls.from_ods(filename, user)
         elif file_path.suffix.lower() == '.xlsx':
-            return cls.from_xlsx(filename)
+            return cls.from_xlsx(filename, user)
         else:
             raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods, .xlsx, .json")
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any], sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
+    def from_dict(cls, data: Dict[str, Any], user: Optional[User] = None, 
+                  sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
         """Create TimeSlots instance from dictionary"""
         slots = []
         for slot_data in data.get('slots', []):
-            slot = TimeSlot.from_dict(slot_data, sector_map)
+            slot = TimeSlot.from_dict(slot_data, user, sector_map)
             slots.append(slot)
-        return cls(slots)
+        return cls(slots, user)
     
     @classmethod
-    def from_csv(cls, filename: str) -> 'TimeSlots':
+    def from_csv(cls, filename: str, user: Optional[User] = None) -> 'TimeSlots':
         """Create TimeSlots instance from CSV file"""
         slots = []
         try:
@@ -59,7 +63,8 @@ class TimeSlots(JSONMixin):
                     end=row['End'],
                     slot_type=row['Type'],
                     description=row['Description'],
-                    original_index=i
+                    original_index=i,
+                    user=user
                 )
                 slots.append(slot)
                 
@@ -73,10 +78,10 @@ class TimeSlots(JSONMixin):
             logging.error(f"Error reading timetable file {filename}: {e}")
             raise
         
-        return cls(slots)
+        return cls(slots, user)
     
     @classmethod
-    def from_ods(cls, filename: str) -> 'TimeSlots':
+    def from_ods(cls, filename: str, user: Optional[User] = None) -> 'TimeSlots':
         """Create TimeSlots instance from ODS file"""
         slots = []
         try:
@@ -99,7 +104,8 @@ class TimeSlots(JSONMixin):
                     end=row['End'],
                     slot_type=row['Type'],
                     description=row['Description'],
-                    original_index=i
+                    original_index=i,
+                    user=user
                 )
                 slots.append(slot)
                 
@@ -111,10 +117,10 @@ class TimeSlots(JSONMixin):
             logging.error(f"Error reading timetable file {filename}: {e}")
             raise
         
-        return cls(slots)
+        return cls(slots, user)
     
     @classmethod
-    def from_xlsx(cls, filename: str) -> 'TimeSlots':
+    def from_xlsx(cls, filename: str, user: Optional[User] = None) -> 'TimeSlots':
         """Create TimeSlots instance from Excel XLSX file"""
         from .excel_utils import ExcelParser
         slots = []
@@ -133,7 +139,8 @@ class TimeSlots(JSONMixin):
                     end=row['End'],
                     slot_type=row['Type'],
                     description=row['Description'],
-                    original_index=i
+                    original_index=i,
+                    user=user
                 )
                 slots.append(slot)
             logging.info(f"Successfully loaded {len(slots)} time slots from sheet '{sheet_name}' in {filename}")
@@ -143,11 +150,11 @@ class TimeSlots(JSONMixin):
         except Exception as e:
             logging.error(f"Error reading timetable file {filename}: {e}")
             raise
-        return cls(slots)
+        return cls(slots, user)
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
-        return {
+        result = {
             'slots': [slot.to_dict() for slot in self.slots],
             'metadata': {
                 'total_slots': len(self.slots),
@@ -156,6 +163,9 @@ class TimeSlots(JSONMixin):
                 'total_available_time': self.get_total_available_time()
             }
         }
+        if self.user:
+            result['user_id'] = self.user.id
+        return result
     
     def to_csv(self, filename: str, all_slots: bool = False):
         """

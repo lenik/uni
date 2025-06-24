@@ -4,7 +4,7 @@ import os
 import csv
 from unittest.mock import patch, mock_open
 from src.time_slots import TimeSlots
-from src.models import TimeSlot
+from src.time_slot import TimeSlot
 
 
 class TestTimeSlots(unittest.TestCase):

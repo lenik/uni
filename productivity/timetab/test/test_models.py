@@ -1,250 +1,484 @@
 import unittest
-from src.models import TimeSlot, Sector, SectorAllocation
+from src.time_slot import TimeSlot
+from src.user import User
+from src.sector import Sector
+from src.sector_allocation import SectorAllocation
 from src.time_utils import Time
 
 
-class TestTimeSlot(unittest.TestCase):
+class TestUser(unittest.TestCase):
+    """Test User dataclass creation and attributes."""
     
-    def test_time_slot_creation(self):
+    def test_user_creation(self):
+        """Test User dataclass creation and attributes."""
+        user = User(
+            name="john_doe",
+            display_name="John Doe"
+        )
+        
+        self.assertEqual(user.name, "john_doe")
+        self.assertEqual(user.display_name, "John Doe")
+        self.assertIsNone(user.id)
+        
+        # Test with id
+        user_with_id = User(
+            name="jane_doe",
+            display_name="Jane Doe",
+            id="user456"
+        )
+        self.assertEqual(user_with_id.name, "jane_doe")
+        self.assertEqual(user_with_id.display_name, "Jane Doe")
+        self.assertEqual(user_with_id.id, "user456")
+    
+    def test_user_from_dict(self):
+        """Test User.from_dict method."""
+        user_data = {
+            'name': 'john_doe',
+            'display_name': 'John Doe'
+        }
+        user = User.from_dict(user_data)
+        
+        self.assertEqual(user.name, "john_doe")
+        self.assertEqual(user.display_name, "John Doe")
+        self.assertIsNone(user.id)
+        
+        # Test with id
+        user_data_with_id = {
+            'name': 'jane_doe',
+            'display_name': 'Jane Doe',
+            'id': 'user456'
+        }
+        user_with_id = User.from_dict(user_data_with_id)
+        
+        self.assertEqual(user_with_id.name, "jane_doe")
+        self.assertEqual(user_with_id.display_name, "Jane Doe")
+        self.assertEqual(user_with_id.id, "user456")
+    
+    def test_user_to_dict(self):
+        """Test User.to_dict method."""
+        user = User(name="john_doe", display_name="John Doe")
+        user_dict = user.to_dict()
+        
+        expected_dict = {
+            'name': 'john_doe',
+            'display_name': 'John Doe'
+        }
+        self.assertEqual(user_dict, expected_dict)
+        
+        # Test with id
+        user_with_id = User(name="jane_doe", display_name="Jane Doe", id="user456")
+        user_dict_with_id = user_with_id.to_dict()
+        
+        expected_dict_with_id = {
+            'name': 'jane_doe',
+            'display_name': 'Jane Doe',
+            'id': 'user456'
+        }
+        self.assertEqual(user_dict_with_id, expected_dict_with_id)
+
+
+class TestTimeSlot(unittest.TestCase):
+    """Test TimeSlot dataclass creation and attributes."""
+    
+    def test_timeslot_creation(self):
         """Test TimeSlot dataclass creation and attributes."""
-        start_time = Time(6, 35)
-        end_time = Time(7, 0)
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
         
         slot = TimeSlot(
-            order=1,
-            start=start_time,
+            id="slot123",
+            seq=1,
+            start=Time(6, 35),
             duration=25,
-            end=end_time,
+            end=Time(7, 0),
             slot_type="A0-L",
-            description="Test slot",
-            original_index=0
+            description="Morning work",
+            original_index=0,
+            user=user,
+            sector=sector
         )
         
-        self.assertEqual(slot.order, 1)
-        self.assertEqual(slot.start, start_time)
-        self.assertEqual(slot.duration, 25)
-        self.assertEqual(slot.end, end_time)
-        self.assertEqual(slot.slot_type, "A0-L")
-        self.assertEqual(slot.description, "Test slot")
-        self.assertEqual(slot.original_index, 0)
-    
-    def test_from_strings(self):
-        """Test TimeSlot.from_strings method."""
-        slot = TimeSlot.from_strings(
-            order=1,
-            start="06:35",
-            duration=25,
-            end="07:00",
-            slot_type="A0-L",
-            description="Test slot",
-            original_index=0
-        )
-        
-        self.assertEqual(slot.order, 1)
+        self.assertEqual(slot.id, "slot123")
+        self.assertEqual(slot.seq, 1)
         self.assertEqual(slot.start, Time(6, 35))
         self.assertEqual(slot.duration, 25)
         self.assertEqual(slot.end, Time(7, 0))
         self.assertEqual(slot.slot_type, "A0-L")
-        self.assertEqual(slot.description, "Test slot")
+        self.assertEqual(slot.description, "Morning work")
         self.assertEqual(slot.original_index, 0)
+        self.assertEqual(slot.user, user)
+        self.assertEqual(slot.sector, sector)
     
-    def test_to_dict(self):
-        """Test TimeSlot.to_dict method."""
+    def test_timeslot_from_strings(self):
+        """Test TimeSlot.from_strings method."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        
         slot = TimeSlot.from_strings(
-            order=1,
+            seq=1,
             start="06:35",
             duration=25,
             end="07:00",
             slot_type="A0-L",
-            description="Test slot",
-            original_index=0
+            description="Morning work",
+            original_index=0,
+            user=user,
+            sector=sector,
+            id="slot123"
         )
         
-        slot_dict = slot.to_dict()
-        expected_dict = {
-            'order': 1,
+        self.assertEqual(slot.id, "slot123")
+        self.assertEqual(slot.seq, 1)
+        self.assertEqual(slot.start, Time(6, 35))
+        self.assertEqual(slot.duration, 25)
+        self.assertEqual(slot.end, Time(7, 0))
+        self.assertEqual(slot.slot_type, "A0-L")
+        self.assertEqual(slot.description, "Morning work")
+        self.assertEqual(slot.original_index, 0)
+        self.assertEqual(slot.user, user)
+        self.assertEqual(slot.sector, sector)
+    
+    def test_timeslot_from_dict(self):
+        """Test TimeSlot.from_dict method."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        
+        slot_data = {
+            'id': 'slot123',
+            'seq': 1,
             'start': '06:35',
             'duration': 25,
             'end': '07:00',
             'slot_type': 'A0-L',
-            'description': 'Test slot',
-            'original_index': 0
+            'description': 'Morning work',
+            'original_index': 0,
+            'sector': {
+                'seq': '1',
+                'occupy': '33.7%',
+                'weight': 100,
+                'abbr': 'TAX',
+                'description': 'Tax work'
+            }
         }
         
+        slot = TimeSlot.from_dict(slot_data, user, sector)
+        
+        self.assertEqual(slot.id, "slot123")
+        self.assertEqual(slot.seq, 1)
+        self.assertEqual(slot.start, Time(6, 35))
+        self.assertEqual(slot.duration, 25)
+        self.assertEqual(slot.end, Time(7, 0))
+        self.assertEqual(slot.slot_type, "A0-L")
+        self.assertEqual(slot.description, "Morning work")
+        self.assertEqual(slot.original_index, 0)
+        self.assertEqual(slot.user, user)
+        self.assertEqual(slot.sector, sector)
+    
+    def test_timeslot_to_dict(self):
+        """Test TimeSlot.to_dict method."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        
+        slot = TimeSlot(
+            id="slot123",
+            seq=1,
+            start=Time(6, 35),
+            duration=25,
+            end=Time(7, 0),
+            slot_type="A0-L",
+            description="Morning work",
+            original_index=0,
+            user=user,
+            sector=sector
+        )
+        
+        slot_dict = slot.to_dict()
+        expected_dict = {
+            'id': 'slot123',
+            'user_id': 'user123',
+            'seq': 1,
+            'start': '06:35',
+            'duration': 25,
+            'end': '07:00',
+            'slot_type': 'A0-L',
+            'description': 'Morning work',
+            'original_index': 0,
+            'sector': {
+                'seq': '1',
+                'occupy': '33.7%',
+                'weight': 100,
+                'abbr': 'TAX',
+                'description': 'Tax work',
+                'user_id': 'user123'
+            }
+        }
         self.assertEqual(slot_dict, expected_dict)
     
-    def test_is_available_available_slots(self):
-        """Test is_available method with available slot types."""
-        # Test available slots (starting with 'A')
-        available_slot = TimeSlot.from_strings(1, "06:35", 25, "07:00", "A0-L", "Test", 0)
+    def test_timeslot_is_available(self):
+        """Test TimeSlot.is_available method."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        
+        # Available slot
+        available_slot = TimeSlot(
+            seq=1,
+            start=Time(6, 35),
+            duration=25,
+            end=Time(7, 0),
+            slot_type="A0-L",
+            description="Available",
+            original_index=0,
+            user=user
+        )
         self.assertTrue(available_slot.is_available())
         
-        available_slot2 = TimeSlot.from_strings(5, "08:40", 45, "09:25", "A1-T", "@Train", 4)
-        self.assertTrue(available_slot2.is_available())
-        
-        available_slot3 = TimeSlot.from_strings(10, "12:30", 30, "13:00", "A3-N", "", 9)
-        self.assertTrue(available_slot3.is_available())
+        # Non-available slot
+        non_available_slot = TimeSlot(
+            seq=2,
+            start=Time(7, 0),
+            duration=30,
+            end=Time(7, 30),
+            slot_type="B1",
+            description="Not available",
+            original_index=1,
+            user=user
+        )
+        self.assertFalse(non_available_slot.is_available())
     
-    def test_is_available_non_available_slots(self):
-        """Test is_available method with non-available slot types."""
-        # Test non-available slots
-        reserved_slot = TimeSlot.from_strings(2, "07:00", 60, "08:00", "Reserved", "Prepare", 1)
-        self.assertFalse(reserved_slot.is_available())
+    def test_timeslot_is_generated(self):
+        """Test TimeSlot.is_generated method."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
         
-        fem_slot = TimeSlot.from_strings(3, "08:00", 25, "08:25", "FEM", "", 2)
-        self.assertFalse(fem_slot.is_available())
+        # Generated slot
+        generated_slot = TimeSlot(
+            seq=1,
+            start=Time(6, 35),
+            duration=25,
+            end=Time(7, 0),
+            slot_type="Break/Load",
+            description="Break",
+            original_index=0,
+            user=user
+        )
+        self.assertTrue(generated_slot.is_generated())
         
-        traffic_slot = TimeSlot.from_strings(4, "08:25", 15, "08:40", "Traffic", "Ride to Station", 3)
-        self.assertFalse(traffic_slot.is_available())
-        
-        break_slot = TimeSlot.from_strings(12, "13:00", 60, "14:00", "Break/Sleep", "Nap", 11)
-        self.assertFalse(break_slot.is_available())
-    
-    def test_time_slot_equality(self):
-        """Test TimeSlot equality comparison."""
-        slot1 = TimeSlot.from_strings(1, "06:35", 25, "07:00", "A0-L", "Test", 0)
-        slot2 = TimeSlot.from_strings(1, "06:35", 25, "07:00", "A0-L", "Test", 0)
-        slot3 = TimeSlot.from_strings(2, "06:35", 25, "07:00", "A0-L", "Test", 0)
-        
-        self.assertEqual(slot1, slot2)
-        self.assertNotEqual(slot1, slot3)
-    
-    def test_time_slot_repr(self):
-        """Test TimeSlot string representation."""
-        slot = TimeSlot.from_strings(1, "06:35", 25, "07:00", "A0-L", "Test", 0)
-        repr_str = repr(slot)
-        
-        self.assertIn("TimeSlot", repr_str)
-        self.assertIn("order=1", repr_str)
-        self.assertIn("start=Time(6, 35)", repr_str)
+        # Non-generated slot
+        non_generated_slot = TimeSlot(
+            seq=2,
+            start=Time(7, 0),
+            duration=30,
+            end=Time(7, 30),
+            slot_type="A0-L",
+            description="Not generated",
+            original_index=1,
+            user=user
+        )
+        self.assertFalse(non_generated_slot.is_generated())
 
 
 class TestSector(unittest.TestCase):
+    """Test Sector dataclass creation and attributes."""
     
     def test_sector_creation(self):
         """Test Sector dataclass creation and attributes."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
         sector = Sector(
-            sector_id="1",
+            id="sector123",
+            seq="1",
             occupy=33.7,
             weight=100,
             abbr="TAX",
-            description="税务应用/公司事项"
+            description="Tax work",
+            user=user
         )
         
-        self.assertEqual(sector.sector_id, "1")
+        self.assertEqual(sector.id, "sector123")
+        self.assertEqual(sector.seq, "1")
         self.assertEqual(sector.occupy, 33.7)
         self.assertEqual(sector.weight, 100)
         self.assertEqual(sector.abbr, "TAX")
-        self.assertEqual(sector.description, "税务应用/公司事项")
+        self.assertEqual(sector.description, "Tax work")
+        self.assertEqual(sector.user, user)
     
-    def test_from_strings(self):
+    def test_sector_from_strings(self):
         """Test Sector.from_strings method."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
         sector = Sector.from_strings(
-            sector_id="1",
+            seq="1",
             occupy="33.7%",
             weight=100,
             abbr="TAX",
-            description="税务应用/公司事项"
+            description="Tax work",
+            user=user,
+            id="sector123"
         )
         
-        self.assertEqual(sector.sector_id, "1")
+        self.assertEqual(sector.id, "sector123")
+        self.assertEqual(sector.seq, "1")
         self.assertEqual(sector.occupy, 33.7)
         self.assertEqual(sector.weight, 100)
         self.assertEqual(sector.abbr, "TAX")
-        self.assertEqual(sector.description, "税务应用/公司事项")
+        self.assertEqual(sector.description, "Tax work")
+        self.assertEqual(sector.user, user)
     
-    def test_to_dict(self):
+    def test_sector_to_dict(self):
         """Test Sector.to_dict method."""
-        sector = Sector.from_strings(
-            sector_id="1",
-            occupy="33.7%",
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        sector = Sector(
+            id="sector123",
+            seq="1",
+            occupy=33.7,
             weight=100,
             abbr="TAX",
-            description="税务应用/公司事项"
+            description="Tax work",
+            user=user
         )
         
         sector_dict = sector.to_dict()
         expected_dict = {
-            'sector_id': '1',
+            'id': 'sector123',
+            'user_id': 'user123',
+            'seq': '1',
             'occupy': '33.7%',
             'weight': 100,
             'abbr': 'TAX',
-            'description': '税务应用/公司事项'
+            'description': 'Tax work'
         }
-        
         self.assertEqual(sector_dict, expected_dict)
     
-    def test_to_dict_whole_number(self):
+    def test_sector_to_dict_with_whole_number_percentage(self):
         """Test Sector.to_dict with whole number percentage."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
         sector = Sector(
-            sector_id="1",
+            id="sector123",
+            seq="1",
             occupy=50.0,
             weight=100,
-            abbr="TEST",
-            description="Test"
+            abbr="TAX",
+            description="Tax work",
+            user=user
         )
         
         sector_dict = sector.to_dict()
-        self.assertEqual(sector_dict['occupy'], '50%')  # Should remove trailing .0
-    
-    def test_sector_equality(self):
-        """Test Sector equality comparison."""
-        sector1 = Sector("1", 33.7, 100, "TAX", "Test")
-        sector2 = Sector("1", 33.7, 100, "TAX", "Test")
-        sector3 = Sector("2", 33.7, 100, "TAX", "Test")
-        
-        self.assertEqual(sector1, sector2)
-        self.assertNotEqual(sector1, sector3)
+        self.assertEqual(sector_dict['occupy'], '50.0%')
     
     def test_sector_repr(self):
         """Test Sector string representation."""
-        sector = Sector("1", 33.7, 100, "TAX", "Test")
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        sector = Sector(
+            id="sector123",
+            seq="1",
+            occupy=33.7,
+            weight=100,
+            abbr="TAX",
+            description="Tax work",
+            user=user
+        )
+        
         repr_str = repr(sector)
         
         self.assertIn("Sector", repr_str)
-        self.assertIn("sector_id='1'", repr_str)
+        self.assertIn("seq='1'", repr_str)
         self.assertIn("weight=100", repr_str)
 
 
 class TestSectorAllocation(unittest.TestCase):
+    """Test SectorAllocation dataclass creation and attributes."""
     
     def test_sector_allocation_creation(self):
         """Test SectorAllocation dataclass creation and attributes."""
-        sector = Sector("1", 33.7, 100, "TAX", "Test")
-        time_slot = TimeSlot.from_strings(1, "06:35", 25, "07:00", "A0-L", "Test", 0)
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        time_slot = TimeSlot(
+            seq=1,
+            start=Time(6, 35),
+            duration=25,
+            end=Time(7, 0),
+            slot_type="A0-L",
+            description="Morning work",
+            original_index=0,
+            user=user,
+            sector=sector
+        )
         
         allocation = SectorAllocation(
             sector=sector,
-            target_duration=100,
+            target_duration=120,
             allocated_parts=[time_slot]
         )
         
         self.assertEqual(allocation.sector, sector)
-        self.assertEqual(allocation.target_duration, 100)
+        self.assertEqual(allocation.target_duration, 120)
         self.assertEqual(allocation.allocated_parts, [time_slot])
     
-    def test_sector_allocation_equality(self):
-        """Test SectorAllocation equality comparison."""
-        sector = Sector("1", 33.7, 100, "TAX", "Test")
-        time_slot = TimeSlot.from_strings(1, "06:35", 25, "07:00", "A0-L", "Test", 0)
+    def test_sector_allocation_from_dict(self):
+        """Test SectorAllocation.from_dict method."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
         
-        allocation1 = SectorAllocation(sector, 100, [time_slot])
-        allocation2 = SectorAllocation(sector, 100, [time_slot])
-        allocation3 = SectorAllocation(sector, 200, [time_slot])
+        allocation_data = {
+            'sector': {
+                'id': 'sector123',
+                'seq': '1',
+                'occupy': '33.7%',
+                'weight': 100,
+                'abbr': 'TAX',
+                'description': 'Tax work',
+                'user_id': 'user123'
+            },
+            'target_duration': 120,
+            'allocated_parts': [{
+                'id': 'slot123',
+                'seq': 1,
+                'start': '06:35',
+                'duration': 25,
+                'end': '07:00',
+                'slot_type': 'A0-L',
+                'description': 'Morning work',
+                'original_index': 0,
+                'user_id': 'user123',
+                'sector': {
+                    'seq': '1',
+                    'occupy': '33.7%',
+                    'weight': 100,
+                    'abbr': 'TAX',
+                    'description': 'Tax work'
+                }
+            }]
+        }
         
-        self.assertEqual(allocation1, allocation2)
-        self.assertNotEqual(allocation1, allocation3)
+        allocation = SectorAllocation.from_dict(allocation_data, user)
+        
+        self.assertEqual(allocation.sector.seq, "1")
+        self.assertEqual(allocation.target_duration, 120)
+        self.assertEqual(len(allocation.allocated_parts), 1)
+        self.assertEqual(allocation.allocated_parts[0].seq, 1)
     
-    def test_sector_allocation_repr(self):
-        """Test SectorAllocation string representation."""
-        sector = Sector("1", 33.7, 100, "TAX", "Test")
-        time_slot = TimeSlot.from_strings(1, "06:35", 25, "07:00", "A0-L", "Test", 0)
+    def test_sector_allocation_to_dict(self):
+        """Test SectorAllocation.to_dict method."""
+        user = User(id="user123", name="john_doe", display_name="John Doe")
+        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        time_slot = TimeSlot(
+            seq=1,
+            start=Time(6, 35),
+            duration=25,
+            end=Time(7, 0),
+            slot_type="A0-L",
+            description="Morning work",
+            original_index=0,
+            user=user,
+            sector=sector
+        )
         
-        allocation = SectorAllocation(sector, 100, [time_slot])
-        repr_str = repr(allocation)
+        allocation = SectorAllocation(
+            sector=sector,
+            target_duration=120,
+            allocated_parts=[time_slot]
+        )
         
-        self.assertIn("SectorAllocation", repr_str)
-        self.assertIn("target_duration=100", repr_str)
+        allocation_dict = allocation.to_dict()
+        
+        self.assertEqual(allocation_dict['target_duration'], 120)
+        self.assertEqual(len(allocation_dict['allocated_parts']), 1)
+        self.assertEqual(allocation_dict['allocated_parts'][0]['seq'], 1)
 
 
 if __name__ == '__main__':

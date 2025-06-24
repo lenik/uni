@@ -2,7 +2,7 @@
 ,,10,,Rows
 ,,29.70,,Average
 ,,,,
-Id,Occupy,Weight,Abbr,Description
+Seq,Occupy,Weight,Abbr,Description
 8,33.7%,100,TAX,公司事项
 6,6.7%,20,MIS,企业管理软件
 2,6.7%,20,LANG,编程语言学习

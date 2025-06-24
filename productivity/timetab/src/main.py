@@ -2,6 +2,8 @@ import argparse
 import logging
 import sys
 from pathlib import Path
+from typing import Optional, Dict, Any
+from .user import User
 from .config import Config
 from .time_slots import TimeSlots
 from .sectors import Sectors
@@ -38,9 +40,9 @@ def check_ods_contains_data_type(file_path: str, data_type: str) -> bool:
         from .ods_utils import ODSParser
         
         if data_type == 'timetable':
-            required_fields = {'order', 'start', 'duration', 'end', 'type', 'description'}
+            required_fields = {'Seq', 'Start', 'Duration', 'End', 'Type', 'Description'}
         elif data_type == 'sectors':
-            required_fields = {'sector', 'occupy', 'weight', 'abbr', 'description'}
+            required_fields = {'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'}
         else:
             return False
         
@@ -67,12 +69,12 @@ def detect_ods_data_types(file_path: str) -> dict:
         from .ods_utils import ODSParser
         
         # Check for timetable data
-        timetable_parser = ODSParser(required_fields={'order', 'start', 'duration', 'end', 'type', 'description'})
+        timetable_parser = ODSParser(required_fields={'Seq', 'Start', 'Duration', 'End', 'Type', 'Description'})
         timetable_sheets = timetable_parser.parse_ods(file_path)
         result['timetable'] = len(timetable_sheets) > 0
         
         # Check for sectors data
-        sectors_parser = ODSParser(required_fields={'sector', 'occupy', 'weight', 'abbr', 'description'})
+        sectors_parser = ODSParser(required_fields={'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'})
         sectors_sheets = sectors_parser.parse_ods(file_path)
         result['sectors'] = len(sectors_sheets) > 0
         
@@ -81,13 +83,14 @@ def detect_ods_data_types(file_path: str) -> dict:
     
     return result
 
-def load_data_from_ods(file_path: str, data_types: dict) -> tuple:
+def load_data_from_ods(file_path: str, data_types: dict, user: Optional[User] = None) -> tuple:
     """
     Load data from ODS file for the specified data types.
     
     Args:
         file_path: Path to the ODS file
         data_types: Dictionary with 'timetable' and 'sectors' keys
+        user: Optional user object
         
     Returns:
         Tuple of (time_slots, sectors) - None for missing data types
@@ -97,7 +100,7 @@ def load_data_from_ods(file_path: str, data_types: dict) -> tuple:
     
     if data_types.get('timetable'):
         try:
-            time_slots = TimeSlots.from_ods(file_path)
+            time_slots = TimeSlots.from_ods(file_path, user)
             logging.info(f"Successfully loaded timetable from {file_path}")
         except Exception as e:
             logging.error(f"Failed to load timetable from {file_path}: {e}")
@@ -105,7 +108,7 @@ def load_data_from_ods(file_path: str, data_types: dict) -> tuple:
     
     if data_types.get('sectors'):
         try:
-            sectors = Sectors.from_ods(file_path)
+            sectors = Sectors.from_ods(file_path, user)
             logging.info(f"Successfully loaded sectors from {file_path}")
         except Exception as e:
             logging.error(f"Failed to load sectors from {file_path}: {e}")
@@ -121,6 +124,7 @@ def main():
     )
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose logging')
     parser.add_argument('-q', '--quiet', action='store_true', help='Suppress all logging except errors')
+    parser.add_argument('-u', '--user', help='Username for user-specific data directory and configuration')
     parser.add_argument('--config', help='Configuration file path')
     parser.add_argument('--timetable', action='append', 
                        help='Timetable file path (CSV or ODS). If multiple specified, only last one used.')
@@ -144,10 +148,16 @@ def main():
     # Setup logging
     setup_logging(args.verbose, args.quiet)
     
+    # Create user object if username is specified
+    user_obj = None
+    if args.user:
+        user_obj = User(name=args.user, display_name=args.user)
+        logging.info(f"Using user: {user_obj.display_name}")
+    
     try:
         # Load configuration
         logging.info("Loading configuration...")
-        config = Config(args.config)
+        config = Config(args.config, user_obj)
         
         # Determine file paths (command line overrides config)
         timetable_files = args.timetable if args.timetable else [config.get_timetable_path()]
@@ -176,7 +186,7 @@ def main():
             logging.info(f"ODS file contains: timetable={data_types['timetable']}, sectors={data_types['sectors']}")
             
             # Load both data types from the same file
-            time_slots, sectors = load_data_from_ods(timetable_file, data_types)
+            time_slots, sectors = load_data_from_ods(timetable_file, data_types, user_obj)
             
         else:
             # Load data separately
@@ -190,7 +200,7 @@ def main():
                         raise ValueError(f"ODS file {timetable_file} does not contain timetable data")
                 
                 try:
-                    time_slots = TimeSlots.from_file(timetable_file)
+                    time_slots = TimeSlots.from_file(timetable_file, user_obj)
                     logging.info(f"Successfully loaded timetable from {timetable_file}")
                 except Exception as e:
                     logging.error(f"Failed to load timetable from {timetable_file}: {e}")
@@ -206,7 +216,7 @@ def main():
                         raise ValueError(f"ODS file {sectors_file} does not contain sectors data")
                 
                 try:
-                    sectors = Sectors.from_file(sectors_file)
+                    sectors = Sectors.from_file(sectors_file, user_obj)
                     logging.info(f"Successfully loaded sectors from {sectors_file}")
                 except Exception as e:
                     logging.error(f"Failed to load sectors from {sectors_file}: {e}")

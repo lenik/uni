@@ -3,10 +3,12 @@ import configparser
 from pathlib import Path
 from typing import Optional
 import logging
+from .user import User
 
 
 class Config:
-    def __init__(self, config_file: Optional[str] = None):
+    def __init__(self, config_file: Optional[str] = None, user: Optional[User] = None):
+        self.user = user
         self.config_file = config_file or self._get_default_config_path()
         logging.info(f"Using config file: {self.config_file}")
         self.config = configparser.ConfigParser()
@@ -14,8 +16,37 @@ class Config:
     
     def _get_default_config_path(self) -> str:
         """Get the default configuration file path"""
-        home = os.path.expanduser("~")
-        return os.path.join(home, ".config", "timetab", "default.ini")
+        user_data_dir = self.get_user_data_dir()
+        return os.path.join(user_data_dir, "default.ini")
+    
+    @classmethod
+    def _get_user_data_dir(cls, user: Optional[User]) -> str:
+        """Get user-specific data directory"""
+        if user is None:
+            user_home = os.path.expanduser("~")
+        else:
+            user_home = f"/home/{user.name}"
+        return os.path.join(user_home, ".config", "timetab")
+    
+    def get_user_data_dir(self) -> str:
+        """Get user-specific data directory"""
+        return Config._get_user_data_dir(self.user)
+    
+    def get_default_timetable_path(self) -> str:
+        """Get default timetable path for user"""
+        if self.user:
+            user_data_dir = self._get_user_data_dir(self.user)
+            return os.path.join(user_data_dir, "TimeTable.csv")
+        else:
+            return "TimeTable.csv"
+    
+    def get_default_sectors_path(self) -> str:
+        """Get default sectors path for user"""
+        if self.user:
+            user_data_dir = self._get_user_data_dir(self.user)
+            return os.path.join(user_data_dir, "Sectors.csv")
+        else:
+            return "Sectors.csv"
     
     def _load_config(self):
         """Load configuration from file"""
@@ -88,8 +119,8 @@ class Config:
         
         # Create config with DEFAULT section (works with all Python versions)
         self.config['DEFAULT'] = {
-            'timetable': 'TimeTable.csv',
-            'sectors': 'Sectors.csv'
+            'timetable': self.get_default_timetable_path(),
+            'sectors': self.get_default_sectors_path()
         }
         
         # Write the config file
@@ -104,7 +135,7 @@ class Config:
     def get_timetable_path(self) -> str:
         """Get timetable file path from config"""
         try:
-            path = self.config.get('DEFAULT', 'timetable', fallback='TimeTable.csv')
+            path = self.config.get('DEFAULT', 'timetable', fallback=self.get_default_timetable_path())
             expanded_path = self._expand_path(path)
             logging.debug(f"Timetable path from config: {path} -> {expanded_path}")
             return expanded_path
@@ -116,7 +147,7 @@ class Config:
     def get_sectors_path(self) -> str:
         """Get sectors file path from config"""
         try:
-            path = self.config.get('DEFAULT', 'sectors', fallback='Sectors.csv')
+            path = self.config.get('DEFAULT', 'sectors', fallback=self.get_default_sectors_path())
             expanded_path = self._expand_path(path)
             logging.debug(f"Sectors path from config: {path} -> {expanded_path}")
             return expanded_path

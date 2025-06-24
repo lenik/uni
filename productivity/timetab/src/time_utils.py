@@ -1,6 +1,4 @@
-from typing import Union, Optional
 import re
-
 
 class Time:
     """Custom Time class for handling time in HH:MM format"""
@@ -151,25 +149,10 @@ def parse_percentage(percentage_str: str) -> float:
         raise ValueError(f"Invalid percentage format: {percentage_str}. {str(e)}")
 
 
-def format_percentage(value: float) -> str:
-    """
-    Format float as percentage string, removing trailing zeros.
-    
-    Args:
-        value: Float value to format
-        
-    Returns:
-        Formatted percentage string (e.g., "33.7%", "6%")
-    """
-    if not isinstance(value, (int, float)):
-        raise ValueError(f"Value must be numeric, got {type(value)}")
-    
-    if value < 0:
-        raise ValueError(f"Percentage cannot be negative: {value}")
-    
-    # Convert to string and remove trailing zeros after decimal point
-    formatted = f"{value:.1f}"
-    if formatted.endswith('.0'):
-        formatted = formatted[:-2]  # Remove .0
-    
-    return f"{formatted}%"
+def format_percentage(value: float, always_one_decimal: bool = False) -> str:
+    """Format a float as a percentage string, optionally always with one decimal place."""
+    if always_one_decimal:
+        return f"{value:.1f}%"
+    if value == int(value):
+        return f"{int(value)}%"
+    return f"{value}%"

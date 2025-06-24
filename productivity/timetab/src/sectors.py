@@ -1,64 +1,67 @@
 import csv
-import json
 import logging
 from typing import List, Optional, Dict, Any
 from pathlib import Path
-from .models import Sector
+from .user import User
+from .sector import Sector
+from .time_utils import Time
 from .csv_utils import CSVParser
 from .ods_utils import ODSParser
 from .json_interface import JSONMixin
 
 class Sectors(JSONMixin):
-    def __init__(self, sectors: Optional[List[Sector]] = None):
+    def __init__(self, sectors: Optional[List[Sector]] = None, user: Optional[User] = None):
         self.sectors = sectors or []
+        self.user = user
     
     @classmethod
-    def from_file(cls, filename: str) -> 'Sectors':
-        """Create Sectors instance from file (CSV, ODS, XLSX, or JSON)"""
+    def from_file(cls, filename: str, user: Optional[User] = None) -> 'Sectors':
+        """Create Sectors instance from file based on extension"""
         file_path = Path(filename)
         
         if file_path.suffix.lower() == '.json':
-            return cls.from_json(filename)
+            return cls.from_json(filename, user)
         elif file_path.suffix.lower() == '.csv':
-            return cls.from_csv(filename)
+            return cls.from_csv(filename, user)
         elif file_path.suffix.lower() == '.ods':
-            return cls.from_ods(filename)
+            return cls.from_ods(filename, user)
         elif file_path.suffix.lower() == '.xlsx':
-            return cls.from_xlsx(filename)
+            return cls.from_xlsx(filename, user)
         else:
             raise ValueError(f"Unsupported file format: {filename}. Supported formats: .csv, .ods, .xlsx, .json")
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Sectors':
+    def from_dict(cls, data: Dict[str, Any], user: Optional[User] = None) -> 'Sectors':
         """Create Sectors instance from dictionary"""
         sectors = []
         for sector_data in data.get('sectors', []):
-            sector = Sector.from_dict(sector_data)
+            sector = Sector.from_dict(sector_data, user)
             sectors.append(sector)
-        return cls(sectors)
+        return cls(sectors, user)
     
     @classmethod
-    def from_csv(cls, filename: str) -> 'Sectors':
+    def from_csv(cls, filename: str, user: Optional[User] = None) -> 'Sectors':
         """Create Sectors instance from CSV file"""
         sectors = []
         try:
             # Create CSV parser with sectors required fields - using exact CSV column names
-            parser = CSVParser(required_fields={'Id', 'Occupy', 'Weight', 'Abbr', 'Description'})
+            parser = CSVParser(required_fields={'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'})
             rows = parser.parse_csv(filename)
             
             for row in rows:
                 sector = Sector.from_strings(
-                    id=row['Id'],
+                    seq=row['Seq'],
                     occupy=row['Occupy'],
                     weight=int(row['Weight']),
                     abbr=row['Abbr'],
-                    description=row['Description']
+                    description=row['Description'],
+                    user=user
                 )
                 sectors.append(sector)
                 
             logging.info(f"Successfully loaded {len(sectors)} sectors from {filename}")
             for sector in sectors:
-                logging.debug(f"Loaded sector: {sector.abbr}({sector.id}) - {sector.description}")
+                logging.debug(f"Loaded sector: {sector.abbr}({sector.seq}) - {sector.description}")
         except FileNotFoundError:
             logging.error(f"Sectors file not found: {filename}")
             raise
@@ -66,15 +69,15 @@ class Sectors(JSONMixin):
             logging.error(f"Error reading sectors file {filename}: {e}")
             raise
         
-        return cls(sectors)
+        return cls(sectors, user)
     
     @classmethod
-    def from_ods(cls, filename: str) -> 'Sectors':
+    def from_ods(cls, filename: str, user: Optional[User] = None) -> 'Sectors':
         """Create Sectors instance from ODS file"""
         sectors = []
         try:
             # Create ODS parser with sectors required fields - using exact CSV column names
-            parser = ODSParser(required_fields={'Id', 'Occupy', 'Weight', 'Abbr', 'Description'})
+            parser = ODSParser(required_fields={'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'})
             sheets = parser.parse_ods(filename)
             
             if not sheets:
@@ -86,11 +89,12 @@ class Sectors(JSONMixin):
             
             for i, row in enumerate(rows):
                 sector = Sector.from_strings(
-                    id=row['Id'],
+                    seq=row['Seq'],
                     occupy=row['Occupy'],
                     weight=int(row['Weight']),
                     abbr=row['Abbr'],
-                    description=row['Description']
+                    description=row['Description'],
+                    user=user
                 )
                 sectors.append(sector)
                 
@@ -102,15 +106,15 @@ class Sectors(JSONMixin):
             logging.error(f"Error reading sectors file {filename}: {e}")
             raise
         
-        return cls(sectors)
+        return cls(sectors, user)
     
     @classmethod
-    def from_xlsx(cls, filename: str) -> 'Sectors':
+    def from_xlsx(cls, filename: str, user: Optional[User] = None) -> 'Sectors':
         """Create Sectors instance from Excel XLSX file"""
         from .excel_utils import ExcelParser
         sectors = []
         try:
-            parser = ExcelParser(required_fields={'Id', 'Occupy', 'Weight', 'Abbr', 'Description'})
+            parser = ExcelParser(required_fields={'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'})
             sheets = parser.parse_excel(filename)
             if not sheets:
                 raise ValueError(f"No sectors data found in {filename}")
@@ -118,11 +122,12 @@ class Sectors(JSONMixin):
             rows = sheets[sheet_name]
             for i, row in enumerate(rows):
                 sector = Sector.from_strings(
-                    id=row['Id'],
+                    seq=row['Seq'],
                     occupy=row['Occupy'],
                     weight=int(row['Weight']),
                     abbr=row['Abbr'],
-                    description=row['Description']
+                    description=row['Description'],
+                    user=user
                 )
                 sectors.append(sector)
             logging.info(f"Successfully loaded {len(sectors)} sectors from sheet '{sheet_name}' in {filename}")
@@ -132,17 +137,20 @@ class Sectors(JSONMixin):
         except Exception as e:
             logging.error(f"Error reading sectors file {filename}: {e}")
             raise
-        return cls(sectors)
+        return cls(sectors, user)
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
-        return {
+        result = {
             'sectors': [sector.to_dict() for sector in self.sectors],
             'metadata': {
                 'total_sectors': len(self.sectors),
                 'total_weight': self.get_total_weight()
             }
         }
+        if self.user:
+            result['user_id'] = self.user.id
+        return result
     
     def to_csv(self, filename: str):
         """Write sectors to CSV file"""
@@ -157,12 +165,12 @@ class Sectors(JSONMixin):
                 writer.writerow(['', '', str(len(self.sectors)), '', 'Rows'])
                 writer.writerow(['', '', '29.70', '', 'Average'])
                 writer.writerow(['', '', '', '', ''])
-                writer.writerow(['Id', 'Occupy', 'Weight', 'Abbr', 'Description'])
+                writer.writerow(['Seq', 'Occupy', 'Weight', 'Abbr', 'Description'])
                 
                 for sector in self.sectors:
                     sector_dict = sector.to_dict()
                     writer.writerow([
-                        sector_dict['id'],
+                        sector_dict['seq'],
                         sector_dict['occupy'],
                         sector_dict['weight'],
                         sector_dict['abbr'],
@@ -189,15 +197,16 @@ class Sectors(JSONMixin):
         """Remove a sector"""
         self.sectors.remove(sector)
     
-    def get_sector_by_id(self, id: str) -> Optional[Sector]:
-        """Get sector by ID"""
+    def get_sector_by_seq(self, seq: str) -> Optional[Sector]:
+        """Get sector by sequence number (legacy, prefer abbr)"""
+        # Prefer using get_sector_by_abbr for new code
         for sector in self.sectors:
-            if sector.id == id:
+            if sector.seq == seq:
                 return sector
         return None
     
     def get_sector_by_abbr(self, abbr: str) -> Optional[Sector]:
-        """Get sector by abbreviation"""
+        """Get sector by abbreviation (preferred)"""
         for sector in self.sectors:
             if sector.abbr == abbr:
                 return sector
