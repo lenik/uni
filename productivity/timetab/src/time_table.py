@@ -11,15 +11,15 @@ from .ods_utils import ODSParser
 from .json_interface import JSONMixin
 
 
-class TimeSlots(JSONMixin):
+class TimeTable(JSONMixin):
     def __init__(self, slots: Optional[List[TimeSlot]] = None, user: Optional[User] = None):
         self.slots = slots or []
         self.user = user
     
     @classmethod
     def from_file(cls, filename: str, user: Optional[User] = None, 
-                  sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
-        """Create TimeSlots instance from file (CSV, ODS, XLSX, or JSON)"""
+                  sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeTable':
+        """Create TimeTable instance from file (CSV, ODS, XLSX, or JSON)"""
         file_path = Path(filename)
         
         if file_path.suffix.lower() == '.json':
@@ -35,8 +35,8 @@ class TimeSlots(JSONMixin):
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any], user: Optional[User] = None, 
-                  sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeSlots':
-        """Create TimeSlots instance from dictionary"""
+                  sector_map: Optional[Dict[str, Sector]] = None) -> 'TimeTable':
+        """Create TimeTable instance from dictionary"""
         slots = []
         for slot_data in data.get('slots', []):
             slot = TimeSlot.from_dict(slot_data, user, sector_map)
@@ -44,8 +44,8 @@ class TimeSlots(JSONMixin):
         return cls(slots, user)
     
     @classmethod
-    def from_csv(cls, filename: str, user: Optional[User] = None) -> 'TimeSlots':
-        """Create TimeSlots instance from CSV file"""
+    def from_csv(cls, filename: str, user: Optional[User] = None) -> 'TimeTable':
+        """Create TimeTable instance from CSV file"""
         slots = []
         try:
             # Create CSV parser with timetable required fields - using exact CSV column names
@@ -81,8 +81,8 @@ class TimeSlots(JSONMixin):
         return cls(slots, user)
     
     @classmethod
-    def from_ods(cls, filename: str, user: Optional[User] = None) -> 'TimeSlots':
-        """Create TimeSlots instance from ODS file"""
+    def from_ods(cls, filename: str, user: Optional[User] = None) -> 'TimeTable':
+        """Create TimeTable instance from ODS file"""
         slots = []
         try:
             # Create ODS parser with timetable required fields - using exact CSV column names
@@ -120,8 +120,8 @@ class TimeSlots(JSONMixin):
         return cls(slots, user)
     
     @classmethod
-    def from_xlsx(cls, filename: str, user: Optional[User] = None) -> 'TimeSlots':
-        """Create TimeSlots instance from Excel XLSX file"""
+    def from_xlsx(cls, filename: str, user: Optional[User] = None) -> 'TimeTable':
+        """Create TimeTable instance from Excel XLSX file"""
         from .excel_utils import ExcelParser
         slots = []
         try:
@@ -268,4 +268,21 @@ class TimeSlots(JSONMixin):
     
     def __iter__(self):
         return iter(self.slots)
+    
+    def to_db(self, user_id: int) -> 'TimeTableORM':
+        """Convert to database ORM model"""
+        from .time_table_orm import TimeTableORM
+        
+        data = self.to_dict()
+        data['uid'] = user_id
+        return TimeTableORM.from_dict(data)
+    
+    @classmethod
+    def from_db(cls, orm_obj: 'TimeTableORM') -> 'TimeTable':
+        """Create from database ORM model"""
+        return cls(
+            id=str(orm_obj.id),
+            label=orm_obj.label,
+            description=orm_obj.description
+        )
     

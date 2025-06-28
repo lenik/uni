@@ -5,9 +5,12 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from .user import User
 from .config import Config
-from .time_slots import TimeSlots
+from .time_table import TimeTable
 from .sectors import Sectors
 from .scheduler import Scheduler
+from .db import get_session, create_tables
+from .time_slot import TimeSlot
+from .sector import Sector
 import os
 
 def setup_logging(verbose: bool, quiet: bool):
@@ -24,6 +27,120 @@ def setup_logging(verbose: bool, quiet: bool):
         format='%(asctime)s - %(levelname)s - %(message)s',
         datefmt='%H:%M:%S'
     )
+
+def load_data_from_db(user: User) -> tuple:
+    """
+    Load data from database for the specified user.
+    
+    Args:
+        user: User object
+        
+    Returns:
+        Tuple of (time_table, sectors) - None for missing data types
+    """
+    from .user_orm import UserORM
+    from .time_table_orm import TimeTableORM
+    from .time_slot_orm import TimeSlotORM
+    from .sector_orm import SectorORM
+    
+    session = get_session()
+    time_table = None
+    sectors = None
+    
+    try:
+        # Get or create user in database
+        user_orm = UserORM.get_by_name(session, user.name)
+        if not user_orm:
+            user_orm = user.to_db()
+            user_orm.save(session)
+            logging.info(f"Created new user in database: {user.name}")
+        else:
+            logging.info(f"Found existing user in database: {user.name}")
+        
+        # Load timetables for user
+        timetables = TimeTableORM.get_by_user(session, user_orm.id)
+        if timetables:
+            # Use the first timetable (could be enhanced to select specific one)
+            timetable_orm = timetables[0]
+            time_table = TimeTable.from_db(timetable_orm)
+            
+            # Load timeslots for this timetable
+            timeslot_orms = TimeSlotORM.get_by_parent(session, timetable_orm.id)
+            for ts_orm in timeslot_orms:
+                timeslot = TimeSlot.from_db(ts_orm)
+                time_table.add_slot(timeslot)
+            
+            logging.info(f"Loaded timetable '{time_table.label}' with {len(time_table)} slots from database")
+        
+        # Load sectors for user
+        sector_orms = SectorORM.get_by_user(session, user_orm.id)
+        if sector_orms:
+            sectors = Sectors([Sector.from_db(s_orm) for s_orm in sector_orms], user)
+            logging.info(f"Loaded {len(sectors)} sectors for user '{user.name}' from database")
+        
+    except Exception as e:
+        logging.error(f"Failed to load data from database: {e}")
+        raise
+    finally:
+        session.close()
+    
+    return time_table, sectors
+
+def save_data_to_db(time_table: TimeTable, sectors: Sectors, user: User):
+    """
+    Save data to database for the specified user.
+    
+    Args:
+        time_table: TimeTable object to save
+        sectors: Sectors object to save
+        user: User object
+    """
+    from .user_orm import UserORM
+    from .time_table_orm import TimeTableORM
+    from .time_slot_orm import TimeSlotORM
+    from .sector_orm import SectorORM
+    
+    session = get_session()
+    
+    try:
+        # Get or create user in database
+        user_orm = UserORM.get_by_name(session, user.name)
+        if not user_orm:
+            user_orm = user.to_db()
+            user_orm.save(session)
+            logging.info(f"Created new user in database: {user.name}")
+        else:
+            logging.info(f"Found existing user in database: {user.name}")
+        
+        # Save timetable
+        if time_table:
+            timetable_orm = time_table.to_db(user_orm.id)
+            timetable_orm.save(session)
+            
+            # Save timeslots
+            for slot in time_table:
+                timeslot_orm = slot.to_db(timetable_orm.id)
+                timeslot_orm.save(session)
+            
+            logging.info(f"Saved timetable '{time_table.label}' with {len(time_table)} slots to database")
+        
+        # Save sectors
+        if sectors:
+            # Remove existing sectors for this user
+            existing_sectors = SectorORM.get_by_user(session, user_orm.id)
+            for s in existing_sectors:
+                s.delete(session)
+            # Save new sectors
+            for sector in sectors:
+                sector_orm = sector.to_db()
+                sector_orm.save(session)
+            logging.info(f"Saved {len(sectors)} sectors for user '{user.name}' to database")
+        
+    except Exception as e:
+        logging.error(f"Failed to save data to database: {e}")
+        raise
+    finally:
+        session.close()
 
 def check_ods_contains_data_type(file_path: str, data_type: str) -> bool:
     """
@@ -42,7 +159,7 @@ def check_ods_contains_data_type(file_path: str, data_type: str) -> bool:
         if data_type == 'timetable':
             required_fields = {'Seq', 'Start', 'Duration', 'End', 'Type', 'Description'}
         elif data_type == 'sectors':
-            required_fields = {'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'}
+            required_fields = {'Seq', 'Ratio', 'Weight', 'Abbr', 'Description'}
         else:
             return False
         
@@ -74,7 +191,7 @@ def detect_ods_data_types(file_path: str) -> dict:
         result['timetable'] = len(timetable_sheets) > 0
         
         # Check for sectors data
-        sectors_parser = ODSParser(required_fields={'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'})
+        sectors_parser = ODSParser(required_fields={'Seq', 'Ratio', 'Weight', 'Abbr', 'Description'})
         sectors_sheets = sectors_parser.parse_ods(file_path)
         result['sectors'] = len(sectors_sheets) > 0
         
@@ -93,14 +210,14 @@ def load_data_from_ods(file_path: str, data_types: dict, user: Optional[User] = 
         user: Optional user object
         
     Returns:
-        Tuple of (time_slots, sectors) - None for missing data types
+        Tuple of (time_table, sectors) - None for missing data types
     """
-    time_slots = None
+    time_table = None
     sectors = None
     
     if data_types.get('timetable'):
         try:
-            time_slots = TimeSlots.from_ods(file_path, user)
+            time_table = TimeTable.from_ods(file_path, user)
             logging.info(f"Successfully loaded timetable from {file_path}")
         except Exception as e:
             logging.error(f"Failed to load timetable from {file_path}: {e}")
@@ -114,7 +231,7 @@ def load_data_from_ods(file_path: str, data_types: dict, user: Optional[User] = 
             logging.error(f"Failed to load sectors from {file_path}: {e}")
             raise
     
-    return time_slots, sectors
+    return time_table, sectors
 
 def main():
     # Parse command line arguments
@@ -142,6 +259,12 @@ def main():
                        help='Maximum load per time slice (splits sectors into smaller chunks)')
     parser.add_argument('-b', '--break', dest='break_minutes', type=int, metavar='MINUTES', default=0,
                        help='Break minutes between time slices (default: 0)')
+    parser.add_argument('--db-url', type=str, help='SQLAlchemy DB URL (overrides all other DB options)')
+    parser.add_argument('--db-host', type=str, default=None, help='Database host (default: localhost)')
+    parser.add_argument('--db-port', type=str, default=None, help='Database port (default: 5432)')
+    parser.add_argument('--db-user', type=str, default=None, help='Database user (default: postgres)')
+    parser.add_argument('--db-password', type=str, default=None, help='Database password')
+    parser.add_argument('--db-name', type=str, default=None, help='Database name (default: timetab)')
     
     args = parser.parse_args()
     
@@ -155,90 +278,125 @@ def main():
         logging.info(f"Using user: {user_obj.display_name}")
     
     try:
-        # Load configuration
-        logging.info("Loading configuration...")
-        config = Config(args.config, user_obj)
+        # Check if database options are specified
+        use_database = any([
+            args.db_url,
+            args.db_host,
+            args.db_port,
+            args.db_user,
+            args.db_password,
+            args.db_name
+        ])
         
-        # Determine file paths (command line overrides config)
-        timetable_files = args.timetable if args.timetable else [config.get_timetable_path()]
-        sectors_files = args.sectors if args.sectors else [config.get_sectors_path()]
-        
-        # Use only the last file of each type
-        timetable_file = timetable_files[-1] if timetable_files else None
-        sectors_file = sectors_files[-1] if sectors_files else None
-        
-        # Log the actual file paths being used
-        logging.info(f"Timetable file path: {os.path.abspath(timetable_file) if timetable_file else 'None'}")
-        logging.info(f"Sectors file path: {os.path.abspath(sectors_file) if sectors_file else 'None'}")
-        
-        time_slots = None
-        sectors = None
-        
-        # Smart ODS handling: if both files are the same ODS file, load both data types from it
-        if (timetable_file and sectors_file and 
-            Path(timetable_file).resolve() == Path(sectors_file).resolve() and
-            Path(timetable_file).suffix.lower() == '.ods'):
+        if use_database:
+            logging.info("Database options detected, using database mode")
+            # Initialize database connection and create tables
+            create_tables()
             
-            logging.info(f"Detected same ODS file for both data types: {timetable_file}")
+            # Load data from database
+            if not user_obj:
+                logging.error("User must be specified when using database mode")
+                raise ValueError("User must be specified when using database mode")
             
-            # Detect what data types are available
-            data_types = detect_ods_data_types(timetable_file)
-            logging.info(f"ODS file contains: timetable={data_types['timetable']}, sectors={data_types['sectors']}")
+            time_table, sectors = load_data_from_db(user_obj)
             
-            # Load both data types from the same file
-            time_slots, sectors = load_data_from_ods(timetable_file, data_types, user_obj)
+            # Validate that we have both required data types
+            missing_data = []
+            if time_table is None:
+                missing_data.append("timetable")
+            if sectors is None:
+                missing_data.append("sectors")
             
+            if missing_data:
+                error_msg = f"Missing required data in database: {', '.join(missing_data)}"
+                logging.error(error_msg)
+                raise ValueError(error_msg)
+                
         else:
-            # Load data separately
-            if timetable_file:
-                logging.info(f"Loading timetable from: {timetable_file}")
-                
-                if Path(timetable_file).suffix.lower() == '.ods':
-                    # For ODS files, check if they contain timetable data
-                    if not check_ods_contains_data_type(timetable_file, 'timetable'):
-                        logging.error(f"ODS file {timetable_file} does not contain timetable data")
-                        raise ValueError(f"ODS file {timetable_file} does not contain timetable data")
-                
-                try:
-                    time_slots = TimeSlots.from_file(timetable_file, user_obj)
-                    logging.info(f"Successfully loaded timetable from {timetable_file}")
-                except Exception as e:
-                    logging.error(f"Failed to load timetable from {timetable_file}: {e}")
-                    raise
+            # Load configuration
+            logging.info("Loading configuration...")
+            config = Config(args.config, user_obj)
             
-            if sectors_file:
-                logging.info(f"Loading sectors from: {sectors_file}")
+            # Determine file paths (command line overrides config)
+            timetable_files = args.timetable if args.timetable else [config.get_timetable_path()]
+            sectors_files = args.sectors if args.sectors else [config.get_sectors_path()]
+            
+            # Use only the last file of each type
+            timetable_file = timetable_files[-1] if timetable_files else None
+            sectors_file = sectors_files[-1] if sectors_files else None
+            
+            # Log the actual file paths being used
+            logging.info(f"Timetable file path: {os.path.abspath(timetable_file) if timetable_file else 'None'}")
+            logging.info(f"Sectors file path: {os.path.abspath(sectors_file) if sectors_file else 'None'}")
+            
+            time_table = None
+            sectors = None
+            
+            # Smart ODS handling: if both files are the same ODS file, load both data types from it
+            if (timetable_file and sectors_file and 
+                Path(timetable_file).resolve() == Path(sectors_file).resolve() and
+                Path(timetable_file).suffix.lower() == '.ods'):
                 
-                if Path(sectors_file).suffix.lower() == '.ods':
-                    # For ODS files, check if they contain sectors data
-                    if not check_ods_contains_data_type(sectors_file, 'sectors'):
-                        logging.error(f"ODS file {sectors_file} does not contain sectors data")
-                        raise ValueError(f"ODS file {sectors_file} does not contain sectors data")
+                logging.info(f"Detected same ODS file for both data types: {timetable_file}")
                 
-                try:
-                    sectors = Sectors.from_file(sectors_file, user_obj)
-                    logging.info(f"Successfully loaded sectors from {sectors_file}")
-                except Exception as e:
-                    logging.error(f"Failed to load sectors from {sectors_file}: {e}")
-                    raise
+                # Detect what data types are available
+                data_types = detect_ods_data_types(timetable_file)
+                logging.info(f"ODS file contains: timetable={data_types['timetable']}, sectors={data_types['sectors']}")
+                
+                # Load both data types from the same file
+                time_table, sectors = load_data_from_ods(timetable_file, data_types, user_obj)
+                
+            else:
+                # Load data separately
+                if timetable_file:
+                    logging.info(f"Loading timetable from: {timetable_file}")
+                    
+                    if Path(timetable_file).suffix.lower() == '.ods':
+                        # For ODS files, check if they contain timetable data
+                        if not check_ods_contains_data_type(timetable_file, 'timetable'):
+                            logging.error(f"ODS file {timetable_file} does not contain timetable data")
+                            raise ValueError(f"ODS file {timetable_file} does not contain timetable data")
+                    
+                    try:
+                        time_table = TimeTable.from_file(timetable_file, user_obj)
+                        logging.info(f"Successfully loaded timetable from {timetable_file}")
+                    except Exception as e:
+                        logging.error(f"Failed to load timetable from {timetable_file}: {e}")
+                        raise
+                
+                if sectors_file:
+                    logging.info(f"Loading sectors from: {sectors_file}")
+                    
+                    if Path(sectors_file).suffix.lower() == '.ods':
+                        # For ODS files, check if they contain sectors data
+                        if not check_ods_contains_data_type(sectors_file, 'sectors'):
+                            logging.error(f"ODS file {sectors_file} does not contain sectors data")
+                            raise ValueError(f"ODS file {sectors_file} does not contain sectors data")
+                    
+                    try:
+                        sectors = Sectors.from_file(sectors_file, user_obj)
+                        logging.info(f"Successfully loaded sectors from {sectors_file}")
+                    except Exception as e:
+                        logging.error(f"Failed to load sectors from {sectors_file}: {e}")
+                        raise
+            
+            # Validate that we have both required data types
+            missing_data = []
+            if time_table is None:
+                missing_data.append("timetable")
+            if sectors is None:
+                missing_data.append("sectors")
+            
+            if missing_data:
+                error_msg = f"Missing required data: {', '.join(missing_data)}"
+                if timetable_file and sectors_file and Path(timetable_file).resolve() == Path(sectors_file).resolve():
+                    error_msg += f"\nODS file {timetable_file} does not contain the required data types"
+                logging.error(error_msg)
+                raise ValueError(error_msg)
         
-        # Validate that we have both required data types
-        missing_data = []
-        if time_slots is None:
-            missing_data.append("timetable")
-        if sectors is None:
-            missing_data.append("sectors")
-        
-        if missing_data:
-            error_msg = f"Missing required data: {', '.join(missing_data)}"
-            if timetable_file and sectors_file and Path(timetable_file).resolve() == Path(sectors_file).resolve():
-                error_msg += f"\nODS file {timetable_file} does not contain the required data types"
-            logging.error(error_msg)
-            raise ValueError(error_msg)
-        
-        logging.info(f"Loaded {len(time_slots)} time slots")
+        logging.info(f"Loaded {len(time_table)} time slots")
         logging.info(f"Loaded {len(sectors)} sectors")
-        logging.info(f"Found {time_slots.count_available_slots()} available time slots")
+        logging.info(f"Found {time_table.count_available_slots()} available time slots")
         
         # Log ordering and load management options
         if args.shuffle:
@@ -261,25 +419,30 @@ def main():
             break_minutes=args.break_minutes
         )
         logging.info("Starting sector allocation...")
-        updated_time_slots = scheduler.allocate_sectors_proportionally(time_slots, sectors)
+        updated_time_table = scheduler.allocate_sectors_proportionally(time_table, sectors)
         
         # Log allocation results
-        allocated_slots = updated_time_slots.get_allocated_slots()
+        allocated_slots = updated_time_table.get_allocated_slots()
         logging.info(f"Allocation completed: {len(allocated_slots)} slots allocated")
         
         if allocated_slots:
             for slot in allocated_slots:
                 logging.debug(f"Allocated: {slot.start}-{slot.end} ({slot.duration}min): {slot.description}")
         
+        # Save to database if using database mode
+        if use_database:
+            logging.info("Saving updated data to database...")
+            save_data_to_db(updated_time_table, sectors, user_obj)
+        
         # Write output
         if args.output:
             logging.info(f"Writing output to {args.output}")
             if args.all:
                 logging.info("Writing all time slots to output file")
-                updated_time_slots.to_csv(args.output, all_slots=True)
+                updated_time_table.to_csv(args.output, all_slots=True)
             else:
                 logging.info("Writing only available/allocated time slots to output file")
-                updated_time_slots.to_csv(args.output, all_slots=False)
+                updated_time_table.to_csv(args.output, all_slots=False)
         
         logging.info("Scheduling completed successfully!")
         
@@ -290,12 +453,12 @@ def main():
             if args.all:
                 # Show all time slots
                 print("All time slots:")
-                for slot in updated_time_slots:
+                for slot in updated_time_table:
                     print(f"{slot.start}-{slot.end} ({slot.duration}min, {slot.slot_type}): {slot.description}")
                 
                 # Show statistics
-                total_slots = len(updated_time_slots)
-                available_slots = updated_time_slots.count_available_slots()
+                total_slots = len(updated_time_table)
+                available_slots = updated_time_table.count_available_slots()
                 allocated_slots_count = len(allocated_slots)
                 
                 print(f"\nSummary Statistics:")

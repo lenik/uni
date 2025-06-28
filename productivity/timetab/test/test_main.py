@@ -42,7 +42,7 @@ class TestMain(unittest.TestCase):
 Header line 2
 Header line 3
 Header line 4
-Sector,Occupy,Weight,Abbr,Description
+Sector,Ratio,Weight,Abbr,Description
 8,33.7%,100,TAX,税务应用/公司事项
 6,6.7%,20,MIS,企业管理软件/WebApp
 2,6.7%,20,LANG,编程语言学习，支持工具，框架等"""
@@ -76,10 +76,10 @@ Sector,Occupy,Weight,Abbr,Description
     
     @patch('sys.argv', ['timetab', '--timetable', 'test_timetable.csv', '--sectors', 'test_sectors.csv'])
     @patch('src.main.Config')
-    @patch('src.main.TimeSlots')
+    @patch('src.main.TimeTable')
     @patch('src.main.Sectors')
     @patch('src.main.Scheduler')
-    def test_main_success(self, mock_scheduler_class, mock_sectors_class, mock_time_slots_class, mock_config_class):
+    def test_main_success(self, mock_scheduler_class, mock_sectors_class, mock_time_table_class, mock_config_class):
         """Test main function with successful execution."""
         # Setup mocks
         mock_config = MagicMock()
@@ -87,15 +87,15 @@ Sector,Occupy,Weight,Abbr,Description
         mock_config.get_sectors_path.return_value = self.sectors_file
         mock_config_class.return_value = mock_config
         
-        mock_time_slots = MagicMock()
-        mock_time_slots.count_available_slots.return_value = 2
-        mock_time_slots_class.from_file.return_value = mock_time_slots
+        mock_time_table = MagicMock()
+        mock_time_table.count_available_slots.return_value = 2
+        mock_time_table_class.from_file.return_value = mock_time_table
         
         mock_sectors = MagicMock()
         mock_sectors_class.from_file.return_value = mock_sectors
         
         mock_scheduler = MagicMock()
-        mock_scheduler.allocate_sectors_proportionally.return_value = mock_time_slots
+        mock_scheduler.allocate_sectors_proportionally.return_value = mock_time_table
         mock_scheduler_class.return_value = mock_scheduler
         
         # Capture stdout
@@ -107,19 +107,19 @@ Sector,Occupy,Weight,Abbr,Description
         
         # Verify mocks were called
         mock_config_class.assert_called_once_with(None)
-        mock_time_slots_class.from_file.assert_called_once_with('test_timetable.csv')
+        mock_time_table_class.from_file.assert_called_once_with('test_timetable.csv')
         mock_sectors_class.from_file.assert_called_once_with('test_sectors.csv')
         mock_scheduler_class.assert_called_once()
-        mock_scheduler.allocate_sectors_proportionally.assert_called_once_with(mock_time_slots, mock_sectors)
+        mock_scheduler.allocate_sectors_proportionally.assert_called_once_with(mock_time_table, mock_sectors)
         # No file should be written by default
-        mock_time_slots.to_csv.assert_not_called()
+        mock_time_table.to_csv.assert_not_called()
     
     @patch('sys.argv', ['timetab', '--config', 'test_config.ini'])
     @patch('src.main.Config')
-    @patch('src.main.TimeSlots')
+    @patch('src.main.TimeTable')
     @patch('src.main.Sectors')
     @patch('src.main.Scheduler')
-    def test_main_with_config_file(self, mock_scheduler_class, mock_sectors_class, mock_time_slots_class, mock_config_class):
+    def test_main_with_config_file(self, mock_scheduler_class, mock_sectors_class, mock_time_table_class, mock_config_class):
         """Test main function with config file."""
         # Setup mocks
         mock_config = MagicMock()
@@ -127,15 +127,15 @@ Sector,Occupy,Weight,Abbr,Description
         mock_config.get_sectors_path.return_value = self.sectors_file
         mock_config_class.return_value = mock_config
         
-        mock_time_slots = MagicMock()
-        mock_time_slots.count_available_slots.return_value = 2
-        mock_time_slots_class.from_file.return_value = mock_time_slots
+        mock_time_table = MagicMock()
+        mock_time_table.count_available_slots.return_value = 2
+        mock_time_table_class.from_file.return_value = mock_time_table
         
         mock_sectors = MagicMock()
         mock_sectors_class.from_file.return_value = mock_sectors
         
         mock_scheduler = MagicMock()
-        mock_scheduler.allocate_sectors_proportionally.return_value = mock_time_slots
+        mock_scheduler.allocate_sectors_proportionally.return_value = mock_time_table
         mock_scheduler_class.return_value = mock_scheduler
         
         result = main()
@@ -146,10 +146,10 @@ Sector,Occupy,Weight,Abbr,Description
     
     @patch('sys.argv', ['timetab', '--output', 'custom_output.csv'])
     @patch('src.main.Config')
-    @patch('src.main.TimeSlots')
+    @patch('src.main.TimeTable')
     @patch('src.main.Sectors')
     @patch('src.main.Scheduler')
-    def test_main_with_custom_output(self, mock_scheduler_class, mock_sectors_class, mock_time_slots_class, mock_config_class):
+    def test_main_with_custom_output(self, mock_scheduler_class, mock_sectors_class, mock_time_table_class, mock_config_class):
         """Test main function with custom output file."""
         # Setup mocks
         mock_config = MagicMock()
@@ -157,21 +157,21 @@ Sector,Occupy,Weight,Abbr,Description
         mock_config.get_sectors_path.return_value = self.sectors_file
         mock_config_class.return_value = mock_config
         
-        mock_time_slots = MagicMock()
-        mock_time_slots.count_available_slots.return_value = 2
-        mock_time_slots_class.from_file.return_value = mock_time_slots
+        mock_time_table = MagicMock()
+        mock_time_table.count_available_slots.return_value = 2
+        mock_time_table_class.from_file.return_value = mock_time_table
         
         mock_sectors = MagicMock()
         mock_sectors_class.from_file.return_value = mock_sectors
         
         mock_scheduler = MagicMock()
-        mock_scheduler.allocate_sectors_proportionally.return_value = mock_time_slots
+        mock_scheduler.allocate_sectors_proportionally.return_value = mock_time_table
         mock_scheduler_class.return_value = mock_scheduler
         
         result = main()
         
         # Verify custom output file was used
-        mock_time_slots.to_csv.assert_called_once_with('custom_output.csv', all_slots=False)
+        mock_time_table.to_csv.assert_called_once_with('custom_output.csv', all_slots=False)
         self.assertEqual(result, 0)
     
     @patch('sys.argv', ['timetab'])
@@ -190,8 +190,8 @@ Sector,Occupy,Weight,Abbr,Description
     
     @patch('sys.argv', ['timetab'])
     @patch('src.main.Config')
-    @patch('src.main.TimeSlots')
-    def test_main_value_error(self, mock_time_slots_class, mock_config_class):
+    @patch('src.main.TimeTable')
+    def test_main_value_error(self, mock_time_table_class, mock_config_class):
         """Test main function with ValueError."""
         # Setup mocks
         mock_config = MagicMock()
@@ -199,8 +199,8 @@ Sector,Occupy,Weight,Abbr,Description
         mock_config.get_sectors_path.return_value = self.sectors_file
         mock_config_class.return_value = mock_config
         
-        # Setup TimeSlots to raise ValueError
-        mock_time_slots_class.from_file.side_effect = ValueError("Invalid data")
+        # Setup TimeTable to raise ValueError
+        mock_time_table_class.from_file.side_effect = ValueError("Invalid data")
         
         result = main()
         
@@ -209,10 +209,10 @@ Sector,Occupy,Weight,Abbr,Description
     
     @patch('sys.argv', ['timetab', '--timetable', 'test_timetable.csv', '--sectors', 'test_sectors.csv', '--output', 'test_output.csv'])
     @patch('src.main.Config')
-    @patch('src.main.TimeSlots')
+    @patch('src.main.TimeTable')
     @patch('src.main.Sectors')
     @patch('src.main.Scheduler')
-    def test_main_with_output_file(self, mock_scheduler_class, mock_sectors_class, mock_time_slots_class, mock_config_class):
+    def test_main_with_output_file(self, mock_scheduler_class, mock_sectors_class, mock_time_table_class, mock_config_class):
         """Test main function with output file specified."""
         # Setup mocks
         mock_config = MagicMock()
@@ -220,15 +220,15 @@ Sector,Occupy,Weight,Abbr,Description
         mock_config.get_sectors_path.return_value = self.sectors_file
         mock_config_class.return_value = mock_config
         
-        mock_time_slots = MagicMock()
-        mock_time_slots.count_available_slots.return_value = 2
-        mock_time_slots_class.from_file.return_value = mock_time_slots
+        mock_time_table = MagicMock()
+        mock_time_table.count_available_slots.return_value = 2
+        mock_time_table_class.from_file.return_value = mock_time_table
         
         mock_sectors = MagicMock()
         mock_sectors_class.from_file.return_value = mock_sectors
         
         mock_scheduler = MagicMock()
-        mock_scheduler.allocate_sectors_proportionally.return_value = mock_time_slots
+        mock_scheduler.allocate_sectors_proportionally.return_value = mock_time_table
         mock_scheduler_class.return_value = mock_scheduler
         
         # Capture stdout
@@ -240,9 +240,9 @@ Sector,Occupy,Weight,Abbr,Description
         
         # Verify mocks were called
         mock_config_class.assert_called_once_with(None)
-        mock_time_slots_class.from_file.assert_called_once_with('test_timetable.csv')
+        mock_time_table_class.from_file.assert_called_once_with('test_timetable.csv')
         mock_sectors_class.from_file.assert_called_once_with('test_sectors.csv')
         mock_scheduler_class.assert_called_once()
-        mock_scheduler.allocate_sectors_proportionally.assert_called_once_with(mock_time_slots, mock_sectors)
+        mock_scheduler.allocate_sectors_proportionally.assert_called_once_with(mock_time_table, mock_sectors)
         # File should be written when output is specified
-        mock_time_slots.to_csv.assert_called_once_with('test_output.csv', all_slots=False) 
+        mock_time_table.to_csv.assert_called_once_with('test_output.csv', all_slots=False) 

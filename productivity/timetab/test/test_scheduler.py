@@ -4,7 +4,7 @@ from src.time_slot import TimeSlot
 from src.sector import Sector
 from src.sector_allocation import SectorAllocation
 from src.scheduler import Scheduler
-from src.time_slots import TimeSlots
+from src.time_table import TimeTable
 from src.sectors import Sectors
 from src.time_utils import Time
 
@@ -31,13 +31,13 @@ class TestScheduler(unittest.TestCase):
         
         # Create sample sectors
         self.sample_sectors = [
-            Sector(seq="8", occupy="50%", weight=100, abbr="TAX", 
+            Sector(seq="8", ratio="50%", weight=100, abbr="TAX", 
                   description="税务应用/公司事项"),
-            Sector(seq="6", occupy="50%", weight=100, abbr="MIS", 
+            Sector(seq="6", ratio="50%", weight=100, abbr="MIS", 
                   description="企业管理软件/WebApp"),
         ]
         
-        self.time_slots = TimeSlots(self.sample_slots)
+        self.time_table = TimeTable(self.sample_slots)
         self.sectors = Sectors(self.sample_sectors)
     
     def test_init(self):
@@ -68,8 +68,8 @@ class TestScheduler(unittest.TestCase):
     def test_calculate_sector_allocations_uneven_weights(self):
         """Test _calculate_sector_allocations with uneven weights."""
         sectors = Sectors([
-            Sector(seq="1", occupy="75%", weight=75, abbr="HIGH", description="High weight"),
-            Sector(seq="2", occupy="25%", weight=25, abbr="LOW", description="Low weight"),
+            Sector(seq="1", ratio="75%", weight=75, abbr="HIGH", description="High weight"),
+            Sector(seq="2", ratio="25%", weight=25, abbr="LOW", description="Low weight"),
         ])
         
         total_available_time = 100
@@ -88,7 +88,7 @@ class TestScheduler(unittest.TestCase):
         """Test _create_allocated_slot method."""
         original_slot = TimeSlot(seq=1, start=Time.from_string("06:35"), duration=25, end=Time.from_string("07:00"), 
                                 slot_type="A0-L", description="", original_index=0)
-        sector = Sector(seq="8", occupy="50%", weight=100, abbr="TAX", 
+        sector = Sector(seq="8", ratio="50%", weight=100, abbr="TAX", 
                        description="税务应用/公司事项")
         
         allocated_slot = self.scheduler._create_allocated_slot(original_slot, 20, sector, 1)
@@ -98,16 +98,16 @@ class TestScheduler(unittest.TestCase):
         self.assertEqual(allocated_slot.duration, 20)
         self.assertEqual(allocated_slot.end, Time.from_string("06:55"))  # 06:35 + 20 minutes
         self.assertEqual(allocated_slot.slot_type, "A0-L")
-        self.assertEqual(allocated_slot.description, "8: 税务应用/公司事项")
+        self.assertEqual(allocated_slot.description, "TAX: 税务应用/公司事项")
         self.assertEqual(allocated_slot.original_index, 0)
     
     def test_allocate_sectors_proportionally(self):
         """Test allocate_sectors_proportionally method."""
-        # Mock the time_slots methods
-        with patch.object(self.time_slots, 'get_available_slots') as mock_get_available:
-            with patch.object(self.time_slots, 'get_total_available_time') as mock_get_total:
-                with patch.object(self.time_slots, 'get_slots') as mock_get_slots:
-                    with patch.object(self.time_slots, 'replace_available_slots') as mock_replace:
+        # Mock the time_table methods
+        with patch.object(self.time_table, 'get_available_slots') as mock_get_available:
+            with patch.object(self.time_table, 'get_total_available_time') as mock_get_total:
+                with patch.object(self.time_table, 'get_slots') as mock_get_slots:
+                    with patch.object(self.time_table, 'replace_available_slots') as mock_replace:
                         
                         # Setup mocks
                         available_slots = [
@@ -121,7 +121,7 @@ class TestScheduler(unittest.TestCase):
                         mock_get_slots.return_value = self.sample_slots
                         
                         # Call the method
-                        result = self.scheduler.allocate_sectors_proportionally(self.time_slots, self.sectors)
+                        result = self.scheduler.allocate_sectors_proportionally(self.time_table, self.sectors)
                         
                         # Verify mocks were called
                         self.assertGreaterEqual(mock_get_available.call_count, 1)
@@ -129,15 +129,15 @@ class TestScheduler(unittest.TestCase):
                         self.assertGreaterEqual(mock_get_slots.call_count, 1)
                         # self.assertGreaterEqual(mock_replace.call_count, 1)
                         
-                        # Verify result is a TimeSlots instance
-                        self.assertIsInstance(result, TimeSlots)
+                        # Verify result is a TimeTable instance
+                        self.assertIsInstance(result, TimeTable)
     
     def test_allocate_sectors_with_insufficient_time(self):
         """Test allocation when there's insufficient time for all sectors."""
         # Create sectors that need more time than available
         large_sectors = Sectors([
-            Sector(seq="1", occupy="50%", weight=100, abbr="LARGE1", description="Large sector 1"),
-            Sector(seq="2", occupy="50%", weight=100, abbr="LARGE2", description="Large sector 2"),
+            Sector(seq="1", ratio="50%", weight=100, abbr="LARGE1", description="Large sector 1"),
+            Sector(seq="2", ratio="50%", weight=100, abbr="LARGE2", description="Large sector 2"),
         ])
         
         # Only 70 minutes available, but sectors need more
@@ -187,17 +187,17 @@ class TestScheduler(unittest.TestCase):
         """Test edge cases and boundary conditions."""
         # Test with empty sectors
         empty_sectors = Sectors([])
-        result = self.scheduler.allocate_sectors_proportionally(self.time_slots, empty_sectors)
-        self.assertIsInstance(result, TimeSlots)
+        result = self.scheduler.allocate_sectors_proportionally(self.time_table, empty_sectors)
+        self.assertIsInstance(result, TimeTable)
         
         # Test with empty time slots
-        empty_time_slots = TimeSlots([])
-        result = self.scheduler.allocate_sectors_proportionally(empty_time_slots, self.sectors)
-        self.assertIsInstance(result, TimeSlots)
+        empty_time_table = TimeTable([])
+        result = self.scheduler.allocate_sectors_proportionally(empty_time_table, self.sectors)
+        self.assertIsInstance(result, TimeTable)
         
         # Test with zero weight sectors
         zero_weight_sectors = Sectors([
-            Sector(seq="1", occupy="0%", weight=0, abbr="ZERO", description="Zero weight"),
+            Sector(seq="1", ratio="0%", weight=0, abbr="ZERO", description="Zero weight"),
         ])
         
         with self.assertRaises(ZeroDivisionError):

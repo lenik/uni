@@ -45,13 +45,13 @@ class Sectors(JSONMixin):
         sectors = []
         try:
             # Create CSV parser with sectors required fields - using exact CSV column names
-            parser = CSVParser(required_fields={'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'})
+            parser = CSVParser(required_fields={'Seq', 'Ratio', 'Weight', 'Abbr', 'Description'})
             rows = parser.parse_csv(filename)
             
             for row in rows:
                 sector = Sector.from_strings(
                     seq=row['Seq'],
-                    occupy=row['Occupy'],
+                    ratio=row['Ratio'],
                     weight=int(row['Weight']),
                     abbr=row['Abbr'],
                     description=row['Description'],
@@ -77,7 +77,7 @@ class Sectors(JSONMixin):
         sectors = []
         try:
             # Create ODS parser with sectors required fields - using exact CSV column names
-            parser = ODSParser(required_fields={'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'})
+            parser = ODSParser(required_fields={'Seq', 'Ratio', 'Weight', 'Abbr', 'Description'})
             sheets = parser.parse_ods(filename)
             
             if not sheets:
@@ -90,7 +90,7 @@ class Sectors(JSONMixin):
             for i, row in enumerate(rows):
                 sector = Sector.from_strings(
                     seq=row['Seq'],
-                    occupy=row['Occupy'],
+                    ratio=row['Ratio'],
                     weight=int(row['Weight']),
                     abbr=row['Abbr'],
                     description=row['Description'],
@@ -114,7 +114,7 @@ class Sectors(JSONMixin):
         from .excel_utils import ExcelParser
         sectors = []
         try:
-            parser = ExcelParser(required_fields={'Seq', 'Occupy', 'Weight', 'Abbr', 'Description'})
+            parser = ExcelParser(required_fields={'Seq', 'Ratio', 'Weight', 'Abbr', 'Description'})
             sheets = parser.parse_excel(filename)
             if not sheets:
                 raise ValueError(f"No sectors data found in {filename}")
@@ -123,7 +123,7 @@ class Sectors(JSONMixin):
             for i, row in enumerate(rows):
                 sector = Sector.from_strings(
                     seq=row['Seq'],
-                    occupy=row['Occupy'],
+                    ratio=row['Ratio'],
                     weight=int(row['Weight']),
                     abbr=row['Abbr'],
                     description=row['Description'],
@@ -165,13 +165,13 @@ class Sectors(JSONMixin):
                 writer.writerow(['', '', str(len(self.sectors)), '', 'Rows'])
                 writer.writerow(['', '', '29.70', '', 'Average'])
                 writer.writerow(['', '', '', '', ''])
-                writer.writerow(['Seq', 'Occupy', 'Weight', 'Abbr', 'Description'])
+                writer.writerow(['Seq', 'Ratio', 'Weight', 'Abbr', 'Description'])
                 
                 for sector in self.sectors:
                     sector_dict = sector.to_dict()
                     writer.writerow([
                         sector_dict['seq'],
-                        sector_dict['occupy'],
+                        sector_dict['ratio'],
                         sector_dict['weight'],
                         sector_dict['abbr'],
                         sector_dict['description']
@@ -216,12 +216,16 @@ class Sectors(JSONMixin):
         """Get sectors sorted by weight"""
         return sorted(self.sectors, key=lambda x: x.weight, reverse=reverse)
     
-    def sort_by_occupy(self, reverse: bool = True) -> List[Sector]:
-        """Get sectors sorted by occupy percentage"""
-        return sorted(self.sectors, key=lambda x: x.occupy, reverse=reverse)
+    def sort_by_ratio(self, reverse: bool = True) -> List[Sector]:
+        """Get sectors sorted by ratio percentage"""
+        return sorted(self.sectors, key=lambda x: x.ratio, reverse=reverse)
     
     def __len__(self) -> int:
         return len(self.sectors)
     
     def __iter__(self):
         return iter(self.sectors)
+    
+    def to_db(self) -> list:
+        """Convert all sectors to ORM models for the user"""
+        return [sector.to_db() for sector in self.sectors]

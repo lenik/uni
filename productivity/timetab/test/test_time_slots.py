@@ -3,11 +3,12 @@ import tempfile
 import os
 import csv
 from unittest.mock import patch, mock_open
-from src.time_slots import TimeSlots
 from src.time_slot import TimeSlot
+from src.time_table import TimeTable
+from src.time_utils import Time
 
 
-class TestTimeSlots(unittest.TestCase):
+class TestTimeTable(unittest.TestCase):
     
     def setUp(self):
         """Set up test fixtures before each test method."""
@@ -21,7 +22,7 @@ class TestTimeSlots(unittest.TestCase):
             TimeSlot.from_strings(6, "09:25", 15, "09:40", "Traffic", "Walk to work", 5),
         ]
         
-        self.time_slots = TimeSlots(self.sample_slots)
+        self.time_table = TimeTable(self.sample_slots)
         self.temp_dir = tempfile.mkdtemp()
     
     def tearDown(self):
@@ -32,18 +33,18 @@ class TestTimeSlots(unittest.TestCase):
     
     def test_init_empty(self):
         """Test initialization with no slots."""
-        empty_time_slots = TimeSlots()
-        self.assertEqual(len(empty_time_slots), 0)
-        self.assertEqual(empty_time_slots.slots, [])
+        empty_time_table = TimeTable()
+        self.assertEqual(len(empty_time_table), 0)
+        self.assertEqual(empty_time_table.slots, [])
     
     def test_init_with_slots(self):
         """Test initialization with provided slots."""
-        self.assertEqual(len(self.time_slots), 6)
-        self.assertEqual(self.time_slots.slots, self.sample_slots)
+        self.assertEqual(len(self.time_table), 6)
+        self.assertEqual(self.time_table.slots, self.sample_slots)
     
     def test_get_available_slots(self):
         """Test get_available_slots method."""
-        available_slots = self.time_slots.get_available_slots()
+        available_slots = self.time_table.get_available_slots()
         
         # Should return 2 available slots (A0-L and A1-T)
         self.assertEqual(len(available_slots), 2)
@@ -60,46 +61,46 @@ class TestTimeSlots(unittest.TestCase):
     def test_get_total_available_time(self):
         """Test get_total_available_time method."""
         # Available slots: A0-L (25 min) + A1-T (45 min) = 70 minutes
-        total_time = self.time_slots.get_total_available_time()
+        total_time = self.time_table.get_total_available_time()
         self.assertEqual(total_time, 70)
     
     def test_count_available_slots(self):
         """Test count_available_slots method."""
-        count = self.time_slots.count_available_slots()
+        count = self.time_table.count_available_slots()
         self.assertEqual(count, 2)
     
     def test_get_slots(self):
         """Test get_slots method."""
-        slots = self.time_slots.get_slots()
+        slots = self.time_table.get_slots()
         self.assertEqual(slots, self.sample_slots)
     
     def test_add_slot(self):
         """Test add_slot method."""
         new_slot = TimeSlot.from_strings(7, "09:40", 10, "09:50", "A2-Minor", "New slot", 6)
         
-        initial_count = len(self.time_slots)
-        self.time_slots.add_slot(new_slot)
+        initial_count = len(self.time_table)
+        self.time_table.add_slot(new_slot)
         
-        self.assertEqual(len(self.time_slots), initial_count + 1)
-        self.assertIn(new_slot, self.time_slots.slots)
+        self.assertEqual(len(self.time_table), initial_count + 1)
+        self.assertIn(new_slot, self.time_table.slots)
     
     def test_remove_slot(self):
         """Test remove_slot method."""
         slot_to_remove = self.sample_slots[0]
-        initial_count = len(self.time_slots)
+        initial_count = len(self.time_table)
         
-        self.time_slots.remove_slot(slot_to_remove)
+        self.time_table.remove_slot(slot_to_remove)
         
-        self.assertEqual(len(self.time_slots), initial_count - 1)
-        self.assertNotIn(slot_to_remove, self.time_slots.slots)
+        self.assertEqual(len(self.time_table), initial_count - 1)
+        self.assertNotIn(slot_to_remove, self.time_table.slots)
     
     def test_len(self):
         """Test __len__ method."""
-        self.assertEqual(len(self.time_slots), 6)
+        self.assertEqual(len(self.time_table), 6)
     
     def test_iter(self):
         """Test __iter__ method."""
-        slots_list = list(self.time_slots)
+        slots_list = list(self.time_table)
         self.assertEqual(slots_list, self.sample_slots)
     
     def test_replace_available_slots(self):
@@ -111,18 +112,18 @@ class TestTimeSlots(unittest.TestCase):
         ]
         
         # Get original available indices
-        original_available_indices = {slot.original_index for slot in self.time_slots.get_available_slots()}
+        original_available_indices = {slot.original_index for slot in self.time_table.get_available_slots()}
         
-        self.time_slots.replace_available_slots(allocated_slots)
+        self.time_table.replace_available_slots(allocated_slots)
         
         # Check that available slots were replaced
-        for slot in self.time_slots.slots:
+        for slot in self.time_table.slots:
             if slot.original_index in original_available_indices:
                 self.assertFalse(slot.is_available())
         
         # Check that allocated slots are present
         allocated_slot_types = [slot.slot_type for slot in allocated_slots]
-        for slot in self.time_slots.slots:
+        for slot in self.time_table.slots:
             if slot.slot_type in allocated_slot_types:
                 self.assertIn(slot, allocated_slots)
     
@@ -137,13 +138,13 @@ class TestTimeSlots(unittest.TestCase):
         with open(csv_file, 'w') as f:
             f.write(csv_content)
         
-        time_slots = TimeSlots.from_csv(csv_file)
+        time_table = TimeTable.from_csv(csv_file)
         
-        self.assertEqual(len(time_slots), 3)
-        self.assertTrue(all(isinstance(slot, TimeSlot) for slot in time_slots.slots))
+        self.assertEqual(len(time_table), 3)
+        self.assertTrue(all(isinstance(slot, TimeSlot) for slot in time_table.slots))
         
         # Check first slot
-        first_slot = time_slots.slots[0]
+        first_slot = time_table.slots[0]
         self.assertEqual(first_slot.order, 1)
         self.assertEqual(first_slot.start.to_string(), '06:35')
         self.assertEqual(first_slot.duration, 25)
@@ -167,16 +168,16 @@ Order,Start,Duration,End,Type,Description
         with open(csv_file, 'w') as f:
             f.write(csv_content)
         
-        time_slots = TimeSlots.from_csv(csv_file)
+        time_table = TimeTable.from_csv(csv_file)
         
-        self.assertEqual(len(time_slots), 2)  # Comment row should be skipped
-        self.assertEqual(time_slots.slots[0].order, 1)
-        self.assertEqual(time_slots.slots[1].order, 3)  # Row 2 was a comment
+        self.assertEqual(len(time_table), 2)  # Comment row should be skipped
+        self.assertEqual(time_table.slots[0].order, 1)
+        self.assertEqual(time_table.slots[1].order, 3)  # Row 2 was a comment
     
     def test_from_csv_file_not_found(self):
         """Test from_csv method with file not found."""
         with self.assertRaises(FileNotFoundError):
-            TimeSlots.from_csv('nonexistent_file.csv')
+            TimeTable.from_csv('nonexistent_file.csv')
     
     def test_to_csv_success(self):
         """Test to_csv method with successful file writing."""
@@ -184,7 +185,7 @@ Order,Start,Duration,End,Type,Description
             temp_filename = temp_file.name
         
         try:
-            self.time_slots.to_csv(temp_filename)
+            self.time_table.to_csv(temp_filename)
             
             # Verify the file was created and contains expected data
             self.assertTrue(os.path.exists(temp_filename))
@@ -212,14 +213,14 @@ Order,Start,Duration,End,Type,Description
     
     def test_to_csv_empty_slots(self):
         """Test to_csv method with empty slots."""
-        empty_time_slots = TimeSlots()
+        empty_time_table = TimeTable()
         
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as temp_file:
             temp_filename = temp_file.name
         
         try:
             # Should not raise an exception
-            empty_time_slots.to_csv(temp_filename)
+            empty_time_table.to_csv(temp_filename)
             
             # File should not be created or should be empty
             if os.path.exists(temp_filename):
@@ -235,30 +236,30 @@ Order,Start,Duration,End,Type,Description
     def test_edge_cases(self):
         """Test edge cases and boundary conditions."""
         # Test with empty slot list
-        empty_time_slots = TimeSlots([])
-        self.assertEqual(empty_time_slots.get_available_slots(), [])
-        self.assertEqual(empty_time_slots.get_total_available_time(), 0)
-        self.assertEqual(empty_time_slots.count_available_slots(), 0)
+        empty_time_table = TimeTable([])
+        self.assertEqual(empty_time_table.get_available_slots(), [])
+        self.assertEqual(empty_time_table.get_total_available_time(), 0)
+        self.assertEqual(empty_time_table.count_available_slots(), 0)
         
         # Test with only non-available slots
         non_available_slots = [
             TimeSlot.from_strings(1, "06:35", 25, "07:00", "Reserved", "", 0),
             TimeSlot.from_strings(2, "07:00", 60, "08:00", "FEM", "", 1),
         ]
-        time_slots_no_available = TimeSlots(non_available_slots)
-        self.assertEqual(time_slots_no_available.get_available_slots(), [])
-        self.assertEqual(time_slots_no_available.get_total_available_time(), 0)
-        self.assertEqual(time_slots_no_available.count_available_slots(), 0)
+        time_table_no_available = TimeTable(non_available_slots)
+        self.assertEqual(time_table_no_available.get_available_slots(), [])
+        self.assertEqual(time_table_no_available.get_total_available_time(), 0)
+        self.assertEqual(time_table_no_available.count_available_slots(), 0)
         
         # Test with only available slots
         available_only_slots = [
             TimeSlot.from_strings(1, "06:35", 25, "07:00", "A0-L", "", 0),
             TimeSlot.from_strings(2, "07:00", 60, "08:00", "A1-T", "", 1),
         ]
-        time_slots_all_available = TimeSlots(available_only_slots)
-        self.assertEqual(len(time_slots_all_available.get_available_slots()), 2)
-        self.assertEqual(time_slots_all_available.get_total_available_time(), 85)
-        self.assertEqual(time_slots_all_available.count_available_slots(), 2)
+        time_table_all_available = TimeTable(available_only_slots)
+        self.assertEqual(len(time_table_all_available.get_available_slots()), 2)
+        self.assertEqual(time_table_all_available.get_total_available_time(), 85)
+        self.assertEqual(time_table_all_available.count_available_slots(), 2)
 
 
 if __name__ == '__main__':

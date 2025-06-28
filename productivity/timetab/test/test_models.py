@@ -83,7 +83,7 @@ class TestTimeSlot(unittest.TestCase):
     def test_timeslot_creation(self):
         """Test TimeSlot dataclass creation and attributes."""
         user = User(id="user123", name="john_doe", display_name="John Doe")
-        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        sector = Sector(seq="1", ratio=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
         
         slot = TimeSlot(
             id="slot123",
@@ -112,7 +112,7 @@ class TestTimeSlot(unittest.TestCase):
     def test_timeslot_from_strings(self):
         """Test TimeSlot.from_strings method."""
         user = User(id="user123", name="john_doe", display_name="John Doe")
-        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        sector = Sector(seq="1", ratio=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
         
         slot = TimeSlot.from_strings(
             seq=1,
@@ -141,7 +141,7 @@ class TestTimeSlot(unittest.TestCase):
     def test_timeslot_from_dict(self):
         """Test TimeSlot.from_dict method."""
         user = User(id="user123", name="john_doe", display_name="John Doe")
-        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        sector = Sector(seq="1", ratio=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
         
         slot_data = {
             'id': 'slot123',
@@ -154,7 +154,7 @@ class TestTimeSlot(unittest.TestCase):
             'original_index': 0,
             'sector': {
                 'seq': '1',
-                'occupy': '33.7%',
+                'ratio': '33.7%',
                 'weight': 100,
                 'abbr': 'TAX',
                 'description': 'Tax work'
@@ -177,7 +177,7 @@ class TestTimeSlot(unittest.TestCase):
     def test_timeslot_to_dict(self):
         """Test TimeSlot.to_dict method."""
         user = User(id="user123", name="john_doe", display_name="John Doe")
-        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        sector = Sector(seq="1", ratio=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
         
         slot = TimeSlot(
             id="slot123",
@@ -205,7 +205,7 @@ class TestTimeSlot(unittest.TestCase):
             'original_index': 0,
             'sector': {
                 'seq': '1',
-                'occupy': '33.7%',
+                'ratio': '33.7%',
                 'weight': 100,
                 'abbr': 'TAX',
                 'description': 'Tax work',
@@ -284,7 +284,7 @@ class TestSector(unittest.TestCase):
         sector = Sector(
             id="sector123",
             seq="1",
-            occupy=33.7,
+            ratio=33.7,
             weight=100,
             abbr="TAX",
             description="Tax work",
@@ -293,7 +293,7 @@ class TestSector(unittest.TestCase):
         
         self.assertEqual(sector.id, "sector123")
         self.assertEqual(sector.seq, "1")
-        self.assertEqual(sector.occupy, 33.7)
+        self.assertEqual(sector.ratio, 33.7)
         self.assertEqual(sector.weight, 100)
         self.assertEqual(sector.abbr, "TAX")
         self.assertEqual(sector.description, "Tax work")
@@ -304,7 +304,7 @@ class TestSector(unittest.TestCase):
         user = User(id="user123", name="john_doe", display_name="John Doe")
         sector = Sector.from_strings(
             seq="1",
-            occupy="33.7%",
+            ratio="33.7%",
             weight=100,
             abbr="TAX",
             description="Tax work",
@@ -314,7 +314,7 @@ class TestSector(unittest.TestCase):
         
         self.assertEqual(sector.id, "sector123")
         self.assertEqual(sector.seq, "1")
-        self.assertEqual(sector.occupy, 33.7)
+        self.assertEqual(sector.ratio, 33.7)
         self.assertEqual(sector.weight, 100)
         self.assertEqual(sector.abbr, "TAX")
         self.assertEqual(sector.description, "Tax work")
@@ -326,7 +326,7 @@ class TestSector(unittest.TestCase):
         sector = Sector(
             id="sector123",
             seq="1",
-            occupy=33.7,
+            ratio=33.7,
             weight=100,
             abbr="TAX",
             description="Tax work",
@@ -338,7 +338,7 @@ class TestSector(unittest.TestCase):
             'id': 'sector123',
             'user_id': 'user123',
             'seq': '1',
-            'occupy': '33.7%',
+            'ratio': '33.7%',
             'weight': 100,
             'abbr': 'TAX',
             'description': 'Tax work'
@@ -351,7 +351,7 @@ class TestSector(unittest.TestCase):
         sector = Sector(
             id="sector123",
             seq="1",
-            occupy=50.0,
+            ratio=50.0,
             weight=100,
             abbr="TAX",
             description="Tax work",
@@ -359,7 +359,7 @@ class TestSector(unittest.TestCase):
         )
         
         sector_dict = sector.to_dict()
-        self.assertEqual(sector_dict['occupy'], '50.0%')
+        self.assertEqual(sector_dict['ratio'], '50.0%')
     
     def test_sector_repr(self):
         """Test Sector string representation."""
@@ -367,7 +367,7 @@ class TestSector(unittest.TestCase):
         sector = Sector(
             id="sector123",
             seq="1",
-            occupy=33.7,
+            ratio=33.7,
             weight=100,
             abbr="TAX",
             description="Tax work",
@@ -387,7 +387,7 @@ class TestSectorAllocation(unittest.TestCase):
     def test_sector_allocation_creation(self):
         """Test SectorAllocation dataclass creation and attributes."""
         user = User(id="user123", name="john_doe", display_name="John Doe")
-        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        sector = Sector(seq="1", ratio=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
         time_slot = TimeSlot(
             seq=1,
             start=Time(6, 35),
@@ -418,7 +418,7 @@ class TestSectorAllocation(unittest.TestCase):
             'sector': {
                 'id': 'sector123',
                 'seq': '1',
-                'occupy': '33.7%',
+                'ratio': '33.7%',
                 'weight': 100,
                 'abbr': 'TAX',
                 'description': 'Tax work',
@@ -437,7 +437,7 @@ class TestSectorAllocation(unittest.TestCase):
                 'user_id': 'user123',
                 'sector': {
                     'seq': '1',
-                    'occupy': '33.7%',
+                    'ratio': '33.7%',
                     'weight': 100,
                     'abbr': 'TAX',
                     'description': 'Tax work'
@@ -455,7 +455,7 @@ class TestSectorAllocation(unittest.TestCase):
     def test_sector_allocation_to_dict(self):
         """Test SectorAllocation.to_dict method."""
         user = User(id="user123", name="john_doe", display_name="John Doe")
-        sector = Sector(seq="1", occupy=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
+        sector = Sector(seq="1", ratio=33.7, weight=100, abbr="TAX", description="Tax work", user=user)
         time_slot = TimeSlot(
             seq=1,
             start=Time(6, 35),

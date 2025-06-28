@@ -5,7 +5,7 @@ from .time_slot import TimeSlot
 from .sector import Sector
 from .sector_allocation import SectorAllocation
 from .time_utils import Time
-from .time_slots import TimeSlots
+from .time_table import TimeTable
 from .sectors import Sectors
 
 class Scheduler:
@@ -18,12 +18,12 @@ class Scheduler:
         self.break_minutes = break_minutes
         self.accumulated_break_time = 0  # Track accumulated break time for adjacent sectors
     
-    def allocate_sectors_proportionally(self, time_slots: TimeSlots, sectors: Sectors) -> TimeSlots:
+    def allocate_sectors_proportionally(self, time_table: TimeTable, sectors: Sectors) -> TimeTable:
         """Allocate sectors proportionally to available time slots"""
         
         # Get available slots and calculate totals
-        available_slots = time_slots.get_available_slots()
-        total_available_time = time_slots.get_total_available_time()
+        available_slots = time_table.get_available_slots()
+        total_available_time = time_table.get_total_available_time()
         total_weight = sectors.get_total_weight()
         
         logging.info(f"Total available time: {total_available_time} minutes")
@@ -46,16 +46,16 @@ class Scheduler:
         # Post-process to add split information to descriptions
         self._add_split_info_to_descriptions()
         
-        time_slots.dump_json()
+        time_table.dump_json()
         
         # Insert break time slots (pass original slots for reference)
-        self._insert_break_slots(time_slots.get_slots())
+        self._insert_break_slots(time_table.get_slots())
         
-        # Create new TimeSlots instance with allocated slots
-        new_time_slots = TimeSlots(time_slots.get_slots())
-        new_time_slots.replace_available_slots(self.allocated_slots)
+        # Create new TimeTable instance with allocated slots
+        new_time_table = TimeTable(time_table.get_slots())
+        new_time_table.replace_available_slots(self.allocated_slots)
         
-        return new_time_slots
+        return new_time_table
     
     def _apply_sector_ordering(self, sector_allocations: List[SectorAllocation]):
         """Apply ordering to sector allocations based on options"""

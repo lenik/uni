@@ -4,6 +4,7 @@ import os
 import zipfile
 import xml.etree.ElementTree as ET
 from src.ods_utils import ODSParser
+from unittest.mock import patch, mock_open
 
 
 class TestODSParser(unittest.TestCase):
@@ -85,20 +86,20 @@ class TestODSParser(unittest.TestCase):
                         xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
     <office:body>
         <office:spreadsheet>
-            <table:table table:name="Sectors">
+            <table:table table:name="Sheet1">
                 <table:table-row>
-                    <table:table-cell><text:p>Sector</text:p></table:table-cell>
-                    <table:table-cell><text:p>Occupy</text:p></table:table-cell>
+                    <table:table-cell><text:p>Seq</text:p></table:table-cell>
+                    <table:table-cell><text:p>Ratio</text:p></table:table-cell>
                     <table:table-cell><text:p>Weight</text:p></table:table-cell>
                     <table:table-cell><text:p>Abbr</text:p></table:table-cell>
                     <table:table-cell><text:p>Description</text:p></table:table-cell>
                 </table:table-row>
                 <table:table-row>
-                    <table:table-cell><text:p>8</text:p></table:table-cell>
+                    <table:table-cell><text:p>1</text:p></table:table-cell>
                     <table:table-cell><text:p>33.7%</text:p></table:table-cell>
                     <table:table-cell><text:p>100</text:p></table:table-cell>
                     <table:table-cell><text:p>TAX</text:p></table:table-cell>
-                    <table:table-cell><text:p>公司事项</text:p></table:table-cell>
+                    <table:table-cell><text:p>Tax work</text:p></table:table-cell>
                 </table:table-row>
             </table:table>
         </office:spreadsheet>
@@ -108,21 +109,21 @@ class TestODSParser(unittest.TestCase):
         ods_file = self.create_test_ods("test_sectors.ods", content_xml)
         
         # Create parser with sectors fields
-        parser = ODSParser(required_fields={'sector', 'occupy', 'weight', 'abbr', 'description'})
+        parser = ODSParser(required_fields={'seq', 'ratio', 'weight', 'abbr', 'description'})
         sheets = parser.parse_ods(ods_file)
         
         self.assertEqual(len(sheets), 1)
-        self.assertIn('Sectors', sheets)
+        self.assertIn('Sheet1', sheets)
         
-        sheet_data = sheets['Sectors']
+        sheet_data = sheets['Sheet1']
         self.assertEqual(len(sheet_data), 1)  # One data row
         
         row = sheet_data[0]
-        self.assertEqual(row['Sector'], '8')
-        self.assertEqual(row['Occupy'], '33.7%')
+        self.assertEqual(row['Seq'], '1')
+        self.assertEqual(row['Ratio'], '33.7%')
         self.assertEqual(row['Weight'], '100')
         self.assertEqual(row['Abbr'], 'TAX')
-        self.assertEqual(row['Description'], '公司事项')
+        self.assertEqual(row['Description'], 'Tax work')
     
     def test_parse_ods_no_matching_fields(self):
         """Test parsing ODS file with no matching fields."""

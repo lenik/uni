@@ -84,4 +84,30 @@ class TimeSlot(JSONMixin):
         Returns:
             True if the slot was generated, False otherwise
         """
-        return self.slot_type == "Break/Load" 
+        return self.slot_type == "Break/Load"
+
+    def to_db(self, parent_id: int) -> 'TimeSlotORM':
+        """Convert to database ORM model"""
+        from .time_slot_orm import TimeSlotORM
+        
+        data = self.to_dict()
+        data['parent'] = parent_id
+        if self.sector and hasattr(self.sector, 'id'):
+            data['sector'] = int(self.sector.id) if self.sector.id else None
+        return TimeSlotORM.from_dict(data)
+    
+    @classmethod
+    def from_db(cls, orm_obj: 'TimeSlotORM') -> 'TimeSlot':
+        """Create from database ORM model"""
+        from .time_utils import Time
+        
+        return cls(
+            id=str(orm_obj.id),
+            seq=str(orm_obj.seq),
+            start=Time.from_time(orm_obj.start),
+            duration=orm_obj.duration,
+            end=Time.from_time(orm_obj.end),
+            type=orm_obj.type,
+            description=orm_obj.description,
+            sector_id=str(orm_obj.sector) if orm_obj.sector else None
+        ) 

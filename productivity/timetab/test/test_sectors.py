@@ -12,13 +12,13 @@ class TestSectors(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures before each test method."""
         self.sample_sectors = [
-            Sector(seq="8", occupy="33.7%", weight=100, abbr="TAX", 
+            Sector(seq="8", ratio="33.7%", weight=100, abbr="TAX", 
                   description="税务应用/公司事项"),
-            Sector(seq="6", occupy="6.7%", weight=20, abbr="MIS", 
+            Sector(seq="6", ratio="6.7%", weight=20, abbr="MIS", 
                   description="企业管理软件/WebApp"),
-            Sector(seq="2", occupy="6.7%", weight=20, abbr="LANG", 
+            Sector(seq="2", ratio="6.7%", weight=20, abbr="LANG", 
                   description="编程语言学习，支持工具，框架等"),
-            Sector(seq="5", occupy="6.7%", weight=20, abbr="CAD", 
+            Sector(seq="5", ratio="6.7%", weight=20, abbr="CAD", 
                   description="建筑，BIM，@zlq, DWG tk, ..."),
         ]
         
@@ -53,7 +53,7 @@ class TestSectors(unittest.TestCase):
     
     def test_add_sector(self):
         """Test add_sector method."""
-        new_sector = Sector(seq="13", occupy="6.7%", weight=20, abbr="SCI", 
+        new_sector = Sector(seq="13", ratio="6.7%", weight=20, abbr="SCI", 
                            description="科学计算，分析，统计，预测，CUDA等等")
         
         initial_count = len(self.sectors)
@@ -123,30 +123,30 @@ class TestSectors(unittest.TestCase):
     
     @patch('pathlib.Path.is_file', return_value=True)
     @patch('pathlib.Path.exists', return_value=True)
-    @patch('builtins.open', new_callable=mock_open, read_data="""Header line 1\nHeader line 2\nHeader line 3\nHeader line 4\nSeq,Occupy,Weight,Abbr,Description\n8,33.7%,100,TAX,税务应用/公司事项\n6,6.7%,20,MIS,企业管理软件/WebApp\n2,6.7%,20,LANG,编程语言学习，支持工具，框架等\n5,6.7%,20,CAD,建筑，BIM，@zlq, DWG tk, ...""")
-    @patch('csv.DictReader')
-    def test_from_csv_success(self, mock_dict_reader, mock_open, mock_exists, mock_is_file):
-        """Test from_csv method with successful file reading."""
-        # Mock the CSV reader to return our test data
-        mock_dict_reader.return_value = [
-            {'Seq': '8', 'Occupy': '33.7%', 'Weight': '100', 'Abbr': 'TAX', 'Description': '税务应用/公司事项'},
-            {'Seq': '6', 'Occupy': '6.7%', 'Weight': '20', 'Abbr': 'MIS', 'Description': '企业管理软件/WebApp'},
-            {'Seq': '2', 'Occupy': '6.7%', 'Weight': '20', 'Abbr': 'LANG', 'Description': '编程语言学习，支持工具，框架等'},
-            {'Seq': '5', 'Occupy': '6.7%', 'Weight': '20', 'Abbr': 'CAD', 'Description': '建筑，BIM，@zlq, DWG tk, ...'},
+    @patch('builtins.open', new_callable=mock_open, read_data="""Header line 1\nHeader line 2\nHeader line 3\nHeader line 4\nSeq,Ratio,Weight,Abbr,Description\n8,33.7%,100,TAX,税务应用/公司事项\n6,6.7%,20,MIS,企业管理软件/WebApp\n2,6.7%,20,LANG,编程语言学习，支持工具，框架等\n5,6.7%,20,CAD,建筑，BIM，@zlq, DWG tk, ...""")
+    @patch('src.csv_utils.CSVParser.parse_csv')
+    def test_from_csv_with_headers(self, mock_parse_csv, mock_open, mock_exists, mock_is_file):
+        """Test from_csv method with header lines."""
+        # Mock the CSV parser to return our test data
+        mock_parse_csv.return_value = [
+            {'Seq': '8', 'Ratio': '33.7%', 'Weight': '100', 'Abbr': 'TAX', 'Description': '税务应用/公司事项'},
+            {'Seq': '6', 'Ratio': '6.7%', 'Weight': '20', 'Abbr': 'MIS', 'Description': '企业管理软件/WebApp'},
+            {'Seq': '2', 'Ratio': '6.7%', 'Weight': '20', 'Abbr': 'LANG', 'Description': '编程语言学习，支持工具，框架等'},
+            {'Seq': '5', 'Ratio': '6.7%', 'Weight': '20', 'Abbr': 'CAD', 'Description': '建筑，BIM，@zlq, DWG tk, ...'},
         ]
         
         sectors = Sectors.from_csv('test_file.csv')
         
+        # Check that sectors were loaded correctly
         self.assertEqual(len(sectors), 4)
-        self.assertTrue(all(isinstance(sector, Sector) for sector in sectors.sectors))
         
         # Check first sector
         first_sector = sectors.sectors[0]
-        self.assertEqual(first_sector.seq, '8')
-        self.assertEqual(first_sector.occupy, 33.7)  # Should be parsed as float
+        self.assertEqual(first_sector.seq, "8")
+        self.assertEqual(first_sector.ratio, 33.7)  # Should be parsed as float
         self.assertEqual(first_sector.weight, 100)
-        self.assertEqual(first_sector.abbr, 'TAX')
-        self.assertEqual(first_sector.description, '税务应用/公司事项')
+        self.assertEqual(first_sector.abbr, "TAX")
+        self.assertEqual(first_sector.description, "税务应用/公司事项")
     
     def test_from_csv_file_not_found(self):
         """Test from_csv method with file not found."""
