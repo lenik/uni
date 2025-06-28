@@ -1,0 +1,12 @@
+alembic
+fastapi
+jinja2
+passlib[bcrypt]
+psycopg2-binary
+pydantic
+python-dotenv
+python-jose[cryptography]
+python-multipart
+sqlalchemy
+uvicorn[standard]
+weasyprint
