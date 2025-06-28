@@ -1,4 +1,6 @@
 --\import great.pg
 
---\import timetab.demo
+--\import timetab.sector
+--\import timetab.timetable
+--\import timetab.timeslot
 
