@@ -1,0 +1,7 @@
+#!/bin/bash
+
+    cd server
+    dstart eclipse -data $HOME/work/eclipse/cam19 &
+
+    google-chrome-dev http://cam19.lo:8307/ &
+    

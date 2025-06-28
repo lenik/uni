@@ -1,0 +1,13 @@
+#!/bin/bash
+# vim: set ft=sh :
+
+    cd server
+    atom `readlink -f html` &
+
+    cd `readlink -f html`
+    make -B
+    make -B -C .skel
+    mate-terminal --tab --title 'Server Html/CSS builder' -x make auto-build
+
+    google-chrome-dev index.html &
+
