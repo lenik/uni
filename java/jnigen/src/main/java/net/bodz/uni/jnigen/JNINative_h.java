@@ -8,6 +8,9 @@ import java.util.Map;
 public class JNINative_h
         extends JNISourceBuilder {
 
+    public static final String GEN_HEAD = //
+            "/** JNIGEN GENERATED HEADER. **/";
+
     public JNINative_h(Class<?> clazz) {
         super(clazz);
     }

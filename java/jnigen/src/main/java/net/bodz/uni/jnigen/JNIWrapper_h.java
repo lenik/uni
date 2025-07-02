@@ -14,6 +14,9 @@ import net.bodz.bas.type.overloaded.MethodMap;
 public class JNIWrapper_h
         extends JNISourceBuilder {
 
+    public static final String GEN_HEAD = //
+            "/** JNIGEN GENERATED FILE, PLEASE DON'T MODIFY. **/";
+
     public JNIWrapper_h(Class<?> clazz) {
         super(clazz);
     }

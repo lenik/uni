@@ -12,6 +12,9 @@ import net.bodz.bas.type.overloaded.ConstructorMap;
 public class JNITypeInfo_h
         extends JNISourceBuilder {
 
+    public static final String GEN_HEAD = //
+            "/** JNIGEN GENERATED FILE, PLEASE DON'T MODIFY. **/";
+
     public JNITypeInfo_h(Class<?> clazz) {
         super(clazz);
     }
@@ -24,7 +27,7 @@ public class JNITypeInfo_h
     @Override
     public void buildSource(JNISourceWriter out, File file)
             throws IOException {
-        out.println("/** GENERATED FILE, PLEASE DON'T MODIFY. **/");
+        out.println(GEN_HEAD);
         out.println();
 
         ConstructorMap<?> dCtors = members.getConstructors();
@@ -34,6 +37,7 @@ public class JNITypeInfo_h
         out.println();
 
         out.println("#include <jni.h>");
+        out.println("#include <sweetjni.hxx>");
         out.println();
 
         if (containsSuperclass()) {

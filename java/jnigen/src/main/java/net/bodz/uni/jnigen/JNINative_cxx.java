@@ -12,6 +12,9 @@ import net.bodz.bas.c.java.io.FilePath;
 public class JNINative_cxx
         extends JNISourceBuilder {
 
+    public static final String GEN_HEAD = //
+            "/** JNIGEN GENERATED TEMPLATE FOR QUICK IMPLEMENTATION. **/";
+
     boolean prepareParameters = true;
 
     public JNINative_cxx(Class<?> clazz) {

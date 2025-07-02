@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import net.bodz.bas.c.loader.scan.ClassCollector;
 import net.bodz.bas.c.loader.scan.ClassFinder;
@@ -26,13 +27,12 @@ import net.bodz.bas.type.overloaded.TypeInfoOptions;
 @ProgramName("jnigen")
 public class JNIWrapperCodeGen
         extends BasicCLI
-        implements
-            JNIAware {
+        implements JNIAware {
 
     static final Logger logger = LoggerFactory.getLogger(JNIWrapperCodeGen.class);
 
     ClassLoader loader;
-//    ClassScanner scanner;
+    //    ClassScanner scanner;
     ClassCollector collector;
 
     /**
@@ -58,7 +58,7 @@ public class JNIWrapperCodeGen
 
     /**
      * Specify the output directory.
-     *
+     * <p>
      * By default, files are saved in src/main/native/ for maven project, or src/ otherwise.
      *
      * @option -O --outdir =DIR
@@ -83,7 +83,7 @@ public class JNIWrapperCodeGen
 
     /**
      * Generate codes for ancestor classes (up to the scan-package).
-     *
+     * <p>
      * In recursive mode, declared members instead of public members are included.
      *
      * @option -r
@@ -150,6 +150,7 @@ public class JNIWrapperCodeGen
     SourceFormat format = new SourceFormat();
 
     public JNIWrapperCodeGen() {
+        // logger.info("hello");
         loader = getClass().getClassLoader();
     }
 
@@ -160,7 +161,7 @@ public class JNIWrapperCodeGen
             String workDir = SystemProperties.getUserDir();
             MavenPomDir pomDir = MavenPomDir.closest(workDir);
             if (pomDir != null)
-                outDir = new File(pomDir.getBaseDir(), MAVEN_DIR);
+                outDir = pomDir.getBaseDir().resolve(MAVEN_DIR).toFile();
             else
                 outDir = new File("src");
         }
@@ -209,13 +210,15 @@ public class JNIWrapperCodeGen
             run(files, members, new JNITypeInfo_h(clazz));
             run(files, members, new JNITypeInfo_cxx(clazz));
 
-            if (nativeTemplate)
-                if (! members.getNativeMethodNames().isEmpty()) {
-                    if (forceOverwrite || ! files.jniHeaderFile.exists())
-                        run(files, members, new JNINative_h(clazz));
-                    if (forceOverwrite || ! files.jniSourceFile.exists())
+            if (nativeTemplate) {
+                Set<String> nativeNames = members.getNativeMethodNames();
+                System.out.println(clazz + " native names: " + nativeNames);
+                if (!nativeNames.isEmpty()) {
+                    run(files, members, new JNINative_h(clazz));
+                    if (forceOverwrite || !files.jniSourceFile.exists())
                         run(files, members, new JNINative_cxx(clazz));
                 }
+            }
         }
     }
 
@@ -251,7 +254,7 @@ public class JNIWrapperCodeGen
                 if (recursive) {
                     String superPackageName = superclass.getPackage().getName();
                     if (TypeNames.packageContains(scanPackage, superPackageName)) {
-                        if (! term.add(superclass))
+                        if (!term.add(superclass))
                             queue.addFirst(superclass);
                     }
                 }
@@ -280,13 +283,13 @@ public class JNIWrapperCodeGen
                 || fileTime < classTime;
 
         if (expired || forceOverwrite) {
-            if (stdout) {
+            if (out != null) {
                 builder.buildSource(out, file);
             } else {
                 builder.buildSource(file);
             }
         } else {
-            if (stdout)
+            if (out != null)
                 out.println("    // updated.");
         }
     }
