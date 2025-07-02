@@ -1,5 +1,7 @@
 include libauto/project.am
 
+SHELL = /bin/bash
+
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects
 
@@ -10,12 +12,15 @@ JDK_INCLUDE = $(JAVA_HOME)/include
 JDK_INCLUDE_NATIVE = $(JDK_INCLUDE)/linux
 
 javalangdir = ${includedir}/java/lang
+javaiodir = ${includedir}/java/io
+javautildir = ${includedir}/java/util
 
 dist_include_HEADERS = \
     src/sweetjni.hxx
 
-dist_javalang_HEADERS = \
-    src/java/lang/String.hxx
+dist_javalang_HEADERS = $(wildcard src/java/lang/*.hxx)
+dist_javaio_HEADERS = $(wildcard src/java/io/*.hxx)
+dist_javautil_HEADERS = $(wildcard src/java/util/*.hxx)
 
 lib_LTLIBRARIES = libsweetjni.la
 lib_LIBRARIES = libsweetjni.a
@@ -28,6 +33,11 @@ AM_CXXFLAGS = \
     -Isrc
 AM_LIBADD =
 
+sources= $(shell shopt -s globstar; echo src/**/*.cxx)
+chk:
+	@echo $(sources)
+
+#dist_libsweetjni_a_SOURCES = $(sources)
 dist_libsweetjni_a_SOURCES = \
     src/sweetjni.cxx \
     src/java/lang/Object.cxx \
