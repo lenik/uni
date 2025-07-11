@@ -11,7 +11,6 @@ use cmt::lang('_def');
 use cmt::log(2);
     our $LOGNAME    = __PACKAGE__;
     our $LOGLEVEL   = 1;
-use cmt::util();
 use cmt::vcs('parse_id');
     my %RCSID   = parse_id('$Id$');
     our $VER    = "0.$RCSID{rev}";
