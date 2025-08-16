@@ -1,0 +1,18 @@
+Source: cargo-enh
+Section: devel
+Priority: optional
+Maintainer: Lenik (谢继雷) <lenik@bodz.net>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.7.2
+Homepage: http://uni.bodz.net/toolenh/cargo-enh
+Vcs-Git: git://git.bodz.net/uni.git
+Vcs-Browser: http://git.bodz.net/uni/toolenh/cargo-enh
+
+Package: cargo-enh
+Architecture: all
+Depends:
+    cargo,
+    ${misc:Depends},
+Description: cargo-touch touch a file if cargo succeeded.
