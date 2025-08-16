@@ -1,0 +1,108 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=cargo with extra functions}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    __FILE__=$(readlink -f "$0")
+    __DIR__=${__FILE__%/*}
+
+    . shlib --
+    import cliboot
+    import splitopts
+    
+    option    --list            "List installed commands"
+    option    --explain =CODE   "Provide a detailed explanation of a rustc error message"
+    option    --color =WHEN     "Coloring: auto, always, never"
+    option -C --chdir =DIRECTORY "Change to DIRECTORY before doing anything (nightly-only)"
+    option -D --config =KEY=VALUE "Override a configuration value"
+    option -Z --flag =FLAG      "Unstable (nightly-only) flags to Cargo"
+    
+    option -q --quiet
+    option -v --verbose
+    option    --help
+    option    --version
+
+    CARGO=$(which cargo) || quit "can't find cargo."
+    cargoopts=()
+    cargoXopts=()
+
+    touches=()
+    outputs=()
+    copy_to=
+
+function setopt() {
+    case "$1" in
+        --list|--locked|--offline|--frozen)
+            cargoopts+=("$1")
+            cargoXopts+=(-X "$1")
+            ;;
+        --explain|--color|--config|-Z)
+            cargoopts+=("$1" "$2")
+            cargoXopts+=(-X "$1" -X "$2")
+            ;;
+        -C|--chdir)
+            #cargoopts+=("-C" "$2")
+            #cargoXopts+=(-X "-C" -X "$2")
+            cd "$2" || quit "Cannot change directory to $2"
+            ;;
+        -D)
+            cargoopts+=("--config" "$2")
+            cargoXopts+=(-X "--config" -X "$2")
+            ;;
+        --help)
+            help $1
+            echo '--'
+            "$CARGO" --help
+            exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1))
+            cargoopts+=("$1")
+            ;;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1))
+            cargoopts+=("$1")
+            ;;
+        -V|--version)
+            show_version
+            echo '--'
+            "$CARGO" --version
+            exit;;
+        *)
+            cargoopts+=("$1")
+            cargoXopts+=(-X "$1")
+            ;;
+    esac
+}
+
+function main() {
+    set -- "${otherargs[@]}"
+
+    if [ $# == 0 ]; then
+        "$CARGO" "${cargoopts[@]}"
+    else
+        cmd="$1"
+        shift
+
+        case "$cmd" in
+            b|build)
+
+                if [ "@PACKAGE@" == "@"PACKAGE"@" ]; then
+                    CARGO_BUILD="$__DIR__/cargo-build.in"
+                else
+                    CARGO_BUILD=$(which cargo-build) || quit "can't find cargo-build."
+                fi
+
+                $CARGO_BUILD "${cargoXopts[@]}" "$@"
+                ;;
+            *)
+                cargo "${cargoopts[@]}" "$cmd" "$@"
+                ;;
+        esac
+    fi
+}
+
+validargs=()
+otherargs=()
+splitopts validargs otherargs "$g_short_opts" "$g_long_opts" "$@"
+boot "${validargs[@]}"

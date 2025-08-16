@@ -1,0 +1,160 @@
+#!/bin/bash
+    : ${RCSID:=$Id: - @VERSION@ @DATE@ @TIME@ - $}
+    : ${PACKAGE:=@PACKAGE@}
+    : ${PROGRAM_TITLE:=cargo with extra}
+    : ${PROGRAM_SYNTAX:=[OPTIONS] [--] ...}
+
+    . shlib --
+    import cliboot
+    import splitopts
+    #import tableparser
+    
+    option -r --release         "Build artifacts in release mode, with optimizations"
+    option    --profile =PROFILE "Build artifacts with the specified profile"
+    option    --target-dir =DIR "Directory for all generated artifacts"
+    option    --all-targets     "Build all targets"
+
+    ###### cargo build options transparent copy start
+    option    --future-incompat-report  "Outputs a future incompatibility report at the end of the build"
+    option    --message-format =FMT     "Error format"
+    option    --color =WHEN             "Coloring: auto, always, never"
+    option    --config ='KEY=VALUE'     "Override a configuration value"
+    option -Z --flag =FLAG              "Unstable (nightly-only) flags to Cargo, see 'cargo -Z help' for details"
+    option -p --package =SPEC           "Package to build (see 'cargo help pkgid')"
+    option    --workspace               "Build all packages in the workspace"
+    option    --exclude =SPEC           "Exclude packages from the build"
+    option    --all                     "Alias for --workspace (deprecated)"
+    option    --lib                     "Build only this package's library"
+    option    --bins                    "Build all binaries"
+    option    --bin =NAME               "Build only the specified binary"
+    option    --examples                "Build all examples"
+    option    --example =NAME           "Build only the specified example"
+    option    --tests                   "Build all targets that have 'test = true' set"
+    option    --test =NAME              "Build only the specified test target"
+    option    --benches                 "Build all targets that have 'bench = true' set"
+    option    --bench =NAME             "Build only the specified bench target"
+    option -F --features =FEATURES      "Space or comma separated list of features to activate"
+    option    --all-features            "Activate all available features"
+    option     --no-default-features    "Do not activate the 'default' feature"
+    option -j --jobs =N                 "Number of parallel jobs, defaults to # of CPUs"
+    option    --keep-going              "Do not abort the build as soon as there is an error"
+    option    --target =TRIPLE          "Build for the target triple"
+    option    --artifact-dir =PATH      "Copy final artifacts to this directory (unstable)"
+    option    --build-plan              "Output the build plan in JSON (unstable)"
+    option    --unit-graph              "Output build graph in JSON (unstable)"
+    option    --timings =FMTS           "Timing output formats (unstable) (comma separated): html, json"
+    option    --manifest-path =PATH     "Path to Cargo.toml"
+    option    --lockfile-path =PATH     "Path to Cargo.lock (unstable)"
+    option    --ignore-rust-version     "Ignore 'rust-version' specification in packages"
+    option    --locked                  "Assert that 'Cargo.lock' will remain unchanged"
+    option    --offline                 "Run without accessing the network"
+    option    --frozen                  "Equivalent to specifying both --locked and --offline"
+    ###### cargo build options transparent copy end
+
+    option -t --touch =FILE     "Touch a file if cargo succeeded"
+    option -o --output =FILE    "Declare an output"
+    option -c --copy-to =DIR    "Copy outputs to a directory"
+    option -X =ARG              "Extra arguments to cargo"
+    option -q --quiet
+    option -v --verbose
+    option -h --help
+    option    --version
+
+    CARGO=$(which cargo) || quit "can't find cargo."
+    cargoopts=()
+    buildopts=()
+
+    profile=debug
+    target_dir="${CARGO_TARGET_DIR:-build}"
+
+    touches=()
+    outputs=()
+    copy_to=
+
+function setopt() {
+    case "$1" in
+        -r|--release)
+            profile=release
+            buildopts+=("$1")
+            ;;
+        --profile)
+            profile="$2"
+            buildopts+=("$1" "$2")
+            ;;
+        --all-targets)
+            quit "--all-targets not supported yet."
+            buildopts+=("$1")
+            ;;
+        --target-dir)
+            target_dir="$2"
+            buildopts+=("$1" "$2")
+            ;;
+        
+        --future-incompat-report|--workspace|--all|--lib|--bins|--examples|--tests|--benches|--all-features|--no-default-features|--keep-going|--build-plan|--unit-graph|--ignore-rust-version|--locked|--offline|--frozen)
+            buildopts+=("$1")
+            ;;
+        --message-format|--color|--config|-Z|--flag|-p|--package|--exclude|--bin|--example|--test|--bench|-F|--features|-j|--jobs|--target|--artifact-dir|--timings|--manifest-path|--lockfile-path)
+            buildopts+=("$1" "$2")
+            ;;
+            
+        -t|--touch)
+            touches+=("$2");;
+        -o|--output)
+            outputs+=("$2");;
+        -c|--copy-to)
+            copy_to="$2"
+            if [ ! -d "$copy_to" ]; then
+                _log2 "Creating $copy_to"
+                mkdir -p "$copy_to" || quit "Failed to create $copy_to"
+            fi
+            ;;
+        -X)
+            cargoopts+=("$2");;
+        -h|--help)
+            help $1
+            echo '--'
+            "$CARGO" --help
+            exit;;
+        -q|--quiet)
+            LOGLEVEL=$((LOGLEVEL - 1));;
+        -v|--verbose)
+            LOGLEVEL=$((LOGLEVEL + 1));;
+        --version)
+            show_version
+            echo '--'
+            "$CARGO" --version
+            exit;;
+        *)
+            buildopts+=("$1");;
+    esac
+}
+
+function main() {
+    # echo otherargs: "${otherargs[@]}"
+    set -- "${otherargs[@]}"
+
+    _log2 "profile: $profile"
+    _log2 "target-dir: $target_dir"
+
+    _log2 Run: cargo "${cargoopts[@]}" build "${buildopts[@]}" "$@"
+    if cargo "${cargoopts[@]}" build "${buildopts[@]}" "$@"; then
+        _log2 "Build successful"
+        for touch in "${touches[@]}"; do
+            _log1 "Touching $touch"
+            touch "$touch"
+        done
+
+        for output in "${outputs[@]}"; do
+            file="$target_dir/$profile/$output"
+            _log1 "Copying $file to $copy_to"
+            if ! cp "$file" "$copy_to"; then
+                _error "Error copy $file to $copy_to"
+            fi
+        done
+    fi
+}
+
+validargs=()
+otherargs=()
+splitopts validargs otherargs "$g_short_opts" "$g_long_opts" "$@"
+boot "${validargs[@]}"
