@@ -13,6 +13,16 @@ export type UiNodeOptions = {
 
     style?: CSSStyleDeclaration
     listStyle?: string
+    
+    visible?: boolean
+    expanded?: boolean
+    checked?: boolean
+    disabled?: boolean
+    selectable?: boolean
+    draggable?: boolean
+    droppable?: boolean
+    renamable?: boolean
+    deletable?: boolean
 }
 
 export type ExtractFunc<S, T>
@@ -93,4 +103,18 @@ export function uiElementExtract<T>(dual: UiDual<T>): UiNode<T> {
         return ex;
     }
     return dual;
+}
+
+export function mutable<T>(node: UiNode<T>): UiNode<T> {
+    if (! Array.isArray(node))
+        return [ node ];
+    let [ value, children, options ] = node;
+    if (children != null) {
+        for (let k in children) {
+            let child = children[k];
+            child = mutable(child);
+            children[k] = child;
+        }
+    }
+    return node;
 }
